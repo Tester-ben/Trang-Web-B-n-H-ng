@@ -354,19 +354,90 @@ a {
 .checkout-btn { width: 100%; padding: 16px; background-color: #111; color: #fff; border: none; font-size: 11px; cursor: pointer; }
 
 /* --- FOOTER & NEWSLETTER STYLES --- */
-.newsletter { background-color: #f4f4f4; padding: 100px 20px; text-align: center; border-top: 1px solid #eaeaea; margin-top: 60px; }
-.newsletter h3 { font-size: 20px; letter-spacing: 4px; margin-bottom: 15px; }
-.newsletter p { font-size: 13px; color: #666; margin-bottom: 35px; }
-.newsletter-form { display: flex; justify-content: center; max-width: 500px; margin: 0 auto; border-bottom: 1px solid #111; padding-bottom: 8px; }
-.newsletter-form input { border: none; background: transparent; width: 100%; padding: 10px; }
-.newsletter-form input:focus { outline: none; }
-.newsletter-form button { border: none; background: transparent; font-size: 11px; font-weight: 500; cursor: pointer; }
+.site-footer {
+    background: #0b3f6f;
+    color: #fff;
+    padding: 45px 40px;
+    display: grid;
+    grid-template-columns: 1.4fr 0.8fr 1.5fr;
+    gap: 40px;
+}
 
-.main-footer { padding: 60px 40px; background-color: #ffffff; border-top: 1px solid #eaeaea; }
-.footer-links { display: flex; justify-content: center; gap: 25px; flex-wrap: wrap; margin-bottom: 20px; }
-.footer-links span, .footer-links a { font-size: 12px; color: #111; text-decoration: none; font-weight: 400; }
-.footer-links a:hover { text-decoration: underline; }
-.credit-text { font-size: 11px; color: #888; text-align: center; letter-spacing: 1px; margin-top: 10px; }
+.footer-col h3,
+.footer-col h4 {
+    color: #fff;
+    font-size: 15px;
+    letter-spacing: 2px;
+    margin-bottom: 18px;
+    text-transform: uppercase;
+}
+
+.footer-col p {
+    font-size: 13px;
+    line-height: 1.8;
+    color: #fff;
+    margin-bottom: 8px;
+}
+
+.footer-col a {
+    display: block;
+    color: #fff;
+    text-decoration: none;
+    font-size: 13px;
+    margin-bottom: 10px;
+    text-transform: uppercase;
+}
+
+.footer-col a:hover {
+    text-decoration: underline;
+}
+
+.newsletter-form {
+    display: flex;
+    max-width: 420px;
+    border-bottom: 1px solid #fff;
+    padding-bottom: 8px;
+    margin-top: 25px;
+}
+
+.newsletter-form input {
+    border: none;
+    background: transparent;
+    color: #fff;
+    width: 100%;
+    padding: 10px 0;
+}
+
+.newsletter-form input::placeholder {
+    color: #ddd;
+}
+
+.newsletter-form input:focus {
+    outline: none;
+}
+
+.newsletter-form button {
+    border: none;
+    background: transparent;
+    color: #fff;
+    font-size: 11px;
+    cursor: pointer;
+}
+
+.footer-bottom {
+    background: #08365f;
+    color: #fff;
+    text-align: center;
+    padding: 16px;
+    font-size: 12px;
+    letter-spacing: 1px;
+}
+
+@media (max-width: 768px) {
+    .site-footer {
+        grid-template-columns: 1fr;
+    }
+}
 
 /* RESPONSIVE DESIGN */
 @media (max-width: 1024px) {

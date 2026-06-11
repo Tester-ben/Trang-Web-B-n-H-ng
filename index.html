@@ -404,26 +404,36 @@
         </div>
     </div>
 
-    <section class="newsletter">
-        <h3>JOIN THE COMMUNITY</h3>
-        <p>Sign up for early access to collections, exclusive drops, and special events.</p>
-        <form class="newsletter-form" onsubmit="event.preventDefault(); showToast('Thank you for subscribing!');">
-            <input type="email" placeholder="Your Email Address" required>
-            <button type="submit">SUBSCRIBE</button>
-        </form>
-    </section>
-
-    <footer class="main-footer">
-        <div class="footer-links">
-            <span>Vietnam ▾</span>
-            <a href="#">Refund policy</a>
-            <a href="#">Shipping</a>
-            <a href="#">Privacy policy</a>
-            <a href="#">Terms of service</a>
-            <a href="#">Contact information</a>
+    <footer class="site-footer">
+        <div class="footer-col footer-subscribe">
+            <h3>JOIN THE COMMUNITY</h3>
+            <p>Sign up for early access to collections, exclusive drops, and special events.</p>
+    
+            <form class="newsletter-form" onsubmit="event.preventDefault(); showToast('Thank you for subscribing!');">
+                <input type="email" placeholder="Your Email Address" required>
+                <button type="submit">SUBSCRIBE</button>
+            </form>
         </div>
-        <p class="credit-text">&copy; 2026 THE STYLE HUB. UI/UX Interface Design Project - Van Lang University.</p>
+    
+        <div class="footer-col">
+            <h4>LIÊN KẾT</h4>
+            <a href="mens.html">Mens</a>
+            <a href="womens.html">Womens</a>
+            <a href="kids.html">Kids</a>
+            <a href="sale.html">Sale</a>
+            <a href="account.html">Account</a>
+        </div>
+    
+        <div class="footer-col">
+            <h4>THE STYLE HUB</h4>
+            <p>📍 Cơ sở 1 (Q.1): 15 Nguyễn Huệ, P. Bến Nghé, Quận 1</p>
+            <p>📍 Cơ sở 2 (Q.3): 236 Cách Mạng Tháng Tám, P. 10, Quận 3</p>
+        </div>
     </footer>
+    
+    <div class="footer-bottom">
+        © 2026 THE STYLE HUB. UI/UX Interface Design Project - Van Lang University.
+    </div>
 
     <script>
         let isLoggedIn = localStorage.getItem('isLoggedInStatus') === 'true'; 
