@@ -512,3 +512,25 @@ a {
     background: #fff;
     color: #000;
 }
+.hover-img {
+    position: relative;
+}
+
+.hover-img img {
+    transition: opacity 0.35s ease;
+}
+
+.hover-img .img-hover {
+    position: absolute;
+    top: 0;
+    left: 0;
+    opacity: 0;
+}
+
+.product-card:hover .img-hover {
+    opacity: 1;
+}
+
+.product-card:hover .img-main {
+    opacity: 0;
+}
