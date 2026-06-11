@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>The Style Hub - My Account</title>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { font-family: 'Roboto', sans-serif; background-color: #ffffff; color: #111111; }
+        
+        /* --- STICKY HEADER ĐỒNG BỘ THANH ĐEN CHUẨN --- */
+        .main-header { position: fixed; top: 0; left: 0; width: 100%; height: 57px; background-color: #000000; color: #ffffff; z-index: 1000; }
+        .nav-container { max-width: 1440px; margin: 0 auto; height: 100%; display: flex; justify-content: space-between; align-items: center; padding: 0 40px; }
+        .nav-left, .nav-right { display: flex; gap: 20px; align-items: center; }
+        .logo { font-size: 16px; font-weight: 700; letter-spacing: 4px; text-align: center; }
+        .nav-container a { color: #ffffff; text-decoration: none; font-size: 11px; letter-spacing: 1.5px; text-transform: uppercase; cursor: pointer; }
+
+        /* --- CẤU TRÚC TRANG ACCOUNT CHÍNH --- */
+        .account-page-wrapper { max-width: 800px; margin: 120px auto 60px; padding: 0 20px; }
+        
+        /* THANH ĐIỀU HƯỚNG TAB (KẾ BÊN NHAU) */
+        .account-tabs-nav { display: flex; gap: 40px; border-bottom: 1px solid #e5e5e5; padding-bottom: 12px; margin-bottom: 35px; }
+        .tab-btn { font-size: 14px; font-weight: 600; letter-spacing: 2px; text-transform: uppercase; color: #888888; background: none; border: none; cursor: pointer; padding-bottom: 12px; position: relative; transition: color 0.3s; }
+        .tab-btn.active { color: #111111; }
+        .tab-btn.active::after { content: ''; position: absolute; bottom: -13px; left: 0; width: 100%; height: 2px; background-color: #111111; }
+
+        /* NỘI DUNG TỪNG TAB */
+        .tab-content-panel { display: none; }
+        .tab-content-panel.active { display: block; }
+
+        /* Giao diện Phần PROFILE (Giống ảnh mẫu của bạn) */
+        .profile-title-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px; }
+        .profile-title-row h3 { font-size: 13px; font-weight: 500; letter-spacing: 1px; text-transform: uppercase; color: #555; }
+        .edit-info-link { font-size: 11px; color: #111; text-decoration: underline; letter-spacing: 0.5px; text-transform: uppercase; cursor: pointer; }
+        
+        .profile-card-details { border: 1px solid #eeeeee; padding: 25px; background-color: #fafafa; border-radius: 2px; }
+        .info-field-group { font-size: 13px; margin-bottom: 12px; color: #333; line-height: 1.6; }
+        .info-field-group strong { color: #111; display: inline-block; width: 150px; text-transform: uppercase; font-size: 11px; letter-spacing: 0.5px; }
+
+        /* Giao diện Phần ORDERS HISTORY (Tiếng Anh) */
+        .order-history-list { display: flex; flex-direction: column; gap: 20px; }
+        .order-item-card { border: 1px solid #e5e5e5; padding: 20px; background-color: #ffffff; }
+        .order-card-top { display: flex; justify-content: space-between; align-items: center; font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: 1px; padding-bottom: 10px; border-bottom: 1px solid #f5f5f5; margin-bottom: 12px; }
+        .order-status-badge { color: #27ae60; }
+        .order-product-row { display: flex; justify-content: space-between; font-size: 13px; color: #444; margin-bottom: 6px; }
+        .order-card-bottom { display: flex; justify-content: space-between; align-items: center; border-top: 1px solid #f5f5f5; padding-top: 12px; margin-top: 12px; font-size: 13px; font-weight: 600; }
+
+        /* Nút đăng xuất cuối trang */
+        .logout-wrapper { margin-top: 40px; text-align: center; border-top: 1px solid #eee; padding-top: 20px; }
+        .btn-logout-action { background: none; border: 1px solid #ff0000; color: #ff0000; padding: 12px 30px; font-size: 11px; letter-spacing: 1.5px; text-transform: uppercase; font-weight: 500; cursor: pointer; transition: all 0.2s; }
+        .btn-logout-action:hover { background-color: #ff0000; color: #ffffff; }
+
+        @media (max-width: 768px) {
+            .nav-container { padding: 0 20px; }
+            .nav-left a:not(:first-child), .nav-right a:not(:last-child) { display: none; }
+            .info-field-group strong { width: 100%; margin-bottom: 4px; }
+        }
+    </style>
+</head>
+<body>
+
+    <header class="main-header">
+        <div class="nav-container">
+            <div class="nav-left">
+                <a href="index.html">FEATURED</a>
+                <a href="mens.html">MENS</a>
+                <a href="womens.html">WOMENS</a>
+                <a href="#">KIDS</a>
+                <a href="#">SALE</a>
+            </div>
+            <div class="logo">
+                <a href="index.html">THE STYLE HUB</a>
+            </div>
+            <div class="nav-right">
+                <a href="#">SEARCH</a>
+                <a href="account.html" id="headerAccountLink" style="text-decoration: underline;">ACCOUNT</a>
+                <a href="#">BAG (0)</a>
+            </div>
+        </div>
+    </header>
+
+    <div class="account-page-wrapper">
+        
+        <div class="account-tabs-nav">
+            <button class="tab-btn active" onclick="switchAccountTab('profile-tab', this)">Profile</button>
+            <button class="tab-btn" onclick="switchAccountTab('orders-tab', this)">Orders History</button>
+        </div>
+
+        <div id="profile-tab" class="tab-content-panel active">
+            <div class="profile-title-row">
+                <h3>Default Shipping Address</h3>
+                <span class="edit-info-link">Edit Address</span>
+            </div>
+            <div class="profile-card-details">
+                <div class="info-field-group">
+                    <strong>Full Name:</strong> <span id="displayFullName">Loading...</span>
+                </div>
+                <div class="info-field-group">
+                    <strong>Phone Number:</strong> <span id="displayPhone">Loading...</span>
+                </div>
+                <div class="info-field-group">
+                    <strong>Address:</strong> <span id="displayAddress">Loading...</span>
+                </div>
+            </div>
+        </div>
+
+        <div id="orders-tab" class="tab-content-panel">
+            <div class="order-history-list" id="injectOrdersContainer">
+                </div>
+        </div>
+
+        <div class="logout-wrapper">
+            <button class="btn-logout-action" onclick="executeLogout()">Sign Out</button>
+        </div>
+
+    </div>
+
+    <script>
+        const checkLogin = localStorage.getItem('isLoggedInStatus') === 'true';
+
+        document.addEventListener("DOMContentLoaded", function() {
+            if (!checkLogin) {
+                // Nếu chưa đăng nhập, đá về trang chủ hoặc trang login của bạn
+                alert("Vui lòng đăng nhập để truy cập tài khoản!");
+                window.location.href = "index.html"; 
+                return;
+            }
+            
+            syncHeaderUsername();
+            renderProfileData();
+            renderOrdersData();
+        });
+
+        function syncHeaderUsername() {
+            const headerLink = document.getElementById('headerAccountLink');
+            const savedName = localStorage.getItem('hub_name') || "PHAN THANH TÚ";
+            headerLink.innerText = savedName.toUpperCase();
+        }
+
+        function switchAccountTab(tabId, buttonElement) {
+            // Xóa hoạt động cũ
+            document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelectorAll('.tab-content-panel').forEach(panel => panel.classList.remove('active'));
+            
+            // Kích hoạt tab mới
+            buttonElement.classList.add('active');
+            document.getElementById(tabId).classList.add('active');
+        }
+
+        function renderProfileData() {
+            document.getElementById('displayFullName').innerText = localStorage.getItem('hub_name') || "Phan Thanh Tú";
+            document.getElementById('displayPhone').innerText = localStorage.getItem('hub_phone') || "090 XXXXXXX";
+            document.getElementById('displayAddress').innerText = localStorage.getItem('hub_address') || "Chưa cập nhật địa chỉ giao hàng";
+        }
+
+        function renderOrdersData() {
+            const container = document.getElementById('injectOrdersContainer');
+            container.innerHTML = '';
+
+            const ordersList = JSON.parse(localStorage.getItem('hub_orders') || '[]');
+            
+            if(ordersList.length === 0) {
+                container.innerHTML = `<p style="font-size: 13px; color: #888; text-align: center; padding: 40px 0;">You haven't placed any orders yet.</p>`;
+                return;
+            }
+
+            // Quét danh sách đơn hàng đã mua từ trang thanh toán lưu xuống
+            ordersList.forEach(order => {
+                const card = document.createElement('div');
+                card.className = 'order-item-card';
+                
+                let productsHTML = '';
+                order.orderedProductsList.forEach(item => {
+                    productsHTML += `
+                        <div class="order-product-row">
+                            <span>• ${item.name} (Size: ${item.size})</span>
+                            <strong>x${item.qty}</strong>
+                        </div>
+                    `;
+                });
+
+                card.innerHTML = `
+                    <div class="order-card-top">
+                        <span>ID: ${order.orderId}</span>
+                        <span class="order-status-badge">${order.status || 'CONFIRMED'}</span>
+                    </div>
+                    <div style="font-size: 12px; color: #888; margin-bottom: 12px;">Date: ${order.date}</div>
+                    <div class="order-products-body">${productsHTML}</div>
+                    <div class="order-card-bottom">
+                        <span>Total Price:</span>
+                        <span>${order.totalPriceFormatted}</span>
+                    </div>
+                `;
+                container.appendChild(card);
+            });
+        }
+
+        function executeLogout() {
+            localStorage.setItem('isLoggedInStatus', 'false');
+            window.location.href = "index.html"; // Trở về trang chủ sau khi thoát
+        }
+    </script>
+</body>
+</html>

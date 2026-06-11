@@ -1,0 +1,672 @@
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>The Style Hub - UI/UX Interactive Project</title>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+    <style>
+        /* ==================== TOAST NOTIFICATION LUXURY ==================== */
+        .toast-notification { 
+            position: fixed; 
+            bottom: -100px; 
+            left: 50%; 
+            transform: translateX(-50%); 
+            background-color: #111111; 
+            color: #ffffff; 
+            padding: 14px 30px; 
+            font-size: 12px; 
+            letter-spacing: 1px; 
+            text-transform: uppercase; 
+            z-index: 3000; 
+            box-shadow: 0 5px 15px rgba(0,0,0,0.15); 
+            transition: bottom 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); 
+            pointer-events: none; 
+        }
+        .toast-notification.show { bottom: 40px; }
+
+        /* Canvas hiệu ứng pháo hoa toàn màn hình */
+        #fwCanvas { 
+            position: fixed; 
+            top: 0; 
+            left: 0; 
+            width: 100%; 
+            height: 100vh; 
+            pointer-events: none; 
+            z-index: 9999; 
+            display: none; 
+        }
+
+        /* ==================== BỐ CỤC PHÂN VÙNG LOOKBOOK BANNER (ÉP 1 HÀNG NGANG CUỘN MƯỢT) ==================== */
+        .outfit-section-title {
+            text-align: center;
+            margin-top: 70px;
+            margin-bottom: 35px;
+        }
+        
+        .outfit-section-title h3 {
+            display: inline-block;
+            font-size: 20px;
+            font-weight: 400;
+            letter-spacing: 4px;
+            color: #111111;
+            margin: 0;
+            text-transform: uppercase;
+            padding: 12px 35px;
+            border: 1px solid #111111;
+            transition: all 0.4s ease;
+            cursor: default;
+        }
+
+        .outfit-section-title h3:hover {
+            background-color: #111111;
+            color: #ffffff;
+        }
+
+        .outfit-section-container {
+            max-width: 1440px;
+            margin: 0 auto 50px auto;
+            padding: 0 40px;
+            display: flex;
+            gap: 20px;
+            align-items: stretch; /* Đảm bảo video và khối ảnh có chiều cao bằng khít nhau */
+        }
+
+        .outfit-video-left-box {
+            width: 35%;
+            background-color: #000;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+        }
+
+        .outfit-video-left-box video {
+            width: 100%;
+            height: 100%;
+            display: block;
+            object-fit: cover;
+        }
+
+        /* Biến thành một thanh cuộn ngang, ép toàn bộ ảnh không bao giờ xuống hàng */
+        .outfit-grid-right-box {
+            width: 65%;
+            display: flex;              
+            flex-wrap: nowrap;          
+            gap: 15px;
+            overflow-x: auto;           
+            padding-bottom: 5px;        
+            -ms-overflow-style: none;  
+            scrollbar-width: none;      
+        }
+
+        /* Ẩn thanh cuộn đối với Chrome, Safari và Opera */
+        .outfit-grid-right-box::-webkit-scrollbar {
+            display: none;
+        }
+
+        .outfit-item-link-card {
+            display: block;
+            flex: 0 0 calc(25% - 12px); /* Định hình mỗi ảnh chiếm đúng 1/4 chiều rộng khung hiển thị */
+            height: 100%;
+            overflow: hidden;
+            background-color: #f7f7f7;
+            text-decoration: none;
+        }
+
+        .outfit-item-link-card img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: block;
+            transition: transform 0.6s cubic-bezier(0.25, 1, 0.5, 1);
+        }
+
+        .outfit-item-link-card:hover img {
+            transform: scale(1.05);
+        }
+
+        @media (max-width: 1024px) {
+            .outfit-section-container { flex-direction: column; padding: 0 20px; }
+            .outfit-video-left-box { width: 100%; height: 450px; }
+            .outfit-grid-right-box { width: 100%; }
+            .outfit-item-link-card { flex: 0 0 calc(50% - 8px); } 
+        }
+    </style>
+</head>
+
+<body>
+
+    <canvas id="fwCanvas"></canvas>
+
+    <div class="toast-notification" id="toastMessage">Đăng nhập thành công!</div>
+
+    <header class="main-header">
+        <div class="nav-container">
+            <nav class="nav-left">
+                <div class="menu-item-has-mega">
+                    <a href="#" class="nav-link-featured">Featured</a>
+                    
+                    <div class="mega-menu-dropdown">
+                        <div class="mega-menu-container">
+                            
+                            <div class="mega-links-col">
+                                <a href="mens.html">New Arrivals</a>
+                                <a href="mens.html">MLB Spring 2026</a>
+                                <a href="womens.html">Collection Nine Womenswear</a>
+                                <a href="mens.html">Essentials Classic Styles</a>
+                                <a href="mens.html">Athletics & Team Apparel</a>
+                                <a href="mens.html">Essentials</a>
+                                <a href="mens.html">Fear of God</a>
+                                <a href="sale.html">Sale</a>
+                            </div>
+
+                            <div class="mega-images-col">
+                                <a href="womens.html" class="mega-img-card">
+                                    <img src="https://images.unsplash.com/photo-1539109136881-3be0616acf4b?q=80&w=600" alt="Collection Nine Womenswear">
+                                    <span>COLLECTION NINE WOMENSWEAR</span>
+                                </a>
+                                <a href="mens.html" class="mega-img-card">
+                                    <img src="https://images.unsplash.com/photo-1507679799987-c73779587ccf?q=80&w=600" alt="Collection Nine Menswear">
+                                    <span>COLLECTION NINE MENSWEAR</span>
+                                </a>
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+
+                <a href="mens.html">Mens</a>
+                <a href="womens.html">Womens</a>
+                <a href="kids.html">Kids</a>
+                <a href="sale.html">Sale</a>
+            </nav>
+
+            <div class="logo">
+                <a href="index.html">THE STYLE HUB</a>
+            </div>
+
+            <nav class="nav-right">
+                <a href="#" id="search-trigger">Search</a>
+                <a href="#" id="account-trigger">Account</a>
+                <a href="#" id="bag-trigger">Bag (<span id="cart-count">0</span>)</a>
+            </nav>
+        </div>
+    </header>
+
+    <div id="home-page-view">
+        <section class="main-hero-banner">
+            <img src="https://fearofgod.com/cdn/shop/files/mlb_spring_desktop-v2_x1800.jpg?v=1779819182" alt="Featured Men Suit" class="main-hero-img">
+            <div class="main-hero-content">
+                <h2>SHOP</h2>
+                <a href="#" class="main-shop-btn">Xem bộ sưu tập</a>
+            </div>
+        </section>
+
+        <section class="split-hero-container">
+            <div class="hero-column">
+                <div class="hero-image-wrapper">
+                    <img src="https://fearofgod.com/cdn/shop/files/LOOK_17.png?crop=center&height=1280&v=1759109463&width=960" alt="Shop Mens Look">
+                </div>
+                <div class="hero-btn-container">
+                    <a href="mens.html" class="shop-btn">SHOP MENS</a>
+                </div>
+            </div>
+
+            <div class="hero-column">
+                <div class="hero-image-wrapper">
+                    <img src="https://fearofgod.com/cdn/shop/files/LOOK_34_769bf883-a71f-4985-8163-2d067e9fdf74.jpg?crop=center&height=1280&v=1776448151&width=960" alt="Shop Womens Look">
+                </div>
+                <div class="hero-btn-container">
+                    <a href="womens.html" class="shop-btn">SHOP WOMENS</a>
+                </div>
+            </div>
+        </section>
+
+        <div class="outfit-section-title">
+            <h3>BUSINESS CASUAL</h3>
+        </div>
+
+        <section class="outfit-section-container">
+            <div class="outfit-video-left-box">
+                <video autoplay loop muted playsinline>
+                    <source src="https://yame.vn/cdn/shop/videos/c/vp/47e6d3bfa7204fb08bcd0eb0ec497a77/47e6d3bfa7204fb08bcd0eb0ec497a77.SD-480p-0.9Mbps-78233570.mp4?v=0" type="video/mp4">
+                </video>
+            </div>
+
+            <div class="outfit-grid-right-box">
+                <a href="mens.html?cat=dress-shirt" class="outfit-item-link-card">
+                    <img src="https://yame.vn/cdn/shop/files/37_02d0dea4-d6c0-4012-a2c4-f3533985e4ec.jpg?v=1773893016&width=400" alt="Outfit 1">
+                </a>
+                <a href="mens.html?cat=dress-shirt" class="outfit-item-link-card">
+                    <img src="https://yame.vn/cdn/shop/files/38_d6003b0b-6e20-44e5-9865-417d663ffd32.jpg?v=1773893051&width=400" alt="Outfit 2">
+                </a>
+                <a href="mens.html?cat=dress-shirt" class="outfit-item-link-card">
+                    <img src="https://yame.vn/cdn/shop/files/39_98bdadca-2143-4f90-8a1a-aa9e9597b939.jpg?v=1773893072&width=400" alt="Outfit 3">
+                </a>
+                <a href="mens.html?cat=dress-shirt" class="outfit-item-link-card">
+                    <img src="https://yame.vn/cdn/shop/files/40_b31c366e-d1f0-4c97-b9d3-f0695fe86511.jpg?v=1773893091&width=400" alt="Outfit 4">
+                </a>
+                <a href="product-detail.html?id=dress-5" class="outfit-item-link-card">
+                    <img src="https://yame.vn/cdn/shop/files/42_48c9aabe-c095-4fef-83e2-2ce9af3b1a03.jpg?v=1773893119&width=400" alt="Outfit 5">
+                </a>
+                <a href="product-detail.html?id=dress-1" class="outfit-item-link-card">
+                    <img src="https://yame.vn/cdn/shop/files/43_bb50f9ef-a84b-439f-b507-daba10c964e9.jpg?v=1773893139&width=400" alt="Outfit 6">
+                </a>
+                <a href="product-detail.html?id=dress-2" class="outfit-item-link-card">
+                    <img src="https://yame.vn/cdn/shop/files/44_9106cd44-3267-4bc6-8a9a-03d41acc1643.jpg?v=1773893153&width=400" alt="Outfit 7">
+                </a>
+                <a href="product-detail.html?id=dress-3" class="outfit-item-link-card">
+                    <img src="https://yame.vn/cdn/shop/files/45_c90681a4-2a0c-4e3b-b970-c8dddf6c0f25.jpg?v=1773893168&width=400" alt="Outfit 8">
+                </a>
+                <a href="product-detail.html?id=dress-4" class="outfit-item-link-card">
+                    <img src="https://yame.vn/cdn/shop/files/46_efab83fc-8d13-468d-99bd-e8d362271635.jpg?v=1773893182&width=400" alt="Outfit 9">
+                </a>
+                <a href="product-detail.html?id=dress-5" class="outfit-item-link-card">
+                    <img src="https://yame.vn/cdn/shop/files/47_00e7cd8c-75b8-4906-82a1-8e67bc5324da.jpg?v=1773893194&width=400" alt="Outfit 10">
+                </a>
+            </div>
+        </section>
+
+        <main class="container">
+            <div class="section-title">
+                <h3>FEATURED PRODUCTS</h3>
+            </div>
+
+            <div class="product-grid">
+                <div class="product-card">
+                    <div class="product-thumb">
+                        <img src="https://images.unsplash.com/photo-1556905055-8f358a7a47b2?q=80&w=800" alt="Product 1">
+                    </div>
+                    <div class="product-info">
+                        <h4 class="brand">ESSENTIALS</h4>
+                        <p class="name">Oversized Fleece Hoodie</p>
+                        <p class="price">2.450.000 ₫</p>
+                        <button class="add-to-cart-btn" onclick="addToCart('Oversized Fleece Hoodie', 2450000)">ADD TO BAG</button>
+                    </div>
+                </div>
+
+                <div class="product-card">
+                    <div class="product-thumb">
+                        <img src="https://images.unsplash.com/photo-1543163521-1bf539c55dd2?q=80&w=800" alt="Product 2">
+                    </div>
+                    <div class="product-info">
+                        <h4 class="brand">FEAR OF GOD MAINLINE</h4>
+                        <p class="name">Heavy Canvas Car Coat</p>
+                        <p class="price">32.500.000 ₫</p>
+                        <button class="add-to-cart-btn" onclick="addToCart('Heavy Canvas Car Coat', 32500000)">ADD TO BAG</button>
+                    </div>
+                </div>
+
+                <div class="product-card">
+                    <div class="product-thumb">
+                        <img src="https://images.unsplash.com/photo-1539109136881-3be0616acf4b?q=80&w=800" alt="Product 3">
+                    </div>
+                    <div class="product-info">
+                        <h4 class="brand">ATHLETICS</h4>
+                        <p class="name">I Basketball - Ash Pearl</p>
+                        <p class="price">6.100.000 ₫</p>
+                        <button class="add-to-cart-btn" onclick="addToCart('I Basketball - Ash Pearl', 6100000)">ADD TO BAG</button>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <div id="dashboard-page-view" class="hidden">
+        <div class="dashboard-container">
+            <div class="dashboard-menu">
+                <span id="tab-orders-btn" class="db-menu-item" onclick="switchDashboardTab('orders')">Orders</span>
+                <span id="tab-profile-btn" class="db-menu-item active" onclick="switchDashboardTab('profile')">Profile</span>
+            </div>
+
+            <div id="db-profile-content" class="db-tab-content">
+                <h2 class="db-section-title">Profile</h2>
+                <div class="db-card">
+                    <div class="db-card-row">
+                        <span class="db-label">Name</span>
+                        <span class="db-value" id="db-user-name">Phan Thanh Tú</span>
+                    </div>
+                    <div class="db-card-row">
+                        <span class="db-label">Email</span>
+                        <span class="db-value" id="db-user-email">phantu210206@gmail.com</span>
+                    </div>
+                </div>
+                <h3 class="db-sub-title">Addresses <span class="add-btn">+ Add</span></h3>
+                <div class="db-card empty-state">
+                    <p class="info-text">ⓘ No addresses added</p>
+                </div>
+                <button class="sign-out-btn" onclick="handleSignOut()">Sign out</button>
+                <span class="sign-out-all-text">Sign out of all devices</span>
+            </div>
+
+            <div id="db-orders-content" class="db-tab-content hidden">
+                <h2 class="db-section-title">Orders</h2>
+                <div class="db-card empty-state-large">
+                    <h4>No orders yet</h4>
+                    <p>Go to store to place an order.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="search-modal" class="modal-overlay">
+        <div class="search-modal-content">
+            <span class="close-modal" id="close-search">&times;</span>
+            <input type="text" id="search-input" placeholder="SEARCH FOR PRODUCTS..." autofocus>
+            <div id="search-results"></div>
+        </div>
+    </div>
+
+    <div id="account-modal" class="modal-overlay">
+        <div class="account-box">
+            <span class="close-modal" id="close-account">&times;</span>
+            <div id="login-form-container">
+                <h3>LOGIN</h3>
+                <form onsubmit="event.preventDefault(); handleLogin();">
+                    <input type="email" placeholder="EMAIL" required id="login-email">
+                    <input type="password" placeholder="PASSWORD" required id="login-pass">
+                    <button type="submit" class="auth-submit-btn">SIGN IN</button>
+                </form>
+                <p class="switch-form-text">Don't have an account? <span onclick="toggleAuthForm('register')">CREATE ACCOUNT</span></p>
+            </div>
+            <div id="register-form-container" class="hidden">
+                <h3>CREATE ACCOUNT</h3>
+                <form onsubmit="event.preventDefault(); handleRegister();">
+                    <input type="text" placeholder="FIRST NAME" required id="reg-fname">
+                    <input type="text" placeholder="LAST NAME" required id="reg-lname">
+                    <input type="email" placeholder="EMAIL ADDRESS" required id="reg-email">
+                    <input type="password" placeholder="PASSWORD" required id="reg-pass">
+                    <button type="submit" class="auth-submit-btn">CREATE</button>
+                </form>
+                <p class="switch-form-text">Already have an account? <span onclick="toggleAuthForm('login')">RETURN TO LOGIN</span></p>
+            </div>
+        </div>
+    </div>
+
+    <div id="bag-modal" class="modal-overlay">
+        <div class="bag-sidebar">
+            <div class="bag-header">
+                <h3>SHOPPING BAG</h3>
+                <span class="close-modal" id="close-bag">&times;</span>
+            </div>
+            <div id="cart-items-container">
+                <p class="empty-cart-msg">Your bag is empty.</p>
+            </div>
+            <div class="bag-footer">
+                <div class="total-row">
+                    <span>TOTAL:</span>
+                    <span id="cart-total-price">0 ₫</span>
+                </div>
+                <button class="checkout-btn" onclick="window.location.href='email.html'">CHECKOUT</button>          
+                </div>
+        </div>
+    </div>
+
+    <section class="newsletter">
+        <h3>JOIN THE COMMUNITY</h3>
+        <p>Sign up for early access to collections, exclusive drops, and special events.</p>
+        <form class="newsletter-form" onsubmit="event.preventDefault(); showToast('Thank you for subscribing!');">
+            <input type="email" placeholder="Your Email Address" required>
+            <button type="submit">SUBSCRIBE</button>
+        </form>
+    </section>
+
+    <footer class="main-footer">
+        <div class="footer-links">
+            <span>Vietnam ▾</span>
+            <a href="#">Refund policy</a>
+            <a href="#">Shipping</a>
+            <a href="#">Privacy policy</a>
+            <a href="#">Terms of service</a>
+            <a href="#">Contact information</a>
+        </div>
+        <p class="credit-text">&copy; 2026 THE STYLE HUB. UI/UX Interface Design Project - Van Lang University.</p>
+    </footer>
+
+    <script>
+        let isLoggedIn = localStorage.getItem('isLoggedInStatus') === 'true'; 
+        let userData = { firstName: " ", lastName: " ", email: " " };
+
+        function checkGlobalLoginStatus() {
+            const accountTrigger = document.getElementById('account-trigger');
+            if (localStorage.getItem('isLoggedInStatus') === 'true') {
+                isLoggedIn = true;
+                const savedName = localStorage.getItem('hub_name') || "USER";
+                accountTrigger.innerText = savedName.toUpperCase();
+                document.getElementById('db-user-name').innerText = savedName;
+            } else {
+                isLoggedIn = false;
+                accountTrigger.innerText = "ACCOUNT";
+            }
+        }
+
+        document.addEventListener("DOMContentLoaded", checkGlobalLoginStatus);
+
+        function showPage(pageId) {
+            const homeView = document.getElementById('home-page-view');
+            const dashboardView = document.getElementById('dashboard-page-view');
+            if (pageId === 'dashboard') {
+                homeView.classList.add('hidden');
+                dashboardView.classList.remove('hidden');
+                window.scrollTo(0, 0);
+            } else {
+                dashboardView.classList.add('hidden');
+                homeView.classList.remove('hidden');
+            }
+        }
+
+        window.addEventListener('scroll', function () {
+            const header = document.querySelector('.main-header');
+            if (window.scrollY > 50) { header.classList.add('scrolled'); } 
+            else { header.classList.remove('scrolled'); }
+        });
+
+        const searchModal = document.getElementById('search-modal');
+        const accountModal = document.getElementById('account-modal');
+        const bagModal = document.getElementById('bag-modal');
+        const accountTrigger = document.getElementById('account-trigger');
+
+        accountTrigger.onclick = function() {
+            if (isLoggedIn) { showPage('dashboard'); } 
+            else { accountModal.style.display = 'block'; }
+        };
+
+        document.getElementById('search-trigger').onclick = () => searchModal.style.display = 'block';
+        document.getElementById('bag-trigger').onclick = () => bagModal.style.display = 'block';
+        document.getElementById('close-search').onclick = () => searchModal.style.display = 'none';
+        document.getElementById('close-account').onclick = () => accountModal.style.display = 'none';
+        document.getElementById('close-bag').onclick = () => bagModal.style.display = 'none';
+
+        window.onclick = function(event) {
+            if (event.target == searchModal) searchModal.style.display = 'none';
+            if (event.target == accountModal) accountModal.style.display = 'none';
+            if (event.target == bagModal) bagModal.style.display = 'none';
+        }
+
+        function toggleAuthForm(target) {
+            const loginForm = document.getElementById('login-form-container');
+            const regForm = document.getElementById('register-form-container');
+            if(target === 'register') {
+                loginForm.classList.add('hidden');
+                regForm.classList.remove('hidden');
+            } else {
+                loginForm.classList.remove('hidden');
+                regForm.classList.add('hidden');
+            }
+        }
+
+        function showToast(textMsg) {
+            const toast = document.getElementById('toastMessage');
+            toast.innerText = textMsg;
+            toast.classList.add('show');
+            setTimeout(() => { toast.classList.remove('show'); }, 2800);
+        }
+
+        function handleRegister() {
+            userData.firstName = document.getElementById('reg-fname').value;
+            userData.lastName = document.getElementById('reg-lname').value;
+            userData.email = document.getElementById('reg-email').value;
+            userData.password = document.getElementById('reg-pass').value;
+            showToast("Đăng ký thành công! Hãy đăng nhập thông tin.");
+            toggleAuthForm('login');
+        }
+
+        function handleLogin() {
+            const emailInput = document.getElementById('login-email').value;
+            isLoggedIn = true;
+            localStorage.setItem('isLoggedInStatus', 'true'); 
+            
+            if (emailInput !== userData.email) {
+                userData.firstName = " ";
+                userData.lastName = " ";
+                userData.email = emailInput;
+            }
+            const fullDisplayName = `${userData.lastName} ${userData.firstName}`;
+            localStorage.setItem('hub_name', fullDisplayName); 
+            
+            accountTrigger.innerText = fullDisplayName.toUpperCase();
+            document.getElementById('db-user-name').innerText = fullDisplayName;
+            document.getElementById('db-user-email').innerText = userData.email;
+            
+            accountModal.style.display = 'none';
+            triggerFireworkCelebration(fullDisplayName);
+        }
+
+        function handleSignOut() {
+            isLoggedIn = false;
+            localStorage.setItem('isLoggedInStatus', 'false'); 
+            accountTrigger.innerText = "ACCOUNT";
+            showToast("Bạn đã đăng xuất tài khoản.");
+            showPage('home');
+        }
+
+        function switchDashboardTab(tabId) {
+            const profileContent = document.getElementById('db-profile-content');
+            const ordersContent = document.getElementById('db-orders-content');
+            const profileBtn = document.getElementById('tab-profile-btn');
+            const ordersBtn = document.getElementById('tab-orders-btn');
+            if (tabId === 'profile') {
+                profileContent.classList.remove('hidden');
+                ordersContent.classList.add('hidden');
+                profileBtn.classList.add('active');
+                ordersBtn.classList.remove('active');
+            } else {
+                ordersContent.classList.remove('hidden');
+                profileContent.classList.add('hidden');
+                ordersBtn.classList.add('active');
+                profileBtn.classList.remove('active');
+            }
+        }
+
+        let cart = [];
+        function addToCart(name, price) {
+            const existingItem = cart.find(item => item.name === name);
+            if(existingItem) { existingItem.quantity += 1; } 
+            else { cart.push({ name, price, quantity: 1 }); }
+            updateCartUI();
+            bagModal.style.display = 'block';
+        }
+
+        function updateCartUI() {
+            const cartCountElement = document.getElementById('cart-count');
+            const cartItemsContainer = document.getElementById('cart-items-container');
+            const cartTotalElement = document.getElementById('cart-total-price');
+            const totalQty = cart.reduce((acc, item) => acc + item.quantity, 0);
+            cartCountElement.innerText = totalQty;
+
+            if(cart.length === 0) {
+                cartItemsContainer.innerHTML = '<p class="empty-cart-msg">Your bag is empty.</p>';
+                cartTotalElement.innerText = "0 ₫";
+                return;
+            }
+
+            let htmlOutput = "";
+            let totalPrice = 0;
+            cart.forEach((item, index) => {
+                totalPrice += item.price * item.quantity;
+                htmlOutput += 
+                    <div class="cart-item">
+                        <div class="cart-item-details">
+                            <p class="cart-item-name">${item.name}</p>
+                            <p class="cart-item-meta">${item.price.toLocaleString('vi-VN')} ₫ x ${item.quantity}</p>
+                        </div>
+                        <span class="remove-item-btn" onclick="removeFromCart(${index})">&times;</span>
+                    </div>
+                ;
+            });
+            cartItemsContainer.innerHTML = htmlOutput;
+            cartTotalElement.innerText = totalPrice.toLocaleString('vi-VN') + " ₫";
+        }
+
+        function removeFromCart(index) {
+            cart.splice(index, 1);
+            updateCartUI();
+        }
+
+        const canvas = document.getElementById('fwCanvas');
+        const ctx = canvas.getContext('2d');
+        let particles = [];
+
+        function resizeCanvas() {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+        }
+        window.addEventListener('resize', resizeCanvas);
+
+        function triggerFireworkCelebration(displayName) {
+            canvas.style.display = 'block';
+            resizeCanvas();
+            particles = [];
+            createExplosion(canvas.width * 0.3, canvas.height * 0.4);
+            createExplosion(canvas.width * 0.5, canvas.height * 0.3);
+            createExplosion(canvas.width * 0.7, canvas.height * 0.4);
+            
+            let animationFrameId;
+            let framesCount = 0;
+            
+            function loop() {
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+                for (let i = 0; i < particles.length; i++) {
+                    let p = particles[i];
+                    p.x += p.vx; p.y += p.vy; p.vy += 0.12; p.alpha -= 0.014;
+                    ctx.save(); ctx.globalAlpha = p.alpha; ctx.fillStyle = p.color;
+                    ctx.beginPath(); ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2); ctx.fill(); ctx.restore();
+                    if (p.alpha <= 0) { particles.splice(i, 1); i--; }
+                }
+                framesCount++;
+                if (particles.length > 0 && framesCount < 140) {
+                    animationFrameId = requestAnimationFrame(loop);
+                } else {
+                    cancelAnimationFrame(animationFrameId);
+                    canvas.style.display = 'none';
+                    showToast(`XIN CHÀO ${displayName.toUpperCase()}! ĐĂNG NHẬP THÀNH CÔNG.`);
+                    showPage('dashboard');
+                    checkGlobalLoginStatus();
+                }
+            }
+            loop();
+        }
+
+        function createExplosion(x, y) {
+            const colors = ['#ffffff', '#000000', '#888888', '#555555', '#cccccc']; 
+            for (let i = 0; i < 50; i++) {
+                const angle = Math.random() * Math.PI * 2;
+                const speed = Math.random() * 4 + 2;
+                particles.push({
+                    x: x, y: y,
+                    vx: Math.cos(angle) * speed,
+                    vy: Math.sin(angle) * speed,
+                    size: Math.random() * 2.5 + 1,
+                    color: colors[Math.floor(Math.random() * colors.length)],
+                    alpha: 1
+                });
+            }
+        }
+        
+    </script>
+    
+</body>
+
+</html>

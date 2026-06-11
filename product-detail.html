@@ -1,0 +1,857 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Product Detail - The Style Hub</title>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+    
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { font-family: 'Roboto', sans-serif; background-color: #ffffff; color: #111111; overflow-x: hidden; }
+        
+        /* --- STICKY HEADER ĐỒNG BỘ --- */
+        .main-header { position: fixed; top: 0; left: 0; width: 100%; height: 57px; background-color: #000000; color: #ffffff; z-index: 1000; }
+        .nav-container { max-width: 1300px; margin: 0 auto; height: 100%; display: table; width: 100%; padding: 0 40px; }
+        .nav-left, .logo, .nav-right { display: table-cell; vertical-align: middle; }
+        .nav-left { text-align: left; width: 30%; } .logo { text-align: center; font-size: 16px; font-weight: 700; letter-spacing: 4px; } .nav-right { text-align: right; width: 30%; }
+        .nav-container a { color: #ffffff; text-decoration: none; font-size: 12px; text-transform: uppercase; cursor: pointer; }
+        
+        /* --- BỐ CỤC CHI TIẾT SẢN PHẨM --- */
+        .product-detail-container { max-width: 1300px; margin: 0 auto; padding: 97px 40px 60px 40px; }
+        .detail-table-layout { display: table; width: 100%; border-spacing: 60px 0; }
+        .detail-column { display: table-cell; vertical-align: top; width: 50%; }
+        
+        .image-scroll-gallery { width: 100%; }
+        .product-image-item { width: 100%; aspect-ratio: 3 / 4; background-color: #f7f7f7; margin-bottom: 20px; overflow: hidden; }
+        .product-image-item img { width: 100%; height: 100%; object-fit: cover; object-position: center top; display: block; }
+        
+        .info-sticky-panel { position: sticky; top: 97px; padding-left: 20px; }
+        .brand-name { font-size: 11px; text-transform: uppercase; letter-spacing: 2px; color: #777; margin-bottom: 8px; }
+        .product-name { font-size: 24px; font-weight: 400; margin-bottom: 12px; line-height: 1.3; }
+        .product-price { font-size: 16px; font-weight: 500; margin-bottom: 30px; padding-bottom: 20px; border-bottom: 1px solid #eee; }
+        
+        .size-selector-section { margin-bottom: 30px; }
+        .selector-label { font-size: 11px; text-transform: uppercase; letter-spacing: 1.5px; font-weight: 500; margin-bottom: 14px; }
+        .size-button { background: #fff; border: 1px solid #ddd; padding: 12px 24px; font-size: 12px; font-weight: 500; cursor: pointer; margin-right: 10px; min-width: 60px; display: inline-block; transition: all 0.2s ease; }
+        .size-button:hover { border-color: #111; }
+        .size-button.selected { background-color: #111; border-color: #111; color: #fff; }
+        
+        .cta-buttons-group { margin-top: 35px; margin-bottom: 45px; }
+        .btn-action { display: block; width: 100%; padding: 16px; font-size: 11px; letter-spacing: 2px; text-transform: uppercase; font-weight: 500; cursor: pointer; text-align: center; margin-bottom: 12px; }
+        .btn-add-to-bag { background-color: #fff; border: 1px solid #111; color: #111; }
+        .btn-add-to-bag:hover { background-color: #f8f8f8; }
+        .btn-order-now { background-color: #111; border: 1px solid #111; color: #fff; }
+        .btn-order-now:hover { background-color: #222; }
+        
+        .specs-details-section { border-top: 1px solid #eee; padding-top: 30px; }
+        .specs-heading { font-size: 12px; text-transform: uppercase; letter-spacing: 1.5px; font-weight: 500; margin-bottom: 15px; }
+        .specs-ul { list-style: none; } .specs-ul li { font-size: 12px; color: #555; line-height: 1.8; margin-bottom: 10px; padding-left: 15px; position: relative; }
+        .specs-ul li::before { content: "•"; position: absolute; left: 0; color: #999; }
+        
+        /* ==================== DRAWER GIỎ HÀNG CẠNH PHẢI ==================== */
+        .cart-drawer-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100vh; background-color: rgba(0, 0, 0, 0.4); opacity: 0; visibility: hidden; z-index: 2000; transition: all 0.35s ease; }
+        .cart-drawer-overlay.open { opacity: 1; visibility: visible; }
+        .cart-side-panel { position: fixed; top: 0; right: -450px; width: 420px; height: 100vh; background-color: #ffffff; z-index: 2001; padding: 40px; box-shadow: -5px 0 15px rgba(0,0,0,0.08); display: flex; flex-direction: column; transition: right 0.35s ease; }
+        .cart-drawer-overlay.open .cart-side-panel { right: 0; }
+        
+        .cart-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #eee; padding-bottom: 20px; }
+        .cart-header h2 { font-size: 15px; font-weight: 600; letter-spacing: 1.5px; text-transform: uppercase; }
+        .close-cart-btn { background: none; border: none; font-size: 18px; cursor: pointer; color: #111; padding: 5px; }
+        .cart-body { flex: 1; overflow-y: auto; padding: 25px 0; }
+        .empty-cart-text { font-size: 13px; color: #777; text-align: center; margin-top: 40px; display: block; }
+        .empty-cart-text.hidden { display: none; }
+        
+        .cart-product-row { display: flex; gap: 15px; margin-bottom: 24px; padding-bottom: 15px; border-bottom: 1px solid #f9f9f9; position: relative; }
+        .cart-item-img { width: 75px; aspect-ratio: 3 / 4; background-color: #f7f7f7; object-fit: cover; }
+        .cart-item-info { flex: 1; padding-right: 20px; }
+        .cart-item-title { font-size: 12px; font-weight: 500; color: #111; margin-bottom: 4px; line-height: 1.4; }
+        .cart-item-meta { font-size: 11px; color: #666; margin-bottom: 6px; }
+        .cart-item-price { font-size: 12px; font-weight: 500; color: #222; }
+        .remove-item-btn { position: absolute; top: 0; right: 0; background: none; border: none; font-size: 11px; color: #999; cursor: pointer; text-transform: uppercase; }
+        .remove-item-btn:hover { color: #ff0000; text-decoration: underline; }
+        
+        .cart-footer { border-top: 1px solid #eee; padding-top: 20px; }
+        .cart-total-row { display: flex; justify-content: space-between; font-size: 13px; font-weight: 500; margin-bottom: 20px; text-transform: uppercase; letter-spacing: 1px; }
+        .btn-checkout { display: block; width: 100%; background-color: #111; color: #fff; border: 1px solid #111; padding: 15px; font-size: 11px; letter-spacing: 2px; text-transform: uppercase; font-weight: 500; cursor: pointer; text-align: center; }
+
+        /* ==================== FORM ĐIỀN ĐỊA CHỈ GIAO HÀNG (CHECKOUT DRAWER) ==================== */
+        .checkout-drawer-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100vh; background-color: rgba(0, 0, 0, 0.4); opacity: 0; visibility: hidden; z-index: 2500; transition: all 0.35s ease; }
+        .checkout-drawer-overlay.open { opacity: 1; visibility: visible; }
+        .checkout-side-panel { position: fixed; top: 0; right: -500px; width: 450px; height: 100vh; background-color: #ffffff; z-index: 2501; padding: 40px; display: flex; flex-direction: column; box-shadow: -5px 0 15px rgba(0,0,0,0.1); transition: right 0.35s ease; }
+        .checkout-drawer-overlay.open .checkout-side-panel { right: 0; }
+        
+        .form-group { margin-bottom: 20px; }
+        .form-group label { display: block; font-size: 11px; text-transform: uppercase; letter-spacing: 1px; font-weight: 500; color: #333; margin-bottom: 8px; }
+        .form-group input, .form-group textarea { width: 100%; padding: 12px; border: 1px solid #ddd; font-family: inherit; font-size: 13px; color: #111; outline: none; transition: border 0.2s; }
+        .form-group input:focus, .form-group textarea:focus { border-color: #111; }
+        
+        /* Cải tiến phong cách cho placeholder mờ ẩn sang trọng */
+        .form-group input::placeholder, .form-group textarea::placeholder { color: #aaaaaa; font-style: normal; opacity: 1; }
+
+        /* ==================== TOAST NOTIFICATION SANG TRỌNG ==================== */
+        .toast-notification { position: fixed; bottom: -100px; left: 50%; transform: translateX(-50%); background-color: #111111; color: #ffffff; padding: 14px 30px; font-size: 12px; letter-spacing: 1px; text-transform: uppercase; z-index: 3000; box-shadow: 0 5px 15px rgba(0,0,0,0.15); transition: bottom 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); pointer-events: none; }
+        .toast-notification.show { bottom: 40px; }
+        #fwCanvas { position: fixed; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 9999; display: none; }
+
+        /* ==================== POPUP MODAL ĐĂNG NHẬP / ĐĂNG KÝ ĐỘNG ==================== */
+        .auth-popup-modal { position: fixed; top: 0; left: 0; width: 100%; height: 100vh; background-color: rgba(0, 0, 0, 0.5); display: flex; justify-content: center; align-items: center; z-index: 2800; opacity: 0; visibility: hidden; transition: all 0.3s ease; }
+        .auth-popup-modal.open { opacity: 1; visibility: visible; }
+        .auth-box-content { background-color: #ffffff; width: 400px; padding: 40px; box-shadow: 0 10px 30px rgba(0,0,0,0.15); text-align: center; position: relative; }
+        .close-auth-modal { position: absolute; top: 15px; right: 20px; font-size: 20px; cursor: pointer; color: #777; }
+        .auth-box-content h3 { font-size: 14px; font-weight: 600; letter-spacing: 2px; text-transform: uppercase; margin-bottom: 20px; color: #111; }
+        .auth-input-field { width: 100%; padding: 12px; margin-bottom: 15px; border: 1px solid #ddd; outline: none; font-family: inherit; font-size: 13px; }
+        .auth-input-field:focus { border-color: #111; }
+        .btn-auth-submit { width: 100%; background-color: #111; color: #fff; border: 1px solid #111; padding: 14px; font-size: 11px; letter-spacing: 2px; font-weight: 500; text-transform: uppercase; cursor: pointer; margin-top: 10px; }
+        .switch-form-prompt { font-size: 11px; color: #666; margin-top: 20px; letter-spacing: 0.5px; }
+        .switch-form-link { color: #111; text-decoration: underline; font-weight: 600; cursor: pointer; }
+        .hidden-auth-block { display: none !important; }
+
+        @media (max-width: 768px) {
+            .detail-table-layout, .detail-column { display: block; width: 100%; }
+            .product-detail-container { padding: 80px 20px 40px 20px; }
+            .detail-table-layout { border-spacing: 0; }
+            .info-sticky-panel { position: static; padding-left: 0; margin-top: 30px; }
+            .cart-side-panel, .checkout-side-panel, .account-side-panel { width: 100%; right: -100%; padding: 25px; }
+        }
+    </style>
+</head>
+<body>
+
+    <canvas id="fwCanvas"></canvas>
+    <div class="toast-notification" id="toastMessage">Đã thêm vào giỏ hàng thành công</div>
+
+    <!-- HEADER SYSTEM CHÍNH -->
+    <header class="main-header">
+        <div class="nav-container">
+            <div class="nav-left"><a id="back-link-target" href="mens.html">← Collection</a></div>
+            <div class="logo"><a href="index.html">THE STYLE HUB</a></div>
+            <div class="nav-right">
+                <a href="account.html" style="margin-right: 20px;" id="headerAccountLink">ACCOUNT</a>
+                <a onclick="toggleCartDrawer(true)">Bag (<span id="bag-count">0</span>)</a>
+            </div>
+        </div>
+    </header>
+
+    <!-- CHI TIẾT SẢN PHẨM -->
+    <div class="product-detail-container">
+        <div class="detail-table-layout">
+            <div class="detail-column">
+                <div class="image-scroll-gallery" id="gallery-target"></div>
+            </div>
+            <div class="detail-column">
+                <div class="info-sticky-panel">
+                    <p class="brand-name" id="brand-name-target">Essentials</p>
+                    <h1 class="product-name" id="product-name-target">Product Title</h1>
+                    <p class="product-price" id="product-price-target">0 ₫</p>
+
+                    <div class="size-selector-section">
+                        <p class="selector-label">Select Size:</p>
+                        <div class="size-buttons-group">
+                            <button class="size-button" onclick="changeSize(this)">S</button>
+                            <button class="size-button selected" onclick="changeSize(this)">M</button>
+                            <button class="size-button" onclick="changeSize(this)">L</button>
+                            <button class="size-button" onclick="changeSize(this)">XL</button>
+                        </div>
+                    </div>
+
+                    <div class="cta-buttons-group">
+                        <button class="btn-action btn-add-to-bag" onclick="addBag()">Add to Bag</button>
+                        <button class="btn-action btn-order-now" onclick="openCheckoutDirectly()">Order Now</button>
+                    </div>
+
+                    <div class="specs-details-section">
+                        <h3 class="specs-heading">Product Specifications</h3>
+                        <ul class="specs-ul">
+                            <li><strong>Chất liệu vải:</strong> Cotton premium mềm mại, dệt mật độ cao thoáng khí, giữ phom cực tốt.</li>
+                            <li><strong>Kiểu dáng:</strong> Thiết kế phom dáng thoải mái tôn dáng hiện đại, dễ dàng phối hợp nhiều layout.</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ==================== SIDEBAR DRAWER PANEL ==================== -->
+    <div class="cart-drawer-overlay" id="cartOverlay" onclick="toggleCartDrawer(false)">
+        <div class="cart-side-panel" onclick="event.stopPropagation()">
+            <div class="cart-header"><h2>Your Bag</h2><button class="close-cart-btn" onclick="toggleCartDrawer(false)">✕</button></div>
+            <div class="cart-body">
+                <span class="empty-cart-text" id="emptyCartMessage">Your bag is currently empty.</span>
+                <div id="cartItemsContainer"></div>
+            </div>
+            <div class="cart-footer">
+                <div class="cart-total-row"><span>Tạm tính:</span><span id="cartTotalTarget">0 ₫</span></div>
+                <button class="btn-checkout" onclick="openCheckoutFromCart()">Đặt Hàng</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="checkout-drawer-overlay" id="checkoutOverlay" onclick="toggleCheckoutDrawer(false)">
+        <div class="checkout-side-panel" onclick="event.stopPropagation()">
+            <div class="cart-header"><h2>Shipping Information</h2><button class="close-cart-btn" onclick="toggleCheckoutDrawer(false)">✕</button></div>
+            <div class="cart-body">
+                <form id="shippingForm">
+                    <div class="form-group">
+                        <label>Họ và tên người nhận</label>
+                        <input type="text" id="cusName" required placeholder="Nhập tên đầy đủ...">
+                    </div>
+                    <div class="form-group">
+                        <label>Số điện thoại</label>
+                        <input type="tel" id="cusPhone" required placeholder="Chưa cập nhật">
+                    </div>
+                    <div class="form-group">
+                        <label>Địa chỉ nhận hàng</label>
+                        <textarea id="cusAddress" rows="4" required placeholder="Chưa cập nhật địa chỉ giao hàng"></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label>Email</label>
+                        <input type="email" id="cusEmail" required 
+                               placeholder="Ví dụ: phanthanhtu@gmail.com"
+                               pattern="[a-z0-9._%+-]+@[a-z0-9.-]+\.com$" 
+                               title="Email phải có định dạng hợp lệ và kết thúc bằng .com (Ví dụ: abc@domain.com)">
+                    </div>
+                </form>
+            </div>
+            <div class="cart-footer"><button class="btn-checkout" onclick="submitFinalOrder()">Xác Nhận Đặt Hàng</button></div>
+        </div>
+    </div>
+
+    <!-- ==================== POPUP MODAL ĐĂNG NHẬP / ĐĂNG KÝ HỢP NHẤT ==================== -->
+    <div class="auth-popup-modal" id="authModal" onclick="toggleAuthModal(false)">
+        <div class="auth-box-content" onclick="event.stopPropagation()">
+            <span class="close-auth-modal" onclick="toggleAuthModal(false)">&times;</span>
+            
+            <div id="auth-login-block">
+                <h3>Bắt buộc đăng nhập</h3>
+                <p style="font-size: 12px; color: #666; margin-bottom: 20px;">Vui lòng xác thực tài khoản để tiếp tục mua hàng.</p>
+                <form onsubmit="event.preventDefault(); handleImmediateLogin();">
+                    <input type="email" id="authEmail" class="auth-input-field" placeholder="EMAIL ADDRESS" required value="phantu210206@gmail.com">
+                    <input type="password" id="authPass" class="auth-input-field" placeholder="PASSWORD" required value="••••••••">
+                    <button type="submit" class="btn-auth-submit">Đăng Nhập & Tiếp Tục</button>
+                </form>
+                <p class="switch-form-prompt">Don't have an account? <span class="switch-form-link" onclick="toggleAuthView('register')">CREATE ACCOUNT</span></p>
+            </div>
+
+            <div id="auth-register-block" class="hidden-auth-block">
+                <h3>Tạo tài khoản mới</h3>
+                <p style="font-size: 12px; color: #666; margin-bottom: 20px;">Đăng ký nhanh để hoàn tất thủ tục thanh toán đơn hàng.</p>
+                <form onsubmit="event.preventDefault(); handleImmediateRegister();">
+                    <input type="text" id="regNewName" class="auth-input-field" placeholder="YOUR FULL NAME" required>
+                    <input type="email" id="regNewEmail" class="auth-input-field" placeholder="EMAIL ADDRESS" required>
+                    <input type="password" id="regNewPass" class="auth-input-field" placeholder="PASSWORD" required minlength="6">
+                    <button type="submit" class="btn-auth-submit">Đăng Ký & Thanh Toán</button>
+                </form>
+                <p class="switch-form-prompt">Already have an account? <span class="switch-form-link" onclick="toggleAuthView('login')">RETURN TO LOGIN</span></p>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- DATA KHO HÀNG TỔNG HỢP -->
+    <script>
+        const database = {
+             /* ==================== Kids DATA ==================== */
+            "kids-1": { 
+                name: "Kids Training 90s Hoodie - Faded Seal", 
+                price: "1.850.000 ₫", 
+                priceNum: 1850000, 
+                mainImg: "https://fearofgod.com/cdn/shop/files/785SP262422K_KIDS_TRAINING_90S_HOODIE-FADED_SEAL_1_900x.jpg?v=1772251904", 
+                images: ["https://fearofgod.com/cdn/shop/files/785SP262422K_KIDS_TRAINING_90S_HOODIE-FADED_SEAL_1_900x.jpg?v=1772251904", "https://fearofgod.com/cdn/shop/files/785SP262422K_KIDS_TRAINING_90S_HOODIE-FADED_SEAL_2_900x.jpg?v=1772251904"] 
+            },
+            "kids-2": { 
+                name: "Kids Training Classic Fit Sweatpant - Faded Seal", 
+                price: "1.550.000 ₫", 
+                priceNum: 1550000, 
+                mainImg: "https://fearofgod.com/cdn/shop/files/785SP263152K_KIDS_TRAINING_CLASSIC_FIT_SWEATPANT-FADED_SEAL_1_900x.jpg?v=1772225305", 
+                images: ["https://fearofgod.com/cdn/shop/files/785SP263152K_KIDS_TRAINING_CLASSIC_FIT_SWEATPANT-FADED_SEAL_1_900x.jpg?v=1772225305", "https://fearofgod.com/cdn/shop/files/785SP263152K_KIDS_TRAINING_CLASSIC_FIT_SWEATPANT-FADED_SEAL_2_900x.jpg?v=1772225305"] 
+            },
+            "kids-3": { 
+                name: "Kids Training 90s Crewneck Sweatshirt - Faded Seal", 
+                price: "1.650.000 ₫", 
+                priceNum: 1650000, 
+                mainImg: "https://fearofgod.com/cdn/shop/files/785SP262432K_KIDS_TRAINING_90S_CREWNECK_SWEATSHIRT-FADED_SEAL_1_900x.jpg?v=1772582784", 
+                images: ["https://fearofgod.com/cdn/shop/files/785SP262432K_KIDS_TRAINING_90S_CREWNECK_SWEATSHIRT-FADED_SEAL_1_900x.jpg?v=1772582784", "https://fearofgod.com/cdn/shop/files/785SP262432K_KIDS_TRAINING_90S_CREWNECK_SWEATSHIRT-FADED_SEAL_2_900x.jpg?v=1772582784"] 
+            },
+            "kids-4": { 
+                name: "Kids Training 90s Short Sleeve Tee - Faded Black", 
+                price: "1.150.000 ₫", 
+                priceNum: 1150000, 
+                mainImg: "https://fearofgod.com/cdn/shop/files/785SP261011K_KIDS_TRAINING_90S_SHORT_SLEEVE_TEE-FADED_BLACK_1_1d40c50f-519a-48a9-bb0b-2ddc34fa5b20_900x.jpg?v=1771870270", 
+                images: ["https://fearofgod.com/cdn/shop/files/785SP261011K_KIDS_TRAINING_90S_SHORT_SLEEVE_TEE-FADED_BLACK_1_1d40c50f-519a-48a9-bb0b-2ddc34fa5b20_900x.jpg?v=1771870270", "https://fearofgod.com/cdn/shop/files/785SP261011K_KIDS_TRAINING_90S_SHORT_SLEEVE_TEE-FADED_BLACK_2_de5efbfc-2459-4cf3-9584-6c12ec084202_900x.jpg?v=1771870270"] 
+            },
+            "kids-5": { 
+                name: "Kids Training 90s Hoodie - Faded Black", 
+                price: "1.850.000 ₫", 
+                priceNum: 1850000, 
+                mainImg: "https://fearofgod.com/cdn/shop/files/785SP262421K_KIDS_TRAINING_90S_HOODIE-FADED_BLACK_1_900x.jpg?v=1772218722", 
+                images: ["https://fearofgod.com/cdn/shop/files/785SP262421K_KIDS_TRAINING_90S_HOODIE-FADED_BLACK_1_900x.jpg?v=1772218722", "https://fearofgod.com/cdn/shop/files/785SP262421K_KIDS_TRAINING_90S_HOODIE-FADED_BLACK_2_900x.jpg?v=1772218722"] 
+            },
+            "kids-6": { 
+                name: "Kids Training Classic Fit Sweatpant - Faded Black", 
+                price: "1.550.000 ₫", 
+                priceNum: 1550000, 
+                mainImg: "https://fearofgod.com/cdn/shop/files/785SP263151K_KIDS_TRAINING_CLASSIC_FIT_SWEATPANT-FADED_BLACK_1_900x.jpg?v=1772214805", 
+                images: ["https://fearofgod.com/cdn/shop/files/785SP263151K_KIDS_TRAINING_CLASSIC_FIT_SWEATPANT-FADED_BLACK_1_900x.jpg?v=1772214805", "https://fearofgod.com/cdn/shop/files/785SP263151K_KIDS_TRAINING_CLASSIC_FIT_SWEATPANT-FADED_BLACK_2_900x.jpg?v=1772214805"] 
+            },
+            "kids-7": { 
+                name: "Kids Training 90s Crewneck Sweatshirt - Faded Black", 
+                price: "1.650.000 ₫", 
+                priceNum: 1650000, 
+                mainImg: "https://fearofgod.com/cdn/shop/files/785SP262431K_KIDS_TRAINING_90S_CREWNECK_SWEATSHIRT-FADED_BLACK_1_900x.jpg?v=1772490599", 
+                images: ["https://fearofgod.com/cdn/shop/files/785SP262431K_KIDS_TRAINING_90S_CREWNECK_SWEATSHIRT-FADED_BLACK_1_900x.jpg?v=1772490599", "https://fearofgod.com/cdn/shop/files/785SP262431K_KIDS_TRAINING_90S_CREWNECK_SWEATSHIRT-FADED_BLACK_2_900x.jpg?v=1772490599"] 
+            },
+            "kids-8": { 
+                name: "Kids Classic Crewneck Sweatshirt - Vintage Black", 
+                price: "1.650.000 ₫", 
+                priceNum: 1650000, 
+                mainImg: "https://fearofgod.com/cdn/shop/files/785SP262022K_KIDS_CLASSIC_CREWNECK_SWEATSHIRT-VINTAGE_BLACK_1_900x.jpg?v=1772582131", 
+                images: ["https://fearofgod.com/cdn/shop/files/785SP262022K_KIDS_CLASSIC_CREWNECK_SWEATSHIRT-VINTAGE_BLACK_1_900x.jpg?v=1772582131", "https://fearofgod.com/cdn/shop/files/785SP262022K_KIDS_CLASSIC_CREWNECK_SWEATSHIRT-VINTAGE_BLACK_2_900x.jpg?v=1772582131"] 
+            },
+            "kids-9": { 
+                name: "Kids Classic Long Sleeve Tee - Vintage Black", 
+                price: "1.350.000 ₫", 
+                priceNum: 1350000, 
+                mainImg: "https://fearofgod.com/cdn/shop/files/785SP261362K_KIDS_CLASSIC_LONG_SLEEVE_TEE-VINTAGE_BLACK_1_900x.jpg?v=1773073567", 
+                images: ["https://fearofgod.com/cdn/shop/files/785SP261362K_KIDS_CLASSIC_LONG_SLEEVE_TEE-VINTAGE_BLACK_1_900x.jpg?v=1773073567", "https://fearofgod.com/cdn/shop/files/785SP261362K_KIDS_CLASSIC_LONG_SLEEVE_TEE-VINTAGE_BLACK_2_900x.jpg?v=1773073567"] 
+            },
+            "kids-10": { 
+                name: "Kids Campus 90s Hoodie - Faded Coastal", 
+                price: "1.850.000 ₫", 
+                priceNum: 1850000, 
+                mainImg: "https://fearofgod.com/cdn/shop/files/785SP262753K_KIDS_CAMPUS_90S_HOODIE-FADED_COASTAL_1_900x.jpg?v=1772225903", 
+                images: ["https://fearofgod.com/cdn/shop/files/785SP262753K_KIDS_CAMPUS_90S_HOODIE-FADED_COASTAL_1_900x.jpg?v=1772225903", "https://fearofgod.com/cdn/shop/files/785SP262753K_KIDS_CAMPUS_90S_HOODIE-FADED_COASTAL_2_900x.jpg?v=1772225903"] 
+            },
+            "kids-11": { 
+                name: "Kids Campus 90s Hoodie - Faded Mauve", 
+                price: "1.850.000 ₫", 
+                priceNum: 1850000, 
+                mainImg: "https://fearofgod.com/cdn/shop/files/785SP262752K_KIDS_CAMPUS_90S_HOODIE-FADED_MAUVE_1_900x.jpg?v=1772488015", 
+                images: ["https://fearofgod.com/cdn/shop/files/785SP262752K_KIDS_CAMPUS_90S_HOODIE-FADED_MAUVE_1_900x.jpg?v=1772488015", "https://fearofgod.com/cdn/shop/files/785SP262752K_KIDS_CAMPUS_90S_HOODIE-FADED_MAUVE_2_900x.jpg?v=1772488015"] 
+            },
+            "kids-12": { 
+                name: "Kids Signature Flare Sweatpant - Faded Mauve", 
+                price: "1.550.000 ₫", 
+                priceNum: 1550000, 
+                mainImg: "https://fearofgod.com/cdn/shop/files/785SP263042K_KIDS_SIGNATURE_FLARE_SWEATPANT-FADED_MAUVE_1_900x.jpg?v=1772491601", 
+                images: ["https://fearofgod.com/cdn/shop/files/785SP263042K_KIDS_SIGNATURE_FLARE_SWEATPANT-FADED_MAUVE_1_900x.jpg?v=1772491601", "https://fearofgod.com/cdn/shop/files/785SP263042K_KIDS_SIGNATURE_FLARE_SWEATPANT-FADED_MAUVE_2_900x.jpg?v=1772491601"] 
+            },
+            "kids-13": { 
+                name: "Kids Campus 90s Short Sleeve Tee - Faded Black", 
+                price: "1.150.000 ₫", 
+                priceNum: 1150000, 
+                mainImg: "https://fearofgod.com/cdn/shop/files/785SP261391K_KIDS_CAMPUS_90S_SHORT_SLEEVE_TEE-FADED_BLACK_1_900x.jpg?v=1770751933", 
+                images: ["https://fearofgod.com/cdn/shop/files/785SP261391K_KIDS_CAMPUS_90S_SHORT_SLEEVE_TEE-FADED_BLACK_1_900x.jpg?v=1770751933", "https://fearofgod.com/cdn/shop/files/785SP261391K_KIDS_CAMPUS_90S_SHORT_SLEEVE_TEE-FADED_BLACK_2_900x.jpg?v=1770751933"] 
+            },
+            "kids-14": { 
+                name: "Kids Signature 90s Short Sleeve Tee - Black", 
+                price: "1.150.000 ₫", 
+                priceNum: 1150000, 
+                mainImg: "https://fearofgod.com/cdn/shop/files/785SP261481K_KIDS_SIGNATURE_90S_SHORT_SLEEVE_TEE-BLACK_1_900x.jpg?v=1771518008", 
+                images: ["https://fearofgod.com/cdn/shop/files/785SP261481K_KIDS_SIGNATURE_90S_SHORT_SLEEVE_TEE-BLACK_1_900x.jpg?v=1771518008", "https://fearofgod.com/cdn/shop/files/785SP261481K_KIDS_SIGNATURE_90S_SHORT_SLEEVE_TEE-BLACK_2_900x.jpg?v=1771518008"] 
+            },
+            "kids-15": { 
+                name: "Kids Classic Full Zip Hoodie - Oatmeal", 
+                price: "1.950.000 ₫", 
+                priceNum: 1950000, 
+                mainImg: "https://fearofgod.com/cdn/shop/files/785SP262031K_KIDS_CLASSIC_FULL_ZIP_HOODIE-OATMEAL_HEATHER_LIGHT_HEATHER_1_c2f28201-4065-42e4-b908-c0dbd7340f8f_900x.jpg?v=1772490948", 
+                images: ["https://fearofgod.com/cdn/shop/files/785SP262031K_KIDS_CLASSIC_FULL_ZIP_HOODIE-OATMEAL_HEATHER_LIGHT_HEATHER_1_c2f28201-4065-42e4-b908-c0dbd7340f8f_900x.jpg?v=1772490948", "https://fearofgod.com/cdn/shop/files/785SP262031K_KIDS_CLASSIC_FULL_ZIP_HOODIE-OATMEAL_HEATHER_LIGHT_HEATHER_2_3f5bcbc3-8dc1-42b6-bfe1-4cf032c7f1e7_900x.jpg?v=1772490948"] 
+            },
+                                    
+                                        <!-- DATA phần sale -->
+            "sale-1": { name: "Womens Signature Classic Hoodie", price: "3.950.000 ₫", priceNum: 3950000, mainImg: "https://fearofgod.com/cdn/shop/files/AB7C6876-A51C-4A87-926D-E94BF0D62456_900x.jpg?v=1732042077", images: ["https://fearofgod.com/cdn/shop/files/AB7C6876-A51C-4A87-926D-E94BF0D62456_900x.jpg?v=1732042077", "https://fearofgod.com/cdn/shop/files/192AL246301F_KNICKS_ESSENTIALS_HOODIE_LIGHT_HEATHER-BLUE_2copy_900x.jpg?v=1732045661", "https://fearofgod.com/cdn/shop/files/Essentials_HO24_NBAKnicks01_0029_2_copy-3-4crop_900x.jpg?v=1732044256"] },
+            "sale-2": { name: "Essentials Tee - Hom", price: "2.150.000 ₫", priceNum: 2150000, mainImg: "https://fearofgod.com/cdn/shop/files/HomDsEKQ_900x.jpg?v=1758811371", images: ["https://fearofgod.com/cdn/shop/files/HomDsEKQ_900x.jpg?v=1758811371", "https://fearofgod.com/cdn/shop/files/lP3cvCSg_900x.jpg?v=1758811371", "https://fearofgod.com/cdn/shop/files/LYvqXwiA_900x.jpg?v=1758811371", "https://fearofgod.com/cdn/shop/files/9qinhTgg_900x.jpg?v=1758811375"] },
+            "sale-3": { name: "Essential Oversized Hoodie", price: "4.500.000 ₫", priceNum: 4500000, mainImg: "https://fearofgod.com/cdn/shop/files/oNWQI_UQ_900x.jpg?v=1758743119", images: ["https://fearofgod.com/cdn/shop/files/oNWQI_UQ_900x.jpg?v=1758743119", "https://fearofgod.com/cdn/shop/files/xQBGNBuA_900x.jpg?v=1758743195", "https://fearofgod.com/cdn/shop/files/Fr9Bff6w_900x.jpg?v=1758743195", "https://fearofgod.com/cdn/shop/files/jMZORgYg_900x.jpg?v=1758743190"] },
+            "sale-4": { name: "Essentials Graphic Tee", price: "1.950.000 ₫", priceNum: 1950000, mainImg: "https://fearofgod.com/cdn/shop/files/5xgEC8sg_900x.jpg?v=1758743352", images: ["https://fearofgod.com/cdn/shop/files/5xgEC8sg_900x.jpg?v=1758743352", "https://fearofgod.com/cdn/shop/files/EsARajGQ_900x.jpg?v=1758743431", "https://fearofgod.com/cdn/shop/files/2ihLTYhQ_900x.jpg?v=1758743352", "https://fearofgod.com/cdn/shop/files/FEiB2sMg_900x.jpg?v=1758743427"] },
+            "sale-5": { name: "Spurs 90s Hoodie - Seal", price: "4.200.000 ₫", priceNum: 4200000, mainImg: "https://fearofgod.com/cdn/shop/files/192NB256731F_SPURS_90S_HOODIE-SEAL_1_900x.jpg?v=1764132599", images: ["https://fearofgod.com/cdn/shop/files/192NB256731F_SPURS_90S_HOODIE-SEAL_1_900x.jpg?v=1764132599", "https://fearofgod.com/cdn/shop/files/192NB256731F_SPURS_90S_HOODIE-SEAL_2_900x.jpg?v=1764132599", "https://fearofgod.com/cdn/shop/files/192NB256731F_SPURS_90S_HOODIE-SEAL_3_900x.jpg?v=1764132599", "https://fearofgod.com/cdn/shop/files/192NB256731F_SPURS_90S_HOODIE-SEAL_4_900x.jpg?v=1764132599"] },
+            "sale-6": { name: "Spurs 90s Tee - Black", price: "1.750.000 ₫", priceNum: 1750000, mainImg: "https://fearofgod.com/cdn/shop/files/125NB252231F_SPURS_90S_TEE-BLACK_1_900x.jpg?v=1764132822", images: ["https://fearofgod.com/cdn/shop/files/125NB252231F_SPURS_90S_TEE-BLACK_1_900x.jpg?v=1764132822", "https://fearofgod.com/cdn/shop/files/125NB252231F_SPURS_90S_TEE-BLACK_2_900x.jpg?v=1764132822", "https://fearofgod.com/cdn/shop/files/125NB252231F_SPURS_90S_TEE-BLACK_3_900x.jpg?v=1764132822", "https://fearofgod.com/cdn/shop/files/125NB252231F_Black_900x.jpg?v=1764132822"] },
+            "sale-7": { name: "Spurs Classic Short - Black", price: "2.100.000 ₫", priceNum: 2100000, mainImg: "https://fearofgod.com/cdn/shop/files/160NB254231F_SPURS_CLASSIC_SHORT-BLACK_1_900x.jpg?v=1763752915", images: ["https://fearofgod.com/cdn/shop/files/160NB254231F_SPURS_CLASSIC_SHORT-BLACK_1_900x.jpg?v=1763752915", "https://fearofgod.com/cdn/shop/files/160NB254231F_SPURS_CLASSIC_SHORT-BLACK_2_900x.jpg?v=1763752914", "https://fearofgod.com/cdn/shop/files/160NB254231F_SPURS_CLASSIC_SHORT-BLACK_3_900x.jpg?v=1763752914", "https://fearofgod.com/cdn/shop/files/160NB254231F_SPURS_CLASSIC_SHORT-BLACK_4_900x.jpg?v=1763752914"] },
+            "sale-8": { name: "90s Short Sleeve Tee - Iron Grey", price: "1.650.000 ₫", priceNum: 1650000, mainImg: "https://fearofgod.com/cdn/shop/files/125HO254472F_90S_SHORT_SLEEVE_TEE-IRON_GREY_1_900x.jpg?v=1762278781", images: ["https://fearofgod.com/cdn/shop/files/125HO254472F_90S_SHORT_SLEEVE_TEE-IRON_GREY_1_900x.jpg?v=1762278781", "https://fearofgod.com/cdn/shop/files/125HO254472F_90S_SHORT_SLEEVE_TEE-IRON_GREY_2_900x.jpg?v=1762278781", "https://fearofgod.com/cdn/shop/files/125HO254472F_90S_SHORT_SLEEVE_TEE-IRON_GREY_3_900x.jpg?v=1762278781", "https://fearofgod.com/cdn/shop/files/125HO254472F_90S_SHORT_SLEEVE_TEE-IRON_GREY_4_900x.jpg?v=1762278781"] },
+            "sale-9": { name: "Classic Essentials - Grey", price: "2.950.000 ₫", priceNum: 2950000, mainImg: "https://fearofgod.com/cdn/shop/files/m2aCiR7w_900x.jpg?v=1762204331", images: ["https://fearofgod.com/cdn/shop/files/m2aCiR7w_900x.jpg?v=1762204331", "https://fearofgod.com/cdn/shop/files/hljWxZGw_900x.jpg?v=1762204321", "https://fearofgod.com/cdn/shop/files/V38nx8Xw_900x.jpg?v=1762204309", "https://fearofgod.com/cdn/shop/files/0039_HO25_F_L07_P13_0738_OnModelImage_9908ca97-90b2-44f1-b1fb-8dc0d9beb439_900x.jpg?v=1762204309"] },
+            "sale-10": { name: "Premium Essentials Hoodie", price: "1.950.000 ₫", priceNum: 1950000, mainImg: "https://fearofgod.com/cdn/shop/files/yoGjwlyw_900x.jpg?v=1762296730", images: ["https://fearofgod.com/cdn/shop/files/yoGjwlyw_900x.jpg?v=1762296730", "https://fearofgod.com/cdn/shop/files/Hb4DGZnA_900x.jpg?v=1762296730", "https://fearofgod.com/cdn/shop/files/0042_HO25_F_L64_P32_3241_99514dde-e358-41b2-855a-9133c74d8126_900x.jpg?v=1762296730", "https://fearofgod.com/cdn/shop/files/0041_HO25_F_L64_P32_3257_58316b60-08de-426a-9a8e-c2a721f4f70a_900x.jpg?v=1762216312"] },
+            "sale-11": { name: "Classic Full-Zip Hoodie", price: "3.650.000 ₫", priceNum: 3650000, mainImg: "https://fearofgod.com/cdn/shop/files/5y317hgA_900x.jpg?v=1762272160", images: ["https://fearofgod.com/cdn/shop/files/5y317hgA_900x.jpg?v=1762272160", "https://fearofgod.com/cdn/shop/files/dtuv0JAw_900x.jpg?v=1762272160", "https://fearofgod.com/cdn/shop/files/0005_HO25_F_L56_P07_2493_bd1065b2-f75d-4001-8d25-9e3ca4be08f6_900x.jpg?v=1762617847", "https://fearofgod.com/cdn/shop/files/0006_HO25_F_L56_P07_2460_36118e8d-f2e4-4c6f-acc2-e72ace9cff8b_900x.jpg?v=1762617847"] },
+            "sale-12": { name: "Work Pant - Vintage Black", price: "3.100.000 ₫", priceNum: 3100000, mainImg: "https://fearofgod.com/cdn/shop/files/130HO258361F_WORK_PANT-VINTAGE_BLACK_1_900x.jpg?v=1762276801", images: ["https://fearofgod.com/cdn/shop/files/130HO258361F_WORK_PANT-VINTAGE_BLACK_1_900x.jpg?v=1762276801", "https://fearofgod.com/cdn/shop/files/130HO258361F_WORK_PANT-VINTAGE_BLACK_2_900x.jpg?v=1762276801", "https://fearofgod.com/cdn/shop/files/0016_HO25_F_L46_P43_P08_1595_900x.jpg?v=1762276801", "https://fearofgod.com/cdn/shop/files/0017_HO25_F_L46_P43_1531_900x.jpg?v=1762276801"] },
+            "sale-13": { name: "Heavyweight Fleece Hoodie", price: "3.950.000 ₫", priceNum: 3950000, mainImg: "https://fearofgod.com/cdn/shop/files/ZkAmBwHA_900x.jpg?v=1762283268", images: ["https://fearofgod.com/cdn/shop/files/ZkAmBwHA_900x.jpg?v=1762283268", "https://fearofgod.com/cdn/shop/files/9Wq0X_aw_900x.jpg?v=1762283268", "https://fearofgod.com/cdn/shop/files/f46E3TfA_900x.jpg?v=1762283268", "https://fearofgod.com/cdn/shop/files/0035_HO25_F_L38_P08_0580copy_900x.jpg?v=1762283268"] },
+            "sale-14": { name: "Relaxed Nylon Track Jacket", price: "4.250.000 ₫", priceNum: 4250000, mainImg: "https://fearofgod.com/cdn/shop/files/mZQTHs-g_900x.jpg?v=1762217130", images: ["https://fearofgod.com/cdn/shop/files/mZQTHs-g_900x.jpg?v=1762217130", "https://fearofgod.com/cdn/shop/files/cEdAwjVA_900x.jpg?v=1762217130", "https://fearofgod.com/cdn/shop/files/gmZbRdLw_900x.jpg?v=1762217130", "https://fearofgod.com/cdn/shop/files/0002_HO25_F_L58_P05_SN04_2600_900x.jpg?v=1762217130"] },
+            "sale-15": { name: "90s Short Sleeve Tee - Vintage Black", price: "1.650.000 ₫", priceNum: 1650000, mainImg: "https://fearofgod.com/cdn/shop/files/125HO254563F_90S_SHORT_SLEEVE_TEE-VINTAGE_BLACK_1_9d5932f2-def4-4fd4-9526-d1d524e0eaa7_900x.jpg?v=1762298756", images: ["https://fearofgod.com/cdn/shop/files/125HO254563F_90S_SHORT_SLEEVE_TEE-VINTAGE_BLACK_1_9d5932f2-def4-4fd4-9526-d1d524e0eaa7_900x.jpg?v=1762298756", "https://fearofgod.com/cdn/shop/files/125HO254563F_90S_SHORT_SLEEVE_TEE-VINTAGE_BLACK_2_900x.jpg?v=1762298756", "https://fearofgod.com/cdn/shop/files/0033_HO25_F_L84_P09_4547_900x.jpg?v=1765811382", "https://fearofgod.com/cdn/shop/files/0025_HO25_F_L84_P09_4607_900x.jpg?v=1765811382"] },
+            "sale-16": { name: "Relaxed Fleece Sweatpants", price: "2.850.000 ₫", priceNum: 2850000, mainImg: "https://fearofgod.com/cdn/shop/files/F2KKJFVg_900x.jpg?v=1762278990", images: ["https://fearofgod.com/cdn/shop/files/F2KKJFVg_900x.jpg?v=1762278990", "https://fearofgod.com/cdn/shop/files/Lb5nlz9g_900x.jpg?v=1762278990", "https://fearofgod.com/cdn/shop/files/0031_HO25_F_L68_P34_P14_3549_900x.jpg?v=1762278990", "https://fearofgod.com/cdn/shop/files/0029_HO25_F_L68_P34_P14_3573_900x.jpg?v=1762278990"] },
+            "sale-17": { name: "Classic Knit Pullover", price: "3.450.000 ₫", priceNum: 3450000, mainImg: "https://fearofgod.com/cdn/shop/files/uqWmGoSQ_900x.jpg?v=1762299968", images: ["https://fearofgod.com/cdn/shop/files/uqWmGoSQ_900x.jpg?v=1762299968", "https://fearofgod.com/cdn/shop/files/aL__EHw_900x.jpg?v=1762299968", "https://fearofgod.com/cdn/shop/files/0040_HO25_F_L36_P10_0331_1a0bf20a-822a-4986-9266-09df31874cca_900x.jpg?v=1762299968", "https://fearofgod.com/cdn/shop/files/4PPn5tsA_900x.jpg?v=1762299968"] },
+            "sale-18": { name: "Classic Hoodie - Vintage Black", price: "3.650.000 ₫", priceNum: 3650000, mainImg: "https://fearofgod.com/cdn/shop/files/192HO256861F_CLASSIC_HOODIE-VINTAGE_BLACK_1_900x.jpg?v=1762201528", images: ["https://fearofgod.com/cdn/shop/files/192HO256861F_CLASSIC_HOODIE-VINTAGE_BLACK_1_900x.jpg?v=1762201528", "https://fearofgod.com/cdn/shop/files/192HO256861F_CLASSIC_HOODIE-VINTAGE_BLACK_2_900x.jpg?v=1762201528", "https://fearofgod.com/cdn/shop/files/192HO256861F_CLASSIC_HOODIE-VINTAGE_BLACK_3_900x.jpg?v=1762201528", "https://fearofgod.com/cdn/shop/files/0045_HO25_F_L03_P35_0160_OnModelImage_60dd6184-6fbd-4996-a97d-7f4b83b48856_900x.jpg?v=1762201528"] },
+            "sale-19": { name: "Minimalist Logo Tee", price: "1.550.000 ₫", priceNum: 1550000, mainImg: "https://fearofgod.com/cdn/shop/files/chjyhb6A_900x.jpg?v=1760115613", images: ["https://fearofgod.com/cdn/shop/files/chjyhb6A_900x.jpg?v=1760115613", "https://fearofgod.com/cdn/shop/files/W5-C9g1g_900x.jpg?v=1760115613", "https://fearofgod.com/cdn/shop/files/c5i3-Fbw_900x.jpg?v=1760115613"] },
+            "sale-20": { name: "Relaxed Educate Tee - Black", price: "5.250.000 ₫", priceNum: 5250000, mainImg: "https://fearofgod.com/cdn/shop/files/FG25FW10-10304HWJ-001_RELAXED_EDUCATE_TEE-BLACK_1_900x.jpg?v=1752529000", images: ["https://fearofgod.com/cdn/shop/files/FG25FW10-10304HWJ-001_RELAXED_EDUCATE_TEE-BLACK_1_900x.jpg?v=1752529000", "https://fearofgod.com/cdn/shop/files/FG25FW10-10304HWJ-001_RELAXED_EDUCATE_TEE-BLACK_2_900x.jpg?v=1752529000", "https://fearofgod.com/cdn/shop/files/FG25FW10-10304HWJ-001_RELAXED_EDUCATE_TEE-BLACK_3_900x.jpg?v=1752529000", "https://fearofgod.com/cdn/shop/files/FG25FW10-10304HWJ-001_RELAXED_EDUCATE_TEE-BLACK_4_900x.jpg?v=1752529000"] },
+            "sale-21": { name: "Relaxed LS Freedom Tee - Black", price: "6.450.000 ₫", priceNum: 6450000, mainImg: "https://fearofgod.com/cdn/shop/files/Reaxed_Ls_Freedom_Tee_FG25FW10-10401HWJ-001_Black_1_900x.jpg?v=1755719169", images: ["https://fearofgod.com/cdn/shop/files/Reaxed_Ls_Freedom_Tee_FG25FW10-10401HWJ-001_Black_1_900x.jpg?v=1755719169", "https://fearofgod.com/cdn/shop/files/ReaxedLsFreedomTee_FG25FW10-10401HWJ-001_Black_2_900x.jpg?v=1755719134", "https://fearofgod.com/cdn/shop/files/ReaxedLsFreedomTee_FG25FW10-10401HWJ-001_Black_3_900x.jpg?v=1755719135", "https://fearofgod.com/cdn/shop/files/ReaxedLsFreedomTee_FG25FW10-10401HWJ-001_Black_4_900x.jpg?v=1755719135"] },
+            "sale-22": { name: "Straight 5 Pocket Jean - Worn Black", price: "12.500.000 ₫", priceNum: 12500000, mainImg: "https://fearofgod.com/cdn/shop/files/FG25FW45-454DNM-003_STRAIGHT_5_POCKET_JEAN-WORN_BLACK_1_900x.jpg?v=1752529797", images: ["https://fearofgod.com/cdn/shop/files/FG25FW45-454DNM-003_STRAIGHT_5_POCKET_JEAN-WORN_BLACK_1_900x.jpg?v=1752529797", "https://fearofgod.com/cdn/shop/files/FG25FW45-454DNM-003_STRAIGHT_5_POCKET_JEAN-WORN_BLACK_2_900x.jpg?v=1752529797", "https://fearofgod.com/cdn/shop/files/FG25FW45-454DNM-003_STRAIGHT_5_POCKET_JEAN-WORN_BLACK_3_900x.jpg?v=1752529797", "https://fearofgod.com/cdn/shop/files/FG25FW45-454DNM-003_STRAIGHT_5_POCKET_JEAN-WORN_BLACK_4_900x.jpg?v=1752529797"] },
+            "sale-23": { name: "Fear Of God Hoodie - Black", price: "14.200.000 ₫", priceNum: 14200000, mainImg: "https://fearofgod.com/cdn/shop/files/FearOfGodHoodie_FG25FW12-12102BHF-001_Black_1_900x.jpg?v=1750201992", images: ["https://fearofgod.com/cdn/shop/files/FearOfGodHoodie_FG25FW12-12102BHF-001_Black_1_900x.jpg?v=1750201992", "https://fearofgod.com/cdn/shop/files/FearOfGodHoodie_FG25FW12-12102BHF-001_Black_2_900x.jpg?v=1750201992", "https://fearofgod.com/cdn/shop/files/FearOfGodHoodie_FG25FW12-12102BHF-001_Black_3_900x.jpg?v=1750201992", "https://fearofgod.com/cdn/shop/files/FearOfGodHoodie_FG25FW12-12102BHF-001_Black_4_900x.jpg?v=1750201992"] },
+            "sale-24": { name: "Relaxed Disciple Tee - Oat", price: "5.250.000 ₫", priceNum: 5250000, mainImg: "https://fearofgod.com/cdn/shop/files/FG25FW10-10309HWJ-991_RELAXED_DISCIPLE_TEE-OAT_1_900x.jpg?v=1752529041", images: ["https://fearofgod.com/cdn/shop/files/FG25FW10-10309HWJ-991_RELAXED_DISCIPLE_TEE-OAT_1_900x.jpg?v=1752529041", "https://fearofgod.com/cdn/shop/files/FG25FW10-10309HWJ-991_RELAXED_DISCIPLE_TEE-OAT_2_900x.jpg?v=1752529042", "https://fearofgod.com/cdn/shop/files/FG25FW10-10309HWJ-991_RELAXED_DISCIPLE_TEE-OAT_3_900x.jpg?v=1752529042", "https://fearofgod.com/cdn/shop/files/FG25FW10-10309HWJ-991_RELAXED_DISCIPLE_TEE-OAT_4_900x.jpg?v=1752529042"] },
+            "sale-25": { name: "Relaxed Fear Of God LS Tee - Black", price: "6.450.000 ₫", priceNum: 6450000, mainImg: "https://fearofgod.com/cdn/shop/files/FG25FW10-10402HWJUS_RELAXED_FEAR_OF_GOD_LS_TEE-BLACK_1_900x.jpg?v=1752529110", images: ["https://fearofgod.com/cdn/shop/files/FG25FW10-10402HWJUS_RELAXED_FEAR_OF_GOD_LS_TEE-BLACK_1_900x.jpg?v=1752529110", "https://fearofgod.com/cdn/shop/files/FG25FW10-10402HWJUS_RELAXED_FEAR_OF_GOD_LS_TEE-BLACK_2_900x.jpg?v=1752529109", "https://fearofgod.com/cdn/shop/files/FG25FW10-10402HWJUS_RELAXED_FEAR_OF_GOD_LS_TEE-BLACK_3_900x.jpg?v=1752529110", "https://fearofgod.com/cdn/shop/files/FG25FW10-10402HWJUS_RELAXED_FEAR_OF_GOD_LS_TEE-BLACK_4_900x.jpg?v=1752529109"] },
+            "sale-26": { name: "Panthers Hoodie - Black", price: "14.500.000 ₫", priceNum: 14500000, mainImg: "https://fearofgod.com/cdn/shop/files/FG25FW12-12108BHFUS_PANTERS_HOODIE-BLACK_1_900x.jpg?v=1756237444", images: ["https://fearofgod.com/cdn/shop/files/FG25FW12-12108BHFUS_PANTERS_HOODIE-BLACK_1_900x.jpg?v=1756237444", "https://fearofgod.com/cdn/shop/files/FG25FW12-12108BHFUS_PANTERS_HOODIE-BLACK_2_900x.jpg?v=1756237444", "https://fearofgod.com/cdn/shop/files/FG25FW12-12108BHFUS_PANTERS_HOODIE-BLACK_3_900x.jpg?v=1756237445", "https://fearofgod.com/cdn/shop/files/FG25FW12-12108BHFUS_PANTERS_HOODIE-BLACK_4_900x.jpg?v=1756237444"] },
+            "sale-27": { name: "Relaxed Le Panthers Tee - Black", price: "5.250.000 ₫", priceNum: 5250000, mainImg: "https://fearofgod.com/cdn/shop/files/RelaxedLePanteresTee_FG25FW10-10303HWJ-001_Black_1_041dcef1-bb71-4667-84e6-6510d0bd83a1_900x.jpg?v=1750208801", images: ["https://fearofgod.com/cdn/shop/files/RelaxedLePanteresTee_FG25FW10-10303HWJ-001_Black_1_041dcef1-bb71-4667-84e6-6510d0bd83a1_900x.jpg?v=1750208801", "https://fearofgod.com/cdn/shop/files/RelaxedLePanteresTee_FG25FW10-10303HWJ-001_Black_2_46ecb7fc-4feb-473b-b0ca-a6f3c0817834_900x.jpg?v=1750208801", "https://fearofgod.com/cdn/shop/files/RelaxedLePanteresTee_FG25FW10-10303HWJ-001_Black_3_b6493564-f01b-4ea4-90bc-751f6ff48e90_900x.jpg?v=1750208801", "https://fearofgod.com/cdn/shop/files/RelaxedLePanteresTee_FG25FW10-10303HWJ-001_Black_4_3f58fa54-2e9d-4440-91ce-63938e1e85b5_900x.jpg?v=1750208801"] },
+            /* ==================== MENS INFRASTRUCTURE DATA ==================== */
+            "tops-1": { key: "tops-1", brand: "Essentials", name: "MLB Raglan Sport Hoodie - Oat Heather", priceNum: 4883000, price: "4.883.000 ₫", mainImg: "https://fearofgod.com/cdn/shop/files/RW00210_MLB_RAGLAN_SPORT_HOODIE-OAT_2_x800.jpg?v=1777998692", images: ["https://fearofgod.com/cdn/shop/files/RW00210_MLB_RAGLAN_SPORT_HOODIE-OAT_2_x800.jpg?v=1777998692", "https://fearofgod.com/cdn/shop/files/RW00210_MLB_RAGLAN_SPORT_HOODIE-OAT_1_900x.jpg?v=1777998692", "https://fearofgod.com/cdn/shop/files/RW00210_MLB_RAGLAN_SPORT_HOODIE-OAT_3_900x.jpg?v=1777998692", "https://fearofgod.com/cdn/shop/files/RW00210_MLB_RAGLAN_SPORT_HOODIE-OAT_4_900x.jpg?v=1777998692"] },
+            "tops-2": { key: "tops-2", brand: "Essentials", name: "Dodgers Raglan Half Zip Sport Hoodie", priceNum: 5162000, price: "5.162.000 ₫", mainImg: "https://fearofgod.com/cdn/shop/files/RW00213_DODGERS_RAGLAN_HALF_ZIP_SPORT_HOODIE-ESTATE_BLUE_SEAL_1_x800.jpg?v=1777998961", images: ["https://fearofgod.com/cdn/shop/files/RW00213_DODGERS_RAGLAN_HALF_ZIP_SPORT_HOODIE-ESTATE_BLUE_SEAL_1_x800.jpg?v=1777998961", "https://fearofgod.com/cdn/shop/files/RW00213_DODGERS_RAGLAN_HALF_ZIP_SPORT_HOODIE-ESTATE_BLUE_SEAL_2_900x.jpg?v=1777998961", "https://fearofgod.com/cdn/shop/files/RW00213_DODGERS_RAGLAN_HALF_ZIP_SPORT_HOODIE-ESTATE_BLUE_SEAL_3_900x.jpg?v=1777998961", "https://fearofgod.com/cdn/shop/files/RW00213_DODGERS_RAGLAN_HALF_ZIP_SPORT_HOODIE-ESTATE_BLUE_SEAL_4_900x.jpg?v=1777998961", "https://fearofgod.com/cdn/shop/files/Half_Zip_Retouched_1_900x.png?v=1779264991", "https://fearofgod.com/cdn/shop/files/MARCH26_USA_L11_P_1495_900x.jpg?v=1778010690", "https://fearofgod.com/cdn/shop/files/Half_Zip_Retouched_2_900x.png?v=1779264991"] },
+            "tops-3": { key: "tops-3", brand: "Essentials", name: "Dodgers Half Zip Pullover Jacket", priceNum: 6976000, price: "6.976.000 ₫", mainImg: "https://fearofgod.com/cdn/shop/files/RW00233_DODGERS-HALF_ZIP_PULLOVER-ESTATE_BLUE_SEAL_RIB_1_x800.jpg?v=1778000092", images: ["https://fearofgod.com/cdn/shop/files/RW00233_DODGERS-HALF_ZIP_PULLOVER-ESTATE_BLUE_SEAL_RIB_1_x800.jpg?v=1778000092", "https://fearofgod.com/cdn/shop/files/RW00233_DODGERS-HALF_ZIP_PULLOVER-ESTATE_BLUE_SEAL_RIB_2_900x.jpg?v=1778000092", "https://fearofgod.com/cdn/shop/files/RW00233_DODGERS-HALF_ZIP_PULLOVER-ESTATE_BLUE_SEAL_RIB_3_900x.jpg?v=1778000093", "https://fearofgod.com/cdn/shop/files/RW00233_DODGERS-HALF_ZIP_PULLOVER-ESTATE_BLUE_SEAL_RIB_4_900x.jpg?v=1778000092"] },
+            "tops-4": { key: "tops-4", brand: "Essentials", name: "Dodgers Heavyweight Merch T-Shirt", priceNum: 2512000, price: "2.512.000 ₫", mainImg: "https://fearofgod.com/cdn/shop/files/RW00190_DODGERS_MERCH_TEE-CONCRETE_HEATHER_1_x800.jpg?v=1777996041", images: ["https://fearofgod.com/cdn/shop/files/RW00190_DODGERS_MERCH_TEE-CONCRETE_HEATHER_1_x800.jpg?v=1777996041", "https://fearofgod.com/cdn/shop/files/RW00190_DODGERS_MERCH_TEE-CONCRETE_HEATHER_2_900x.jpg?v=1777996041", "https://fearofgod.com/cdn/shop/files/RW00190_DODGERS_MERCH_TEE-CONCRETE_HEATHER_3_900x.jpg?v=1777996041", "https://fearofgod.com/cdn/shop/files/RW00190_DODGERS_MERCH_TEE-CONCRETE_HEATHER_4_900x.jpg?v=1777996041"] },
+            "tops-5": { key: "tops-5", brand: "Essentials", name: "Dodgers Classic Logo Sport Hoodie", priceNum: 3070000, price: "3.070.000 ₫", mainImg: "https://fearofgod.com/cdn/shop/files/RW00202_DODGERS_SPORT_HOODIE-OAT_1_x800.jpg?v=1777998047", images: ["https://fearofgod.com/cdn/shop/files/RW00202_DODGERS_SPORT_HOODIE-OAT_1_x800.jpg?v=1777998047", "https://fearofgod.com/cdn/shop/files/RW00202_DODGERS_SPORT_HOODIE-OAT_1_900x.jpg?v=1777998047", "https://fearofgod.com/cdn/shop/files/RW00202_DODGERS_SPORT_HOODIE-OAT_2_900x.jpg?v=1777998047", "https://fearofgod.com/cdn/shop/files/RW00202_DODGERS_SPORT_HOODIE-OAT_3_900x.jpg?v=1777998047", "https://fearofgod.com/cdn/shop/files/RW00202_DODGERS_SPORT_HOODIE-OAT_4_900x.jpg?v=1777998047"] },
+            "tops-6": { key: "tops-6", brand: "Essentials", name: "MLB Boxy Oversized Long Sleeve Tee", priceNum: 2791000, price: "2.791.000 ₫", mainImg: "https://fearofgod.com/cdn/shop/files/RW00199_MLB_BOXY_LONG_SLEEVE_TEE-BLACK_1_x800.jpg?v=1777997642", images: ["https://fearofgod.com/cdn/shop/files/RW00199_MLB_BOXY_LONG_SLEEVE_TEE-BLACK_1_x800.jpg?v=1777997642", "https://fearofgod.com/cdn/shop/files/RW00199_MLB_BOXY_LONG_SLEEVE_TEE-BLACK_2_900x.jpg?v=1777997641", "https://fearofgod.com/cdn/shop/files/RW00199_MLB_BOXY_LONG_SLEEVE_TEE-BLACK_3_900x.jpg?v=1777997642", "https://fearofgod.com/cdn/shop/files/RW00199_MLB_BOXY_LONG_SLEEVE_TEE-BLACK_4_900x.jpg?v=1777997642"] },
+            "tops-7": { key: "tops-7", brand: "Essentials", name: "White Sox Premium Crewneck Merch Tee", priceNum: 2550000, price: "2.550.000 ₫", mainImg: "https://fearofgod.com/cdn/shop/files/RW00189_WHITE_SOX_MERCH_TEE-CONCRETE_HEATHER_2_x800.jpg?v=1778003846", images: ["https://fearofgod.com/cdn/shop/files/RW00189_WHITE_SOX_MERCH_TEE-CONCRETE_HEATHER_2_x800.jpg?v=1778003846", "https://fearofgod.com/cdn/shop/files/RW00189_WHITE_SOX_MERCH_TEE-CONCRETE_HEATHER_1_900x.jpg?v=1778003847", "https://fearofgod.com/cdn/shop/files/RW00189_WHITE_SOX_MERCH_TEE-CONCRETE_HEATHER_3_900x.jpg?v=1778003847", "https://fearofgod.com/cdn/shop/files/RW00189_WHITE_SOX_MERCH_TEE-CONCRETE_HEATHER_4_900x.jpg?v=1778003848"] },
+            "tops-8": { key: "tops-8", brand: "Essentials", name: "White Sox Pinstripe Heavyweight Hoodie", priceNum: 5400000, price: "5.400.000 ₫", mainImg: "https://fearofgod.com/cdn/shop/files/RW00201_WHITE_SOX_SPORT_HOODIE-OATMEAL_HEATHER_W_BLACK_PINSTRIPES_1_x800.jpg?v=1777997926", images: ["https://fearofgod.com/cdn/shop/files/RW00201_WHITE_SOX_SPORT_HOODIE-OATMEAL_HEATHER_W_BLACK_PINSTRIPES_1_x800.jpg?v=1777997926", "https://fearofgod.com/cdn/shop/files/RW00201_WHITE_SOX_SPORT_HOODIE-OATMEAL_HEATHER_W_BLACK_PINSTRIPES_2_900x.jpg?v=1777997926", "https://fearofgod.com/cdn/shop/files/RW00201_WHITE_SOX_SPORT_HOODIE-OATMEAL_HEATHER_W_BLACK_PINSTRIPES_3_900x.jpg?v=1777997926", "https://fearofgod.com/cdn/shop/files/RW00201_WHITE_SOX_SPORT_HOODIE-OATMEAL_HEATHER_W_BLACK_PINSTRIPES_4_900x.jpg?v=1777997926"] },
+            "tops-9": { key: "tops-9", brand: "Essentials", name: "Property Of LA Crewneck Sweatshirt", priceNum: 3950000, price: "3.950.000 ₫", mainImg: "https://fearofgod.com/cdn/shop/files/RW00184_PROPERTY_OF_LA_CREWNECK-CONCRETE_HEATHER_1_900x.jpg?v=1777994241", images: ["https://fearofgod.com/cdn/shop/files/RW00184_PROPERTY_OF_LA_CREWNECK-CONCRETE_HEATHER_1_900x.jpg?v=1777994241", "https://fearofgod.com/cdn/shop/files/RW00184_PROPERTY_OF_LA_CREWNECK-CONCRETE_HEATHER_2_900x.jpg?v=1777994241"] },
+            "tops-10": { key: "tops-10", brand: "Essentials", name: "Baseball Essentials Boxy Graphic Tee - Black", priceNum: 2350000, price: "2.350.000 ₫", mainImg: "https://fearofgod.com/cdn/shop/files/RW00196_BASEBALL_ESSENTIALS_TEE-BLACK_1_900x.jpg?v=1777997235", images: ["https://fearofgod.com/cdn/shop/files/RW00196_BASEBALL_ESSENTIALS_TEE-BLACK_1_900x.jpg?v=1777997235", "https://fearofgod.com/cdn/shop/files/RW00196_BASEBALL_ESSENTIALS_TEE-BLACK_2_900x.jpg?v=1777997235"] },
+
+            "hoodies-1": { key: "hoodies-1", brand: "Essentials", name: "Cubs Raglan Half Zip Sport Hoodie - Estate Blue", priceNum: 5250000, price: "5.250.000 ₫", mainImg: "https://fearofgod.com/cdn/shop/files/RW00215_CUBS_RAGLAN_HALF_ZIP_SPORT_HOODIE-ESTATE_BLUE_STONE_RED_1_900x.jpg?v=1777999153", images: ["https://fearofgod.com/cdn/shop/files/RW00215_CUBS_RAGLAN_HALF_ZIP_SPORT_HOODIE-ESTATE_BLUE_STONE_RED_1_900x.jpg?v=1777999153", "https://fearofgod.com/cdn/shop/files/RW00215_CUBS_RAGLAN_HALF_ZIP_SPORT_HOODIE-ESTATE_BLUE_STONE_RED_2_900x.jpg?v=1777999153"] },
+            "hoodies-2": { key: "hoodies-2", brand: "Essentials", name: "Classic Fit Fleece Zip Up Hoodie - Homestead", priceNum: 4650000, price: "4.650.000 ₫", mainImg: "https://fearofgod.com/cdn/shop/files/192AS262072F_CLASSIC_FIT_FLEECE_ZIP_UP_HOODIE-HOMESTEAD_HEATHER_1_cd3fa6c0-d0da-4f0d-9968-90422fccfa56_900x.jpg?v=1776264814", images: ["https://fearofgod.com/cdn/shop/files/192AS262072F_CLASSIC_FIT_FLEECE_ZIP_UP_HOODIE-HOMESTEAD_HEATHER_1_cd3fa6c0-d0da-4f0d-9968-90422fccfa56_900x.jpg?v=1776264814", "https://fearofgod.com/cdn/shop/files/192AS262072F_CLASSIC_FIT_FLEECE_ZIP_UP_HOODIE-HOMESTEAD_HEATHER_2_7b3f75ef-2bbe-4f95-b9f6-372b18cc951a_900x.jpg?v=1776264814"] },
+            "hoodies-3": { key: "hoodies-3", brand: "Essentials", name: "Classic Fit Fleece Zip Up Hoodie - Vintage Black", priceNum: 4650000, price: "4.650.000 ₫", mainImg: "https://fearofgod.com/cdn/shop/files/192AS262071F_CLASSIC_FIT_FLEECE_ZIP_UP_HOODIE-VINTAGE_BLACK_WHITE_1_900x.jpg?v=1770738701", images: ["https://fearofgod.com/cdn/shop/files/192AS262071F_CLASSIC_FIT_FLEECE_ZIP_UP_HOODIE-VINTAGE_BLACK_WHITE_1_900x.jpg?v=1770738701", "https://fearofgod.com/cdn/shop/files/192AS262071F_CLASSIC_FIT_FLEECE_ZIP_UP_HOODIE-VINTAGE_BLACK_WHITE_2_900x.jpg?v=1770738701"] },
+            "hoodies-4": { key: "hoodies-4", brand: "Essentials", name: "Classic Pullover Hoodie - Vintage Black Edition", priceNum: 4350000, price: "4.350.000 ₫", mainImg: "https://fearofgod.com/cdn/shop/files/192AS264732F_CLASSIC_HOODIE-VINTAGE_BLACK_1_900x.jpg?v=1770739042", images: ["https://fearofgod.com/cdn/shop/files/192AS264732F_CLASSIC_HOODIE-VINTAGE_BLACK_1_900x.jpg?v=1770739042", "https://fearofgod.com/cdn/shop/files/192AS264732F_CLASSIC_HOODIE-VINTAGE_BLACK_2_900x.jpg?v=1770739042"] },
+
+            /* ==================== THE CEO & THE WEEKEND DRESS SHIRTS & POLO ==================== */
+            "dress-1": { 
+                key: "dress-1", 
+                brand: "The CEO", 
+                name: "Long Sleeve Dress Shirt - Pure White Luxe", 
+                priceNum: 680000, 
+                price: "680.000 ₫", 
+                mainImg: "https://yame.vn/cdn/shop/files/ao-s-mi-tay-dai-the-ceo-009-tr-ng-1187130533.jpg?v=1760792739&width=713", 
+                images: [
+                    "https://yame.vn/cdn/shop/files/ao-s-mi-tay-dai-the-ceo-009-tr-ng-1187130533.jpg?v=1760792739&width=713", 
+                    "https://yame.vn/cdn/shop/files/ao-s-mi-tay-dai-the-ceo-009-tr-ng-1187130529.jpg?v=1760792740&width=713", 
+                    "https://yame.vn/cdn/shop/files/ao-s-mi-tay-dai-the-ceo-009-tr-ng-1187130527.jpg?v=1760792743&width=713", 
+                    "https://yame.vn/cdn/shop/files/0024585.jpg?v=1766113478&width=713"
+                ] 
+            },
+            "dress-2": { 
+                key: "dress-2", 
+                brand: "The CEO", 
+                name: "Premium Non-Iron Executive Shirt - White", 
+                priceNum: 750000, 
+                price: "750.000 ₫", 
+                mainImg: "https://yame.vn/cdn/shop/files/ao-s-mi-non-iron-01-tr-ng-1174884279.jpg?v=1760775029&width=713", 
+                images: [
+                    "https://yame.vn/cdn/shop/files/ao-s-mi-non-iron-01-tr-ng-1174884279.jpg?v=1760775029&width=713", 
+                    "https://yame.vn/cdn/shop/files/ao-s-mi-non-iron-01-tr-ng-1174884317.jpg?v=1766140039&width=713", 
+                    "https://yame.vn/cdn/shop/files/ao-s-mi-non-iron-01-tr-ng-1174884320.jpg?v=1766140039&width=713", 
+                    "https://yame.vn/cdn/shop/files/TheCEO002.TheCEO015.jpg?v=1767007912&width=713"
+                ] 
+            },
+            "dress-3": { 
+                key: "dress-3", 
+                brand: "The CEO", 
+                name: "Premium Non-Iron Executive Shirt - Light Grey", 
+                priceNum: 750000, 
+                price: "750.000 ₫", 
+                mainImg: "https://yame.vn/cdn/shop/files/ao-s-mi-non-iron-01-xam-nh-t-1174884314.jpg?v=1760775066&width=713", 
+                images: [
+                    "https://yame.vn/cdn/shop/files/ao-s-mi-non-iron-01-xam-nh-t-1174884314.jpg?v=1760775066&width=713", 
+                    "https://yame.vn/cdn/shop/files/ao-s-mi-non-iron-01-xam-nh-t-1174884310.jpg?v=1766140275&width=713", 
+                    "https://yame.vn/cdn/shop/files/ao-s-mi-non-iron-01-xam-nh-t-1174884313.jpg?v=1766140275&width=713", 
+                    "https://yame.vn/cdn/shop/files/TheCEO002.TheCEO012.jpg?v=1767008855&width=713"
+                ] 
+            },
+            "dress-4": { 
+                key: "dress-4", 
+                brand: "The CEO", 
+                name: "Luxury Non-Branded Knit Polo - Beige", 
+                priceNum: 590000, 
+                price: "590.000 ₫", 
+                mainImg: "https://yame.vn/cdn/shop/files/ao-polo-non-branded-45-be-1174885323.jpg?v=1760774521&width=713", 
+                images: [
+                    "https://yame.vn/cdn/shop/files/ao-polo-non-branded-45-be-1174885323.jpg?v=1760774521&width=713", 
+                    "https://yame.vn/cdn/shop/files/ao-polo-non-branded-45-be-1174885325.jpg?v=1773915623&width=713", 
+                    "https://yame.vn/cdn/shop/files/ao-polo-non-branded-45-be-1174885322.jpg?v=1773915623&width=713", 
+                    "https://yame.vn/cdn/shop/files/TheCEO001.TheCEO018_89c90ffa-a330-4a6f-bb92-f3d57750ac62.jpg?v=1773915623&width=713"
+                ] 
+            },
+            "dress-5": { 
+                key: "dress-5", 
+                brand: "The CEO", 
+                name: "Premium Long Sleeve Dress Shirt - Black", 
+                priceNum: 680000, 
+                price: "680.000 ₫", 
+                mainImg: "https://yame.vn/cdn/shop/files/ao-s-mi-tay-dai-the-ceo-009-den-1187130511.jpg?v=1760792794&width=713", 
+                images: [
+                    "https://yame.vn/cdn/shop/files/ao-s-mi-tay-dai-the-ceo-009-den-1187130511.jpg?v=1760792794&width=713", 
+                    "https://yame.vn/cdn/shop/files/ao-s-mi-tay-dai-the-ceo-009-den-1187130510.jpg?v=1760792796&width=713", 
+                    "https://yame.vn/cdn/shop/files/ao-s-mi-tay-dai-the-ceo-009-den-1187130508.jpg?v=1760792814&width=713", 
+                    "https://yame.vn/cdn/shop/files/TheCEO009.TheCEO015_2.jpg?v=1767006574&width=713"
+                ] 
+            },
+            "dress-6": { 
+                key: "dress-6", 
+                brand: "The Weekend", 
+                name: "The Weekend Signature Casual Shirt - White", 
+                priceNum: 620000, 
+                price: "620.000 ₫", 
+                mainImg: "https://yame.vn/cdn/shop/files/TheWeekend007Tr_ng1.jpg?v=1767011733&width=713", 
+                images: [
+                    "https://yame.vn/cdn/shop/files/TheWeekend007Tr_ng1.jpg?v=1767011733&width=713", 
+                    "https://yame.vn/cdn/shop/files/TheWeekend007Tr_ng2.jpg?v=1767011741&width=713", 
+                    "https://yame.vn/cdn/shop/files/TheWeekend007Tr_ng4.jpg?v=1767011744&width=713", 
+                    "https://yame.vn/cdn/shop/files/TheWeekend007Tr_ng7.jpg?v=1767011750&width=713"
+                ] 
+            },
+            "dress-7": { 
+                key: "dress-7", 
+                brand: "The Weekend", 
+                name: "Color Lock Streetwear Polo - White & Blue", 
+                priceNum: 490000, 
+                price: "490.000 ₫", 
+                mainImg: "https://yame.vn/cdn/shop/files/AoThunC_PoloColorLock_TheWeekend008.jpg?v=1778227626&width=713", 
+                images: [
+                    "https://yame.vn/cdn/shop/files/AoThunC_PoloColorLock_TheWeekend008.jpg?v=1778227626&width=713", 
+                    "https://yame.vn/cdn/shop/files/TheWeekend008TrangXanhDuong2.jpg?v=1769509802&width=713", 
+                    "https://yame.vn/cdn/shop/files/TheWeekend008TrangXanhDuong4.jpg?v=1769509802&width=713", 
+                    "https://yame.vn/cdn/shop/files/TheWeekend008TrangXanhDuong5.jpg?v=1769509802&width=713"
+                ] 
+            },
+            "dress-8": { 
+                key: "dress-8", 
+                brand: "The Weekend", 
+                name: "The Weekend Minimalist Urban Shirt", 
+                priceNum: 580000, 
+                price: "580.000 ₫", 
+                mainImg: "https://yame.vn/cdn/shop/files/TheWeekend036.jpg?v=1778465478&width=713", 
+                images: [
+                    "https://yame.vn/cdn/shop/files/TheWeekend036.jpg?v=1778465478&width=713", 
+                    "https://yame.vn/cdn/shop/files/0024593_thumb_2.jpg?v=1760801320&width=713", 
+                    "https://yame.vn/cdn/shop/files/0024593_thumb_6.jpg?v=1760801328&width=713", 
+                    "https://yame.vn/cdn/shop/files/TheWeekend036-TheNoStyle022-TheWeekend018.jpg?v=1767007256&width=713"
+                ] 
+            },
+            "dress-9": { 
+                key: "dress-9", 
+                brand: "The Weekend", 
+                name: "Color Lock Streetwear Polo - Blue & White", 
+                priceNum: 490000, 
+                price: "490.000 ₫", 
+                mainImg: "https://yame.vn/cdn/shop/files/TheWeekend008XanhDuongTrang4.jpg?v=1769509733&width=713", 
+                images: [
+                    "https://yame.vn/cdn/shop/files/TheWeekend008XanhDuongTrang4.jpg?v=1769509733&width=713", 
+                    "https://yame.vn/cdn/shop/files/TheWeekend008XanhDuongTrang5.jpg?v=1769509733&width=713", 
+                    "https://yame.vn/cdn/shop/files/TheWeekend008XanhDuongTrang8.jpg?v=1769509733&width=713", 
+                    "https://yame.vn/cdn/shop/files/TheWeekend008_2.jpg?v=1775720411&width=713"
+                ] 
+            },
+            "dress-10": { 
+                key: "dress-10", 
+                brand: "The Weekend", 
+                name: "The Weekend Tailored Casual Shirt", 
+                priceNum: 650000, 
+                price: "650.000 ₫", 
+                mainImg: "https://yame.vn/cdn/shop/files/0024789thumb1.jpg?v=1767007922&width=713", 
+                images: [
+                    "https://yame.vn/cdn/shop/files/0024789thumb1.jpg?v=1767007922&width=713", 
+                    "https://yame.vn/cdn/shop/files/0024789thumb2.jpg?v=1767007924&width=713", 
+                    "https://yame.vn/cdn/shop/files/0024789thumb4.jpg?v=1767007927&width=713", 
+                    "https://yame.vn/cdn/shop/files/0024789thumb4.jpg?v=1767007927&width=713"
+                ] 
+            },
+
+            /* ==================== WOMENS INFRASTRUCTURE DATA ==================== */
+            "womens-1": { key: "womens-1", brand: "Essentials", name: "Womens Signature Classic Fit Baseball Tee", priceNum: 3250000, price: "3.250.000 ₫", mainImg: "https://fearofgod.com/cdn/shop/files/125SP267391FW_WOMENS_SIGNATURE_CLASSIC_FIT_BASEBALL_TEE-HEATHER_STONE_IRON_GREY_1_900x.jpg?v=1771538461", images: ["https://fearofgod.com/cdn/shop/files/125SP267391FW_WOMENS_SIGNATURE_CLASSIC_FIT_BASEBALL_TEE-HEATHER_STONE_IRON_GREY_1_900x.jpg?v=1771538461", "https://fearofgod.com/cdn/shop/files/125SP267391FW_WOMENS_SIGNATURE_CLASSIC_FIT_BASEBALL_TEE-HEATHER_STONE_IRON_GREY_2_900x.jpg?v=1771538461", "https://fearofgod.com/cdn/shop/files/125SP267391FW_WOMENS_SIGNATURE_CLASSIC_FIT_BASEBALL_TEE-HEATHER_STONE_IRON_GREY_3_900x.jpg?v=1771538461", "https://fearofgod.com/cdn/shop/files/SP26_FW_L31-P_3153copy_425c805b-4c9d-42ba-ac5c-ffcf58acf882_900x.jpg?v=1770399398"] },
+            "womens-2": { key: "womens-2", brand: "Essentials", name: "Womens Signature Classic Hoodie", priceNum: 4950000, price: "4.950.000 ₫", mainImg: "https://fearofgod.com/cdn/shop/files/192SP265593FW_WOMENS_SIGNATURE_CLASSIC_HOODIE-CONCRETE_HEATHER_DARK_CONCRETE_HEATHER_1_900x.jpg?v=1770830668", images: ["https://fearofgod.com/cdn/shop/files/192SP265593FW_WOMENS_SIGNATURE_CLASSIC_HOODIE-CONCRETE_HEATHER_DARK_CONCRETE_HEATHER_1_900x.jpg?v=1770830668", "https://fearofgod.com/cdn/shop/files/192SP265593FW_WOMENS_SIGNATURE_CLASSIC_HOODIE-CONCRETE_HEATHER_DARK_CONCRETE_HEATHER_2_900x.jpg?v=1770830669", "https://fearofgod.com/cdn/shop/files/192SP265593FW_WOMENS_SIGNATURE_CLASSIC_HOODIE-CONCRETE_HEATHER_DARK_CONCRETE_HEATHER_3_900x.jpg?v=1770830669", "https://fearofgod.com/cdn/shop/files/SP26_FW_L33-P_3268_804a528a-6e53-4e3f-93a9-5efbdd8feef8_900x.jpg?v=1770399607"] },
+            "womens-3": { key: "womens-3", brand: "Essentials", name: "Classic Short Sleeve Tee - Bright White", priceNum: 2150000, price: "2.150.000 ₫", mainImg: "https://fearofgod.com/cdn/shop/files/125SP265913FW_CLASSIC_SHORT_SLEEVE_TEE_BRIGHT_WHITE_1_900x.jpg?v=1776869565", images: ["https://fearofgod.com/cdn/shop/files/125SP265913FW_CLASSIC_SHORT_SLEEVE_TEE_BRIGHT_WHITE_1_900x.jpg?v=1776869565", "https://fearofgod.com/cdn/shop/files/125SP265913FW_CLASSIC_SHORT_SLEEVE_TEE_BRIGHT_WHITE_2_900x.jpg?v=1776869565", "https://fearofgod.com/cdn/shop/files/125SP265913FW_CLASSIC_SHORT_SLEEVE_TEE_BRIGHT_WHITE_3_2_900x.jpg?v=1776869577"] },
+            "womens-4": { key: "womens-4", brand: "Essentials", name: "Womens Signature Classic Fit Baseball Tee - Oatmeal", priceNum: 3150000, price: "3.150.000 ₫", mainImg: "https://fearofgod.com/cdn/shop/files/125SP267392FW_WOMENS_SIGNATURE_CLASSIC_FIT_BASEBALL_TEE-OATMEAL_CONCRETE_HEATHER_1_900x.jpg?v=1771538657", images: ["https://fearofgod.com/cdn/shop/files/125SP267392FW_WOMENS_SIGNATURE_CLASSIC_FIT_BASEBALL_TEE-OATMEAL_CONCRETE_HEATHER_1_900x.jpg?v=1771538657", "https://fearofgod.com/cdn/shop/files/125SP267392FW_WOMENS_SIGNATURE_CLASSIC_FIT_BASEBALL_TEE-OATMEAL_CONCRETE_HEATHER_2_900x.jpg?v=1771538166", "https://fearofgod.com/cdn/shop/files/125SP267392FW_WOMENS_SIGNATURE_CLASSIC_FIT_BASEBALL_TEE-OATMEAL_CONCRETE_HEATHER_3_900x.jpg?v=1771538166", "https://fearofgod.com/cdn/shop/files/SP26_FW_L27-P_2786copy_900x.jpg?v=1771538657"] },
+            "womens-5": { key: "womens-5", brand: "Essentials", name: "Womens Signature Classic Hoodie - Vintage Black", priceNum: 4850000, price: "4.850.000 ₫", mainImg: "https://fearofgod.com/cdn/shop/files/192SP265542FW_CLASSIC_HOODIE-VINTAGE_BLACK_1_b54db34e-9f44-49c9-b929-c110f4cbe758_900x.jpg?v=1771538441", images: ["https://fearofgod.com/cdn/shop/files/192SP265542FW_CLASSIC_HOODIE-VINTAGE_BLACK_1_b54db34e-9f44-49c9-b929-c110f4cbe758_900x.jpg?v=1771538441", "https://fearofgod.com/cdn/shop/files/192SP265542FW_CLASSIC_HOODIE-VINTAGE_BLACK_2_d60784a0-c1f7-4239-81cc-6fcf8c6d2f65_900x.jpg?v=1771538441", "https://fearofgod.com/cdn/shop/files/192SP265542FW_CLASSIC_HOODIE-VINTAGE_BLACK_3_3fc70b7f-c9cb-48f0-946f-e686512de42f_900x.jpg?v=1770852406", "https://fearofgod.com/cdn/shop/files/SP26_FW_L35-P_3420_54cd24c6-a9bd-4619-a997-22cd9735cfec_900x.jpg?v=1771538441"] },
+            "womens-6": { key: "womens-6", brand: "Essentials", name: "Womens Signature Classic Tank - Oatmeal", priceNum: 1950000, price: "1.950.000 ₫", mainImg: "https://fearofgod.com/cdn/shop/files/125SP265222FW_WOMENS_SIGNATURE_CLASSIC_TANK-OATMEAL_HEATHER_1_900x.jpg?v=1771455048", images: ["https://fearofgod.com/cdn/shop/files/125SP265222FW_WOMENS_SIGNATURE_CLASSIC_TANK-OATMEAL_HEATHER_1_900x.jpg?v=1771455048", "https://fearofgod.com/cdn/shop/files/125SP265222FW_WOMENS_SIGNATURE_CLASSIC_TANK-OATMEAL_HEATHER_2_900x.jpg?v=1771455048", "https://fearofgod.com/cdn/shop/files/125SP265222FW_WOMENS_SIGNATURE_CLASSIC_TANK-OATMEAL_HEATHER_3_900x.jpg?v=1771455048"] },
+            "womens-7": { key: "womens-7", brand: "Essentials", name: "Womens Signature Classic Tank - Vintage Black", priceNum: 1950000, price: "1.950.000 ₫", mainImg: "https://fearofgod.com/cdn/shop/files/125SP265221FW_WOMENS_SIGNATURE_CLASSIC_TANK-VINTAGE_BLACK_1_900x.jpg?v=1771454376", images: ["https://fearofgod.com/cdn/shop/files/125SP265221FW_WOMENS_SIGNATURE_CLASSIC_TANK-VINTAGE_BLACK_1_900x.jpg?v=1771454376", "https://fearofgod.com/cdn/shop/files/125SP265221FW_WOMENS_SIGNATURE_CLASSIC_TANK-VINTAGE_BLACK_2_900x.jpg?v=1771454376", "https://fearofgod.com/cdn/shop/files/125SP265221FW_WOMENS_SIGNATURE_CLASSIC_TANK-VINTAGE_BLACK_2_900x.jpg?v=1771454376"] },
+            "womens-8": { key: "womens-8", brand: "Essentials", name: "Womens Fitted Rib Tank - Oatmeal", priceNum: 2250000, price: "2.250.000 ₫", mainImg: "https://fearofgod.com/cdn/shop/files/125SP267063FW_FITTED_RIB_TANK-OATMEAL_HEATHER_1_1_900x.jpg?v=1770828315", images: ["https://fearofgod.com/cdn/shop/files/125SP267063FW_FITTED_RIB_TANK-OATMEAL_HEATHER_1_1_900x.jpg?v=1770828315", "https://fearofgod.com/cdn/shop/files/125SP267063FW_FITTED_RIB_TANK-OATMEAL_HEATHER_2_1_900x.jpg?v=1770828315", "https://fearofgod.com/cdn/shop/files/125SP267063FW_FITTED_RIB_TANK-OATMEAL_HEATHER_3_1_900x.jpg?v=1770828315"] },
+            "womens-9": { key: "womens-9", brand: "Essentials", name: "Womens Signature Classic Hoodie - Light Oatmeal", priceNum: 4850000, price: "4.850.000 ₫", mainImg: "https://fearofgod.com/cdn/shop/files/192SP265594FW_WOMENS_SIGNATURE_CLASSIC_HOODIE-OATMEAL_HEATHER_LIGHT_HEATHER_1_900x.jpg?v=1770851330", images: ["https://fearofgod.com/cdn/shop/files/192SP265594FW_WOMENS_SIGNATURE_CLASSIC_HOODIE-OATMEAL_HEATHER_LIGHT_HEATHER_2_900x.jpg?v=1770851330", "https://fearofgod.com/cdn/shop/files/192SP265594FW_WOMENS_SIGNATURE_CLASSIC_HOODIE-OATMEAL_HEATHER_LIGHT_HEATHER_3_900x.jpg?v=1770851330"] },
+            "womens-10": { key: "womens-10", brand: "Essentials", name: "Womens Denim Relaxed Lapelless Jacket", priceNum: 14500000, price: "14.500.000 ₫", mainImg: "https://fearofgod.com/cdn/shop/files/0000_9CS26_WKL01_2609_028dfb63-f987-459c-b280-14fb0e9967e0_900x.jpg?v=1772662751", images: ["https://fearofgod.com/cdn/shop/files/0000_9CS26_WKL01_2609_028dfb63-f987-459c-b280-14fb0e9967e0_900x.jpg?v=1772662751", "https://fearofgod.com/cdn/shop/files/0001_9CS26_WKL01_2629_5f265048-8c1b-4cd7-8b70-d54a49b9f158_900x.jpg?v=1772662751", "https://fearofgod.com/cdn/shop/files/FG9W42-9917BTW_DENIM_RELAXED_LAPELLESS_JACKET-WHITE_1_900x.jpg?v=1772662751", "https://fearofgod.com/cdn/shop/files/FG9W42-9917BTW_DENIM_RELAXED_LAPELLESS_JACKET-WHITE_2_900x.jpg?v=1772662751"] },
+            "womens-11": { key: "womens-11", brand: "Essentials", name: "Womens Classic Fit Crewneck - Dirty Ivory", priceNum: 5800000, price: "5.800.000 ₫", mainImg: "https://fearofgod.com/cdn/shop/files/0022_9CS26_WL04_B_3174_900x.jpg?v=1772663520", images: ["https://fearofgod.com/cdn/shop/files/0022_9CS26_WL04_B_3174_900x.jpg?v=1772663520", "https://fearofgod.com/cdn/shop/files/0023_9CS26_WL04_B_3243_900x.jpg?v=1772663526", "https://fearofgod.com/cdn/shop/files/FG9W12-9981TER_CLASSIC_FIT_CREWNECK-DIRTY_IVORY_1-edit_900x.jpg?v=1776373208", "https://fearofgod.com/cdn/shop/files/FG9W12-9981TER_CLASSIC_FIT_CREWNECK-DIRTY_IVORY_2-edit_900x.jpg?v=1776373208"] },
+            "womens-12": { key: "womens-12", brand: "Essentials", name: "Womens Leather Tracking Jacket - Maroon", priceNum: 28500000, price: "28.500.000 ₫", mainImg: "https://fearofgod.com/cdn/shop/files/0042_9CS26_WL16_1856_76173969-f3e5-4f75-a344-8ec040c86290_900x.jpg?v=1775231667", images: ["https://fearofgod.com/cdn/shop/files/0042_9CS26_WL16_1856_76173969-f3e5-4f75-a344-8ec040c86290_900x.jpg?v=1775231667", "https://fearofgod.com/cdn/shop/files/0040_9CS26_WL15_1766_900x.jpg?v=1775231667", "https://fearofgod.com/cdn/shop/files/FG9W50-502LTH_LEATHER_TRACKING_JACKET-MAROON_1_d0825ecd-006c-4eee-b5a5-1312724af66d_900x.jpg?v=1775231667", "https://fearofgod.com/cdn/shop/files/FG9W50-502LTH_LEATHER_TRACKING_JACKET-MAROON_2_0c02072b-82d5-403c-939c-64522d09a1f2_900x.jpg?v=1775231667"] },
+            "womens-13": { key: "womens-13", brand: "Essentials", name: "Womens Shawl Collar Jacket - Black", priceNum: 16200000, price: "16.200.000 ₫", mainImg: "https://fearofgod.com/cdn/shop/files/0017_9CS26_WKL10_2666_900x.jpg?v=1772663374", images: ["https://fearofgod.com/cdn/shop/files/0017_9CS26_WKL10_2666_900x.jpg?v=1772663374", "https://fearofgod.com/cdn/shop/files/LOOK_3_70c7aabe-343c-4c1b-aeae-b27f36c5ffb8_900x.jpg?v=1775227920", "https://fearofgod.com/cdn/shop/files/FG9W62-621TWR_SHAWL_COLLAR_JACKET-BLACK_1_900x.jpg?v=1775227920", "https://fearofgod.com/cdn/shop/files/FG9W62-621TWR_SHAWL_COLLAR_JACKET-BLACK_2_900x.jpg?v=1775227920"] },
+            "womens-14": { key: "womens-14", brand: "Essentials", name: "Womens Premium Leather Coat - Dark Brown", priceNum: 34000000, price: "34.000.000 ₫", mainImg: "https://fearofgod.com/cdn/shop/files/0019_9CS26_WKL14_3786_900x.jpg?v=1772663430", images: ["https://fearofgod.com/cdn/shop/files/0019_9CS26_WKL14_3786_900x.jpg?v=1772663430", "https://fearofgod.com/cdn/shop/files/FG9W50-500LTH_LEATHER_COAT-DARK_BROWN_1_900x.jpg?v=1772663430", "https://fearofgod.com/cdn/shop/files/FG9W50-500LTH_LEATHER_COAT-DARK_BROWN_3_900x.jpg?v=1772663430", "https://fearofgod.com/cdn/shop/files/FG9W50-500LTH_LEATHER_COAT-DARK_BROWN_4_900x.jpg?v=1772663430"] },
+            "womens-15": { key: "womens-15", brand: "Essentials", name: "Womens Trucker Jacket - Classic Blue", priceNum: 5200000, price: "5.200.000 ₫", mainImg: "https://fearofgod.com/cdn/shop/files/SP26_FW_L42_1118_565cf244-1957-42fa-ad2f-6560a76b651a_900x.jpg?v=1770415641", images: ["https://fearofgod.com/cdn/shop/files/SP26_FW_L42_1118_565cf244-1957-42fa-ad2f-6560a76b651a_900x.jpg?v=1770415641", "https://fearofgod.com/cdn/shop/files/202SP265041FW_TRUCKER_JACKET-CLASSIC_BLUE_1_5f18edf4-53a7-4017-ae63-ff89580ef4f8_900x.jpg?v=1772737554", "https://fearofgod.com/cdn/shop/files/SP26_FW_L42_1224_0679fbcc-93bf-412c-92e3-0fab211c9b82_900x.jpg?v=1770415643", "https://fearofgod.com/cdn/shop/files/202SP265041FW_TRUCKER_JACKET-CLASSIC_BLUE_2_3aafc81a-49c9-4ab5-97db-f83a6db8183b_900x.jpg?v=1772737553"] },
+            "womens-16": { key: "womens-16", brand: "Essentials", name: "Womens Leather Collarless Jacket - Dark Brown", priceNum: 29500000, price: "29.500.000 ₫", mainImg: "https://fearofgod.com/cdn/shop/files/0011_9CS26_WKL03_4050_900x.jpg?v=1776706392", images: ["https://fearofgod.com/cdn/shop/files/0011_9CS26_WKL03_4050_900x.jpg?v=1776706392", "https://fearofgod.com/cdn/shop/files/LOOK_13_900x.jpg?v=1776448156", "https://fearofgod.com/cdn/shop/files/FG9W50-501LTH_LEATHER_COLLARLESS_JACKET-DARK_BROWN_1_57ad0307-26b0-4b16-a8a1-2a7055bdfa43_900x.jpg?v=1777313605", "https://fearofgod.com/cdn/shop/files/FG9W50-501LTH_LEATHER_COLLARLESS_JACKET-DARK_BROWN_2_900x.jpg?v=1776448565"] }
+        };
+
+        let currentItem = null;
+        let selectedSizeText = "M";
+        let cartMemoryArray = [];
+        let isUserLoggedIn = localStorage.getItem('isLoggedInStatus') === 'true'; 
+        let pendingCheckoutAction = false; 
+
+        document.addEventListener("DOMContentLoaded", function() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const productId = urlParams.get('id') || 'tops-1';
+            currentItem = database[productId];
+            
+            const backLink = document.getElementById('back-link-target');
+
+            if (productId.startsWith('womens')) {
+                backLink.href = 'womens.html';
+            } else if (productId.startsWith('dress')) {
+                backLink.href = 'mens.html';
+            } else if (productId.startsWith('kids')) {
+                backLink.href = 'kids.html';
+            } else if (productId.startsWith('sale')) {
+                backLink.href = 'sale.html'; 
+            } else {
+                backLink.href = 'index.html'; 
+            }
+            
+            if (currentItem) {
+                document.getElementById('brand-name-target').innerText = currentItem.brand || "Essentials";
+                document.getElementById('product-name-target').innerText = currentItem.name;
+                document.getElementById('product-price-target').innerText = currentItem.price;
+                const galleryTarget = document.getElementById('gallery-target');
+                galleryTarget.innerHTML = '';
+                
+                currentItem.images.forEach(imgUrl => {
+                    const imgContainer = document.createElement('div');
+                    imgContainer.className = 'product-image-item';
+                    const imgElement = document.createElement('img');
+                    imgElement.src = imgUrl;
+                    imgContainer.appendChild(imgElement);
+                    galleryTarget.appendChild(imgContainer);
+                });
+            }
+            
+            loadSavedShippingInfo();
+            updateHeaderAccountUI();
+        });
+
+        function changeSize(el) { 
+            document.querySelectorAll('.size-button').forEach(b => b.classList.remove('selected')); 
+            el.classList.add('selected');
+            selectedSizeText = el.innerText;
+        }
+        
+        function toggleCartDrawer(isOpen) { document.getElementById('cartOverlay').classList.toggle('open', isOpen); }
+        function toggleCheckoutDrawer(isOpen) { document.getElementById('checkoutOverlay').classList.toggle('open', isOpen); }
+        function toggleAuthModal(isOpen) { document.getElementById('authModal').classList.toggle('open', isOpen); }
+
+        function toggleAuthView(targetBlock) {
+            const loginBlock = document.getElementById('auth-login-block');
+            const registerBlock = document.getElementById('auth-register-block');
+            if(targetBlock === 'register') {
+                loginBlock.classList.add('hidden-auth-block');
+                registerBlock.classList.remove('hidden-auth-block');
+            } else {
+                registerBlock.classList.add('hidden-auth-block');
+                loginBlock.classList.remove('hidden-auth-block');
+            }
+        }
+
+        function showToastNotification(textMsg) {
+            const toast = document.getElementById('toastMessage');
+            toast.innerText = textMsg;
+            toast.classList.add('show');
+            setTimeout(() => { toast.classList.remove('show'); }, 2800);
+        }
+
+        function updateHeaderAccountUI() {
+            const link = document.getElementById('headerAccountLink');
+            if(isUserLoggedIn) {
+                const savedName = localStorage.getItem('hub_name') || "PHAN THANH TÚ";
+                link.innerText = savedName.toUpperCase();
+            } else {
+                link.innerText = "ACCOUNT";
+            }
+        }
+
+        function handleImmediateLogin() {
+            isUserLoggedIn = true;
+            localStorage.setItem('isLoggedInStatus', 'true');
+            if(!localStorage.getItem('hub_name')) {
+                localStorage.setItem('hub_name', "Phan Thanh Tú");
+                localStorage.setItem('hub_phone', "");
+                localStorage.setItem('hub_address', "");
+            }
+            loadSavedShippingInfo();
+            updateHeaderAccountUI();
+            toggleAuthModal(false);
+            showToastNotification("Đăng nhập xác thực thành công!");
+            if(pendingCheckoutAction) {
+                pendingCheckoutAction = false;
+                toggleCheckoutDrawer(true);
+            }
+        }
+
+        function handleImmediateRegister() {
+            const nameInput = document.getElementById('regNewName').value.trim();
+            isUserLoggedIn = true;
+            localStorage.setItem('isLoggedInStatus', 'true');
+            localStorage.setItem('hub_name', nameInput);
+            localStorage.setItem('hub_phone', "");
+            localStorage.setItem('hub_address', "");
+
+            loadSavedShippingInfo();
+            updateHeaderAccountUI();
+            toggleAuthModal(false);
+            
+            triggerFireworkCelebration();
+
+            if(pendingCheckoutAction) {
+                pendingCheckoutAction = false;
+                setTimeout(() => { toggleCheckoutDrawer(true); }, 1000);
+            }
+        }
+
+        function addBag() { 
+            if (!currentItem) return;
+            const existingItem = cartMemoryArray.find(item => item.key === currentItem.key && item.size === selectedSizeText);
+            if (existingItem) { existingItem.qty += 1; } 
+            else {
+                cartMemoryArray.push({
+                    key: currentItem.key, name: currentItem.name, price: currentItem.price,
+                    priceNum: currentItem.priceNum, mainImg: currentItem.mainImg, size: selectedSizeText, qty: 1
+                });
+            }
+            renderCartUI();
+            showToastNotification(`ĐÃ THÊM SẢN PHẨM (SIZE ${selectedSizeText}) VÀO BAG!`);
+        }
+
+        function removeCartItem(index) {
+            cartMemoryArray.splice(index, 1);
+            renderCartUI();
+        }
+
+        function renderCartUI() {
+            const container = document.getElementById('cartItemsContainer');
+            const emptyMsg = document.getElementById('emptyCartMessage');
+            container.innerHTML = '';
+            let totalItemsCount = 0;
+            let totalAmountMoney = 0;
+
+            if (cartMemoryArray.length === 0) {
+                emptyMsg.classList.remove('hidden');
+                document.getElementById('bag-count').innerText = "0";
+                document.getElementById('cartTotalTarget').innerText = "0 ₫";
+                return;
+            }
+            emptyMsg.classList.add('hidden');
+
+            cartMemoryArray.forEach((item, index) => {
+                totalItemsCount += item.qty;
+                totalAmountMoney += (item.priceNum * item.qty);
+                const row = document.createElement('div');
+                row.className = 'cart-product-row';
+                row.innerHTML = `
+                    <img src="${item.mainImg}" class="cart-item-img">
+                    <div class="cart-item-info">
+                        <p class="cart-item-title">${item.name}</p>
+                        <p class="cart-item-meta">Size: ${item.size} / SL: ${item.qty}</p>
+                        <p class="cart-item-price">${item.price}</p>
+                    </div>
+                    <button class="remove-item-btn" onclick="removeCartItem(${index})">Xóa</button>
+                `;
+                container.appendChild(row);
+            });
+            document.getElementById('bag-count').innerText = totalItemsCount;
+            document.getElementById('cartTotalTarget').innerText = totalAmountMoney.toLocaleString('vi-VN') + " ₫";
+        }
+
+        function loadSavedShippingInfo() {
+            const savedName = localStorage.getItem('hub_name');
+            const savedPhone = localStorage.getItem('hub_phone');
+            const savedAddress = localStorage.getItem('hub_address');
+            
+            if (savedName) { document.getElementById('cusName').value = savedName; }
+            
+            if (savedPhone && savedPhone !== "Chưa cập nhật") { 
+                document.getElementById('cusPhone').value = savedPhone; 
+            } else {
+                document.getElementById('cusPhone').value = ""; 
+            }
+            
+            if (savedAddress && savedAddress !== "Chưa cập nhật địa chỉ giao hàng") { 
+                document.getElementById('cusAddress').value = savedAddress; 
+            } else {
+                document.getElementById('cusAddress').value = ""; 
+            }
+        }
+
+        function openCheckoutFromCart() {
+            if(cartMemoryArray.length === 0) { showToastNotification("Giỏ hàng của bạn đang trống!"); return; }
+            toggleCartDrawer(false);
+            if(!isUserLoggedIn) { pendingCheckoutAction = true; toggleAuthModal(true); return; }
+            toggleCheckoutDrawer(true);
+        }
+
+        function openCheckoutDirectly() {
+            if (!currentItem) return;
+            const existingItem = cartMemoryArray.find(item => item.key === currentItem.key && item.size === selectedSizeText);
+            if (!existingItem) {
+                cartMemoryArray.push({
+                    key: currentItem.key, name: currentItem.name, price: currentItem.price,
+                    priceNum: currentItem.priceNum, mainImg: currentItem.mainImg, size: selectedSizeText, qty: 1
+                });
+                renderCartUI();
+            }
+            if(!isUserLoggedIn) { pendingCheckoutAction = true; toggleAuthModal(true); return; }
+            toggleCheckoutDrawer(true);
+        }
+
+        function submitFinalOrder() {
+            const name = document.getElementById('cusName').value.trim();
+            const phone = document.getElementById('cusPhone').value.trim();
+            const address = document.getElementById('cusAddress').value.trim();
+            if(!name || !phone || !address) { showToastNotification("Vui lòng điền đầy đủ thông tin giao hàng!"); return; }
+            
+            localStorage.setItem('hub_name', name);
+            localStorage.setItem('hub_phone', phone);
+            localStorage.setItem('hub_address', address);
+
+            const existingOrdersArray = JSON.parse(localStorage.getItem('hub_orders') || '[]');
+            const uniqueOrderId = "STH" + Math.floor(100000 + Math.random() * 900000);
+            
+            const newCompletedOrderObject = {
+                orderId: uniqueOrderId,
+                date: new Date().toLocaleString('vi-VN'),
+                totalPriceFormatted: document.getElementById('cartTotalTarget').innerText,
+                orderedProductsList: [...cartMemoryArray],
+                status: "Đang xử lý"
+            };
+
+            existingOrdersArray.unshift(newCompletedOrderObject);
+            localStorage.setItem('hub_orders', JSON.stringify(existingOrdersArray));
+            
+            toggleCheckoutDrawer(false);
+            cartMemoryArray = [];
+            renderCartUI();
+            triggerFireworkCelebration();
+        }
+
+        /* --- HIỆU ỨNG PHÁO HOA --- */
+        const canvas = document.getElementById('fwCanvas');
+        const ctx = canvas.getContext('2d');
+        let particles = [];
+        function resizeCanvas() { canvas.width = window.innerWidth; canvas.height = window.innerHeight; }
+        window.addEventListener('resize', resizeCanvas);
+
+        function triggerFireworkCelebration() {
+            canvas.style.display = 'block';
+            resizeCanvas();
+            particles = [];
+            createExplosion(canvas.width * 0.25, canvas.height * 0.4);
+            createExplosion(canvas.width * 0.5, canvas.height * 0.3);
+            createExplosion(canvas.width * 0.75, canvas.height * 0.4);
+            let animationFrameId, framesCount = 0;
+            function loop() {
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+                for (let i = 0; i < particles.length; i++) {
+                    let p = particles[i];
+                    p.x += p.vx; p.y += p.vy; p.vy += 0.12; p.alpha -= 0.012;
+                    ctx.save(); ctx.globalAlpha = p.alpha; ctx.fillStyle = p.color;
+                    ctx.beginPath(); ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2); ctx.fill(); ctx.restore();
+                    if (p.alpha <= 0) { particles.splice(i, 1); i--; }
+                }
+                framesCount++;
+                if (particles.length > 0 && framesCount < 200) { animationFrameId = requestAnimationFrame(loop); } 
+                else { cancelAnimationFrame(animationFrameId); canvas.style.display = 'none'; showToastNotification("THAO TÁC XÁC THỰC THÀNH CÔNG!"); }
+            }
+            loop();
+        }
+
+        function createExplosion(x, y) {
+            const colors = ['#ffffff', '#000000', '#777777', '#333333', '#dddddd']; 
+            for (let i = 0; i < 60; i++) {
+                const angle = Math.random() * Math.PI * 2;
+                const speed = Math.random() * 5 + 2;
+                particles.push({ x: x, y: y, vx: Math.cos(angle) * speed, vy: Math.sin(angle) * speed, size: Math.random() * 3 + 1.5, color: colors[Math.floor(Math.random() * colors.length)], alpha: 1 });
+            }
+        }
+    </script>
+</body>
+</html>

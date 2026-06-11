@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <title>Thanh Toán - The Style Hub</title>
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
+    <script type="text/javascript">
+       (function(){
+          // TODO: THAY BẰNG PUBLIC KEY CỦA ÔNG (Lấy ở mục Account trong EmailJS)
+          emailjs.init("MB1m-Q2_ueI82N8Xo"); 
+       })();
+    </script>
+    <style>
+        body { font-family: 'Segoe UI', sans-serif; background: #1a1a1a; color: #fff; padding: 40px 20px; }
+        .container { max-width: 600px; margin: 0 auto; background: #262626; padding: 30px; border-radius: 15px; border: 1px solid #333; box-shadow: 0 10px 30px rgba(0,0,0,0.3); }
+        h2 { text-align: center; text-transform: uppercase; letter-spacing: 2px; margin-bottom: 25px; }
+        
+        .form-group { margin-bottom: 20px; }
+        .form-group label { display: block; margin-bottom: 8px; font-size: 14px; color: #aaa; }
+        .form-group input, .form-group textarea { width: 100%; padding: 12px; border: 1px solid #444; background: #1a1a1a; color: #fff; border-radius: 8px; box-sizing: border-box; font-size: 15px; }
+        .form-group input:focus, .form-group textarea:focus { border-color: #fff; outline: none; }
+        
+        .order-summary { border-top: 1px dashed #444; margin-top: 25px; padding-top: 20px; }
+        .total-price { font-size: 20px; font-weight: 700; color: #ff4d4d; text-align: right; margin-bottom: 25px; }
+        
+        .btn-submit { width: 100%; padding: 14px; background: #fff; color: #111; border: none; border-radius: 8px; font-size: 16px; font-weight: 700; cursor: pointer; transition: 0.3s; text-transform: uppercase; }
+        .btn-submit:hover { transform: translateY(-2px); opacity: 0.9; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h2>Thông tin đặt hàng</h2>
+    
+    <form id="checkout-form" onsubmit="handleCheckout(event)">
+        <div class="form-group">
+            <label for="customer-name">Họ và tên khách hàng *</label>
+            <input type="text" id="cusname" required placeholder="Ví dụ: Võ Thành Trung">
+        </div>
+        
+        <div class="form-group">
+            <label for="customer-phone">Số điện thoại *</label>
+            <input type="tel" id="cusphone" required placeholder="Ví dụ: 0123456789">
+        </div>
+        
+        <div class="form-group">
+            <label for="customer-email">Địa chỉ Email (Để nhận xác nhận đơn) *</label>
+            <input type="email" id="cusemail" required placeholder="Ví dụ: abc@gmail.com">
+        </div>
+        
+        <div class="form-group">
+            <label for="customer-address">Địa chỉ nhận hàng *</label>
+            <textarea id="cusaddress" rows="3" required placeholder="Ghi rõ số nhà, tên đường, phường/xã, quận/huyện..."></textarea>
+        </div>
+
+        <div class="order-summary">
+            <div class="total-price">TỔNG THANH TOÁN: <span id="display-total">0 ₫</span></div>
+        </div>
+        
+        <button type="submit" class="btn-submit">Xác nhận đặt hàng</button>
+    </form>
+</div>
+
+<script>
+    // Hàm tính tổng tiền dựa trên giỏ hàng (Giữ nguyên logic của ông)
+    function calculateTotal(items) {
+        if (!items) return "0 ₫";
+        let total = 0;
+        items.forEach(item => {
+            let price = parseInt(item.price.replace(/[^\d]/g, ''));
+            total += price * item.qty;
+        });
+        return total.toLocaleString('vi-VN') + " ₫";
+    }
+
+    // Tự động hiển thị tổng tiền khi khách vào trang thanh toán
+    const cartItems = JSON.parse(localStorage.getItem('cart') || '[]');
+    document.getElementById('display-total').innerText = calculateTotal(cartItems);
+
+    // Hàm xử lý khi nhấn nút đặt hàng
+    function handleCheckout(event) {
+        event.preventDefault(); // Ngăn trang bị reset lại khi submit form
+
+        const name = document.getElementById('customer-name').value;
+        const phone = document.getElementById('customer-phone').value;
+        const email = document.getElementById('customer-email').value;
+        const address = document.getElementById('customer-address').value;
+        
+        if (cartItems.length === 0) {
+            alert("Giỏ hàng của bạn đang trống!");
+            return;
+        }
+        
+        // Tạo mã đơn và thời gian đặt giống trang Admin
+        const orderId = "STH" + Math.floor(100000 + Math.random() * 900000);
+        const orderDate = new Date().toLocaleString('vi-VN');
+        const totalPriceFormatted = calculateTotal(cartItems);
+
+        // Tạo chuỗi danh sách sản phẩm đẹp để gửi vào nội dung Email
+        let productDetailsText = "";
+        cartItems.forEach(item => {
+            productDetailsText += `• ${item.name} (Size: ${item.size}) x ${item.qty} - Giá: ${item.price}\n`;
+        });
+
+        // 1. Gói dữ liệu để lưu vào hub_orders cho Admin đọc (Đã sửa chuẩn key để không bị lỗi N/A)
+        const newOrder = {
+            orderId: orderId,
+            orderDate: orderDate,
+            status: "Đang xử lý",
+            userInfo: {
+                name: name,
+                phone: phone,
+                email: email,
+                address: address
+            },
+            orderedProductsList: cartItems,
+            totalPriceFormatted: totalPriceFormatted
+        };
+
+        // Lưu vào localStorage
+        let currentOrders = JSON.parse(localStorage.getItem('hub_orders') || '[]');
+        currentOrders.unshift(newOrder); // Thêm đơn mới lên đầu danh sách
+        localStorage.setItem('hub_orders', JSON.stringify(currentOrders));
+
+        // 2. Kích hoạt gửi Email tự động qua EmailJS
+        const templateParams = {
+            to_email: email,             // Khớp với {{to_email}} trên EmailJS
+            customer_name: name,         // Khớp với {{customer_name}}
+            orderId: orderId,            // Khớp với {{orderId}}
+            order_date: orderDate,       // Khớp với {{order_date}}
+            customer_phone: phone,       // Khớp với {{customer_phone}}
+            customer_address: address,   // Khớp với {{customer_address}}
+            product_details: productDetailsText, // Khớp với {{product_details}}
+            total_price: totalPriceFormatted     // Khớp với {{total_price}}
+        };
+
+        // Tiến hành gửi lên hệ thống EmailJS
+        // TODO: THAY "YOUR_SERVICE_ID" và "YOUR_TEMPLATE_ID" bằng mã thực tế 
+        emailjs.send('service_xjsmniq', 'template_f4bnal4', templateParams)
+            .then(function(response) {
+               console.log('Email gửi thành công!', response.status, response.text);
+               // Xóa giỏ hàng sau khi đặt thành công
+               localStorage.removeItem('cart');
+               alert("Đặt hàng thành công! Một email xác nhận chi tiết đã được gửi đến bạn.");
+               window.location.href = "admin.html"; // Chuyển hướng sang trang Admin xem đơn luôn
+            }, function(error) {
+               console.error('Gửi email thất bại...', error);
+               alert("Có lỗi xảy ra trong quá trình gửi mail xác nhận, nhưng đơn hàng của bạn đã được hệ thống ghi nhận.");
+            });
+    }
+</script>
+</body>
+</html>

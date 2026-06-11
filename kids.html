@@ -1,0 +1,336 @@
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>The Style Hub - Kids Collection</title>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght=300;400;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { font-family: 'Roboto', sans-serif; background-color: #ffffff; color: #111111; overflow-x: hidden; }
+        
+        /* --- STICKY HEADER ĐỒNG BỘ THANH ĐEN --- */
+        .main-header { position: fixed; top: 0; left: 0; width: 100%; height: 57px; background-color: #000000; color: #ffffff; z-index: 1000; }
+        .nav-container { max-width: 1440px; margin: 0 auto; height: 100%; display: flex; justify-content: space-between; align-items: center; padding: 0 40px; }
+        .nav-left, .nav-right { display: flex; gap: 20px; align-items: center; }
+        .logo { font-size: 16px; font-weight: 700; letter-spacing: 4px; text-align: center; }
+        .nav-container a { color: #ffffff; text-decoration: none; font-size: 11px; letter-spacing: 1.5px; text-transform: uppercase; cursor: pointer; }
+
+        /* --- BỘ LỌC SUB-FILTER BAR ĐỒNG BỘ --- */
+        .sub-filter-bar { padding-top: 82px; padding-left: 40px; padding-right: 40px; padding-bottom: 15px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #f2f2f2; }
+        .filter-left-group { display: flex; gap: 15px; }
+        .filter-tag { font-size: 11px; letter-spacing: 1px; text-transform: uppercase; font-weight: 500; cursor: pointer; color: #777; transition: color 0.2s; }
+        .filter-tag.active, .filter-tag:hover { color: #111; }
+        .filter-right-sort { font-size: 11px; letter-spacing: 1px; text-transform: uppercase; font-weight: 500; color: #111; }
+
+        /* --- LƯỚI SẢN PHẨM HỖ TRỢ HOVER LẬT ẢNH --- */
+        .product-gallery-container { max-width: 1440px; margin: 0 auto; padding: 40px; }
+        .mens-product-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 40px 24px; }
+        
+        .mens-card { display: flex; flex-direction: column; text-decoration: none; color: inherit; }
+        .mens-card.hide-item { display: none !important; }
+        .mens-thumb-box { width: 100%; aspect-ratio: 3 / 4; overflow: hidden; background-color: #f7f7f7; margin-bottom: 15px; position: relative; }
+        
+        .mens-thumb-box img { width: 100%; height: 100%; object-fit: cover; object-position: center top; position: absolute; top: 0; left: 0; transition: opacity 0.4s ease, transform 0.4s ease; }
+        .img-back { opacity: 0; }
+        
+        .mens-card:hover .img-front { opacity: 0; }
+        .mens-card:hover .img-back { opacity: 1; transform: scale(1.01); }
+
+        .mens-details { text-align: left; }
+        .tag-brand { font-size: 10px; letter-spacing: 1.5px; color: #777; text-transform: uppercase; margin-bottom: 4px; }
+        .item-name { font-size: 13px; color: #111; margin-bottom: 4px; font-weight: 400; line-height: 1.4; }
+        .item-price { font-size: 12px; color: #111; font-weight: 500; }
+
+        @media (max-width: 1024px) { .mens-product-grid { grid-template-columns: repeat(2, 1fr); } }
+        @media (max-width: 768px) {
+            .mens-product-grid { grid-template-columns: 1fr; }
+            .sub-filter-bar { padding-left: 20px; padding-right: 20px; }
+            .product-gallery-container { padding: 20px; }
+        }
+    </style>
+</head>
+
+<body>
+
+    <header class="main-header">
+        <div class="nav-container">
+            <div class="nav-left">
+                <a href="index.html">FEATURED</a>
+                <a href="mens.html">MENS</a>
+                <a href="womens.html">WOMENS</a>
+                <a href="kids.html" style="text-decoration: underline; font-weight: 500;">KIDS</a>
+                <a href="sale.html">SALE</a>
+            </div>
+            <div class="logo">
+                <a href="index.html">THE STYLE HUB</a>
+            </div>
+            <div class="nav-right">
+                <a href="#">SEARCH</a>
+                <a href="account.html" id="headerAccountLink">ACCOUNT</a>
+                <a href="#">BAG (0)</a>
+            </div>
+        </div>
+    </header>
+
+    <div class="sub-filter-bar">
+        <div class="filter-left-group">
+            <span class="filter-tag active" onclick="filterCategory('all', this)">All Kids</span>
+            <span class="filter-tag" onclick="filterCategory('tops', this)">Tops</span>
+            <span class="filter-tag" onclick="filterCategory('jackets', this)">Jackets & Outerwear</span>
+        </div>
+        <div class="filter-right-sort">FILTER / SORT +</div>
+    </div>
+
+    <div class="product-gallery-container">
+        <div class="mens-product-grid">
+            
+            <!-- Sản phẩm 1 -->
+            <a href="product-detail.html?id=kids-1" class="mens-card" data-cat="tops">
+                <div class="mens-thumb-box">
+                    <img src="https://fearofgod.com/cdn/shop/files/785SP262422K_KIDS_TRAINING_90S_HOODIE-FADED_SEAL_1_900x.jpg?v=1772251904" class="img-front">
+                    <img src="https://fearofgod.com/cdn/shop/files/785SP262422K_KIDS_TRAINING_90S_HOODIE-FADED_SEAL_2_900x.jpg?v=1772251904" class="img-back">
+                </div>
+                <div class="mens-details">
+                    <p class="tag-brand">Essentials</p>
+                    <h4 class="item-name">Kids Training 90s Hoodie - Faded Seal</h4>
+                    <p class="item-price">1.850.000 ₫</p>
+                </div>
+            </a>
+
+            <!-- Sản phẩm 2 -->
+            <a href="product-detail.html?id=kids-2" class="mens-card" data-cat="none">
+                <div class="mens-thumb-box">
+                    <img src="https://fearofgod.com/cdn/shop/files/785SP263152K_KIDS_TRAINING_CLASSIC_FIT_SWEATPANT-FADED_SEAL_1_900x.jpg?v=1772225305" class="img-front">
+                    <img src="https://fearofgod.com/cdn/shop/files/785SP263152K_KIDS_TRAINING_CLASSIC_FIT_SWEATPANT-FADED_SEAL_2_900x.jpg?v=1772225305" class="img-back">
+                </div>
+                <div class="mens-details">
+                    <p class="tag-brand">Essentials</p>
+                    <h4 class="item-name">Kids Training Classic Fit Sweatpant - Faded Seal</h4>
+                    <p class="item-price">1.550.000 ₫</p>
+                </div>
+            </a>
+
+            <!-- Sản phẩm 3 -->
+            <a href="product-detail.html?id=kids-3" class="mens-card" data-cat="tops">
+                <div class="mens-thumb-box">
+                    <img src="https://fearofgod.com/cdn/shop/files/785SP262432K_KIDS_TRAINING_90S_CREWNECK_SWEATSHIRT-FADED_SEAL_1_900x.jpg?v=1772582784" class="img-front">
+                    <img src="https://fearofgod.com/cdn/shop/files/785SP262432K_KIDS_TRAINING_90S_CREWNECK_SWEATSHIRT-FADED_SEAL_2_900x.jpg?v=1772582784" class="img-back">
+                </div>
+                <div class="mens-details">
+                    <p class="tag-brand">Essentials</p>
+                    <h4 class="item-name">Kids Training 90s Crewneck Sweatshirt - Faded Seal</h4>
+                    <p class="item-price">1.650.000 ₫</p>
+                </div>
+            </a>
+
+            <!-- Sản phẩm 4 -->
+            <a href="product-detail.html?id=kids-4" class="mens-card" data-cat="tops">
+                <div class="mens-thumb-box">
+                    <img src="https://fearofgod.com/cdn/shop/files/785SP261011K_KIDS_TRAINING_90S_SHORT_SLEEVE_TEE-FADED_BLACK_1_1d40c50f-519a-48a9-bb0b-2ddc34fa5b20_900x.jpg?v=1771870270" class="img-front">
+                    <img src="https://fearofgod.com/cdn/shop/files/785SP261011K_KIDS_TRAINING_90S_SHORT_SLEEVE_TEE-FADED_BLACK_2_de5efbfc-2459-4cf3-9584-6c12ec084202_900x.jpg?v=1771870270" class="img-back">
+                </div>
+                <div class="mens-details">
+                    <p class="tag-brand">Essentials</p>
+                    <h4 class="item-name">Kids Training 90s Short Sleeve Tee - Faded Black</h4>
+                    <p class="item-price">1.150.000 ₫</p>
+                </div>
+            </a>
+
+            <!-- Sản phẩm 5 -->
+            <a href="product-detail.html?id=kids-5" class="mens-card" data-cat="tops">
+                <div class="mens-thumb-box">
+                    <img src="https://fearofgod.com/cdn/shop/files/785SP262421K_KIDS_TRAINING_90S_HOODIE-FADED_BLACK_1_900x.jpg?v=1772218722" class="img-front">
+                    <img src="https://fearofgod.com/cdn/shop/files/785SP262421K_KIDS_TRAINING_90S_HOODIE-FADED_BLACK_2_900x.jpg?v=1772218722" class="img-back">
+                </div>
+                <div class="mens-details">
+                    <p class="tag-brand">Essentials</p>
+                    <h4 class="item-name">Kids Training 90s Hoodie - Faded Black</h4>
+                    <p class="item-price">1.850.000 ₫</p>
+                </div>
+            </a>
+
+            <!-- Sản phẩm 6 -->
+            <a href="product-detail.html?id=kids-6" class="mens-card" data-cat="none">
+                <div class="mens-thumb-box">
+                    <img src="https://fearofgod.com/cdn/shop/files/785SP263151K_KIDS_TRAINING_CLASSIC_FIT_SWEATPANT-FADED_BLACK_1_900x.jpg?v=1772214805" class="img-front">
+                    <img src="https://fearofgod.com/cdn/shop/files/785SP263151K_KIDS_TRAINING_CLASSIC_FIT_SWEATPANT-FADED_BLACK_2_900x.jpg?v=1772214805" class="img-back">
+                </div>
+                <div class="mens-details">
+                    <p class="tag-brand">Essentials</p>
+                    <h4 class="item-name">Kids Training Classic Fit Sweatpant - Faded Black</h4>
+                    <p class="item-price">1.550.000 ₫</p>
+                </div>
+            </a>
+
+            <!-- Sản phẩm 7 -->
+            <a href="product-detail.html?id=kids-7" class="mens-card" data-cat="tops">
+                <div class="mens-thumb-box">
+                    <img src="https://fearofgod.com/cdn/shop/files/785SP262431K_KIDS_TRAINING_90S_CREWNECK_SWEATSHIRT-FADED_BLACK_1_900x.jpg?v=1772490599" class="img-front">
+                    <img src="https://fearofgod.com/cdn/shop/files/785SP262431K_KIDS_TRAINING_90S_CREWNECK_SWEATSHIRT-FADED_BLACK_2_900x.jpg?v=1772490599" class="img-back">
+                </div>
+                <div class="mens-details">
+                    <p class="tag-brand">Essentials</p>
+                    <h4 class="item-name">Kids Training 90s Crewneck Sweatshirt - Faded Black</h4>
+                    <p class="item-price">1.650.000 ₫</p>
+                </div>
+            </a>
+
+            <!-- Sản phẩm 8 -->
+            <a href="product-detail.html?id=kids-8" class="mens-card" data-cat="tops">
+                <div class="mens-thumb-box">
+                    <img src="https://fearofgod.com/cdn/shop/files/785SP262022K_KIDS_CLASSIC_CREWNECK_SWEATSHIRT-VINTAGE_BLACK_1_900x.jpg?v=1772582131" class="img-front">
+                    <img src="https://fearofgod.com/cdn/shop/files/785SP262022K_KIDS_CLASSIC_CREWNECK_SWEATSHIRT-VINTAGE_BLACK_2_900x.jpg?v=1772582131" class="img-back">
+                </div>
+                <div class="mens-details">
+                    <p class="tag-brand">Essentials</p>
+                    <h4 class="item-name">Kids Classic Crewneck Sweatshirt - Vintage Black</h4>
+                    <p class="item-price">1.650.000 ₫</p>
+                </div>
+            </a>
+
+            <!-- Sản phẩm 9 -->
+            <a href="product-detail.html?id=kids-9" class="mens-card" data-cat="tops">
+                <div class="mens-thumb-box">
+                    <img src="https://fearofgod.com/cdn/shop/files/785SP261362K_KIDS_CLASSIC_LONG_SLEEVE_TEE-VINTAGE_BLACK_1_900x.jpg?v=1773073567" class="img-front">
+                    <img src="https://fearofgod.com/cdn/shop/files/785SP261362K_KIDS_CLASSIC_LONG_SLEEVE_TEE-VINTAGE_BLACK_2_900x.jpg?v=1773073567" class="img-back">
+                </div>
+                <div class="mens-details">
+                    <p class="tag-brand">Essentials</p>
+                    <h4 class="item-name">Kids Classic Long Sleeve Tee - Vintage Black</h4>
+                    <p class="item-price">1.350.000 ₫</p>
+                </div>
+            </a>
+
+            <!-- Sản phẩm 10 -->
+            <a href="product-detail.html?id=kids-10" class="mens-card" data-cat="tops">
+                <div class="mens-thumb-box">
+                    <img src="https://fearofgod.com/cdn/shop/files/785SP262753K_KIDS_CAMPUS_90S_HOODIE-FADED_COASTAL_1_900x.jpg?v=1772225903" class="img-front">
+                    <img src="https://fearofgod.com/cdn/shop/files/785SP262753K_KIDS_CAMPUS_90S_HOODIE-FADED_COASTAL_2_900x.jpg?v=1772225903" class="img-back">
+                </div>
+                <div class="mens-details">
+                    <p class="tag-brand">Essentials</p>
+                    <h4 class="item-name">Kids Campus 90s Hoodie - Faded Coastal</h4>
+                    <p class="item-price">1.850.000 ₫</p>
+                </div>
+            </a>
+
+            <!-- Sản phẩm 11 -->
+            <a href="product-detail.html?id=kids-11" class="mens-card" data-cat="tops">
+                <div class="mens-thumb-box">
+                    <img src="https://fearofgod.com/cdn/shop/files/785SP262752K_KIDS_CAMPUS_90S_HOODIE-FADED_MAUVE_1_900x.jpg?v=1772488015" class="img-front">
+                    <img src="https://fearofgod.com/cdn/shop/files/785SP262752K_KIDS_CAMPUS_90S_HOODIE-FADED_MAUVE_2_900x.jpg?v=1772488015" class="img-back">
+                </div>
+                <div class="mens-details">
+                    <p class="tag-brand">Essentials</p>
+                    <h4 class="item-name">Kids Campus 90s Hoodie - Faded Mauve</h4>
+                    <p class="item-price">1.850.000 ₫</p>
+                </div>
+            </a>
+
+            <!-- Sản phẩm 12 -->
+            <a href="product-detail.html?id=kids-12" class="mens-card" data-cat="none">
+                <div class="mens-thumb-box">
+                    <img src="https://fearofgod.com/cdn/shop/files/785SP263042K_KIDS_SIGNATURE_FLARE_SWEATPANT-FADED_MAUVE_1_900x.jpg?v=1772491601" class="img-front">
+                    <img src="https://fearofgod.com/cdn/shop/files/785SP263042K_KIDS_SIGNATURE_FLARE_SWEATPANT-FADED_MAUVE_2_900x.jpg?v=1772491601" class="img-back">
+                </div>
+                <div class="mens-details">
+                    <p class="tag-brand">Essentials</p>
+                    <h4 class="item-name">Kids Signature Flare Sweatpant - Faded Mauve</h4>
+                    <p class="item-price">1.550.000 ₫</p>
+                </div>
+            </a>
+
+            <!-- Sản phẩm 13 -->
+            <a href="product-detail.html?id=kids-13" class="mens-card" data-cat="tops">
+                <div class="mens-thumb-box">
+                    <img src="https://fearofgod.com/cdn/shop/files/785SP261391K_KIDS_CAMPUS_90S_SHORT_SLEEVE_TEE-FADED_BLACK_1_900x.jpg?v=1770751933" class="img-front">
+                    <img src="https://fearofgod.com/cdn/shop/files/785SP261391K_KIDS_CAMPUS_90S_SHORT_SLEEVE_TEE-FADED_BLACK_2_900x.jpg?v=1770751933" class="img-back">
+                </div>
+                <div class="mens-details">
+                    <p class="tag-brand">Essentials</p>
+                    <h4 class="item-name">Kids Campus 90s Short Sleeve Tee - Faded Black</h4>
+                    <p class="item-price">1.150.000 ₫</p>
+                </div>
+            </a>
+
+            <!-- Sản phẩm 14 -->
+            <a href="product-detail.html?id=kids-14" class="mens-card" data-cat="tops">
+                <div class="mens-thumb-box">
+                    <img src="https://fearofgod.com/cdn/shop/files/785SP261481K_KIDS_SIGNATURE_90S_SHORT_SLEEVE_TEE-BLACK_1_900x.jpg?v=1771518008" class="img-front">
+                    <img src="https://fearofgod.com/cdn/shop/files/785SP261481K_KIDS_SIGNATURE_90S_SHORT_SLEEVE_TEE-BLACK_2_900x.jpg?v=1771518008" class="img-back">
+                </div>
+                <div class="mens-details">
+                    <p class="tag-brand">Essentials</p>
+                    <h4 class="item-name">Kids Signature 90s Short Sleeve Tee - Black</h4>
+                    <p class="item-price">1.150.000 ₫</p>
+                </div>
+            </a>
+
+            <!-- Sản phẩm 15 -->
+            <a href="product-detail.html?id=kids-15" class="mens-card" data-cat="jackets">
+                <div class="mens-thumb-box">
+                    <img src="https://fearofgod.com/cdn/shop/files/785SP262031K_KIDS_CLASSIC_FULL_ZIP_HOODIE-OATMEAL_HEATHER_LIGHT_HEATHER_1_c2f28201-4065-42e4-b908-c0dbd7340f8f_900x.jpg?v=1772490948" class="img-front">
+                    <img src="https://fearofgod.com/cdn/shop/files/785SP262031K_KIDS_CLASSIC_FULL_ZIP_HOODIE-OATMEAL_HEATHER_LIGHT_HEATHER_2_3f5bcbc3-8dc1-42b6-bfe1-4cf032c7f1e7_900x.jpg?v=1772490948" class="img-back">
+                </div>
+                <div class="mens-details">
+                    <p class="tag-brand">Essentials</p>
+                    <h4 class="item-name">Kids Classic Full Zip Hoodie - Oatmeal</h4>
+                    <p class="item-price">1.950.000 ₫</p>
+                </div>
+            </a>
+
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            const accountLink = document.getElementById('headerAccountLink');
+            if (localStorage.getItem('isLoggedInStatus') === 'true') {
+                const savedName = localStorage.getItem('hub_name') || "PHAN THANH TÚ";
+                accountLink.innerText = savedName.toUpperCase();
+            } else {
+                accountLink.innerText = "ACCOUNT";
+            }
+        });
+
+        function filterCategory(categoryName, element) {
+            // Xóa class active ở tất cả các tag lọc và thêm vào tag vừa click
+            document.querySelectorAll('.filter-tag').forEach(tag => tag.classList.remove('active'));
+            element.classList.add('active');
+
+            document.querySelectorAll('.mens-card').forEach(card => {
+                const itemCat = card.getAttribute('data-cat');
+                
+                // Lấy tên sản phẩm và chuyển về chữ thường để so sánh chính xác hơn
+                const itemName = card.querySelector('.item-name').innerText.toLowerCase();
+                
+                // Kiểm tra xem tên có chứa hoodie hoặc crewneck không
+                const isHoodieOrCrewneck = itemName.includes('hoodie') || itemName.includes('crewneck');
+
+                if (categoryName === 'all') {
+                    // Hiển thị tất cả sản phẩm
+                    card.classList.remove('hide-item');
+                } else if (categoryName === 'jackets') {
+                    // Nếu bấm vào Jackets: Hiện các sản phẩm có data-cat="jackets" HOẶC tên có chứa Hoodie/Crewneck
+                    if (itemCat === 'jackets' || isHoodieOrCrewneck) {
+                        card.classList.remove('hide-item');
+                    } else {
+                        card.classList.add('hide-item');
+                    }
+                } else {
+                    // Đối với các danh mục khác (ví dụ: tops)
+                    if (itemCat === categoryName) {
+                        card.classList.remove('hide-item');
+                    } else {
+                        card.classList.add('hide-item');
+                    }
+                }
+            });
+        }
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <title>Admin - The Style Hub</title>
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+    <style>
+        body { font-family: 'Segoe UI', sans-serif; background: #1a1a1a; color: #fff; padding: 40px 20px; }
+        .container { max-width: 900px; margin: 0 auto; }
+        h1 { text-align: center; color: #fff; margin-bottom: 30px; text-transform: uppercase; letter-spacing: 2px; }
+        
+        .order-card { background: #262626; padding: 25px; margin-bottom: 25px; border-radius: 15px; border: 1px solid #333; box-shadow: 0 10px 20px rgba(0,0,0,0.3); }
+        .order-header { display: flex; justify-content: space-between; border-bottom: 2px solid #333; padding-bottom: 10px; margin-bottom: 15px; }
+        .product-item { display: flex; justify-content: space-between; padding: 8px 0; color: #aaa; font-size: 14px; }
+        .total-price { font-size: 18px; font-weight: 700; color: #e74c3c; text-align: right; margin-top: 15px; }
+        
+        .status-badge { padding: 5px 12px; border-radius: 20px; font-size: 11px; font-weight: 600; text-transform: uppercase; }
+        .status-pending { background: #fff3cd; color: #856404; }
+        .status-done { background: #d4edda; color: #155724; }
+        
+        .btn-group { display: flex; gap: 10px; margin-top: 20px; justify-content: flex-end; }
+        button { padding: 10px 20px; border: none; border-radius: 8px; cursor: pointer; font-weight: 600; transition: 0.3s; }
+        .btn-done { background: #fff; color: #111; }
+        .btn-del { background: #333; color: #fff; border: 1px solid #444; }
+        button:hover { transform: translateY(-2px); opacity: 0.9; }
+
+        #deleteModal { display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.5); justify-content:center; align-items:center; z-index:9999; }
+        .modal-content { background:#262626; padding:30px; border-radius:15px; text-align:center; border: 1px solid #444; }
+    </style>
+</head>
+
+<body>
+
+<div class="container">
+    <h1>Quản lý đơn hàng</h1>
+    <div id="admin-orders"></div>
+</div>
+
+<div id="deleteModal">
+    <div class="modal-content">
+        <p>Bạn có chắc chắn muốn xóa đơn hàng này?</p>
+        <button onclick="confirmDelete()" style="background:#e74c3c; color:white;">Xóa ngay</button>
+        <button onclick="closeModal()" style="background:#ccc; color: #111;">Hủy</button>
+    </div>
+</div>
+
+<script>
+    // Thêm đoạn này vào đầu thẻ <script> trong admin.html
+    const adminPass = prompt("Vui lòng nhập mật khẩu quản trị:");
+    if (adminPass !== "973564564Aa") {
+        alert("Truy cập bị từ chối!");
+        window.location.href = "index.html"; // Đẩy người lạ về trang chủ
+    }
+    let orderToDeleteIndex = null;
+
+    function calculateTotal(items) {
+        if (!items) return "0 ₫";
+        let total = 0;
+        items.forEach(item => {
+            let price = parseInt(item.price.replace(/[^\d]/g, ''));
+            total += price * item.qty;
+        });
+        return total.toLocaleString('vi-VN') + " ₫";
+    }
+
+    function renderOrders() {
+        const orders = JSON.parse(localStorage.getItem('hub_orders') || '[]');
+        const container = document.getElementById('admin-orders');
+        
+        if (orders.length === 0) {
+            container.innerHTML = '<p style="text-align:center; color:#777;">Chưa có đơn hàng nào.</p>';
+            return;
+        }
+
+        container.innerHTML = orders.map((order, index) => {
+            const items = order.orderedProductsList || [];
+            const statusClass = order.status === 'Đã nhận hàng' ? 'status-done' : 'status-pending';
+            const displayTotal = order.totalPriceFormatted || calculateTotal(items);
+            
+            return 
+            <div class="order-card">
+                <div class="order-header">
+                    <strong>Mã đơn: ${order.orderId || 'N/A'}</strong>
+                    <span class="status-badge ${statusClass}">${order.status || 'Đang xử lý'}</span>
+                </div>
+                <div style="font-size: 13px; color: #ccc; line-height: 1.6; margin-bottom: 15px;">
+                    <div>🕒 <b>Thời gian đặt:</b> ${order.orderDate || 'N/A'}</div>
+                    <div>👤 <b>Khách hàng:</b> ${order.userInfo?.name || 'N/A'}</div>
+                    <div>📞 <b>Số điện thoại:</b> ${order.userInfo?.phone || 'N/A'}</div>
+                    <div>✉️ <b>Email:</b> ${order.userInfo?.email || 'N/A'}</div>
+                    <div>🏠 <b>Địa chỉ:</b> ${order.userInfo?.address || 'Chưa cập nhật địa chỉ'}</div>
+                </div>
+                <div class="product-list">
+                    ${items.map(item => 
+                        <div class="product-item">
+                            <span>• ${item.name} (Size: ${item.size}) x ${item.qty}</span>
+                            <span>${item.price}</span>
+                        </div>
+                    ).join('')}
+                </div>
+                <div class="total-price">TỔNG CỘNG: ${displayTotal}</div>
+                <div class="btn-group">
+                    <button class="btn-done" onclick="completeOrder(${index})">Hoàn thành</button>
+                    <button class="btn-del" onclick="showDeleteModal(${index})">Xóa đơn</button>
+                </div>
+            </div>
+        }).join('');
+    }
+
+    function completeOrder(index) {
+        let orders = JSON.parse(localStorage.getItem('hub_orders'));
+        orders[index].status = 'Đã nhận hàng';
+        localStorage.setItem('hub_orders', JSON.stringify(orders));
+        confetti({ particleCount: 200, spread: 100, origin: { y: 0.6 } });
+        renderOrders();
+    }
+
+    function showDeleteModal(index) {
+        orderToDeleteIndex = index;
+        document.getElementById('deleteModal').style.display = 'flex';
+    }
+
+    function closeModal() {
+        document.getElementById('deleteModal').style.display = 'none';
+    }
+
+    function confirmDelete() {
+        let orders = JSON.parse(localStorage.getItem('hub_orders'));
+        orders.splice(orderToDeleteIndex, 1);
+        localStorage.setItem('hub_orders', JSON.stringify(orders));
+        renderOrders();
+        closeModal();
+    }
+
+    renderOrders();
+</script>
+</body>
+</html>
