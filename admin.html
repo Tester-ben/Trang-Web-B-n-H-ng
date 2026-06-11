@@ -45,12 +45,6 @@
 </div>
 
 <script>
-    // Thêm đoạn này vào đầu thẻ <script> trong admin.html
-    const adminPass = prompt("Vui lòng nhập mật khẩu quản trị:");
-    if (adminPass !== "973564564Aa") {
-        alert("Truy cập bị từ chối!");
-        window.location.href = "index.html"; // Đẩy người lạ về trang chủ
-    }
     let orderToDeleteIndex = null;
 
     function calculateTotal(items) {
