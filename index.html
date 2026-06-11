@@ -189,11 +189,11 @@
                 <a href="index.html">THE STYLE HUB</a>
             </div>
 
-            <nav class="nav-right">
-                <a href="#" id="search-trigger">Search</a>
-                <a href="#" id="account-trigger">Account</a>
-                <a href="#" id="bag-trigger">Bag (<span id="cart-count">0</span>)</a>
-            </nav>
+            <div class="nav-right">
+                <a href="#" onclick="openSearchBox()">SEARCH</a>
+                <a href="account.html">ACCOUNT</a>
+                <a href="#" onclick="openBag()">BAG (<span id="cart-count">0</span>)</a>
+            </div>
         </div>
     </header>
 
@@ -645,8 +645,19 @@
                 });
             }
         }
-        
+        function openSearchBox() {
+    document.getElementById("searchBox").style.display = "block";
+        }
+
+        function closeSearchBox() {
+            document.getElementById("searchBox").style.display = "none";
+        }
+
+        function openBag() {
+            alert("Bag đang được phát triển");
+}
     </script>
+    
     
 </body>
 
