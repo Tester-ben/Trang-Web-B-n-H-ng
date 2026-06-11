@@ -136,7 +136,44 @@
     </style>
 </head>
 
+
 <body>
+    <div id="searchBox" style="
+    display:none;
+    position:fixed;
+    top:0;
+    left:0;
+    width:100%;
+    height:100%;
+    background:rgba(0,0,0,.5);
+    z-index:9999;
+    ">
+
+    <div style="
+    width:600px;
+    max-width:90%;
+    margin:80px auto;
+    background:#fff;
+    padding:20px;
+    border-radius:8px;
+    ">
+
+        <div style="text-align:right;">
+            <button onclick="closeSearchBox()">✕</button>
+        </div>
+
+        <input
+            type="text"
+            placeholder="Search..."
+            style="
+            width:100%;
+            padding:12px;
+            font-size:16px;
+            ">
+
+    </div>
+
+</div>
 
     <canvas id="fwCanvas"></canvas>
 
@@ -190,9 +227,10 @@
             </div>
 
             <div class="nav-right">
-                <a href="#" onclick="openSearchBox()">SEARCH</a>
-                <a href="account.html">ACCOUNT</a>
-                <a href="#" onclick="openBag()">BAG (<span id="cart-count">0</span>)</a>
+                <a href="#" onclick="openSearchBox(); return false;">SEARCH</a>
+                <a href="#" onclick="openBag(); return false;">
+                    BAG (<span id="cart-count">0</span>)
+                </a>
             </div>
         </div>
     </header>
@@ -655,7 +693,19 @@
 
         function openBag() {
             alert("Bag đang được phát triển");
-}
+        }
+        document.addEventListener("DOMContentLoaded", function () {
+
+        const accountLink = document.querySelector('.nav-right a[href="account.html"]');
+
+        const username = localStorage.getItem("username");
+        const isLoggedIn = localStorage.getItem("isLoggedInStatus");
+
+        if (isLoggedIn === "true" && username) {
+            accountLink.textContent = username;
+        }
+
+        });
     </script>
     
     
