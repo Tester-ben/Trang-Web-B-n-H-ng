@@ -594,3 +594,98 @@ a {
     max-height: 420px;
     overflow-y: auto;
 }
+.pro-footer {
+    background: #06245c;
+    color: #fff;
+    padding: 55px 60px 45px;
+    display: grid;
+    grid-template-columns: 1.4fr 1fr 1fr 1.4fr;
+    gap: 55px;
+}
+
+.pro-footer h3,
+.pro-footer h4 {
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    margin-bottom: 18px;
+}
+
+.pro-footer h3 {
+    font-size: 22px;
+}
+
+.pro-footer h4 {
+    font-size: 14px;
+}
+
+.pro-footer p,
+.pro-footer a {
+    color: #fff;
+    font-size: 13px;
+    line-height: 1.8;
+    text-decoration: none;
+}
+
+.pro-footer a {
+    display: block;
+    margin-bottom: 8px;
+}
+
+.pro-footer a:hover {
+    text-decoration: underline;
+}
+
+.newsletter-form {
+    margin-top: 15px;
+    display: flex;
+    border-bottom: 1px solid rgba(255,255,255,.7);
+    max-width: 360px;
+}
+
+.newsletter-form input {
+    flex: 1;
+    background: transparent;
+    border: none;
+    color: #fff;
+    padding: 12px 0;
+    outline: none;
+}
+
+.newsletter-form input::placeholder {
+    color: rgba(255,255,255,.75);
+}
+
+.newsletter-form button {
+    background: #000;
+    color: #fff;
+    border: none;
+    padding: 0 18px;
+    font-size: 11px;
+    letter-spacing: 1.5px;
+    cursor: pointer;
+}
+
+.payment-tags span {
+    display: inline-block;
+    border: 1px solid rgba(255,255,255,.7);
+    padding: 6px 12px;
+    margin-right: 8px;
+    font-size: 12px;
+    font-weight: 600;
+}
+
+.footer-bottom {
+    background: #041b45;
+    color: #fff;
+    text-align: center;
+    padding: 16px;
+    font-size: 12px;
+    letter-spacing: 1px;
+}
+
+@media (max-width: 900px) {
+    .pro-footer {
+        grid-template-columns: 1fr;
+        padding: 40px 25px;
+    }
+}
