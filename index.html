@@ -163,15 +163,12 @@
         </div>
 
         <input
-            type="text"
-            placeholder="Search..."
-            style="
-            width:100%;
-            padding:12px;
-            font-size:16px;
-            ">
-
-    </div>
+        id="searchInput"
+        type="text"
+        placeholder="SEARCH FOR PRODUCTS..."
+        onkeyup="searchProducts()"
+    >
+    <div id="searchResults"></div>
 
 </div>
 
@@ -442,6 +439,7 @@
         © 2026 THE STYLE HUB. UI/UX Interface Design Project.
     </div>
 
+    <script src="product-data.js"></script>
     <script>
         let isLoggedIn = localStorage.getItem('isLoggedInStatus') === 'true'; 
         let userData = { firstName: " ", lastName: " ", email: " " };
@@ -681,6 +679,38 @@
                 });
             }
         }
+        function searchProducts() {
+        const keyword = document.getElementById("searchInput").value.toLowerCase();
+        const resultsBox = document.getElementById("searchResults");
+
+        resultsBox.innerHTML = "";
+
+        if (keyword.trim() === "") return;
+
+        const results = Object.keys(database).filter(id => {
+            const item = database[id];
+            return item.name && item.name.toLowerCase().includes(keyword);
+        });
+
+        if (results.length === 0) {
+            resultsBox.innerHTML = `<p style="padding:15px 0;">No products found.</p>`;
+            return;
+        }
+
+        results.forEach(id => {
+            const item = database[id];
+
+            resultsBox.innerHTML += `
+                <div
+                    onclick="window.location.href='product-detail.html?id=${id}'"
+                    style="padding:12px 0; border-bottom:1px solid #eee; cursor:pointer;"
+                >
+                    <strong>${item.name}</strong><br>
+                    <small>${item.price}</small>
+                </div>
+            `;
+        });
+    }
     </script>  
 
 </body>
