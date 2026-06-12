@@ -60,23 +60,44 @@
     </style>
 </head>
 <body>
-
+    <div id="searchBox" class="search-overlay">
+        <div class="search-panel">
+            <button class="search-close-btn" onclick="closeSearchBox()">×</button>
+    
+            <input
+                id="searchInput"
+                class="search-input"
+                type="text"
+                placeholder="SEARCH FOR PRODUCTS..."
+                onkeyup="searchProducts()"
+            >
+    
+            <div id="searchResults" class="search-results"></div>
+        </div>
+    </div>
     <header class="main-header">
         <div class="nav-container">
             <div class="nav-left">
                 <a href="index.html">FEATURED</a>
                 <a href="mens.html">MENS</a>
                 <a href="womens.html">WOMENS</a>
-                <a href="#">KIDS</a>
-                <a href="#">SALE</a>
+                <a href="kids.html">KIDS</a>
+                <a href="sale.html">SALE</a>
+                <a href="shoes.html">SHOES</a>
             </div>
             <div class="logo">
                 <a href="index.html">THE STYLE HUB</a>
             </div>
             <div class="nav-right">
-                <a href="#">SEARCH</a>
-                <a href="account.html" id="headerAccountLink" style="text-decoration: underline;">ACCOUNT</a>
-                <a href="#">BAG (0)</a>
+                <a id="search-trigger">SEARCH</a>
+            
+                <a href="account.html"
+                   id="headerAccountLink"
+                   style="text-decoration: underline;">
+                   ACCOUNT
+                </a>
+            
+                <a id="bag-trigger">BAG (0)</a>
             </div>
         </div>
     </header>
@@ -116,21 +137,34 @@
         </div>
 
     </div>
-
+    <script src="product-data.js"></script>
     <script>
+        
+        function openSearchBox() {
+            document.getElementById("searchBox").style.display = "block";
+        }
+
+        function closeSearchBox() {
+            document.getElementById("searchBox").style.display = "none";
+        }
+
         const checkLogin = localStorage.getItem('isLoggedInStatus') === 'true';
 
         document.addEventListener("DOMContentLoaded", function() {
-            if (!checkLogin) {
-                // Nếu chưa đăng nhập, đá về trang chủ hoặc trang login của bạn
-                alert("Vui lòng đăng nhập để truy cập tài khoản!");
-                window.location.href = "index.html"; 
-                return;
-            }
-            
-            syncHeaderUsername();
-            renderProfileData();
-            renderOrdersData();
+
+        document.getElementById("search-trigger").onclick = function () {
+            openSearchBox();
+        };
+
+        if (!checkLogin) {
+            alert("Vui lòng đăng nhập để truy cập tài khoản!");
+            window.location.href = "index.html";
+            return;
+        }
+
+        syncHeaderUsername();
+        renderProfileData();
+        renderOrdersData();
         });
 
         function syncHeaderUsername() {
@@ -196,7 +230,42 @@
                 container.appendChild(card);
             });
         }
+        function searchProducts() {
 
+        const keyword =
+            document.getElementById("searchInput").value.toLowerCase();
+
+        const resultsBox =
+            document.getElementById("searchResults");
+
+        resultsBox.innerHTML = "";
+
+        if (keyword.trim() === "") return;
+
+        const results = Object.keys(database).filter(id => {
+            const item = database[id];
+            return item.name &&
+                item.name.toLowerCase().includes(keyword);
+        });
+
+        results.forEach(id => {
+
+            const item = database[id];
+
+            resultsBox.innerHTML += `
+                <div
+                    onclick="window.location.href='product-detail.html?id=${id}'"
+                    style="padding:12px 0;border-bottom:1px solid #eee;cursor:pointer;">
+
+                    <strong>${item.name}</strong><br>
+
+                    <small>${item.price}</small>
+
+                </div>
+            `;
+        });
+
+        }
         function executeLogout() {
             localStorage.setItem('isLoggedInStatus', 'false');
             window.location.href = "index.html"; // Trở về trang chủ sau khi thoát
