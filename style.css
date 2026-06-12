@@ -710,4 +710,21 @@ a {
     color: #fff;
     text-transform: uppercase;
 }
+.mega-menu-dropdown {
+    pointer-events: auto;
+}
 
+.menu-item-has-mega:hover .mega-menu-dropdown,
+.mega-menu-dropdown:hover {
+    display: block;
+}
+
+.mega-img-card {
+    width: 260px;
+}
+
+.mega-img-card span {
+    white-space: nowrap;
+    font-size: 10px;
+    letter-spacing: 1.8px;
+}
