@@ -214,7 +214,6 @@
                     </div>
                 </div>
 
-                <a href="index.html">FEATURED</a>
                 <a href="mens.html">MENS</a>
                 <a href="womens.html">WOMENS</a>
                 <a href="kids.html">KIDS</a>
@@ -227,10 +226,9 @@
             </div>
 
             <div class="nav-right">
-                <a href="#" onclick="openSearchBox(); return false;">SEARCH</a>
-                <a href="#" onclick="openBag(); return false;">
-                    BAG (<span id="cart-count">0</span>)
-                </a>
+                <a href="#" id="search-trigger">SEARCH</a>
+                <a href="#" id="account-trigger">ACCOUNT</a>
+                <a href="#" id="bag-trigger">BAG (<span id="cart-count">0</span>)</a>
             </div>
         </div>
     </header>
@@ -605,7 +603,7 @@
             let totalPrice = 0;
             cart.forEach((item, index) => {
                 totalPrice += item.price * item.quantity;
-                htmlOutput += 
+                htmlOutput += `
                     <div class="cart-item">
                         <div class="cart-item-details">
                             <p class="cart-item-name">${item.name}</p>
@@ -613,7 +611,7 @@
                         </div>
                         <span class="remove-item-btn" onclick="removeFromCart(${index})">&times;</span>
                     </div>
-                ;
+                `;
             });
             cartItemsContainer.innerHTML = htmlOutput;
             cartTotalElement.innerText = totalPrice.toLocaleString('vi-VN') + " ₫";
@@ -683,32 +681,8 @@
                 });
             }
         }
-        function openSearchBox() {
-    document.getElementById("searchBox").style.display = "block";
-        }
+    </script>  
 
-        function closeSearchBox() {
-            document.getElementById("searchBox").style.display = "none";
-        }
-
-        function openBag() {
-            alert("Bag đang được phát triển");
-        }
-        document.addEventListener("DOMContentLoaded", function () {
-
-        const accountLink = document.querySelector('.nav-right a[href="account.html"]');
-
-        const username = localStorage.getItem("username");
-        const isLoggedIn = localStorage.getItem("isLoggedInStatus");
-
-        if (isLoggedIn === "true" && username) {
-            accountLink.textContent = username;
-        }
-
-        });
-    </script>
-    
-    
 </body>
 
 </html>
