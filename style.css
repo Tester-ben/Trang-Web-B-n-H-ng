@@ -534,3 +534,15 @@ a {
 .product-card:hover .img-main {
     opacity: 0;
 }
+.nav-right {
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    gap: 28px;
+}
+
+.nav-right a {
+    display: inline-block;
+    width: auto;
+    padding: 0;
+}
