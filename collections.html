@@ -103,6 +103,7 @@
             <a href="product-detail.html?id=${id}" class="product-card">
                 <div class="product-thumb hover-img">
                     <img class="img-main" src="${item.mainImg}" alt="${item.name}">
+                    <img class="img-hover" src="${item.images && item.images[1] ? item.images[1] : item.mainImg}" alt="${item.name}">
                 </div>
 
                 <div class="product-info">
