@@ -728,3 +728,15 @@ a {
     font-size: 10px;
     letter-spacing: 1.8px;
 }
+.menu-item-has-mega {
+    position: static;
+}
+
+.mega-menu-dropdown {
+    top: 57px;
+}
+
+.menu-item-has-mega:hover .mega-menu-dropdown,
+.mega-menu-dropdown:hover {
+    display: block;
+}
