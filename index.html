@@ -355,13 +355,7 @@
         </div>
     </div>
 
-    <div id="search-modal" class="modal-overlay">
-        <div class="search-modal-content">
-            <span class="close-modal" id="close-search">&times;</span>
-            <input type="text" id="search-input" placeholder="SEARCH FOR PRODUCTS..." autofocus>
-            <div id="search-results"></div>
-        </div>
-    </div>
+
 
     <div id="account-modal" class="modal-overlay">
         <div class="account-box">
@@ -479,26 +473,40 @@
             else { header.classList.remove('scrolled'); }
         });
 
-        const searchModal = document.getElementById('search-modal');
-        const accountModal = document.getElementById('account-modal');
-        const bagModal = document.getElementById('bag-modal');
-        const accountTrigger = document.getElementById('account-trigger');
+
 
         accountTrigger.onclick = function() {
             if (isLoggedIn) { showPage('dashboard'); } 
             else { accountModal.style.display = 'block'; }
         };
 
-        document.getElementById('search-trigger').onclick = () => searchModal.style.display = 'block';
-        document.getElementById('bag-trigger').onclick = () => bagModal.style.display = 'block';
-        document.getElementById('close-search').onclick = () => searchModal.style.display = 'none';
-        document.getElementById('close-account').onclick = () => accountModal.style.display = 'none';
-        document.getElementById('close-bag').onclick = () => bagModal.style.display = 'none';
+        const accountModal = document.getElementById('account-modal');
+        const bagModal = document.getElementById('bag-modal');
+        const accountTrigger = document.getElementById('account-trigger');
+
+        document.getElementById('search-trigger').onclick = function () {
+            openSearchBox();
+        };
+
+        document.getElementById('bag-trigger').onclick = function () {
+            bagModal.style.display = 'block';
+        };
+
+        document.getElementById('close-account').onclick = function () {
+            accountModal.style.display = 'none';
+        };
+
+        document.getElementById('close-bag').onclick = function () {
+            bagModal.style.display = 'none';
+        };
 
         window.onclick = function(event) {
-            if (event.target == searchModal) searchModal.style.display = 'none';
-            if (event.target == accountModal) accountModal.style.display = 'none';
-            if (event.target == bagModal) bagModal.style.display = 'none';
+
+            if (event.target == accountModal)
+                accountModal.style.display = 'none';
+
+            if (event.target == bagModal)
+                bagModal.style.display = 'none';
         }
 
         function toggleAuthForm(target) {
@@ -679,6 +687,13 @@
                     alpha: 1
                 });
             }
+        }
+        function openSearchBox() {
+            document.getElementById("searchBox").style.display = "block";
+        }
+
+        function closeSearchBox() {
+            document.getElementById("searchBox").style.display = "none";
         }
         function searchProducts() {
         const keyword = document.getElementById("searchInput").value.toLowerCase();
