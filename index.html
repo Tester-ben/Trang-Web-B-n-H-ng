@@ -475,14 +475,17 @@
 
 
 
-        accountTrigger.onclick = function() {
-            if (isLoggedIn) { showPage('dashboard'); } 
-            else { accountModal.style.display = 'block'; }
-        };
-
         const accountModal = document.getElementById('account-modal');
         const bagModal = document.getElementById('bag-modal');
         const accountTrigger = document.getElementById('account-trigger');
+
+        accountTrigger.onclick = function() {
+            if (isLoggedIn) { 
+                showPage('dashboard'); 
+            } else { 
+                accountModal.style.display = 'block'; 
+            }
+        };
 
         document.getElementById('search-trigger').onclick = function () {
             openSearchBox();
