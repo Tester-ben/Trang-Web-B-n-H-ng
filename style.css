@@ -710,42 +710,4 @@ a {
     color: #fff;
     text-transform: uppercase;
 }
-.menu-item-has-mega {
-    position: relative;
-}
 
-.mega-menu-dropdown {
-    display: none;
-    position: absolute;
-    top: 100%;
-    left: 0;
-    width: 360px;
-    background: #181818;
-    padding: 35px 40px;
-    z-index: 9999;
-}
-
-.menu-item-has-mega:hover .mega-menu-dropdown {
-    display: block;
-}
-
-.mega-menu-container {
-    display: block;
-}
-
-.mega-links-col {
-    display: flex;
-    flex-direction: column;
-    gap: 18px;
-}
-
-.mega-links-col a {
-    color: #fff;
-    font-size: 12px;
-    letter-spacing: 2px;
-    text-decoration: none;
-}
-
-.mega-links-col a:hover {
-    text-decoration: underline;
-}
