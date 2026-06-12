@@ -1,0 +1,323 @@
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>The Style Hub - Mens Collection</title>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { font-family: 'Roboto', sans-serif; background-color: #ffffff; color: #111111; overflow-x: hidden; }
+        
+        .main-header { position: fixed; top: 0; left: 0; width: 100%; height: 57px; background-color: #000000; color: #ffffff; z-index: 1000; }
+        .nav-container { max-width: 1440px; margin: 0 auto; height: 100%; display: flex; justify-content: space-between; align-items: center; padding: 0 40px; }
+        .nav-left, .nav-right { display: flex; gap: 20px; align-items: center; }
+        .logo { font-size: 16px; font-weight: 700; letter-spacing: 4px; text-align: center; }
+        .nav-container a { color: #ffffff; text-decoration: none; font-size: 11px; letter-spacing: 1.5px; text-transform: uppercase; cursor: pointer; }
+
+        /* FIX LỖI KHOẢNG CÁCH GIAO DIỆN PHÍA TRÊN */
+        .sub-filter-bar { margin-top: 57px; padding: 20px 40px 15px 40px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #f2f2f2; background-color: #ffffff; }
+        .filter-left-group { display: flex; gap: 15px; }
+        .filter-tag { font-size: 11px; letter-spacing: 1px; text-transform: uppercase; font-weight: 500; cursor: pointer; color: #777; transition: color 0.2s; }
+        .filter-tag.active, .filter-tag:hover { color: #111; }
+        .filter-right-sort { font-size: 11px; letter-spacing: 1px; text-transform: uppercase; font-weight: 500; color: #111; }
+
+        .product-gallery-container { max-width: 1440px; margin: 0 auto; padding: 40px; }
+        .mens-product-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 40px 24px; }
+        
+        .mens-card { display: flex; flex-direction: column; text-decoration: none; color: inherit; }
+        .mens-thumb-box { width: 100%; aspect-ratio: 3 / 4; overflow: hidden; background-color: #f7f7f7; margin-bottom: 15px; position: relative; }
+        
+        .mens-thumb-box img { width: 100%; height: 100%; object-fit: cover; object-position: center top; position: absolute; top: 0; left: 0; transition: opacity 0.4s ease, transform 0.4s ease; }
+        .img-back { opacity: 0; }
+        
+        .mens-card:hover .img-front { opacity: 0; }
+        .mens-card:hover .img-back { opacity: 1; transform: scale(1.01); }
+
+        .mens-details { text-align: left; }
+        .tag-brand { font-size: 10px; letter-spacing: 1.5px; color: #777; text-transform: uppercase; margin-bottom: 4px; }
+        .item-name { font-size: 13px; color: #111; margin-bottom: 4px; font-weight: 400; line-height: 1.4; }
+        .item-price { font-size: 12px; color: #111; font-weight: 500; }
+
+        .hide-item { display: none !important; }
+
+        /* ==================== TOAST NOTIFICATION LUXURY ==================== */
+        .toast-notification { position: fixed; bottom: -100px; left: 50%; transform: translateX(-50%); background-color: #111111; color: #ffffff; padding: 14px 30px; font-size: 12px; letter-spacing: 1px; text-transform: uppercase; z-index: 3000; box-shadow: 0 5px 15px rgba(0,0,0,0.15); transition: bottom 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); pointer-events: none; }
+        .toast-notification.show { bottom: 40px; }
+        #fwCanvas { position: fixed; top: 0; left: 0; width: 100%; height: 100vh; pointer-events: none; z-index: 9999; display: none; }
+    </style>
+</head>
+
+<body>
+    
+    <canvas id="fwCanvas"></canvas>
+    <div class="toast-notification" id="toastMessage">Đăng nhập thành công!</div>
+
+    <header class="main-header">
+        <div class="nav-container">
+            <div class="nav-left">
+                <a href="index.html" style="text-decoration: underline; font-weight: 500;">FEATURED</a>
+                <a href="mens.html">MENS</a>
+                <a href="womens.html">WOMENS</a>
+                <a href="kids.html">KIDS</a>
+                <a href="sale.html">SALE</a>
+                <a href="shoes.html">SHOES</a>
+            </div>
+            <div class="logo"><a href="index.html">THE STYLE HUB</a></div>
+            <div class="nav-right">
+                <a href="#" id="search-trigger">SEARCH</a>
+                <a href="#" id="headerAccountLink">ACCOUNT</a>
+                <a href="#" id="bag-trigger">BAG (<span id="cart-count">0</span>)</a>
+            </div>
+        </div>
+    </header>
+
+    <div class="sub-filter-bar">
+        <div class="filter-left-group">
+            <span class="filter-tag active">All Products</span>
+
+        </div>
+    
+        <div class="filter-right-sort">
+            FILTER / SORT +
+        </div>
+    </div>
+
+    <div class="product-gallery-container">
+        <div class="mens-product-grid">
+            
+           
+        </div>
+    </div>
+    <script src="product-data.js"></script>
+
+    <script>
+    const grid = document.querySelector(".mens-product-grid");
+
+    Object.keys(database).forEach(id => {
+        const item = database[id];
+
+        grid.innerHTML += `
+            <a href="product-detail.html?id=${id}" class="product-card">
+                <div class="product-thumb hover-img">
+                    <img class="img-main" src="${item.mainImg}" alt="${item.name}">
+                </div>
+
+                <div class="product-info">
+                    <p class="brand">${item.brand}</p>
+                    <p class="name">${item.name}</p>
+                    <p class="price">${item.price}</p>
+                </div>
+            </a>
+        `;
+    });
+    </script>
+
+    <div id="search-modal" style="display:none;" class="modal-overlay">
+        <div class="search-modal-content">
+            <span class="close-modal" id="close-search">&times;</span>
+            <input type="text" id="search-input" placeholder="SEARCH FOR PRODUCTS...">
+            <div id="search-results"></div>
+        </div>
+    </div>
+
+    <div id="account-modal" style="display:none;" class="modal-overlay">
+        <div class="account-box">
+            <span class="close-modal" id="close-account">&times;</span>
+            <div id="login-form-container">
+                <h3>LOGIN</h3>
+                <form onsubmit="event.preventDefault(); handleLogin();">
+                    <input type="email" placeholder="EMAIL" required id="login-email">
+                    <input type="password" placeholder="PASSWORD" required id="login-pass">
+                    <button type="submit" class="auth-submit-btn">SIGN IN</button>
+                </form>
+                <p class="switch-form-text">Don't have an account? <span onclick="toggleAuthForm('register')">CREATE ACCOUNT</span></p>
+            </div>
+            <div id="register-form-container" style="display:none;">
+                <h3>CREATE ACCOUNT</h3>
+                <form onsubmit="event.preventDefault(); handleRegister();">
+                    <input type="text" placeholder="FIRST NAME" required id="reg-fname">
+                    <input type="text" placeholder="LAST NAME" required id="reg-lname">
+                    <input type="email" placeholder="EMAIL ADDRESS" required id="reg-email">
+                    <input type="password" placeholder="PASSWORD" required id="reg-pass">
+                    <button type="submit" class="auth-submit-btn">CREATE</button>
+                </form>
+                <p class="switch-form-text">Already have an account? <span onclick="toggleAuthForm('login')">RETURN TO LOGIN</span></p>
+            </div>
+        </div>
+    </div>
+
+    <div id="bag-modal" style="display:none;" class="modal-overlay">
+        <div class="bag-sidebar">
+            <div class="bag-header">
+                <h3>SHOPPING BAG</h3>
+                <span class="close-modal" id="close-bag">&times;</span>
+            </div>
+            <div id="cart-items-container">
+                <p class="empty-cart-msg">Your bag is empty.</p>
+            </div>
+            <div class="bag-footer">
+                <div class="total-row">
+                    <span>TOTAL:</span>
+                    <span id="cart-total-price">0 ₫</span>
+                </div>
+                <button class="checkout-btn" onclick="alert('Proceeding to checkout!')">CHECKOUT</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let isLoggedIn = localStorage.getItem('isLoggedInStatus') === 'true'; 
+        let userData = { firstName: "Thanh Tú", lastName: "Phan", email: "phantu210206@gmail.com" };
+
+        // SỬA LỖI: Nhắm đúng ID gốc "headerAccountLink" để hiển thị tên Phan Thanh Tú
+        function checkGlobalLoginStatus() {
+            const accountLink = document.getElementById('headerAccountLink');
+            if (accountLink) {
+                if (localStorage.getItem('isLoggedInStatus') === 'true') {
+                    isLoggedIn = true;
+                    const savedName = localStorage.getItem('hub_name') || "PHAN THANH TÚ";
+                    accountLink.innerText = savedName.toUpperCase();
+                } else {
+                    isLoggedIn = false;
+                    accountLink.innerText = "ACCOUNT";
+                }
+            }
+        }
+
+        document.addEventListener("DOMContentLoaded", function() {
+            checkGlobalLoginStatus();
+
+            // Nhận diện lệnh truyền lọc từ trang chủ sang qua URL (?cat=dress-shirt)
+            const urlParams = new URLSearchParams(window.location.search);
+            const categoryParam = urlParams.get('cat');
+            
+            if (categoryParam === 'dress-shirt') {
+                const dressShirtBtn = document.getElementById('filter-dress-shirt');
+                if (dressShirtBtn) {
+                    filterCategory('dress-shirt', dressShirtBtn);
+                }
+            }
+        });
+
+        const searchModal = document.getElementById('search-modal');
+        const accountModal = document.getElementById('account-modal');
+        const bagModal = document.getElementById('bag-modal');
+        const accountTrigger = document.getElementById('headerAccountLink');
+
+        if(accountTrigger) {
+            accountTrigger.onclick = function() {
+                if (isLoggedIn) { window.location.href = 'account.html'; } 
+                else { accountModal.style.display = 'block'; }
+            };
+        }
+
+        if(document.getElementById('search-trigger')) document.getElementById('search-trigger').onclick = () => searchModal.style.display = 'block';
+        if(document.getElementById('bag-trigger')) document.getElementById('bag-trigger').onclick = () => bagModal.style.display = 'block';
+        if(document.getElementById('close-search')) document.getElementById('close-search').onclick = () => searchModal.style.display = 'none';
+        if(document.getElementById('close-account')) document.getElementById('close-account').onclick = () => accountModal.style.display = 'none';
+        if(document.getElementById('close-bag')) document.getElementById('close-bag').onclick = () => bagModal.style.display = 'none';
+
+        window.onclick = function(event) {
+            if (event.target == searchModal) searchModal.style.display = 'none';
+            if (event.target == accountModal) accountModal.style.display = 'none';
+            if (event.target == bagModal) bagModal.style.display = 'none';
+        }
+
+        function toggleAuthForm(target) {
+            const loginForm = document.getElementById('login-form-container');
+            const regForm = document.getElementById('register-form-container');
+            if(target === 'register') {
+                loginForm.style.display = 'none';
+                regForm.style.display = 'block';
+            } else {
+                loginForm.style.display = 'block';
+                regForm.style.display = 'none';
+            }
+        }
+
+        function showToast(textMsg) {
+            const toast = document.getElementById('toastMessage');
+            if(toast) {
+                toast.innerText = textMsg;
+                toast.classList.add('show');
+                setTimeout(() => { toast.classList.remove('show'); }, 2800);
+            }
+        }
+
+        function handleRegister() {
+            userData.firstName = document.getElementById('reg-fname').value;
+            userData.lastName = document.getElementById('reg-lname').value;
+            userData.email = document.getElementById('reg-email').value;
+            userData.password = document.getElementById('reg-pass').value;
+            showToast("Đăng ký thành công! Hãy đăng nhập thông tin.");
+            toggleAuthForm('login');
+        }
+
+        function handleLogin() {
+            const emailInput = document.getElementById('login-email').value;
+            isLoggedIn = true;
+            localStorage.setItem('isLoggedInStatus', 'true'); 
+            if (emailInput !== userData.email) {
+                userData.firstName = "Thanh Tú"; userData.lastName = "Phan"; userData.email = emailInput;
+            }
+            const fullDisplayName = `${userData.lastName} ${userData.firstName}`;
+            localStorage.setItem('hub_name', fullDisplayName); 
+            checkGlobalLoginStatus();
+            accountModal.style.display = 'none';
+            triggerFireworkCelebration(fullDisplayName);
+        }
+
+        function filterCategory(categoryName, element) {
+            document.querySelectorAll('.filter-tag').forEach(tag => tag.classList.remove('active'));
+            element.classList.add('active');
+            
+            document.querySelectorAll('.mens-card').forEach(card => {
+                const itemCat = card.getAttribute('data-cat');
+                if (categoryName === 'all' || itemCat === categoryName) { 
+                    card.classList.remove('hide-item'); 
+                } else { 
+                    card.classList.add('hide-item'); 
+                }
+            });
+        }
+
+        // --- HIỆU ỨNG PHÁO HOA ĐỒNG BỘ CHẠY MUỢT MÀ ---
+        const canvas = document.getElementById('fwCanvas');
+        const ctx = canvas.getContext('2d');
+        let particles = [];
+
+        function triggerFireworkCelebration(displayName) {
+            canvas.style.display = 'block';
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+            createExplosion(canvas.width * 0.5, canvas.height * 0.4);
+            
+            function loop() {
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+                for (let i = 0; i < particles.length; i++) {
+                    let p = particles[i];
+                    p.x += p.vx; p.y += p.vy; p.vy += 0.12; p.alpha -= 0.014;
+                    ctx.save(); ctx.globalAlpha = p.alpha; ctx.fillStyle = p.color;
+                    ctx.beginPath(); ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2); ctx.fill(); ctx.restore();
+                    if (p.alpha <= 0) { particles.splice(i, 1); i--; }
+                }
+                if (particles.length > 0) { requestAnimationFrame(loop); } 
+                else { canvas.style.display = 'none'; showToast(`XIN CHÀO ${displayName.toUpperCase()}!`); }
+            }
+            loop();
+        }
+
+        function createExplosion(x, y) {
+            for (let i = 0; i < 40; i++) {
+                const angle = Math.random() * Math.PI * 2;
+                const speed = Math.random() * 4 + 2;
+                particles.push({ x, y, vx: Math.cos(angle) * speed, vy: Math.sin(angle) * speed, size: Math.random() * 2 + 1, color: '#111', alpha: 1 });
+            }
+        }
+    </script>
+</body>
+
+</html>
