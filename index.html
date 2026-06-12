@@ -138,40 +138,25 @@
 
 
 <body>
-    <div id="searchBox" style="
-    display:none;
-    position:fixed;
-    top:0;
-    left:0;
-    width:100%;
-    height:100%;
-    background:rgba(0,0,0,.5);
-    z-index:9999;
-    ">
-
-    <div style="
-    width:600px;
-    max-width:90%;
-    margin:80px auto;
-    background:#fff;
-    padding:20px;
-    border-radius:8px;
-    ">
-
-        <div style="text-align:right;">
-            <button onclick="closeSearchBox()">✕</button>
+    <div id="searchBox" class="search-overlay">
+        <div class="search-panel">
+    
+            <button class="search-close-btn" onclick="closeSearchBox()">×</button>
+    
+            <input
+                id="searchInput"
+                class="search-input"
+                type="text"
+                placeholder="SEARCH FOR PRODUCTS..."
+                onkeyup="searchProducts()"
+            >
+    
+            <div id="searchResults" class="search-results"></div>
+    
         </div>
+    </div>
 
-        <input
-        id="searchInput"
-        type="text"
-        placeholder="SEARCH FOR PRODUCTS..."
-        onkeyup="searchProducts()"
-    >
-    <div id="searchResults"></div>
-
-</div>
-</div>
+        
 
 <canvas id="fwCanvas"></canvas>
 
