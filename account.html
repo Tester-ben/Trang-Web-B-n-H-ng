@@ -169,9 +169,12 @@
         });
 
         function syncHeaderUsername() {
-            const headerLink = document.getElementById('headerAccountLink');
+            const headerLinks = document.querySelectorAll('#account-trigger, #headerAccountLink');
             const savedName = localStorage.getItem('hub_name') || "ACCOUNT";
-            headerLink.innerText = savedName.toUpperCase();
+            headerLinks.forEach(function(headerLink) {
+                headerLink.innerText = savedName.toUpperCase();
+                headerLink.href = "account.html";
+            });
         }
 
         function switchAccountTab(tabId, buttonElement) {
@@ -191,7 +194,12 @@
         }
 
         function getCurrentUserEmail() {
-            return (localStorage.getItem('hub_current_user_key') || localStorage.getItem('hub_email') || '').trim().toLowerCase();
+            return (
+                localStorage.getItem('hub_current_user_key') ||
+                localStorage.getItem('hub_email') ||
+                localStorage.getItem('hub_shipping_email') ||
+                ''
+            ).trim().toLowerCase();
         }
 
         function getOrdersForCurrentUser() {
@@ -199,7 +207,9 @@
             if (!email) return [];
 
             const perUserKey = `hub_orders_${email}`;
+            const userNameKey = `hub_orders_${(localStorage.getItem('hub_name') || '').trim().toLowerCase().replace(/\s+/g, '_')}`;
             const perUserOrders = JSON.parse(localStorage.getItem(perUserKey) || '[]');
+            const nameKeyOrders = JSON.parse(localStorage.getItem(userNameKey) || '[]');
             const globalOrders = JSON.parse(localStorage.getItem('hub_orders') || '[]');
 
             const ownedGlobalOrders = globalOrders.filter(order => {
@@ -215,7 +225,7 @@
                 return ownerEmail && ownerEmail === email;
             });
 
-            const merged = [...perUserOrders, ...ownedGlobalOrders];
+            const merged = [...perUserOrders, ...nameKeyOrders, ...ownedGlobalOrders];
             const seen = new Set();
             return merged.filter(order => {
                 const key = order.orderId || JSON.stringify(order);

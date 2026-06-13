@@ -17,8 +17,9 @@
         .nav-left, .logo, .nav-right { display: table-cell; vertical-align: middle; }
         .nav-left { text-align: left; width: 30%; } .logo { text-align: center; font-size: 16px; font-weight: 700; letter-spacing: 4px; } .nav-right { text-align: right; width: 30%; }
         .nav-container a { color: #ffffff; text-decoration: none; font-size: 12px; text-transform: uppercase; cursor: pointer; }
-        .nav-right a { display: inline-block; margin-left: 28px; white-space: nowrap; }
-        .nav-right a:first-child { margin-left: 0; }
+        .nav-right { text-align: right; width: 30%; white-space: nowrap; }
+        .nav-right a { display: inline-block !important; margin-left: 38px !important; white-space: nowrap; }
+        .nav-right a:first-child { margin-left: 0 !important; margin-right: 38px !important; }
         
         /* --- BỐ CỤC CHI TIẾT SẢN PHẨM --- */
         .product-detail-container { max-width: 1300px; margin: 0 auto; padding: 97px 40px 60px 40px; }
@@ -250,8 +251,8 @@
             <div class="nav-left"><a id="back-link-target" href="mens.html">← Collection</a></div>
             <div class="logo"><a href="index.html">THE STYLE HUB</a></div>
             <div class="nav-right">
-                <a href="account.html" id="account-trigger">ACCOUNT</a>
-                <a href="#" onclick="event.preventDefault(); toggleCartDrawer(true)">BAG (<span id="bag-count">0</span>)</a>
+                <a href="account.html" id="account-trigger" class="pd-account-link">ACCOUNT</a>
+                <a href="#" class="pd-bag-link" onclick="event.preventDefault(); toggleCartDrawer(true)">BAG (<span id="bag-count">0</span>)</a>
             </div>
         </div>
     </header>
@@ -745,6 +746,22 @@
 
             existingOrdersArray.unshift(newCompletedOrderObject);
             localStorage.setItem(orderStorageKey, JSON.stringify(existingOrdersArray));
+
+            // Lưu thêm theo tên tài khoản để tránh lỗi tài khoản chưa có email riêng.
+            const nameOrderKey = 'hub_orders_' + (localStorage.getItem('hub_name') || name)
+                .trim()
+                .toLowerCase()
+                .replace(/\s+/g, '_');
+            if (nameOrderKey !== orderStorageKey) {
+                const nameOrders = JSON.parse(localStorage.getItem(nameOrderKey) || '[]');
+                nameOrders.unshift(newCompletedOrderObject);
+                localStorage.setItem(nameOrderKey, JSON.stringify(nameOrders));
+            }
+
+            // Lưu thêm bản global có userEmail để account có thể dò lại nếu cần.
+            const globalOrders = JSON.parse(localStorage.getItem('hub_orders') || '[]');
+            globalOrders.unshift(newCompletedOrderObject);
+            localStorage.setItem('hub_orders', JSON.stringify(globalOrders));
             
             toggleCheckoutDrawer(false);
             cartMemoryArray = [];
