@@ -108,12 +108,123 @@
         .switch-form-link { color: #111; text-decoration: underline; font-weight: 600; cursor: pointer; }
         .hidden-auth-block { display: none !important; }
 
+
+        /* ==================== RELATED PRODUCTS ==================== */
+        .related-products-section {
+            max-width: 1300px;
+            margin: 20px auto 80px auto;
+            padding: 0 40px;
+        }
+
+        .related-products-header {
+            text-align: center;
+            margin-bottom: 34px;
+        }
+
+        .related-products-header h2 {
+            font-size: 24px;
+            font-weight: 400;
+            letter-spacing: 1.5px;
+            text-transform: capitalize;
+            margin-bottom: 14px;
+        }
+
+        .related-title-line {
+            width: 120px;
+            height: 4px;
+            background-color: #e6e9ec;
+            margin: 0 auto;
+            border-radius: 999px;
+            position: relative;
+        }
+
+        .related-title-line::after {
+            content: "";
+            width: 44px;
+            height: 4px;
+            background-color: #111;
+            border-radius: 999px;
+            position: absolute;
+            left: 50%;
+            top: 0;
+            transform: translateX(-50%);
+        }
+
+        .related-products-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 32px;
+        }
+
+        .related-product-card {
+            color: #111;
+            text-decoration: none;
+            display: block;
+        }
+
+        .related-image-box {
+            width: 100%;
+            aspect-ratio: 3 / 4;
+            background-color: #f6f6f6;
+            position: relative;
+            overflow: hidden;
+            margin-bottom: 14px;
+        }
+
+        .related-image-box img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+            object-position: center;
+            display: block;
+            transition: opacity 0.3s ease, transform 0.3s ease;
+        }
+
+        .related-image-box .related-img-hover {
+            position: absolute;
+            top: 0;
+            left: 0;
+            opacity: 0;
+        }
+
+        .related-product-card:hover .related-img-main {
+            opacity: 0;
+        }
+
+        .related-product-card:hover .related-img-hover {
+            opacity: 1;
+            transform: scale(1.02);
+        }
+
+        .related-brand {
+            font-size: 10px;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            color: #888;
+            margin-bottom: 6px;
+        }
+
+        .related-name {
+            font-size: 13px;
+            line-height: 1.45;
+            margin-bottom: 6px;
+            color: #111;
+        }
+
+        .related-price {
+            font-size: 13px;
+            color: #222;
+        }
+
         @media (max-width: 768px) {
             .detail-table-layout, .detail-column { display: block; width: 100%; }
             .product-detail-container { padding: 80px 20px 40px 20px; }
             .detail-table-layout { border-spacing: 0; }
             .info-sticky-panel { position: static; padding-left: 0; margin-top: 30px; }
             .cart-side-panel, .checkout-side-panel, .account-side-panel { width: 100%; right: -100%; padding: 25px; }
+            .related-products-section { padding: 0 20px; margin-bottom: 50px; }
+            .related-products-grid { grid-template-columns: repeat(2, 1fr); gap: 22px; }
+            .related-products-header h2 { font-size: 22px; }
         }
     </style>
 </head>
@@ -181,6 +292,16 @@
             </div>
         </div>
     </div>
+
+    <!-- SẢN PHẨM LIÊN QUAN -->
+    <section class="related-products-section" id="relatedProductsSection">
+        <div class="related-products-header">
+            <h2>Sản Phẩm Liên Quan</h2>
+            <div class="related-title-line"></div>
+        </div>
+        <div class="related-products-grid" id="relatedProductsGrid"></div>
+    </section>
+
 
     <!-- ==================== SIDEBAR DRAWER PANEL ==================== -->
     <div class="cart-drawer-overlay" id="cartOverlay" onclick="toggleCartDrawer(false)">
@@ -270,6 +391,85 @@
         let isUserLoggedIn = localStorage.getItem('isLoggedInStatus') === 'true'; 
         let pendingCheckoutAction = false; 
 
+
+        function getProductCategoryById(productId) {
+            if (!productId) return "mens";
+            if (productId.startsWith("womens")) return "womens";
+            if (productId.startsWith("kids")) return "kids";
+            if (productId.startsWith("sale")) return "sale";
+            if (productId.startsWith("shoe")) return "shoes";
+            return "mens";
+        }
+
+        function getRelatedBackPage(category) {
+            if (category === "womens") return "womens.html";
+            if (category === "kids") return "kids.html";
+            if (category === "sale") return "sale.html";
+            if (category === "shoes") return "shoes.html";
+            return "mens.html";
+        }
+
+        function renderRelatedProducts(currentProductId) {
+            const relatedGrid = document.getElementById("relatedProductsGrid");
+            const relatedSection = document.getElementById("relatedProductsSection");
+            if (!relatedGrid || typeof database === "undefined") return;
+
+            const currentCategory = getProductCategoryById(currentProductId);
+
+            const allSameCategoryIds = Object.keys(database).filter(function(id) {
+                const item = database[id];
+                return id !== currentProductId &&
+                       getProductCategoryById(id) === currentCategory &&
+                       item &&
+                       (item.mainImg || (item.images && item.images[0]));
+            });
+
+            if (allSameCategoryIds.length === 0) {
+                if (relatedSection) relatedSection.style.display = "none";
+                return;
+            }
+
+            const sortedIds = allSameCategoryIds.sort(function(a, b) {
+                const numA = parseInt(a.split("-").pop(), 10) || 0;
+                const numB = parseInt(b.split("-").pop(), 10) || 0;
+                return numA - numB;
+            });
+
+            const currentNumber = parseInt(String(currentProductId).split("-").pop(), 10) || 0;
+            const afterCurrent = sortedIds.filter(function(id) {
+                return (parseInt(id.split("-").pop(), 10) || 0) > currentNumber;
+            });
+            const beforeCurrent = sortedIds.filter(function(id) {
+                return (parseInt(id.split("-").pop(), 10) || 0) <= currentNumber;
+            });
+
+            const selectedIds = afterCurrent.concat(beforeCurrent).slice(0, 4);
+            relatedGrid.innerHTML = "";
+
+            selectedIds.forEach(function(id) {
+                const item = database[id];
+                const mainImage = item.mainImg || (item.images && item.images[0]) || "";
+                const hoverImage = (item.images && item.images[1]) ? item.images[1] : mainImage;
+                const brandText = item.brand || "ESSENTIALS";
+                const detailUrl = "product-detail.html?id=" + id;
+
+                const card = document.createElement("a");
+                card.className = "related-product-card";
+                card.href = detailUrl;
+                card.innerHTML = `
+                    <div class="related-image-box">
+                        <img class="related-img-main" src="${mainImage}" alt="${item.name || ''}">
+                        <img class="related-img-hover" src="${hoverImage}" alt="${item.name || ''}">
+                    </div>
+                    <p class="related-brand">${brandText}</p>
+                    <p class="related-name">${item.name || ''}</p>
+                    <p class="related-price">${item.price || ''}</p>
+                `;
+
+                relatedGrid.appendChild(card);
+            });
+        }
+
         document.addEventListener("DOMContentLoaded", function() {
             const urlParams = new URLSearchParams(window.location.search);
             const productId = urlParams.get('id') || 'tops-1';
@@ -307,6 +507,8 @@
                     galleryTarget.appendChild(imgContainer);
                 });
             }
+
+            renderRelatedProducts(productId);
             
             loadSavedShippingInfo();
             updateHeaderAccountUI();
