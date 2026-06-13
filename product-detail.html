@@ -17,6 +17,8 @@
         .nav-left, .logo, .nav-right { display: table-cell; vertical-align: middle; }
         .nav-left { text-align: left; width: 30%; } .logo { text-align: center; font-size: 16px; font-weight: 700; letter-spacing: 4px; } .nav-right { text-align: right; width: 30%; }
         .nav-container a { color: #ffffff; text-decoration: none; font-size: 12px; text-transform: uppercase; cursor: pointer; }
+        .nav-right a { display: inline-block; margin-left: 28px; white-space: nowrap; }
+        .nav-right a:first-child { margin-left: 0; }
         
         /* --- BỐ CỤC CHI TIẾT SẢN PHẨM --- */
         .product-detail-container { max-width: 1300px; margin: 0 auto; padding: 97px 40px 60px 40px; }
@@ -248,8 +250,8 @@
             <div class="nav-left"><a id="back-link-target" href="mens.html">← Collection</a></div>
             <div class="logo"><a href="index.html">THE STYLE HUB</a></div>
             <div class="nav-right">
-                <a href="account.html" style="margin-right: 20px;" id="account-trigger">ACCOUNT</a>
-                <a onclick="toggleCartDrawer(true)">Bag (<span id="bag-count">0</span>)</a>
+                <a href="account.html" id="account-trigger">ACCOUNT</a>
+                <a href="#" onclick="event.preventDefault(); toggleCartDrawer(true)">BAG (<span id="bag-count">0</span>)</a>
             </div>
         </div>
     </header>
@@ -561,6 +563,7 @@
             isUserLoggedIn = true;
             localStorage.setItem('isLoggedInStatus', 'true');
             localStorage.setItem('hub_email', emailInput);
+            localStorage.setItem('hub_current_user_key', emailInput.toLowerCase());
             localStorage.setItem('hub_name', savedName && savedName.trim() !== '' ? savedName : emailName);
 
             if(!localStorage.getItem('hub_phone')) localStorage.setItem('hub_phone', '');
@@ -584,6 +587,7 @@
             localStorage.setItem('isLoggedInStatus', 'true');
             localStorage.setItem('hub_name', nameInput);
             localStorage.setItem('hub_email', emailInput);
+            localStorage.setItem('hub_current_user_key', emailInput.toLowerCase());
             localStorage.setItem('hub_phone', '');
             localStorage.setItem('hub_address', '');
 
@@ -712,17 +716,27 @@
                 return;
             }
             
+            const accountEmail = (
+                localStorage.getItem('hub_current_user_key') ||
+                localStorage.getItem('hub_email') ||
+                email
+            ).trim().toLowerCase();
+
             localStorage.setItem('hub_name', name);
-            localStorage.setItem('hub_email', email);
+            localStorage.setItem('hub_email', accountEmail);
+            localStorage.setItem('hub_current_user_key', accountEmail);
+            localStorage.setItem('hub_shipping_email', email);
             localStorage.setItem('hub_phone', phone);
             localStorage.setItem('hub_address', address);
 
-            const orderStorageKey = 'hub_orders_' + email;
+            const orderStorageKey = 'hub_orders_' + accountEmail;
             const existingOrdersArray = JSON.parse(localStorage.getItem(orderStorageKey) || '[]');
             const uniqueOrderId = "STH" + Math.floor(100000 + Math.random() * 900000);
             
             const newCompletedOrderObject = {
                 orderId: uniqueOrderId,
+                userEmail: accountEmail,
+                shippingEmail: email,
                 date: new Date().toLocaleString('vi-VN'),
                 totalPriceFormatted: document.getElementById('cartTotalTarget').innerText,
                 orderedProductsList: [...cartMemoryArray],

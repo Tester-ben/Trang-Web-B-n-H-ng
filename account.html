@@ -191,7 +191,7 @@
         }
 
         function getCurrentUserEmail() {
-            return (localStorage.getItem('hub_email') || localStorage.getItem('hub_current_user_key') || '').trim().toLowerCase();
+            return (localStorage.getItem('hub_current_user_key') || localStorage.getItem('hub_email') || '').trim().toLowerCase();
         }
 
         function getOrdersForCurrentUser() {

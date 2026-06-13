@@ -8,6 +8,9 @@ function syncHeaderAccountName() {
     const accountLinks = document.querySelectorAll("#account-trigger, #headerAccountLink");
     const isLoggedIn = localStorage.getItem("isLoggedInStatus") === "true";
     const savedName = localStorage.getItem("hub_name");
+    if (isLoggedIn && !localStorage.getItem("hub_current_user_key") && localStorage.getItem("hub_email")) {
+        localStorage.setItem("hub_current_user_key", localStorage.getItem("hub_email").trim().toLowerCase());
+    }
 
     accountLinks.forEach(function (link) {
         if (isLoggedIn && savedName && savedName.trim() !== "") {
