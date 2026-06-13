@@ -119,6 +119,15 @@
 </head>
 <body>
 
+<div class="search-overlay" id="searchBox">
+    <div class="search-panel">
+        <button class="search-close-btn" onclick="closeSearchBox()">×</button>
+        <input class="search-input" id="searchInput" onkeyup="searchProducts()" placeholder="SEARCH FOR PRODUCTS..." type="text">
+        <div class="search-results" id="searchResults"></div>
+    </div>
+</div>
+
+
     <canvas id="fwCanvas"></canvas>
     <div class="toast-notification" id="toastMessage">Đã thêm vào giỏ hàng thành công</div>
 
@@ -227,8 +236,8 @@
                 <h3>Bắt buộc đăng nhập</h3>
                 <p style="font-size: 12px; color: #666; margin-bottom: 20px;">Vui lòng xác thực tài khoản để tiếp tục mua hàng.</p>
                 <form onsubmit="event.preventDefault(); handleImmediateLogin();">
-                    <input type="email" id="authEmail" class="auth-input-field" placeholder="EMAIL ADDRESS" required value="phantu210206@gmail.com">
-                    <input type="password" id="authPass" class="auth-input-field" placeholder="PASSWORD" required value="••••••••">
+                    <input type="email" id="authEmail" class="auth-input-field" placeholder="EMAIL ADDRESS" required>
+                    <input type="password" id="authPass" class="auth-input-field" placeholder="PASSWORD" required>
                     <button type="submit" class="btn-auth-submit">Đăng Nhập & Tiếp Tục</button>
                 </form>
                 <p class="switch-form-prompt">Don't have an account? <span class="switch-form-link" onclick="toggleAuthView('register')">CREATE ACCOUNT</span></p>
@@ -335,7 +344,7 @@
         function updateHeaderAccountUI() {
             const link = document.getElementById('headerAccountLink');
             if(isUserLoggedIn) {
-                const savedName = localStorage.getItem('hub_name') || "PHAN THANH TÚ";
+                const savedName = localStorage.getItem('hub_name') || "ACCOUNT";
                 link.innerText = savedName.toUpperCase();
             } else {
                 link.innerText = "ACCOUNT";
@@ -343,13 +352,18 @@
         }
 
         function handleImmediateLogin() {
+            const emailInput = document.getElementById('authEmail').value.trim();
+            const emailName = emailInput ? emailInput.split('@')[0] : 'USER';
+            const savedName = localStorage.getItem('hub_name');
+
             isUserLoggedIn = true;
             localStorage.setItem('isLoggedInStatus', 'true');
-            if(!localStorage.getItem('hub_name')) {
-                localStorage.setItem('hub_name', "Phan Thanh Tú");
-                localStorage.setItem('hub_phone', "");
-                localStorage.setItem('hub_address', "");
-            }
+            localStorage.setItem('hub_email', emailInput);
+            localStorage.setItem('hub_name', savedName && savedName.trim() !== '' ? savedName : emailName);
+
+            if(!localStorage.getItem('hub_phone')) localStorage.setItem('hub_phone', '');
+            if(!localStorage.getItem('hub_address')) localStorage.setItem('hub_address', '');
+
             loadSavedShippingInfo();
             updateHeaderAccountUI();
             toggleAuthModal(false);
@@ -362,11 +376,14 @@
 
         function handleImmediateRegister() {
             const nameInput = document.getElementById('regNewName').value.trim();
+            const emailInput = document.getElementById('regNewEmail').value.trim();
+
             isUserLoggedIn = true;
             localStorage.setItem('isLoggedInStatus', 'true');
             localStorage.setItem('hub_name', nameInput);
-            localStorage.setItem('hub_phone', "");
-            localStorage.setItem('hub_address', "");
+            localStorage.setItem('hub_email', emailInput);
+            localStorage.setItem('hub_phone', '');
+            localStorage.setItem('hub_address', '');
 
             loadSavedShippingInfo();
             updateHeaderAccountUI();
@@ -438,8 +455,10 @@
             const savedName = localStorage.getItem('hub_name');
             const savedPhone = localStorage.getItem('hub_phone');
             const savedAddress = localStorage.getItem('hub_address');
+            const savedEmail = localStorage.getItem('hub_email');
             
             if (savedName) { document.getElementById('cusName').value = savedName; }
+            if (savedEmail) { document.getElementById('cusEmail').value = savedEmail; }
             
             if (savedPhone && savedPhone !== "Chưa cập nhật") { 
                 document.getElementById('cusPhone').value = savedPhone; 
@@ -479,13 +498,25 @@
             const name = document.getElementById('cusName').value.trim();
             const phone = document.getElementById('cusPhone').value.trim();
             const address = document.getElementById('cusAddress').value.trim();
-            if(!name || !phone || !address) { showToastNotification("Vui lòng điền đầy đủ thông tin giao hàng!"); return; }
+            const email = document.getElementById('cusEmail').value.trim().toLowerCase();
+
+            if(!name || !phone || !address || !email) {
+                showToastNotification("Vui lòng điền đầy đủ thông tin giao hàng!");
+                return;
+            }
+
+            if(cartMemoryArray.length === 0) {
+                showToastNotification("Giỏ hàng của bạn đang trống!");
+                return;
+            }
             
             localStorage.setItem('hub_name', name);
+            localStorage.setItem('hub_email', email);
             localStorage.setItem('hub_phone', phone);
             localStorage.setItem('hub_address', address);
 
-            const existingOrdersArray = JSON.parse(localStorage.getItem('hub_orders') || '[]');
+            const orderStorageKey = 'hub_orders_' + email;
+            const existingOrdersArray = JSON.parse(localStorage.getItem(orderStorageKey) || '[]');
             const uniqueOrderId = "STH" + Math.floor(100000 + Math.random() * 900000);
             
             const newCompletedOrderObject = {
@@ -497,7 +528,7 @@
             };
 
             existingOrdersArray.unshift(newCompletedOrderObject);
-            localStorage.setItem('hub_orders', JSON.stringify(existingOrdersArray));
+            localStorage.setItem(orderStorageKey, JSON.stringify(existingOrdersArray));
             
             toggleCheckoutDrawer(false);
             cartMemoryArray = [];
@@ -545,5 +576,104 @@
             }
         }
     </script>
+
+
+<footer class="site-footer support-footer">
+    <div class="footer-col footer-subscribe">
+        <h3>JOIN THE COMMUNITY</h3>
+        <p>Sign up for early access to collections, exclusive drops, and special events.</p>
+        <form class="newsletter-form" onsubmit="event.preventDefault(); alert('Thank you for subscribing!');">
+            <input type="email" placeholder="Your Email Address" required>
+            <button type="submit">SUBSCRIBE</button>
+        </form>
+        <div class="social-links">
+            <span>f</span><span>Zalo</span><span>◎</span><span>▶</span><span>♪</span>
+        </div>
+    </div>
+    <div class="footer-col footer-support">
+        <h4>HỖ TRỢ KHÁCH HÀNG</h4>
+        <a href="exchange-warranty-policy.html">Chính sách đổi hàng và bảo hành</a>
+        <a href="privacy-policy.html">Chính sách bảo mật</a>
+        <a href="shipping-policy.html">Chính sách giao hàng</a>
+    </div>
+    <div class="footer-col footer-store">
+        <h4>HỆ THỐNG CỬA HÀNG</h4>
+        <p><strong>HỒ CHÍ MINH</strong><br>15 Nguyễn Huệ, P. Bến Nghé, Quận 1</p>
+        <p><strong>HỒ CHÍ MINH</strong><br>236 Cách Mạng Tháng Tám, P. 10, Quận 3</p>
+        <a class="footer-store-link" href="collections.html">XEM TẤT CẢ CỬA HÀNG</a>
+    </div>
+    <div class="footer-col footer-payment">
+        <h4>PHƯƠNG THỨC THANH TOÁN</h4>
+        <div class="payment-tags"><span>MOMO</span><span>VNPAY</span><span>COD</span></div>
+        <div class="footer-badges"><span>ĐÃ THÔNG BÁO</span><span>DMCA PROTECTED</span></div>
+    </div>
+</footer>
+<div class="footer-bottom">© 2026 THE STYLE HUB. UI/UX Interface Design Project.</div>
+
+<script>
+function openSearchBox() {
+    const box = document.getElementById("searchBox");
+    const input = document.getElementById("searchInput");
+    if (box) box.style.display = "block";
+    if (input) setTimeout(() => input.focus(), 80);
+}
+function closeSearchBox() {
+    const box = document.getElementById("searchBox");
+    const results = document.getElementById("searchResults");
+    const input = document.getElementById("searchInput");
+    if (box) box.style.display = "none";
+    if (results) results.innerHTML = "";
+    if (input) input.value = "";
+}
+function searchProducts() {
+    const input = document.getElementById("searchInput");
+    const resultsBox = document.getElementById("searchResults");
+    if (!input || !resultsBox || typeof database === "undefined") return;
+    const keyword = input.value.trim().toLowerCase();
+    resultsBox.innerHTML = "";
+    if (!keyword) return;
+    const results = Object.keys(database).filter(id => {
+        const item = database[id] || {};
+        const text = `${item.name || ""} ${item.brand || ""} ${item.key || ""}`.toLowerCase();
+        return text.includes(keyword);
+    }).slice(0, 12);
+    if (results.length === 0) {
+        resultsBox.innerHTML = `<p class="search-empty">No products found.</p>`;
+        return;
+    }
+    results.forEach(id => {
+        const item = database[id];
+        resultsBox.innerHTML += `
+            <div class="search-result-item" onclick="window.location.href='product-detail.html?id=${id}'">
+                <img src="${item.mainImg || (item.images && item.images[0]) || ''}" alt="${item.name || ''}">
+                <div>
+                    <strong>${item.name || ''}</strong>
+                    <span>${item.price || ''}</span>
+                </div>
+            </div>`;
+    });
+}
+document.addEventListener("DOMContentLoaded", function () {
+    const trigger = document.getElementById("search-trigger");
+    if (trigger) {
+        trigger.addEventListener("click", function(e) {
+            e.preventDefault();
+            openSearchBox();
+        });
+    }
+});
+document.addEventListener("keydown", function(e) {
+    if (e.key === "Escape") closeSearchBox();
+    if (e.key === "Enter" && document.activeElement && document.activeElement.id === "searchInput") {
+        const first = document.querySelector(".search-result-item");
+        if (first) first.click();
+    }
+});
+document.addEventListener("click", function(e) {
+    const box = document.getElementById("searchBox");
+    if (box && e.target === box) closeSearchBox();
+});
+</script>
+
 </body>
 </html>
