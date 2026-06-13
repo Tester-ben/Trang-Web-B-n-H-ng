@@ -1114,3 +1114,82 @@ a {
     .policy-grid { grid-template-columns: 1fr; }
     .policy-title h1 { font-size: 26px; }
 }
+
+
+/* ===== FOOTER + HEADER UPDATE 2026-06-13 ===== */
+/* Làm logo THE STYLE HUB nổi bật hơn và đẩy các cụm menu ra xa logo hơn */
+.main-header .nav-container {
+    max-width: 1520px !important;
+    padding-left: 50px !important;
+    padding-right: 50px !important;
+}
+.main-header .logo,
+.main-header .logo a {
+    font-size: 19px !important;
+    letter-spacing: 5.5px !important;
+    font-weight: 700 !important;
+    white-space: nowrap !important;
+}
+.main-header .nav-left,
+.main-header .nav-right {
+    gap: 24px !important;
+}
+.main-header .nav-left a,
+.main-header .nav-right a {
+    margin-right: 0 !important;
+    margin-left: 0 !important;
+    white-space: nowrap !important;
+}
+
+/* Bỏ khối đăng ký email, chuyển footer sang dạng 4 cột chuyên nghiệp */
+.support-footer.site-footer,
+.site-footer.support-footer {
+    background: #062761 !important;
+    color: #ffffff !important;
+    padding: 55px 48px 48px !important;
+    display: grid !important;
+    grid-template-columns: 1fr 1.15fr 1.25fr 1fr !important;
+    gap: 46px !important;
+    margin-top: 80px !important;
+}
+.site-footer .footer-col h3,
+.site-footer .footer-col h4 {
+    color: #ffffff !important;
+    font-size: 14px !important;
+    letter-spacing: 2px !important;
+    text-transform: uppercase !important;
+    margin-bottom: 18px !important;
+    font-weight: 700 !important;
+}
+.site-footer .footer-col p,
+.site-footer .footer-col a {
+    color: rgba(255,255,255,.9) !important;
+    font-size: 13px !important;
+    line-height: 1.7 !important;
+    display: block !important;
+    margin-bottom: 9px !important;
+}
+.site-footer .footer-col a:hover {
+    color: #ffffff !important;
+    text-decoration: underline !important;
+}
+.footer-categories a,
+.footer-support a {
+    cursor: pointer !important;
+}
+.footer-bottom {
+    background: #052253 !important;
+    color: rgba(255,255,255,.9) !important;
+    text-align: center !important;
+    padding: 14px 20px !important;
+    font-size: 12px !important;
+    letter-spacing: 1px !important;
+}
+@media (max-width: 1024px) {
+    .main-header .nav-container { padding-left: 28px !important; padding-right: 28px !important; }
+    .main-header .logo, .main-header .logo a { font-size: 16px !important; letter-spacing: 4px !important; }
+    .site-footer.support-footer { grid-template-columns: repeat(2, minmax(0,1fr)) !important; }
+}
+@media (max-width: 768px) {
+    .site-footer.support-footer { grid-template-columns: 1fr !important; padding: 40px 25px !important; }
+}
