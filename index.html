@@ -223,7 +223,7 @@
 </div>
 <div class="nav-right">
 <a href="#" id="search-trigger">SEARCH</a>
-<a href="account.html" id="account-trigger">ACCOUNT</a>
+<a href="#" id="account-trigger">ACCOUNT</a>
 <a href="#" id="bag-trigger">BAG (<span id="cart-count">0</span>)</a>
 </div>
 </div>
@@ -441,19 +441,25 @@
         const bagModal = document.getElementById('bag-modal');
         const accountTrigger = document.getElementById('account-trigger');
 
-        accountTrigger.onclick = function() {
-            if (isLoggedIn) { 
-                showPage('dashboard'); 
-            } else { 
-                accountModal.style.display = 'block'; 
+        accountTrigger.onclick = function(e) {
+            e.preventDefault();
+
+            const loggedInNow = localStorage.getItem('isLoggedInStatus') === 'true';
+
+            if (loggedInNow) {
+                showPage('dashboard');
+            } else {
+                accountModal.style.display = 'block';
             }
         };
 
-        document.getElementById('search-trigger').onclick = function () {
+        document.getElementById('search-trigger').onclick = function (e) {
+            e.preventDefault();
             openSearchBox();
         };
 
-        document.getElementById('bag-trigger').onclick = function () {
+        document.getElementById('bag-trigger').onclick = function (e) {
+            e.preventDefault();
             bagModal.style.display = 'block';
         };
 
@@ -537,6 +543,7 @@
             localStorage.setItem('isLoggedInStatus', 'false');
             localStorage.removeItem('hub_name');
             localStorage.removeItem('hub_email');
+            localStorage.removeItem('hub_current_user_key');
 
             accountTrigger.innerText = "ACCOUNT";
             document.getElementById('db-user-name').innerText = "USER";
@@ -725,7 +732,7 @@
         <a href="kids.html">KIDS</a>
         <a href="sale.html">SALE</a>
         <a href="shoes.html">SHOES</a>
-        <a href="account.html" id="account-trigger">ACCOUNT</a>
+        <a href="account.html" id="footer-account-link">ACCOUNT</a>
     </div>
 
     <div class="footer-col footer-support">
