@@ -141,7 +141,7 @@
 </div>
 <div class="nav-right">
 <a href="#" id="search-trigger">SEARCH</a>
-<a href="account.html" id="headerAccountLink">ACCOUNT</a>
+<a href="account.html" id="account-trigger">ACCOUNT</a>
 <a href="#">BAG (0)</a>
 </div>
 </div>
@@ -523,37 +523,6 @@ document.addEventListener("DOMContentLoaded", function () {
 </script><script src="product-data.js"></script>
 
 
-<footer class="site-footer support-footer">
-    <div class="footer-col footer-categories">
-        <h4>DANH MỤC SẢN PHẨM</h4>
-        <a href="mens.html">Mens</a>
-        <a href="womens.html">Womens</a>
-        <a href="kids.html">Kids</a>
-        <a href="sale.html">Sale</a>
-        <a href="shoes.html">Shoes</a>
-        <a href="collections.html">All Products</a>
-        <a href="account.html">Account</a>
-    </div>
-    <div class="footer-col footer-support">
-        <h4>HỖ TRỢ KHÁCH HÀNG</h4>
-        <a href="exchange-warranty-policy.html">Chính sách đổi hàng và bảo hành</a>
-        <a href="privacy-policy.html">Chính sách bảo mật</a>
-        <a href="shipping-policy.html">Chính sách giao hàng</a>
-    </div>
-    <div class="footer-col footer-store">
-        <h4>HỆ THỐNG CỬA HÀNG</h4>
-        <p><strong>HỒ CHÍ MINH</strong><br>15 Nguyễn Huệ, P. Bến Nghé, Quận 1</p>
-        <p><strong>HỒ CHÍ MINH</strong><br>236 Cách Mạng Tháng Tám, P. 10, Quận 3</p>
-        <a class="footer-store-link" href="collections.html">XEM TẤT CẢ SẢN PHẨM</a>
-    </div>
-    <div class="footer-col footer-payment">
-        <h4>PHƯƠNG THỨC THANH TOÁN</h4>
-        <div class="payment-tags"><span>MOMO</span><span>VNPAY</span><span>COD</span></div>
-        <div class="footer-badges"><span>ĐÃ THÔNG BÁO</span><span>DMCA PROTECTED</span></div>
-    </div>
-</footer>
-<div class="footer-bottom">© 2026 THE STYLE HUB. UI/UX Interface Design Project.</div>
-
 <script>
 function openSearchBox() {
     const box = document.getElementById("searchBox");
@@ -619,5 +588,42 @@ document.addEventListener("click", function(e) {
 });
 </script>
 
+<footer class="site-footer support-footer">
+    <div class="footer-col footer-brand">
+        <h3>THE STYLE HUB</h3>
+        <p>Modern fashion store for menswear, womenswear, kidswear, shoes and seasonal sale collections.</p>
+        <div class="social-links">
+            <span>f</span><span>Zalo</span><span>◎</span><span>▶</span><span>♪</span>
+        </div>
+    </div>
+
+    <div class="footer-col footer-categories">
+        <h4>DANH MỤC</h4>
+        <a href="collections.html">ALL PRODUCTS</a>
+        <a href="mens.html">MENS</a>
+        <a href="womens.html">WOMENS</a>
+        <a href="kids.html">KIDS</a>
+        <a href="sale.html">SALE</a>
+        <a href="shoes.html">SHOES</a>
+        <a href="account.html" id="account-trigger">ACCOUNT</a>
+    </div>
+
+    <div class="footer-col footer-support">
+        <h4>HỖ TRỢ KHÁCH HÀNG</h4>
+        <a href="exchange-warranty-policy.html">Chính sách đổi hàng & bảo hành</a>
+        <a href="privacy-policy.html">Chính sách bảo mật</a>
+        <a href="shipping-policy.html">Chính sách giao hàng</a>
+    </div>
+
+    <div class="footer-col footer-store">
+        <h4>HỆ THỐNG CỬA HÀNG</h4>
+        <p><strong>HỒ CHÍ MINH</strong><br>15 Nguyễn Huệ, P. Bến Nghé, Quận 1</p>
+        <p><strong>HỒ CHÍ MINH</strong><br>236 Cách Mạng Tháng Tám, P. 10, Quận 3</p>
+        <div class="payment-tags"><span>MOMO</span><span>VNPAY</span><span>COD</span></div>
+        <div class="footer-badges"><span>ĐÃ THÔNG BÁO</span><span>DMCA PROTECTED</span></div>
+    </div>
+</footer>
+<div class="footer-bottom">© 2026 THE STYLE HUB. UI/UX Interface Design Project.</div>
+<script src="stylehub-common.js"></script>
 </body>
 </html>
