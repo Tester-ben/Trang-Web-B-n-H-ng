@@ -169,7 +169,7 @@
 
         function syncHeaderUsername() {
             const headerLink = document.getElementById('headerAccountLink');
-            const savedName = localStorage.getItem('hub_name') || "PHAN THANH TÚ";
+            const savedName = localStorage.getItem('hub_name') || "ACCOUNT";
             headerLink.innerText = savedName.toUpperCase();
         }
 
@@ -184,47 +184,81 @@
         }
 
         function renderProfileData() {
-            document.getElementById('displayFullName').innerText = localStorage.getItem('hub_name') || "Phan Thanh Tú";
+            document.getElementById('displayFullName').innerText = localStorage.getItem('hub_name') || "USER";
             document.getElementById('displayPhone').innerText = localStorage.getItem('hub_phone') || "090 XXXXXXX";
             document.getElementById('displayAddress').innerText = localStorage.getItem('hub_address') || "Chưa cập nhật địa chỉ giao hàng";
+        }
+
+        function getCurrentUserEmail() {
+            return (localStorage.getItem('hub_email') || localStorage.getItem('hub_current_user_key') || '').trim().toLowerCase();
+        }
+
+        function getOrdersForCurrentUser() {
+            const email = getCurrentUserEmail();
+            if (!email) return [];
+
+            const perUserKey = `hub_orders_${email}`;
+            const perUserOrders = JSON.parse(localStorage.getItem(perUserKey) || '[]');
+            const globalOrders = JSON.parse(localStorage.getItem('hub_orders') || '[]');
+
+            const ownedGlobalOrders = globalOrders.filter(order => {
+                const ownerEmail = String(
+                    order.userEmail ||
+                    order.customerEmail ||
+                    order.email ||
+                    order.hub_email ||
+                    order.ownerEmail ||
+                    ''
+                ).trim().toLowerCase();
+
+                return ownerEmail && ownerEmail === email;
+            });
+
+            const merged = [...perUserOrders, ...ownedGlobalOrders];
+            const seen = new Set();
+            return merged.filter(order => {
+                const key = order.orderId || JSON.stringify(order);
+                if (seen.has(key)) return false;
+                seen.add(key);
+                return true;
+            });
         }
 
         function renderOrdersData() {
             const container = document.getElementById('injectOrdersContainer');
             container.innerHTML = '';
 
-            const ordersList = JSON.parse(localStorage.getItem('hub_orders') || '[]');
+            const ordersList = getOrdersForCurrentUser();
             
             if(ordersList.length === 0) {
                 container.innerHTML = `<p style="font-size: 13px; color: #888; text-align: center; padding: 40px 0;">You haven't placed any orders yet.</p>`;
                 return;
             }
 
-            // Quét danh sách đơn hàng đã mua từ trang thanh toán lưu xuống
             ordersList.forEach(order => {
                 const card = document.createElement('div');
                 card.className = 'order-item-card';
                 
                 let productsHTML = '';
-                order.orderedProductsList.forEach(item => {
+                (order.orderedProductsList || []).forEach(item => {
                     productsHTML += `
                         <div class="order-product-row">
-                            <span>• ${item.name} (Size: ${item.size})</span>
-                            <strong>x${item.qty}</strong>
+                            <span>• ${item.name} (Size: ${item.size || '-'})</span>
+                            <strong>x${item.qty || item.quantity || 1}</strong>
                         </div>
                     `;
                 });
 
                 card.innerHTML = `
                     <div class="order-card-top">
-                        <span>ID: ${order.orderId}</span>
-                        <span class="order-status-badge">${order.status || 'CONFIRMED'}</span>
+                        <span>ID: ${order.orderId || 'N/A'}</span>
+                        <span class="order-status-badge">${order.status || 'ĐANG XỬ LÝ'}</span>
                     </div>
-                    <div style="font-size: 12px; color: #888; margin-bottom: 12px;">Date: ${order.date}</div>
+                    <div style="font-size: 12px; color: #888; margin-bottom: 12px;">Date: ${order.date || ''}</div>
                     <div class="order-products-body">${productsHTML}</div>
                     <div class="order-card-bottom">
                         <span>Total Price:</span>
-                        <span>${order.totalPriceFormatted}</span>
+                        <span>${order.totalPriceFormatted || order.totalPrice || ''}</span>
                     </div>
                 `;
                 container.appendChild(card);
@@ -268,6 +302,9 @@
         }
         function executeLogout() {
             localStorage.setItem('isLoggedInStatus', 'false');
+            localStorage.removeItem('hub_name');
+            localStorage.removeItem('hub_email');
+            localStorage.removeItem('hub_current_user_key');
             window.location.href = "index.html"; // Trở về trang chủ sau khi thoát
         }
     </script>

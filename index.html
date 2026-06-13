@@ -425,33 +425,21 @@
             const dbUserName = document.getElementById('db-user-name');
             const dbUserEmail = document.getElementById('db-user-email');
 
-            const loggedIn = localStorage.getItem('isLoggedInStatus') === 'true';
-            let savedName = (localStorage.getItem('hub_name') || '').trim();
-            let savedEmail = (localStorage.getItem('hub_email') || '').trim();
+            if (localStorage.getItem('isLoggedInStatus') === 'true') {
+                isLoggedIn = true;
 
-            if (loggedIn) {
-                if (!savedName && savedEmail) {
-                    savedName = savedEmail.split('@')[0];
-                    localStorage.setItem('hub_name', savedName);
-                }
+                const savedName = (localStorage.getItem('hub_name') || "USER").trim() || "USER";
+                const savedEmail = localStorage.getItem('hub_email') || "No email saved";
 
-                if (savedName) {
-                    isLoggedIn = true;
-                    accountTrigger.innerText = savedName.toUpperCase();
-                    if (dbUserName) dbUserName.innerText = savedName;
-                    if (dbUserEmail) dbUserEmail.innerText = savedEmail || 'No email saved';
-                    return;
-                }
+                accountTrigger.innerText = savedName.toUpperCase();
+                if (dbUserName) dbUserName.innerText = savedName;
+                if (dbUserEmail) dbUserEmail.innerText = savedEmail;
+            } else {
+                isLoggedIn = false;
+                accountTrigger.innerText = "ACCOUNT";
+                if (dbUserName) dbUserName.innerText = "USER";
+                if (dbUserEmail) dbUserEmail.innerText = "No email saved";
             }
-
-            isLoggedIn = false;
-            localStorage.setItem('isLoggedInStatus', 'false');
-            localStorage.removeItem('hub_name');
-            localStorage.removeItem('hub_email');
-
-            accountTrigger.innerText = 'ACCOUNT';
-            if (dbUserName) dbUserName.innerText = 'USER';
-            if (dbUserEmail) dbUserEmail.innerText = 'No email saved';
         }
 
         document.addEventListener("DOMContentLoaded", checkGlobalLoginStatus);
@@ -548,35 +536,25 @@
 
         function handleLogin() {
             const emailInput = document.getElementById('login-email').value.trim();
+            const savedUserData = JSON.parse(localStorage.getItem("hub_userData") || '{}');
 
-            let savedUser = JSON.parse(localStorage.getItem("hub_userData")) || userData || {};
             let fullDisplayName = "";
-
-            if (savedUser.email === emailInput) {
-                fullDisplayName = `${savedUser.lastName || ""} ${savedUser.firstName || ""}`.trim();
+            if (savedUserData.email && savedUserData.email.trim().toLowerCase() === emailInput.toLowerCase()) {
+                fullDisplayName = `${savedUserData.lastName || ''} ${savedUserData.firstName || ''}`.trim();
             }
-
             if (!fullDisplayName) {
-                fullDisplayName = emailInput ? emailInput.split("@")[0] : "USER";
+                fullDisplayName = emailInput.split('@')[0];
             }
-
-            userData = {
-                firstName: savedUser.firstName || "",
-                lastName: savedUser.lastName || "",
-                email: emailInput,
-                password: savedUser.password || ""
-            };
 
             isLoggedIn = true;
             localStorage.setItem('isLoggedInStatus', 'true');
             localStorage.setItem('hub_name', fullDisplayName);
             localStorage.setItem('hub_email', emailInput);
+            localStorage.setItem('hub_current_user_key', emailInput.toLowerCase());
 
-            if (accountTrigger) accountTrigger.innerText = fullDisplayName.toUpperCase();
-            const dbUserName = document.getElementById('db-user-name');
-            const dbUserEmail = document.getElementById('db-user-email');
-            if (dbUserName) dbUserName.innerText = fullDisplayName;
-            if (dbUserEmail) dbUserEmail.innerText = emailInput || 'No email saved';
+            accountTrigger.innerText = fullDisplayName.toUpperCase();
+            document.getElementById('db-user-name').innerText = fullDisplayName;
+            document.getElementById('db-user-email').innerText = emailInput;
 
             accountModal.style.display = 'none';
             triggerFireworkCelebration(fullDisplayName);
@@ -588,11 +566,9 @@
             localStorage.removeItem('hub_name');
             localStorage.removeItem('hub_email');
 
-            if (accountTrigger) accountTrigger.innerText = "ACCOUNT";
-            const dbUserName = document.getElementById('db-user-name');
-            const dbUserEmail = document.getElementById('db-user-email');
-            if (dbUserName) dbUserName.innerText = "USER";
-            if (dbUserEmail) dbUserEmail.innerText = "No email saved";
+            accountTrigger.innerText = "ACCOUNT";
+            document.getElementById('db-user-name').innerText = "USER";
+            document.getElementById('db-user-email').innerText = "No email saved";
 
             showToast("Bạn đã đăng xuất tài khoản.");
             showPage('home');
