@@ -1,13 +1,13 @@
 <!DOCTYPE html>
-<html lang="vi">
 
+<html lang="vi">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>The Style Hub - Mens Collection</title>
-    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="style.css">
-    <style>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>The Style Hub - Mens Collection</title>
+<link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&amp;display=swap" rel="stylesheet"/>
+<link href="style.css" rel="stylesheet"/>
+<style>
         * { box-sizing: border-box; margin: 0; padding: 0; }
         body { font-family: 'Roboto', sans-serif; background-color: #ffffff; color: #111111; overflow-x: hidden; }
         
@@ -49,293 +49,327 @@
         #fwCanvas { position: fixed; top: 0; left: 0; width: 100%; height: 100vh; pointer-events: none; z-index: 9999; display: none; }
     </style>
 </head>
-
 <body>
-
-    <canvas id="fwCanvas"></canvas>
-    <div class="toast-notification" id="toastMessage">Đăng nhập thành công!</div>
-
-    <header class="main-header">
-        <div class="nav-container">
-            <div class="nav-left">
-                <a href="index.html">FEATURED</a>
-                <a href="mens.html" style="text-decoration: underline; font-weight: 500;">MENS</a>
-                <a href="womens.html">WOMENS</a>
-                <a href="kids.html">KIDS</a>
-                <a href="sale.html">SALE</a>
-                <a href="shoes.html">SHOES</a>
-            </div>
-            <div class="logo"><a href="index.html">THE STYLE HUB</a></div>
-            <div class="nav-right">
-                <a href="#" id="search-trigger">SEARCH</a>
-                <a href="#" id="headerAccountLink">ACCOUNT</a>
-                <a href="#" id="bag-trigger">BAG (<span id="cart-count">0</span>)</a>
-            </div>
-        </div>
-    </header>
-
-    <div class="sub-filter-bar">
-        <div class="filter-left-group">
-            <span class="filter-tag active" id="filter-all" onclick="filterCategory('all', this)">All Products</span>
-            <span class="filter-tag" onclick="filterCategory('tops', this)">Tops</span>
-            <span class="filter-tag" onclick="filterCategory('hoodies', this)">Hoodies</span>
-            <span class="filter-tag" id="filter-dress-shirt" onclick="filterCategory('dress-shirt', this)">Dress Shirt</span>
-        </div>
-        <div class="filter-right-sort">FILTER / SORT +</div>
-    </div>
-
-    <div class="product-gallery-container">
-        <div class="mens-product-grid">
-            
-            <a href="product-detail.html?id=tops-1" class="mens-card" data-cat="hoodies">
-                <div class="mens-thumb-box">
-                    <img src="https://fearofgod.com/cdn/shop/files/RW00210_MLB_RAGLAN_SPORT_HOODIE-OAT_2_x800.jpg?v=1777998692" class="img-front">
-                    <img src="https://fearofgod.com/cdn/shop/files/RW00210_MLB_RAGLAN_SPORT_HOODIE-OAT_1_900x.jpg?v=1777998692" class="img-back">
-                </div>
-                <div class="mens-details">
-                    <p class="tag-brand">Essentials</p>
-                    <h4 class="item-name">MLB Raglan Sport Hoodie - Oat Heather</h4>
-                    <p class="item-price">4.883.000 ₫</p>
-                </div>
-            </a>
-
-            <a href="product-detail.html?id=tops-2" class="mens-card" data-cat="tops">
-                <div class="mens-thumb-box">
-                    <img src="https://fearofgod.com/cdn/shop/files/RW00213_DODGERS_RAGLAN_HALF_ZIP_SPORT_HOODIE-ESTATE_BLUE_SEAL_1_x800.jpg?v=1777998961" class="img-front">
-                    <img src="https://fearofgod.com/cdn/shop/files/RW00213_DODGERS_RAGLAN_HALF_ZIP_SPORT_HOODIE-ESTATE_BLUE_SEAL_2_900x.jpg?v=1777998961" class="img-back">
-                </div>
-                <div class="mens-details">
-                    <p class="tag-brand">Essentials</p>
-                    <h4 class="item-name">Dodgers Raglan Half Zip Sport Hoodie</h4>
-                    <p class="item-price">5.162.000 ₫</p>
-                </div>
-            </a>
-
-            <a href="product-detail.html?id=tops-3" class="mens-card" data-cat="tops">
-                <div class="mens-thumb-box">
-                    <img src="https://fearofgod.com/cdn/shop/files/RW00233_DODGERS-HALF_ZIP_PULLOVER-ESTATE_BLUE_SEAL_RIB_1_x800.jpg?v=1778000092" class="img-front">
-                    <img src="https://fearofgod.com/cdn/shop/files/RW00233_DODGERS-HALF_ZIP_PULLOVER-ESTATE_BLUE_SEAL_RIB_2_900x.jpg?v=1778000092" class="img-back">
-                </div>
-                <div class="mens-details">
-                    <p class="tag-brand">Essentials</p>
-                    <h4 class="item-name">Dodgers Half Zip Pullover Jacket</h4>
-                    <p class="item-price">6.976.000 ₫</p>
-                </div>
-            </a>
-
-            <a href="product-detail.html?id=tops-4" class="mens-card" data-cat="tops">
-                <div class="mens-thumb-box">
-                    <img src="https://fearofgod.com/cdn/shop/files/RW00190_DODGERS_MERCH_TEE-CONCRETE_HEATHER_1_x800.jpg?v=1777996041" class="img-front">
-                    <img src="https://fearofgod.com/cdn/shop/files/RW00190_DODGERS_MERCH_TEE-CONCRETE_HEATHER_2_900x.jpg?v=1777996041" class="img-back">
-                </div>
-                <div class="mens-details">
-                    <p class="tag-brand">Essentials</p>
-                    <h4 class="item-name">Dodgers Heavyweight Merch T-Shirt</h4>
-                    <p class="item-price">2.512.000 ₫</p>
-                </div>
-            </a>
-
-            <a href="product-detail.html?id=tops-5" class="mens-card" data-cat="hoodies">
-                <div class="mens-thumb-box">
-                    <img src="https://fearofgod.com/cdn/shop/files/RW00202_DODGERS_SPORT_HOODIE-OAT_1_x800.jpg?v=1777998047" class="img-front">
-                    <img src="https://fearofgod.com/cdn/shop/files/RW00202_DODGERS_SPORT_HOODIE-OAT_2_900x.jpg?v=1777998047" class="img-back">
-                </div>
-                <div class="mens-details">
-                    <p class="tag-brand">Essentials</p>
-                    <h4 class="item-name">Dodgers Classic Logo Sport Hoodie</h4>
-                    <p class="item-price">3.070.000 ₫</p>
-                </div>
-            </a>
-
-            <a href="product-detail.html?id=tops-6" class="mens-card" data-cat="tops">
-                <div class="mens-thumb-box">
-                    <img src="https://fearofgod.com/cdn/shop/files/RW00199_MLB_BOXY_LONG_SLEEVE_TEE-BLACK_1_x800.jpg?v=1777997642" class="img-front">
-                    <img src="https://fearofgod.com/cdn/shop/files/RW00199_MLB_BOXY_LONG_SLEEVE_TEE-BLACK_2_900x.jpg?v=1777997641" class="img-back">
-                </div>
-                <div class="mens-details">
-                    <p class="tag-brand">Essentials</p>
-                    <h4 class="item-name">MLB Boxy Oversized Long Sleeve Tee</h4>
-                    <p class="item-price">2.791.000 ₫</p>
-                </div>
-            </a>
-
-            <a href="product-detail.html?id=tops-7" class="mens-card" data-cat="tops">
-                <div class="mens-thumb-box">
-                    <img src="https://fearofgod.com/cdn/shop/files/RW00189_WHITE_SOX_MERCH_TEE-CONCRETE_HEATHER_2_x800.jpg?v=1778003846" class="img-front">
-                    <img src="https://fearofgod.com/cdn/shop/files/RW00189_WHITE_SOX_MERCH_TEE-CONCRETE_HEATHER_1_900x.jpg?v=1778003847" class="img-back">
-                </div>
-                <div class="mens-details">
-                    <p class="tag-brand">Essentials</p>
-                    <h4 class="item-name">White Sox Premium Crewneck Merch Tee</h4>
-                    <p class="item-price">2.550.000 ₫</p>
-                </div>
-            </a>
-
-            <a href="product-detail.html?id=tops-8" class="mens-card" data-cat="hoodies">
-                <div class="mens-thumb-box">
-                    <img src="https://fearofgod.com/cdn/shop/files/RW00201_WHITE_SOX_SPORT_HOODIE-OATMEAL_HEATHER_W_BLACK_PINSTRIPES_1_x800.jpg?v=1777997926" class="img-front">
-                    <img src="https://fearofgod.com/cdn/shop/files/RW00201_WHITE_SOX_SPORT_HOODIE-OATMEAL_HEATHER_W_BLACK_PINSTRIPES_2_900x.jpg?v=1777997926" class="img-back">
-                </div>
-                <div class="mens-details">
-                    <p class="tag-brand">Essentials</p>
-                    <h4 class="item-name">White Sox Pinstripe Heavyweight Hoodie</h4>
-                    <p class="item-price">5.400.000 ₫</p>
-                </div>
-            </a>
-
-            <a href="product-detail.html?id=hoodies-1" class="mens-card" data-cat="hoodies">
-                <div class="mens-thumb-box">
-                    <img src="https://fearofgod.com/cdn/shop/files/RW00215_CUBS_RAGLAN_HALF_ZIP_SPORT_HOODIE-ESTATE_BLUE_STONE_RED_1_900x.jpg?v=1777999153" class="img-front">
-                    <img src="https://fearofgod.com/cdn/shop/files/RW00215_CUBS_RAGLAN_HALF_ZIP_SPORT_HOODIE-ESTATE_BLUE_STONE_RED_2_900x.jpg?v=1777999153" class="img-back">
-                </div>
-                <div class="mens-details">
-                    <p class="tag-brand">Essentials</p>
-                    <h4 class="item-name">Cubs Raglan Half Zip Sport Hoodie - Estate Blue</h4>
-                    <p class="item-price">5.250.000 ₫</p>
-                </div>
-            </a>
-
-            <a href="product-detail.html?id=hoodies-2" class="mens-card" data-cat="hoodies">
-                <div class="mens-thumb-box">
-                    <img src="https://fearofgod.com/cdn/shop/files/192AS262072F_CLASSIC_FIT_FLEECE_ZIP_UP_HOODIE-HOMESTEAD_HEATHER_1_cd3fa6c0-d0da-4f0d-9968-90422fccfa56_900x.jpg?v=1776264814" class="img-front">
-                    <img src="https://fearofgod.com/cdn/shop/files/192AS262072F_CLASSIC_FIT_FLEECE_ZIP_UP_HOODIE-HOMESTEAD_HEATHER_2_7b3f75ef-2bbe-4f95-b9f6-372b18cc951a_900x.jpg?v=1776264814" class="img-back">
-                </div>
-                <div class="mens-details">
-                    <p class="tag-brand">Essentials</p>
-                    <h4 class="item-name">Classic Fit Fleece Zip Up Hoodie - Homestead</h4>
-                    <p class="item-price">4.650.000 ₫</p>
-                </div>
-            </a>
-
-            <a href="product-detail.html?id=hoodies-3" class="mens-card" data-cat="hoodies">
-                <div class="mens-thumb-box">
-                    <img src="https://fearofgod.com/cdn/shop/files/192AS262071F_CLASSIC_FIT_FLEECE_ZIP_UP_HOODIE-VINTAGE_BLACK_WHITE_1_900x.jpg?v=1770738701" class="img-front">
-                    <img src="https://fearofgod.com/cdn/shop/files/192AS262071F_CLASSIC_FIT_FLEECE_ZIP_UP_HOODIE-VINTAGE_BLACK_WHITE_2_900x.jpg?v=1770738701" class="img-back">
-                </div>
-                <div class="mens-details">
-                    <p class="tag-brand">Essentials</p>
-                    <h4 class="item-name">Classic Fit Fleece Zip Up Hoodie - Vintage Black</h4>
-                    <p class="item-price">4.650.000 ₫</p>
-                </div>
-            </a>
-
-            <a href="product-detail.html?id=hoodies-4" class="mens-card" data-cat="hoodies">
-                <div class="mens-thumb-box">
-                    <img src="https://fearofgod.com/cdn/shop/files/192AS264732F_CLASSIC_HOODIE-VINTAGE_BLACK_1_900x.jpg?v=1770739042" class="img-front">
-                    <img src="https://fearofgod.com/cdn/shop/files/192AS264732F_CLASSIC_HOODIE-VINTAGE_BLACK_2_900x.jpg?v=1770739042" class="img-back">
-                </div>
-                <div class="mens-details">
-                    <p class="tag-brand">Essentials</p>
-                    <h4 class="item-name">Classic Pullover Hoodie - Vintage Black Edition</h4>
-                    <p class="item-price">4.350.000 ₫</p>
-                </div>
-            </a>
-
-            <a href="product-detail.html?id=dress-1" class="mens-card" data-cat="dress-shirt">
-                <div class="mens-thumb-box">
-                    <img src="https://yame.vn/cdn/shop/files/ao-s-mi-tay-dai-the-ceo-009-tr-ng-1187130533.jpg?v=1760792739&width=713" class="img-front">
-                    <img src="https://yame.vn/cdn/shop/files/ao-s-mi-tay-dai-the-ceo-009-tr-ng-1187130529.jpg?v=1760792740&width=713" class="img-back">
-                </div>
-                <div class="mens-details">
-                    <p class="tag-brand">The CEO</p>
-                    <h4 class="item-name">Long Sleeve Dress Shirt - Pure White Luxe</h4>
-                    <p class="item-price">680.000 ₫</p>
-                </div>
-            </a>
-
-            <a href="product-detail.html?id=dress-2" class="mens-card" data-cat="dress-shirt">
-                <div class="mens-thumb-box">
-                    <img src="https://yame.vn/cdn/shop/files/ao-s-mi-non-iron-01-tr-ng-1174884279.jpg?v=1760775029&width=713" class="img-front">
-                    <img src="https://yame.vn/cdn/shop/files/ao-s-mi-non-iron-01-tr-ng-1174884317.jpg?v=1766140039&width=713" class="img-back">
-                </div>
-                <div class="mens-details">
-                    <p class="tag-brand">The CEO</p>
-                    <h4 class="item-name">Premium Non-Iron Executive Shirt - White</h4>
-                    <p class="item-price">750.000 ₫</p>
-                </div>
-            </a>
-
-            <a href="product-detail.html?id=dress-3" class="mens-card" data-cat="dress-shirt">
-                <div class="mens-thumb-box">
-                    <img src="https://yame.vn/cdn/shop/files/ao-s-mi-non-iron-01-xam-nh-t-1174884314.jpg?v=1760775066&width=713" class="img-front">
-                    <img src="https://yame.vn/cdn/shop/files/ao-s-mi-non-iron-01-xam-nh-t-1174884310.jpg?v=1766140275&width=713" class="img-back">
-                </div>
-                <div class="mens-details">
-                    <p class="tag-brand">The CEO</p>
-                    <h4 class="item-name">Premium Non-Iron Executive Shirt - Light Grey</h4>
-                    <p class="item-price">750.000 ₫</p>
-                </div>
-            </a>
-
-            <a href="product-detail.html?id=dress-4" class="mens-card" data-cat="dress-shirt">
-                <div class="mens-thumb-box">
-                    <img src="https://yame.vn/cdn/shop/files/ao-polo-non-branded-45-be-1174885323.jpg?v=1760774521&width=713" class="img-front">
-                    <img src="https://yame.vn/cdn/shop/files/ao-polo-non-branded-45-be-1174885325.jpg?v=1773915623&width=713" class="img-back">
-                </div>
-                <div class="mens-details">
-                    <p class="tag-brand">The Minimalist</p>
-                    <h4 class="item-name">Knit Tailored Polo Shirt - Elegant Beige</h4>
-                    <p class="item-price">540.000 ₫</p>
-                </div>
-            </a>
-
-        </div>
-    </div>
-
-    <div id="search-modal" style="display:none;" class="modal-overlay">
-        <div class="search-modal-content">
-            <span class="close-modal" id="close-search">&times;</span>
-            <input type="text" id="search-input" placeholder="SEARCH FOR PRODUCTS...">
-            <div id="search-results"></div>
-        </div>
-    </div>
-
-    <div id="account-modal" style="display:none;" class="modal-overlay">
-        <div class="account-box">
-            <span class="close-modal" id="close-account">&times;</span>
-            <div id="login-form-container">
-                <h3>LOGIN</h3>
-                <form onsubmit="event.preventDefault(); handleLogin();">
-                    <input type="email" placeholder="EMAIL" required id="login-email">
-                    <input type="password" placeholder="PASSWORD" required id="login-pass">
-                    <button type="submit" class="auth-submit-btn">SIGN IN</button>
-                </form>
-                <p class="switch-form-text">Don't have an account? <span onclick="toggleAuthForm('register')">CREATE ACCOUNT</span></p>
-            </div>
-            <div id="register-form-container" style="display:none;">
-                <h3>CREATE ACCOUNT</h3>
-                <form onsubmit="event.preventDefault(); handleRegister();">
-                    <input type="text" placeholder="FIRST NAME" required id="reg-fname">
-                    <input type="text" placeholder="LAST NAME" required id="reg-lname">
-                    <input type="email" placeholder="EMAIL ADDRESS" required id="reg-email">
-                    <input type="password" placeholder="PASSWORD" required id="reg-pass">
-                    <button type="submit" class="auth-submit-btn">CREATE</button>
-                </form>
-                <p class="switch-form-text">Already have an account? <span onclick="toggleAuthForm('login')">RETURN TO LOGIN</span></p>
-            </div>
-        </div>
-    </div>
-
-    <div id="bag-modal" style="display:none;" class="modal-overlay">
-        <div class="bag-sidebar">
-            <div class="bag-header">
-                <h3>SHOPPING BAG</h3>
-                <span class="close-modal" id="close-bag">&times;</span>
-            </div>
-            <div id="cart-items-container">
-                <p class="empty-cart-msg">Your bag is empty.</p>
-            </div>
-            <div class="bag-footer">
-                <div class="total-row">
-                    <span>TOTAL:</span>
-                    <span id="cart-total-price">0 ₫</span>
-                </div>
-                <button class="checkout-btn" onclick="alert('Proceeding to checkout!')">CHECKOUT</button>
-            </div>
-        </div>
-    </div>
-
-    <script>
+<canvas id="fwCanvas"></canvas>
+<div class="toast-notification" id="toastMessage">Đăng nhập thành công!</div>
+<header class="main-header">
+<div class="nav-container">
+<div class="nav-left">
+<div class="menu-item-has-mega">
+<a class="nav-link-featured" href="index.html">FEATURED</a>
+<div class="mega-menu-dropdown">
+<div class="mega-menu-container">
+<div class="mega-links-col">
+<a href="collections.html">NEW ARRIVALS</a>
+<a href="mens.html">MLB SPRING 2026</a>
+<a href="womens.html">COLLECTION NINE WOMENSWEAR</a>
+<a href="mens.html">ESSENTIALS CLASSIC STYLES</a>
+<a href="mens.html">ATHLETICS &amp; TEAM APPAREL</a>
+<a href="mens.html">ESSENTIALS</a>
+<a href="mens.html">FEAR OF GOD</a>
+<a href="sale.html">SALE</a>
+</div>
+<div class="mega-images-col">
+<a class="mega-img-card" href="womens.html">
+<img alt="Collection Nine Womenswear" src="https://fearofgod.com/cdn/shop/files/LOOK_36_26241979-d8f6-4a59-81bf-798c81a576b9.jpg?v=1758565392&amp;width=1200"/>
+<span>COLLECTION NINE WOMENSWEAR</span>
+</a>
+<a class="mega-img-card" href="mens.html">
+<img alt="Collection Nine Menswear" src="https://fearofgod.com/cdn/shop/files/LOOK_29.png?v=1774904924&amp;width=1200"/>
+<span>COLLECTION NINE MENSWEAR</span>
+</a>
+</div>
+</div>
+</div>
+</div>
+<div class="menu-item-has-dropdown">
+<a class="" href="mens.html">MENS</a>
+<div class="nav-dropdown">
+<a href="mens.html">ALL PRODUCTS</a>
+<a href="mens.html?cat=tops">TOPS</a>
+<a href="mens.html?cat=hoodies">HOODIES</a>
+<a href="mens.html?cat=dress-shirt">DRESS SHIRT</a>
+</div>
+</div>
+<div class="menu-item-has-dropdown">
+<a class="" href="womens.html">WOMENS</a>
+<div class="nav-dropdown">
+<a href="womens.html">ALL PRODUCTS</a>
+<a href="womens.html?cat=tops">TOPS</a>
+<a href="womens.html?cat=jackets">JACKETS &amp; OUTERWEAR</a>
+</div>
+</div>
+<div class="menu-item-has-dropdown">
+<a class="" href="kids.html">KIDS</a>
+<div class="nav-dropdown">
+<a href="kids.html">ALL KIDS</a>
+<a href="kids.html?cat=tops">TOPS</a>
+<a href="kids.html?cat=jackets">JACKETS &amp; OUTERWEAR</a>
+</div>
+</div>
+<div class="menu-item-has-dropdown">
+<a class="" href="sale.html">SALE</a>
+<div class="nav-dropdown">
+<a href="sale.html">ALL SALE ITEMS</a>
+<a href="sale.html?cat=tops">TOPS</a>
+<a href="sale.html?cat=jackets">JACKETS &amp; OUTERWEAR</a>
+</div>
+</div>
+<div class="menu-item-has-dropdown">
+<a class="" href="shoes.html">SHOES</a>
+<div class="nav-dropdown">
+<a href="shoes.html">ALL SHOES</a>
+</div>
+</div>
+</div>
+<div class="logo"><a href="index.html">THE STYLE HUB</a></div>
+<div class="nav-right">
+<a href="#" id="search-trigger">SEARCH</a>
+<a href="#" id="headerAccountLink">ACCOUNT</a>
+<a href="#" id="bag-trigger">BAG (<span id="cart-count">0</span>)</a>
+</div>
+</div>
+</header>
+<div class="sub-filter-bar">
+<div class="filter-left-group">
+<span class="filter-tag active" id="filter-all" onclick="filterCategory('all', this)">All Products</span>
+<span class="filter-tag" onclick="filterCategory('tops', this)">Tops</span>
+<span class="filter-tag" onclick="filterCategory('hoodies', this)">Hoodies</span>
+<span class="filter-tag" id="filter-dress-shirt" onclick="filterCategory('dress-shirt', this)">Dress Shirt</span>
+</div>
+<div class="filter-right-sort">FILTER / SORT +</div>
+</div>
+<div class="product-gallery-container">
+<div class="mens-product-grid">
+<a class="mens-card" data-cat="hoodies" href="product-detail.html?id=tops-1">
+<div class="mens-thumb-box">
+<img class="img-front" src="https://fearofgod.com/cdn/shop/files/RW00210_MLB_RAGLAN_SPORT_HOODIE-OAT_2_x800.jpg?v=1777998692"/>
+<img class="img-back" src="https://fearofgod.com/cdn/shop/files/RW00210_MLB_RAGLAN_SPORT_HOODIE-OAT_1_900x.jpg?v=1777998692"/>
+</div>
+<div class="mens-details">
+<p class="tag-brand">Essentials</p>
+<h4 class="item-name">MLB Raglan Sport Hoodie - Oat Heather</h4>
+<p class="item-price">4.883.000 ₫</p>
+</div>
+</a>
+<a class="mens-card" data-cat="tops" href="product-detail.html?id=tops-2">
+<div class="mens-thumb-box">
+<img class="img-front" src="https://fearofgod.com/cdn/shop/files/RW00213_DODGERS_RAGLAN_HALF_ZIP_SPORT_HOODIE-ESTATE_BLUE_SEAL_1_x800.jpg?v=1777998961"/>
+<img class="img-back" src="https://fearofgod.com/cdn/shop/files/RW00213_DODGERS_RAGLAN_HALF_ZIP_SPORT_HOODIE-ESTATE_BLUE_SEAL_2_900x.jpg?v=1777998961"/>
+</div>
+<div class="mens-details">
+<p class="tag-brand">Essentials</p>
+<h4 class="item-name">Dodgers Raglan Half Zip Sport Hoodie</h4>
+<p class="item-price">5.162.000 ₫</p>
+</div>
+</a>
+<a class="mens-card" data-cat="tops" href="product-detail.html?id=tops-3">
+<div class="mens-thumb-box">
+<img class="img-front" src="https://fearofgod.com/cdn/shop/files/RW00233_DODGERS-HALF_ZIP_PULLOVER-ESTATE_BLUE_SEAL_RIB_1_x800.jpg?v=1778000092"/>
+<img class="img-back" src="https://fearofgod.com/cdn/shop/files/RW00233_DODGERS-HALF_ZIP_PULLOVER-ESTATE_BLUE_SEAL_RIB_2_900x.jpg?v=1778000092"/>
+</div>
+<div class="mens-details">
+<p class="tag-brand">Essentials</p>
+<h4 class="item-name">Dodgers Half Zip Pullover Jacket</h4>
+<p class="item-price">6.976.000 ₫</p>
+</div>
+</a>
+<a class="mens-card" data-cat="tops" href="product-detail.html?id=tops-4">
+<div class="mens-thumb-box">
+<img class="img-front" src="https://fearofgod.com/cdn/shop/files/RW00190_DODGERS_MERCH_TEE-CONCRETE_HEATHER_1_x800.jpg?v=1777996041"/>
+<img class="img-back" src="https://fearofgod.com/cdn/shop/files/RW00190_DODGERS_MERCH_TEE-CONCRETE_HEATHER_2_900x.jpg?v=1777996041"/>
+</div>
+<div class="mens-details">
+<p class="tag-brand">Essentials</p>
+<h4 class="item-name">Dodgers Heavyweight Merch T-Shirt</h4>
+<p class="item-price">2.512.000 ₫</p>
+</div>
+</a>
+<a class="mens-card" data-cat="hoodies" href="product-detail.html?id=tops-5">
+<div class="mens-thumb-box">
+<img class="img-front" src="https://fearofgod.com/cdn/shop/files/RW00202_DODGERS_SPORT_HOODIE-OAT_1_x800.jpg?v=1777998047"/>
+<img class="img-back" src="https://fearofgod.com/cdn/shop/files/RW00202_DODGERS_SPORT_HOODIE-OAT_2_900x.jpg?v=1777998047"/>
+</div>
+<div class="mens-details">
+<p class="tag-brand">Essentials</p>
+<h4 class="item-name">Dodgers Classic Logo Sport Hoodie</h4>
+<p class="item-price">3.070.000 ₫</p>
+</div>
+</a>
+<a class="mens-card" data-cat="tops" href="product-detail.html?id=tops-6">
+<div class="mens-thumb-box">
+<img class="img-front" src="https://fearofgod.com/cdn/shop/files/RW00199_MLB_BOXY_LONG_SLEEVE_TEE-BLACK_1_x800.jpg?v=1777997642"/>
+<img class="img-back" src="https://fearofgod.com/cdn/shop/files/RW00199_MLB_BOXY_LONG_SLEEVE_TEE-BLACK_2_900x.jpg?v=1777997641"/>
+</div>
+<div class="mens-details">
+<p class="tag-brand">Essentials</p>
+<h4 class="item-name">MLB Boxy Oversized Long Sleeve Tee</h4>
+<p class="item-price">2.791.000 ₫</p>
+</div>
+</a>
+<a class="mens-card" data-cat="tops" href="product-detail.html?id=tops-7">
+<div class="mens-thumb-box">
+<img class="img-front" src="https://fearofgod.com/cdn/shop/files/RW00189_WHITE_SOX_MERCH_TEE-CONCRETE_HEATHER_2_x800.jpg?v=1778003846"/>
+<img class="img-back" src="https://fearofgod.com/cdn/shop/files/RW00189_WHITE_SOX_MERCH_TEE-CONCRETE_HEATHER_1_900x.jpg?v=1778003847"/>
+</div>
+<div class="mens-details">
+<p class="tag-brand">Essentials</p>
+<h4 class="item-name">White Sox Premium Crewneck Merch Tee</h4>
+<p class="item-price">2.550.000 ₫</p>
+</div>
+</a>
+<a class="mens-card" data-cat="hoodies" href="product-detail.html?id=tops-8">
+<div class="mens-thumb-box">
+<img class="img-front" src="https://fearofgod.com/cdn/shop/files/RW00201_WHITE_SOX_SPORT_HOODIE-OATMEAL_HEATHER_W_BLACK_PINSTRIPES_1_x800.jpg?v=1777997926"/>
+<img class="img-back" src="https://fearofgod.com/cdn/shop/files/RW00201_WHITE_SOX_SPORT_HOODIE-OATMEAL_HEATHER_W_BLACK_PINSTRIPES_2_900x.jpg?v=1777997926"/>
+</div>
+<div class="mens-details">
+<p class="tag-brand">Essentials</p>
+<h4 class="item-name">White Sox Pinstripe Heavyweight Hoodie</h4>
+<p class="item-price">5.400.000 ₫</p>
+</div>
+</a>
+<a class="mens-card" data-cat="hoodies" href="product-detail.html?id=hoodies-1">
+<div class="mens-thumb-box">
+<img class="img-front" src="https://fearofgod.com/cdn/shop/files/RW00215_CUBS_RAGLAN_HALF_ZIP_SPORT_HOODIE-ESTATE_BLUE_STONE_RED_1_900x.jpg?v=1777999153"/>
+<img class="img-back" src="https://fearofgod.com/cdn/shop/files/RW00215_CUBS_RAGLAN_HALF_ZIP_SPORT_HOODIE-ESTATE_BLUE_STONE_RED_2_900x.jpg?v=1777999153"/>
+</div>
+<div class="mens-details">
+<p class="tag-brand">Essentials</p>
+<h4 class="item-name">Cubs Raglan Half Zip Sport Hoodie - Estate Blue</h4>
+<p class="item-price">5.250.000 ₫</p>
+</div>
+</a>
+<a class="mens-card" data-cat="hoodies" href="product-detail.html?id=hoodies-2">
+<div class="mens-thumb-box">
+<img class="img-front" src="https://fearofgod.com/cdn/shop/files/192AS262072F_CLASSIC_FIT_FLEECE_ZIP_UP_HOODIE-HOMESTEAD_HEATHER_1_cd3fa6c0-d0da-4f0d-9968-90422fccfa56_900x.jpg?v=1776264814"/>
+<img class="img-back" src="https://fearofgod.com/cdn/shop/files/192AS262072F_CLASSIC_FIT_FLEECE_ZIP_UP_HOODIE-HOMESTEAD_HEATHER_2_7b3f75ef-2bbe-4f95-b9f6-372b18cc951a_900x.jpg?v=1776264814"/>
+</div>
+<div class="mens-details">
+<p class="tag-brand">Essentials</p>
+<h4 class="item-name">Classic Fit Fleece Zip Up Hoodie - Homestead</h4>
+<p class="item-price">4.650.000 ₫</p>
+</div>
+</a>
+<a class="mens-card" data-cat="hoodies" href="product-detail.html?id=hoodies-3">
+<div class="mens-thumb-box">
+<img class="img-front" src="https://fearofgod.com/cdn/shop/files/192AS262071F_CLASSIC_FIT_FLEECE_ZIP_UP_HOODIE-VINTAGE_BLACK_WHITE_1_900x.jpg?v=1770738701"/>
+<img class="img-back" src="https://fearofgod.com/cdn/shop/files/192AS262071F_CLASSIC_FIT_FLEECE_ZIP_UP_HOODIE-VINTAGE_BLACK_WHITE_2_900x.jpg?v=1770738701"/>
+</div>
+<div class="mens-details">
+<p class="tag-brand">Essentials</p>
+<h4 class="item-name">Classic Fit Fleece Zip Up Hoodie - Vintage Black</h4>
+<p class="item-price">4.650.000 ₫</p>
+</div>
+</a>
+<a class="mens-card" data-cat="hoodies" href="product-detail.html?id=hoodies-4">
+<div class="mens-thumb-box">
+<img class="img-front" src="https://fearofgod.com/cdn/shop/files/192AS264732F_CLASSIC_HOODIE-VINTAGE_BLACK_1_900x.jpg?v=1770739042"/>
+<img class="img-back" src="https://fearofgod.com/cdn/shop/files/192AS264732F_CLASSIC_HOODIE-VINTAGE_BLACK_2_900x.jpg?v=1770739042"/>
+</div>
+<div class="mens-details">
+<p class="tag-brand">Essentials</p>
+<h4 class="item-name">Classic Pullover Hoodie - Vintage Black Edition</h4>
+<p class="item-price">4.350.000 ₫</p>
+</div>
+</a>
+<a class="mens-card" data-cat="dress-shirt" href="product-detail.html?id=dress-1">
+<div class="mens-thumb-box">
+<img class="img-front" src="https://yame.vn/cdn/shop/files/ao-s-mi-tay-dai-the-ceo-009-tr-ng-1187130533.jpg?v=1760792739&amp;width=713"/>
+<img class="img-back" src="https://yame.vn/cdn/shop/files/ao-s-mi-tay-dai-the-ceo-009-tr-ng-1187130529.jpg?v=1760792740&amp;width=713"/>
+</div>
+<div class="mens-details">
+<p class="tag-brand">The CEO</p>
+<h4 class="item-name">Long Sleeve Dress Shirt - Pure White Luxe</h4>
+<p class="item-price">680.000 ₫</p>
+</div>
+</a>
+<a class="mens-card" data-cat="dress-shirt" href="product-detail.html?id=dress-2">
+<div class="mens-thumb-box">
+<img class="img-front" src="https://yame.vn/cdn/shop/files/ao-s-mi-non-iron-01-tr-ng-1174884279.jpg?v=1760775029&amp;width=713"/>
+<img class="img-back" src="https://yame.vn/cdn/shop/files/ao-s-mi-non-iron-01-tr-ng-1174884317.jpg?v=1766140039&amp;width=713"/>
+</div>
+<div class="mens-details">
+<p class="tag-brand">The CEO</p>
+<h4 class="item-name">Premium Non-Iron Executive Shirt - White</h4>
+<p class="item-price">750.000 ₫</p>
+</div>
+</a>
+<a class="mens-card" data-cat="dress-shirt" href="product-detail.html?id=dress-3">
+<div class="mens-thumb-box">
+<img class="img-front" src="https://yame.vn/cdn/shop/files/ao-s-mi-non-iron-01-xam-nh-t-1174884314.jpg?v=1760775066&amp;width=713"/>
+<img class="img-back" src="https://yame.vn/cdn/shop/files/ao-s-mi-non-iron-01-xam-nh-t-1174884310.jpg?v=1766140275&amp;width=713"/>
+</div>
+<div class="mens-details">
+<p class="tag-brand">The CEO</p>
+<h4 class="item-name">Premium Non-Iron Executive Shirt - Light Grey</h4>
+<p class="item-price">750.000 ₫</p>
+</div>
+</a>
+<a class="mens-card" data-cat="dress-shirt" href="product-detail.html?id=dress-4">
+<div class="mens-thumb-box">
+<img class="img-front" src="https://yame.vn/cdn/shop/files/ao-polo-non-branded-45-be-1174885323.jpg?v=1760774521&amp;width=713"/>
+<img class="img-back" src="https://yame.vn/cdn/shop/files/ao-polo-non-branded-45-be-1174885325.jpg?v=1773915623&amp;width=713"/>
+</div>
+<div class="mens-details">
+<p class="tag-brand">The Minimalist</p>
+<h4 class="item-name">Knit Tailored Polo Shirt - Elegant Beige</h4>
+<p class="item-price">540.000 ₫</p>
+</div>
+</a>
+</div>
+</div>
+<div class="modal-overlay" id="search-modal" style="display:none;">
+<div class="search-modal-content">
+<span class="close-modal" id="close-search">×</span>
+<input id="search-input" placeholder="SEARCH FOR PRODUCTS..." type="text"/>
+<div id="search-results"></div>
+</div>
+</div>
+<div class="modal-overlay" id="account-modal" style="display:none;">
+<div class="account-box">
+<span class="close-modal" id="close-account">×</span>
+<div id="login-form-container">
+<h3>LOGIN</h3>
+<form onsubmit="event.preventDefault(); handleLogin();">
+<input id="login-email" placeholder="EMAIL" required="" type="email"/>
+<input id="login-pass" placeholder="PASSWORD" required="" type="password"/>
+<button class="auth-submit-btn" type="submit">SIGN IN</button>
+</form>
+<p class="switch-form-text">Don't have an account? <span onclick="toggleAuthForm('register')">CREATE ACCOUNT</span></p>
+</div>
+<div id="register-form-container" style="display:none;">
+<h3>CREATE ACCOUNT</h3>
+<form onsubmit="event.preventDefault(); handleRegister();">
+<input id="reg-fname" placeholder="FIRST NAME" required="" type="text"/>
+<input id="reg-lname" placeholder="LAST NAME" required="" type="text"/>
+<input id="reg-email" placeholder="EMAIL ADDRESS" required="" type="email"/>
+<input id="reg-pass" placeholder="PASSWORD" required="" type="password"/>
+<button class="auth-submit-btn" type="submit">CREATE</button>
+</form>
+<p class="switch-form-text">Already have an account? <span onclick="toggleAuthForm('login')">RETURN TO LOGIN</span></p>
+</div>
+</div>
+</div>
+<div class="modal-overlay" id="bag-modal" style="display:none;">
+<div class="bag-sidebar">
+<div class="bag-header">
+<h3>SHOPPING BAG</h3>
+<span class="close-modal" id="close-bag">×</span>
+</div>
+<div id="cart-items-container">
+<p class="empty-cart-msg">Your bag is empty.</p>
+</div>
+<div class="bag-footer">
+<div class="total-row">
+<span>TOTAL:</span>
+<span id="cart-total-price">0 ₫</span>
+</div>
+<button class="checkout-btn" onclick="alert('Proceeding to checkout!')">CHECKOUT</button>
+</div>
+</div>
+</div>
+<script>
         let isLoggedIn = localStorage.getItem('isLoggedInStatus') === 'true'; 
         let userData = { firstName: "Thanh Tú", lastName: "Phan", email: "phantu210206@gmail.com" };
 
@@ -485,6 +519,18 @@
             }
         }
     </script>
-</body>
+<script>
+/* AUTO FILTER FROM NAVBAR QUERY (?cat=...) */
+document.addEventListener("DOMContentLoaded", function () {
+    const params = new URLSearchParams(window.location.search);
+    const cat = params.get("cat");
 
+    if (cat && typeof filterCategory === "function") {
+        const target = document.querySelector(`.filter-tag[onclick*="'${cat}'"], .filter-tag[onclick*='"${cat}"']`);
+        if (target) {
+            filterCategory(cat, target);
+        }
+    }
+});
+</script></body>
 </html>

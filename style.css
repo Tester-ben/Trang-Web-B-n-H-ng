@@ -786,3 +786,226 @@ a {
     color:#fff;
     padding-left:30px;
 }
+.menu-item-has-mega {
+    position: static;
+}
+
+.mega-menu-dropdown {
+    top: 58px;
+    left: 0;
+    pointer-events: auto;
+}
+
+.menu-item-has-mega:hover .mega-menu-dropdown,
+.mega-menu-dropdown:hover {
+    display: block;
+}
+
+/* ==================== FINAL NAV DROPDOWN FIX - THE STYLE HUB ==================== */
+/* Đồng bộ thanh menu: hover không mất, dropdown hiện ở mọi trang */
+.nav-left {
+    display: flex;
+    align-items: center;
+    gap: 0;
+}
+
+.nav-left > a,
+.nav-left > .menu-item-has-dropdown > a,
+.nav-left > .menu-item-has-mega > a {
+    display: block;
+    color: #e5e5e5;
+    font-size: 11px;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    margin-right: 28px;
+    padding: 8px 0;
+    line-height: 1;
+    white-space: nowrap;
+}
+
+.nav-left > .menu-item-has-dropdown,
+.nav-left > .menu-item-has-mega {
+    position: relative;
+    display: block;
+}
+
+.nav-active {
+    color: #ffffff !important;
+    text-decoration: underline !important;
+    text-underline-offset: 4px;
+}
+
+/* Dropdown nhỏ cho MENS/WOMENS/KIDS/SALE/SHOES */
+.nav-dropdown {
+    display: none;
+    position: absolute;
+    top: calc(100% + 14px);
+    left: 0;
+    min-width: 265px;
+    background: rgba(17, 17, 17, 0.98);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    box-shadow: 0 12px 35px rgba(0, 0, 0, 0.35);
+    padding: 24px 0;
+    z-index: 99999;
+}
+
+/* Cầu nối vô hình để rê chuột từ chữ xuống menu không bị mất */
+.menu-item-has-dropdown::after {
+    content: "";
+    display: none;
+    position: absolute;
+    top: 100%;
+    left: 0;
+    width: 265px;
+    height: 18px;
+}
+
+.menu-item-has-dropdown:hover::after {
+    display: block;
+}
+
+.menu-item-has-dropdown:hover .nav-dropdown,
+.nav-dropdown:hover {
+    display: block;
+}
+
+.nav-dropdown a {
+    display: block;
+    color: #d7d7d7 !important;
+    text-decoration: none !important;
+    padding: 14px 28px;
+    margin: 0 !important;
+    font-size: 13px !important;
+    letter-spacing: 3px !important;
+    line-height: 1.3;
+    white-space: nowrap;
+    transition: all 0.25s ease;
+}
+
+.nav-dropdown a:hover {
+    color: #ffffff !important;
+    background: rgba(255, 255, 255, 0.06);
+    padding-left: 34px;
+}
+
+/* Mega menu FEATURED */
+.menu-item-has-mega {
+    position: static !important;
+}
+
+.mega-menu-dropdown {
+    display: none;
+    position: fixed;
+    top: 57px;
+    left: 0;
+    width: 100vw;
+    background-color: rgba(26, 26, 26, 0.98);
+    backdrop-filter: blur(8px);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+    padding: 50px 80px;
+    box-shadow: 0 15px 30px rgba(0,0,0,0.3);
+    z-index: 99998;
+    pointer-events: auto;
+}
+
+/* Cầu nối vô hình cho Featured */
+.menu-item-has-mega::after {
+    content: "";
+    display: none;
+    position: fixed;
+    top: 47px;
+    left: 0;
+    width: 100vw;
+    height: 18px;
+    z-index: 99997;
+}
+
+.menu-item-has-mega:hover::after {
+    display: block;
+}
+
+.menu-item-has-mega:hover .mega-menu-dropdown,
+.mega-menu-dropdown:hover {
+    display: block;
+}
+
+.mega-menu-container {
+    max-width: 1350px;
+    margin: 0 auto;
+    display: flex;
+    justify-content: space-between;
+    gap: 60px;
+}
+
+.mega-links-col {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    min-width: 280px;
+}
+
+.mega-links-col a {
+    margin: 0 !important;
+    color: #b3b3b3 !important;
+    font-size: 12px !important;
+    font-weight: 400 !important;
+    letter-spacing: 1.8px !important;
+    text-transform: uppercase;
+    transition: color 0.2s ease, transform 0.2s ease;
+    white-space: nowrap;
+}
+
+.mega-links-col a:hover {
+    color: #ffffff !important;
+    transform: translateX(4px);
+}
+
+.mega-images-col {
+    display: flex;
+    gap: 45px;
+}
+
+.mega-img-card {
+    width: 260px;
+    display: flex;
+    flex-direction: column;
+    text-decoration: none;
+}
+
+.mega-img-card img {
+    width: 260px;
+    height: 360px;
+    object-fit: cover;
+    display: block;
+    border-radius: 2px;
+    transition: transform 0.35s ease, opacity 0.35s ease;
+}
+
+.mega-img-card:hover img {
+    transform: scale(1.03);
+    opacity: 0.9;
+}
+
+.mega-img-card span {
+    display: block;
+    margin-top: 14px;
+    color: #ffffff;
+    font-size: 10px;
+    letter-spacing: 2px;
+    font-weight: 500;
+    text-transform: uppercase;
+    white-space: nowrap;
+}
+
+/* Filter bar vẫn giữ để người dùng bấm lọc trong trang */
+.sub-filter-bar {
+    display: flex;
+}
+
+/* Mobile: tránh menu bị vỡ quá mạnh */
+@media (max-width: 768px) {
+    .nav-left {
+        display: none;
+    }
+}

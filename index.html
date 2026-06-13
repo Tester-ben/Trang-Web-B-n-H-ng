@@ -1,13 +1,13 @@
 <!DOCTYPE html>
-<html lang="vi">
 
+<html lang="vi">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>The Style Hub - UI/UX Interactive Project</title>
-    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="style.css">
-    <style>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>The Style Hub - UI/UX Interactive Project</title>
+<link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&amp;display=swap" rel="stylesheet"/>
+<link href="style.css" rel="stylesheet"/>
+<style>
         /* ==================== TOAST NOTIFICATION LUXURY ==================== */
         .toast-notification { 
             position: fixed; 
@@ -135,345 +135,288 @@
         }
     </style>
 </head>
-
-
 <body>
-    <div id="searchBox" class="search-overlay">
-        <div class="search-panel">
-    
-            <button class="search-close-btn" onclick="closeSearchBox()">×</button>
-    
-            <input
-                id="searchInput"
-                class="search-input"
-                type="text"
-                placeholder="SEARCH FOR PRODUCTS..."
-                onkeyup="searchProducts()"
-            >
-    
-            <div id="searchResults" class="search-results"></div>
-    
-        </div>
-    </div>
-
-        
-
+<div class="search-overlay" id="searchBox">
+<div class="search-panel">
+<button class="search-close-btn" onclick="closeSearchBox()">×</button>
+<input class="search-input" id="searchInput" onkeyup="searchProducts()" placeholder="SEARCH FOR PRODUCTS..." type="text"/>
+<div class="search-results" id="searchResults"></div>
+</div>
+</div>
 <canvas id="fwCanvas"></canvas>
-
-    <div class="toast-notification" id="toastMessage">Đăng nhập thành công!</div>
-
-    <header class="main-header">
-        <div class="nav-container">
-            <nav class="nav-left">
-                <div class="menu-item-has-mega">
-                    <a href="#" class="nav-link-featured">Featured</a>
-                    
-                    <div class="mega-menu-dropdown">
-                        <div class="mega-menu-container">
-                            
-                            <div class="mega-links-col">
-                                <a href="mens.html">New Arrivals</a>
-                                <a href="mens.html">MLB Spring 2026</a>
-                                <a href="womens.html">Collection Nine Womenswear</a>
-                                <a href="mens.html">Essentials Classic Styles</a>
-                                <a href="mens.html">Athletics & Team Apparel</a>
-                                <a href="mens.html">Essentials</a>
-                                <a href="mens.html">Fear of God</a>
-                                <a href="sale.html">Sale</a>
-                            </div>
-
-                            <div class="mega-images-col">
-
-                                <a href="womens.html" class="mega-img-card">
-                                    <img src="https://fearofgod.com/cdn/shop/files/LOOK_36_26241979-d8f6-4a59-81bf-798c81a576b9.jpg?v=1758565392&width=1200">
-                                    <span>COLLECTION NINE WOMENSWEAR</span>
-                                </a>
-                            
-                                <a href="mens.html" class="mega-img-card">
-                                    <img src="https://fearofgod.com/cdn/shop/files/LOOK_29.png?v=1774904924&width=1200">
-                                    <span>COLLECTION NINE MENSWEAR</span>
-                                </a>
-                            
-                            </div>
-
-                        </div>
-                    </div>
-                </div>
-
-                <div class="menu-item-has-dropdown">
-                    <a href="mens.html">MENS</a>
-                
-                    <div class="nav-dropdown">
-                        <a href="mens.html">ALL PRODUCTS</a>
-                        <a href="mens.html?cat=tops">TOPS</a>
-                        <a href="mens.html?cat=hoodie">HOODIES</a>
-                        <a href="mens.html?cat=dress-shirt">DRESS SHIRT</a>
-                    </div>
-                </div>
-                
-                <div class="menu-item-has-dropdown">
-                    <a href="womens.html">WOMENS</a>
-                
-                    <div class="nav-dropdown">
-                        <a href="womens.html">ALL PRODUCTS</a>
-                        <a href="womens.html?cat=tops">TOPS</a>
-                        <a href="womens.html?cat=jackets">JACKETS & OUTERWEAR</a>
-                    </div>
-                </div>
-                
-                <div class="menu-item-has-dropdown">
-                    <a href="kids.html">KIDS</a>
-                
-                    <div class="nav-dropdown">
-                        <a href="kids.html">ALL PRODUCTS</a>
-                        <a href="kids.html?cat=hoodie">TOPS</a>
-                        <a href="kids.html?cat=pants">JACKETS & OUTERWEAR</a>
-                    </div>
-                </div>
-                
-                <div class="menu-item-has-dropdown">
-                    <a href="sale.html">SALE</a>
-                
-                    <div class="nav-dropdown">
-                        <a href="sale.html">ALL SALE ITEMS</a>
-                        <a href="sale.html?cat=30">TOPS</a>
-                        <a href="sale.html?cat=50">JACKETS & OUTERWEAR</a>
-                    </div>
-                </div>
-                
-                <div class="menu-item-has-dropdown">
-                    <a href="shoes.html">SHOES</a>
-                
-                    <div class="nav-dropdown">
-                        <a href="shoes.html">ALL SHOES</a>
-                    </div>
-                </div>
-            </nav>
-
-            <div class="logo">
-                <a href="index.html">THE STYLE HUB</a>
-            </div>
-
-            <div class="nav-right">
-                <a href="#" id="search-trigger">SEARCH</a>
-                <a href="#" id="account-trigger">ACCOUNT</a>
-                <a href="#" id="bag-trigger">BAG (<span id="cart-count">0</span>)</a>
-            </div>
-        </div>
-    </header>
-
-    <div id="home-page-view">
-        <section class="main-hero-banner">
-            <img src="https://fearofgod.com/cdn/shop/files/mlb_spring_desktop-v2_x1800.jpg?v=1779819182" alt="Featured Men Suit" class="main-hero-img">
-            <div class="main-hero-content">
-                <h2>SHOP</h2>
-                <a href="collections.html" class="main-shop-btn">Xem bộ sưu tập</a>
-            </div>
-        </section>
-
-        <section class="split-hero-container">
-            <div class="hero-column">
-                <div class="hero-image-wrapper">
-                    <img src="https://fearofgod.com/cdn/shop/files/LOOK_17.png?crop=center&height=1280&v=1759109463&width=960" alt="Shop Mens Look">
-                </div>
-                <div class="hero-btn-container">
-                    <a href="mens.html" class="shop-btn">SHOP MENS</a>
-                </div>
-            </div>
-
-            <div class="hero-column">
-                <div class="hero-image-wrapper">
-                    <img src="https://fearofgod.com/cdn/shop/files/LOOK_34_769bf883-a71f-4985-8163-2d067e9fdf74.jpg?crop=center&height=1280&v=1776448151&width=960" alt="Shop Womens Look">
-                </div>
-                <div class="hero-btn-container">
-                    <a href="womens.html" class="shop-btn">SHOP WOMENS</a>
-                </div>
-            </div>
-        </section>
-
-        <div class="outfit-section-title">
-            <a href="mens.html?cat=dress-shirt">
-                <h3>BUSINESS CASUAL</h3>
-            </a>
-        </div>
-        <section class="outfit-section-container">
-            <div class="outfit-video-left-box">
-                <video autoplay loop muted playsinline>
-                    <source src="https://yame.vn/cdn/shop/videos/c/vp/47e6d3bfa7204fb08bcd0eb0ec497a77/47e6d3bfa7204fb08bcd0eb0ec497a77.SD-480p-0.9Mbps-78233570.mp4?v=0" type="video/mp4">
-                </video>
-            </div>
-
-            <div class="outfit-grid-right-box">
-                <a href="mens.html?cat=dress-shirt" class="outfit-item-link-card">
-                    <img src="https://yame.vn/cdn/shop/files/37_02d0dea4-d6c0-4012-a2c4-f3533985e4ec.jpg?v=1773893016&width=400" alt="Outfit 1">
-                </a>
-                <a href="mens.html?cat=dress-shirt" class="outfit-item-link-card">
-                    <img src="https://yame.vn/cdn/shop/files/38_d6003b0b-6e20-44e5-9865-417d663ffd32.jpg?v=1773893051&width=400" alt="Outfit 2">
-                </a>
-                <a href="mens.html?cat=dress-shirt" class="outfit-item-link-card">
-                    <img src="https://yame.vn/cdn/shop/files/39_98bdadca-2143-4f90-8a1a-aa9e9597b939.jpg?v=1773893072&width=400" alt="Outfit 3">
-                </a>
-                <a href="mens.html?cat=dress-shirt" class="outfit-item-link-card">
-                    <img src="https://yame.vn/cdn/shop/files/40_b31c366e-d1f0-4c97-b9d3-f0695fe86511.jpg?v=1773893091&width=400" alt="Outfit 4">
-                </a>
-                <a href="product-detail.html?id=dress-5" class="outfit-item-link-card">
-                    <img src="https://yame.vn/cdn/shop/files/42_48c9aabe-c095-4fef-83e2-2ce9af3b1a03.jpg?v=1773893119&width=400" alt="Outfit 5">
-                </a>
-                <a href="product-detail.html?id=dress-1" class="outfit-item-link-card">
-                    <img src="https://yame.vn/cdn/shop/files/43_bb50f9ef-a84b-439f-b507-daba10c964e9.jpg?v=1773893139&width=400" alt="Outfit 6">
-                </a>
-                <a href="product-detail.html?id=dress-2" class="outfit-item-link-card">
-                    <img src="https://yame.vn/cdn/shop/files/44_9106cd44-3267-4bc6-8a9a-03d41acc1643.jpg?v=1773893153&width=400" alt="Outfit 7">
-                </a>
-                <a href="product-detail.html?id=dress-3" class="outfit-item-link-card">
-                    <img src="https://yame.vn/cdn/shop/files/45_c90681a4-2a0c-4e3b-b970-c8dddf6c0f25.jpg?v=1773893168&width=400" alt="Outfit 8">
-                </a>
-                <a href="product-detail.html?id=dress-4" class="outfit-item-link-card">
-                    <img src="https://yame.vn/cdn/shop/files/46_efab83fc-8d13-468d-99bd-e8d362271635.jpg?v=1773893182&width=400" alt="Outfit 9">
-                </a>
-                <a href="product-detail.html?id=dress-5" class="outfit-item-link-card">
-                    <img src="https://yame.vn/cdn/shop/files/47_00e7cd8c-75b8-4906-82a1-8e67bc5324da.jpg?v=1773893194&width=400" alt="Outfit 10">
-                </a>
-            </div>
-        </section>
-
-        <main class="container">
-            <section class="shoes-hero">
-                <img src="https://www.gow.com.vn//backend/uploads/images/giay-da-nam-cao-cap-sneaker-sk012-E_2025_05_07_16_20_42_681b25eadfccd.jpg" alt="Men Shoes">
-            
-                <div class="shoes-hero-content">
-                    <h2>SHOES</h2>
-                    <a href="shoes.html" class="shoes-shop-btn">SHOP</a>
-                </div>
-            </section>
-        </main>
-    </div>
-
-    <div id="dashboard-page-view" class="hidden">
-        <div class="dashboard-container">
-            <div class="dashboard-menu">
-                <span id="tab-orders-btn" class="db-menu-item" onclick="switchDashboardTab('orders')">Orders</span>
-                <span id="tab-profile-btn" class="db-menu-item active" onclick="switchDashboardTab('profile')">Profile</span>
-            </div>
-
-            <div id="db-profile-content" class="db-tab-content">
-                <h2 class="db-section-title">Profile</h2>
-                <div class="db-card">
-                    <div class="db-card-row">
-                        <span class="db-label">Name</span>
-                        <span class="db-value" id="db-user-name">Phan Thanh Tú</span>
-                    </div>
-                    <div class="db-card-row">
-                        <span class="db-label">Email</span>
-                        <span class="db-value" id="db-user-email">phantu210206@gmail.com</span>
-                    </div>
-                </div>
-                <h3 class="db-sub-title">Addresses <span class="add-btn">+ Add</span></h3>
-                <div class="db-card empty-state">
-                    <p class="info-text">ⓘ No addresses added</p>
-                </div>
-                <button class="sign-out-btn" onclick="handleSignOut()">Sign out</button>
-                <span class="sign-out-all-text">Sign out of all devices</span>
-            </div>
-
-            <div id="db-orders-content" class="db-tab-content hidden">
-                <h2 class="db-section-title">Orders</h2>
-                <div class="db-card empty-state-large">
-                    <h4>No orders yet</h4>
-                    <p>Go to store to place an order.</p>
-                </div>
-            </div>
-        </div>
-    </div>
-
-
-
-    <div id="account-modal" class="modal-overlay">
-        <div class="account-box">
-            <span class="close-modal" id="close-account">&times;</span>
-            <div id="login-form-container">
-                <h3>LOGIN</h3>
-                <form onsubmit="event.preventDefault(); handleLogin();">
-                    <input type="email" placeholder="EMAIL" required id="login-email">
-                    <input type="password" placeholder="PASSWORD" required id="login-pass">
-                    <button type="submit" class="auth-submit-btn">SIGN IN</button>
-                </form>
-                <p class="switch-form-text">Don't have an account? <span onclick="toggleAuthForm('register')">CREATE ACCOUNT</span></p>
-            </div>
-            <div id="register-form-container" class="hidden">
-                <h3>CREATE ACCOUNT</h3>
-                <form onsubmit="event.preventDefault(); handleRegister();">
-                    <input type="text" placeholder="FIRST NAME" required id="reg-fname">
-                    <input type="text" placeholder="LAST NAME" required id="reg-lname">
-                    <input type="email" placeholder="EMAIL ADDRESS" required id="reg-email">
-                    <input type="password" placeholder="PASSWORD" required id="reg-pass">
-                    <button type="submit" class="auth-submit-btn">CREATE</button>
-                </form>
-                <p class="switch-form-text">Already have an account? <span onclick="toggleAuthForm('login')">RETURN TO LOGIN</span></p>
-            </div>
-        </div>
-    </div>
-
-    <div id="bag-modal" class="modal-overlay">
-        <div class="bag-sidebar">
-            <div class="bag-header">
-                <h3>SHOPPING BAG</h3>
-                <span class="close-modal" id="close-bag">&times;</span>
-            </div>
-            <div id="cart-items-container">
-                <p class="empty-cart-msg">Your bag is empty.</p>
-            </div>
-            <div class="bag-footer">
-                <div class="total-row">
-                    <span>TOTAL:</span>
-                    <span id="cart-total-price">0 ₫</span>
-                </div>
-                <button class="checkout-btn" onclick="window.location.href='email.html'">CHECKOUT</button>          
-                </div>
-        </div>
-    </div>
-
-    <footer class="site-footer">
-        <div class="footer-col footer-subscribe">
-            <h3>JOIN THE COMMUNITY</h3>
-            <p>Sign up for early access to collections, exclusive drops, and special events.</p>
-    
-            <form class="newsletter-form" onsubmit="event.preventDefault(); showToast('Thank you for subscribing!');">
-                <input type="email" placeholder="Your Email Address" required>
-                <button type="submit">SUBSCRIBE</button>
-            </form>
-        </div>
-    
-        <div class="footer-col">
-            <h4>LIÊN KẾT</h4>
-            <a href="mens.html">Mens</a>
-            <a href="womens.html">Womens</a>
-            <a href="kids.html">Kids</a>
-            <a href="sale.html">Sale</a>
-            <a href="shoes.html">SHOES</a>
-            <a href="account.html">Account</a>
-        </div>
-    
-        <div class="footer-col">
-            <h4>Hệ thống cửa hàng</h4>
-            <p>📍 <strong>Cơ sở 1 (Q.1):</strong><br>15 Nguyễn Huệ, P. Bến Nghé, Quận 1</p>
-            <p>📍 <strong>Cơ sở 2 (Q.3):</strong><br>236 Cách Mạng Tháng Tám, P. 10, Quận 3</p>
-    
-            <h4>Phương thức thanh toán</h4>
-            <div class="payment-tags">
-                <span>MOMO</span>
-                <span>VNPAY</span>
-                <span>COD</span>
-            </div>
-        </div>
-    </footer>
-    
-    <div class="footer-bottom">
+<div class="toast-notification" id="toastMessage">Đăng nhập thành công!</div>
+<header class="main-header">
+<div class="nav-container">
+<nav class="nav-left">
+<div class="menu-item-has-mega">
+<a class="nav-link-featured" href="index.html">FEATURED</a>
+<div class="mega-menu-dropdown">
+<div class="mega-menu-container">
+<div class="mega-links-col">
+<a href="collections.html">NEW ARRIVALS</a>
+<a href="mens.html">MLB SPRING 2026</a>
+<a href="womens.html">COLLECTION NINE WOMENSWEAR</a>
+<a href="mens.html">ESSENTIALS CLASSIC STYLES</a>
+<a href="mens.html">ATHLETICS &amp; TEAM APPAREL</a>
+<a href="mens.html">ESSENTIALS</a>
+<a href="mens.html">FEAR OF GOD</a>
+<a href="sale.html">SALE</a>
+</div>
+<div class="mega-images-col">
+<a class="mega-img-card" href="womens.html">
+<img alt="Collection Nine Womenswear" src="https://fearofgod.com/cdn/shop/files/LOOK_36_26241979-d8f6-4a59-81bf-798c81a576b9.jpg?v=1758565392&amp;width=1200"/>
+<span>COLLECTION NINE WOMENSWEAR</span>
+</a>
+<a class="mega-img-card" href="mens.html">
+<img alt="Collection Nine Menswear" src="https://fearofgod.com/cdn/shop/files/LOOK_29.png?v=1774904924&amp;width=1200"/>
+<span>COLLECTION NINE MENSWEAR</span>
+</a>
+</div>
+</div>
+</div>
+</div>
+<div class="menu-item-has-dropdown">
+<a class="" href="mens.html">MENS</a>
+<div class="nav-dropdown">
+<a href="mens.html">ALL PRODUCTS</a>
+<a href="mens.html?cat=tops">TOPS</a>
+<a href="mens.html?cat=hoodies">HOODIES</a>
+<a href="mens.html?cat=dress-shirt">DRESS SHIRT</a>
+</div>
+</div>
+<div class="menu-item-has-dropdown">
+<a class="" href="womens.html">WOMENS</a>
+<div class="nav-dropdown">
+<a href="womens.html">ALL PRODUCTS</a>
+<a href="womens.html?cat=tops">TOPS</a>
+<a href="womens.html?cat=jackets">JACKETS &amp; OUTERWEAR</a>
+</div>
+</div>
+<div class="menu-item-has-dropdown">
+<a class="" href="kids.html">KIDS</a>
+<div class="nav-dropdown">
+<a href="kids.html">ALL KIDS</a>
+<a href="kids.html?cat=tops">TOPS</a>
+<a href="kids.html?cat=jackets">JACKETS &amp; OUTERWEAR</a>
+</div>
+</div>
+<div class="menu-item-has-dropdown">
+<a class="" href="sale.html">SALE</a>
+<div class="nav-dropdown">
+<a href="sale.html">ALL SALE ITEMS</a>
+<a href="sale.html?cat=tops">TOPS</a>
+<a href="sale.html?cat=jackets">JACKETS &amp; OUTERWEAR</a>
+</div>
+</div>
+<div class="menu-item-has-dropdown">
+<a class="" href="shoes.html">SHOES</a>
+<div class="nav-dropdown">
+<a href="shoes.html">ALL SHOES</a>
+</div>
+</div>
+</nav>
+<div class="logo">
+<a href="index.html">THE STYLE HUB</a>
+</div>
+<div class="nav-right">
+<a href="#" id="search-trigger">SEARCH</a>
+<a href="#" id="account-trigger">ACCOUNT</a>
+<a href="#" id="bag-trigger">BAG (<span id="cart-count">0</span>)</a>
+</div>
+</div>
+</header>
+<div id="home-page-view">
+<section class="main-hero-banner">
+<img alt="Featured Men Suit" class="main-hero-img" src="https://fearofgod.com/cdn/shop/files/mlb_spring_desktop-v2_x1800.jpg?v=1779819182"/>
+<div class="main-hero-content">
+<h2>SHOP</h2>
+<a class="main-shop-btn" href="collections.html">Xem bộ sưu tập</a>
+</div>
+</section>
+<section class="split-hero-container">
+<div class="hero-column">
+<div class="hero-image-wrapper">
+<img alt="Shop Mens Look" src="https://fearofgod.com/cdn/shop/files/LOOK_17.png?crop=center&amp;height=1280&amp;v=1759109463&amp;width=960"/>
+</div>
+<div class="hero-btn-container">
+<a class="shop-btn" href="mens.html">SHOP MENS</a>
+</div>
+</div>
+<div class="hero-column">
+<div class="hero-image-wrapper">
+<img alt="Shop Womens Look" src="https://fearofgod.com/cdn/shop/files/LOOK_34_769bf883-a71f-4985-8163-2d067e9fdf74.jpg?crop=center&amp;height=1280&amp;v=1776448151&amp;width=960"/>
+</div>
+<div class="hero-btn-container">
+<a class="shop-btn" href="womens.html">SHOP WOMENS</a>
+</div>
+</div>
+</section>
+<div class="outfit-section-title">
+<a href="mens.html?cat=dress-shirt">
+<h3>BUSINESS CASUAL</h3>
+</a>
+</div>
+<section class="outfit-section-container">
+<div class="outfit-video-left-box">
+<video autoplay="" loop="" muted="" playsinline="">
+<source src="https://yame.vn/cdn/shop/videos/c/vp/47e6d3bfa7204fb08bcd0eb0ec497a77/47e6d3bfa7204fb08bcd0eb0ec497a77.SD-480p-0.9Mbps-78233570.mp4?v=0" type="video/mp4"/>
+</video>
+</div>
+<div class="outfit-grid-right-box">
+<a class="outfit-item-link-card" href="mens.html?cat=dress-shirt">
+<img alt="Outfit 1" src="https://yame.vn/cdn/shop/files/37_02d0dea4-d6c0-4012-a2c4-f3533985e4ec.jpg?v=1773893016&amp;width=400"/>
+</a>
+<a class="outfit-item-link-card" href="mens.html?cat=dress-shirt">
+<img alt="Outfit 2" src="https://yame.vn/cdn/shop/files/38_d6003b0b-6e20-44e5-9865-417d663ffd32.jpg?v=1773893051&amp;width=400"/>
+</a>
+<a class="outfit-item-link-card" href="mens.html?cat=dress-shirt">
+<img alt="Outfit 3" src="https://yame.vn/cdn/shop/files/39_98bdadca-2143-4f90-8a1a-aa9e9597b939.jpg?v=1773893072&amp;width=400"/>
+</a>
+<a class="outfit-item-link-card" href="mens.html?cat=dress-shirt">
+<img alt="Outfit 4" src="https://yame.vn/cdn/shop/files/40_b31c366e-d1f0-4c97-b9d3-f0695fe86511.jpg?v=1773893091&amp;width=400"/>
+</a>
+<a class="outfit-item-link-card" href="product-detail.html?id=dress-5">
+<img alt="Outfit 5" src="https://yame.vn/cdn/shop/files/42_48c9aabe-c095-4fef-83e2-2ce9af3b1a03.jpg?v=1773893119&amp;width=400"/>
+</a>
+<a class="outfit-item-link-card" href="product-detail.html?id=dress-1">
+<img alt="Outfit 6" src="https://yame.vn/cdn/shop/files/43_bb50f9ef-a84b-439f-b507-daba10c964e9.jpg?v=1773893139&amp;width=400"/>
+</a>
+<a class="outfit-item-link-card" href="product-detail.html?id=dress-2">
+<img alt="Outfit 7" src="https://yame.vn/cdn/shop/files/44_9106cd44-3267-4bc6-8a9a-03d41acc1643.jpg?v=1773893153&amp;width=400"/>
+</a>
+<a class="outfit-item-link-card" href="product-detail.html?id=dress-3">
+<img alt="Outfit 8" src="https://yame.vn/cdn/shop/files/45_c90681a4-2a0c-4e3b-b970-c8dddf6c0f25.jpg?v=1773893168&amp;width=400"/>
+</a>
+<a class="outfit-item-link-card" href="product-detail.html?id=dress-4">
+<img alt="Outfit 9" src="https://yame.vn/cdn/shop/files/46_efab83fc-8d13-468d-99bd-e8d362271635.jpg?v=1773893182&amp;width=400"/>
+</a>
+<a class="outfit-item-link-card" href="product-detail.html?id=dress-5">
+<img alt="Outfit 10" src="https://yame.vn/cdn/shop/files/47_00e7cd8c-75b8-4906-82a1-8e67bc5324da.jpg?v=1773893194&amp;width=400"/>
+</a>
+</div>
+</section>
+<main class="container">
+<section class="shoes-hero">
+<img alt="Men Shoes" src="https://www.gow.com.vn//backend/uploads/images/giay-da-nam-cao-cap-sneaker-sk012-E_2025_05_07_16_20_42_681b25eadfccd.jpg"/>
+<div class="shoes-hero-content">
+<h2>SHOES</h2>
+<a class="shoes-shop-btn" href="shoes.html">SHOP</a>
+</div>
+</section>
+</main>
+</div>
+<div class="hidden" id="dashboard-page-view">
+<div class="dashboard-container">
+<div class="dashboard-menu">
+<span class="db-menu-item" id="tab-orders-btn" onclick="switchDashboardTab('orders')">Orders</span>
+<span class="db-menu-item active" id="tab-profile-btn" onclick="switchDashboardTab('profile')">Profile</span>
+</div>
+<div class="db-tab-content" id="db-profile-content">
+<h2 class="db-section-title">Profile</h2>
+<div class="db-card">
+<div class="db-card-row">
+<span class="db-label">Name</span>
+<span class="db-value" id="db-user-name">Phan Thanh Tú</span>
+</div>
+<div class="db-card-row">
+<span class="db-label">Email</span>
+<span class="db-value" id="db-user-email">phantu210206@gmail.com</span>
+</div>
+</div>
+<h3 class="db-sub-title">Addresses <span class="add-btn">+ Add</span></h3>
+<div class="db-card empty-state">
+<p class="info-text">ⓘ No addresses added</p>
+</div>
+<button class="sign-out-btn" onclick="handleSignOut()">Sign out</button>
+<span class="sign-out-all-text">Sign out of all devices</span>
+</div>
+<div class="db-tab-content hidden" id="db-orders-content">
+<h2 class="db-section-title">Orders</h2>
+<div class="db-card empty-state-large">
+<h4>No orders yet</h4>
+<p>Go to store to place an order.</p>
+</div>
+</div>
+</div>
+</div>
+<div class="modal-overlay" id="account-modal">
+<div class="account-box">
+<span class="close-modal" id="close-account">×</span>
+<div id="login-form-container">
+<h3>LOGIN</h3>
+<form onsubmit="event.preventDefault(); handleLogin();">
+<input id="login-email" placeholder="EMAIL" required="" type="email"/>
+<input id="login-pass" placeholder="PASSWORD" required="" type="password"/>
+<button class="auth-submit-btn" type="submit">SIGN IN</button>
+</form>
+<p class="switch-form-text">Don't have an account? <span onclick="toggleAuthForm('register')">CREATE ACCOUNT</span></p>
+</div>
+<div class="hidden" id="register-form-container">
+<h3>CREATE ACCOUNT</h3>
+<form onsubmit="event.preventDefault(); handleRegister();">
+<input id="reg-fname" placeholder="FIRST NAME" required="" type="text"/>
+<input id="reg-lname" placeholder="LAST NAME" required="" type="text"/>
+<input id="reg-email" placeholder="EMAIL ADDRESS" required="" type="email"/>
+<input id="reg-pass" placeholder="PASSWORD" required="" type="password"/>
+<button class="auth-submit-btn" type="submit">CREATE</button>
+</form>
+<p class="switch-form-text">Already have an account? <span onclick="toggleAuthForm('login')">RETURN TO LOGIN</span></p>
+</div>
+</div>
+</div>
+<div class="modal-overlay" id="bag-modal">
+<div class="bag-sidebar">
+<div class="bag-header">
+<h3>SHOPPING BAG</h3>
+<span class="close-modal" id="close-bag">×</span>
+</div>
+<div id="cart-items-container">
+<p class="empty-cart-msg">Your bag is empty.</p>
+</div>
+<div class="bag-footer">
+<div class="total-row">
+<span>TOTAL:</span>
+<span id="cart-total-price">0 ₫</span>
+</div>
+<button class="checkout-btn" onclick="window.location.href='email.html'">CHECKOUT</button>
+</div>
+</div>
+</div>
+<footer class="site-footer">
+<div class="footer-col footer-subscribe">
+<h3>JOIN THE COMMUNITY</h3>
+<p>Sign up for early access to collections, exclusive drops, and special events.</p>
+<form class="newsletter-form" onsubmit="event.preventDefault(); showToast('Thank you for subscribing!');">
+<input placeholder="Your Email Address" required="" type="email"/>
+<button type="submit">SUBSCRIBE</button>
+</form>
+</div>
+<div class="footer-col">
+<h4>LIÊN KẾT</h4>
+<a href="mens.html">Mens</a>
+<a href="womens.html">Womens</a>
+<a href="kids.html">Kids</a>
+<a href="sale.html">Sale</a>
+<a href="shoes.html">SHOES</a>
+<a href="account.html">Account</a>
+</div>
+<div class="footer-col">
+<h4>Hệ thống cửa hàng</h4>
+<p>📍 <strong>Cơ sở 1 (Q.1):</strong><br/>15 Nguyễn Huệ, P. Bến Nghé, Quận 1</p>
+<p>📍 <strong>Cơ sở 2 (Q.3):</strong><br/>236 Cách Mạng Tháng Tám, P. 10, Quận 3</p>
+<h4>Phương thức thanh toán</h4>
+<div class="payment-tags">
+<span>MOMO</span>
+<span>VNPAY</span>
+<span>COD</span>
+</div>
+</div>
+</footer>
+<div class="footer-bottom">
         © 2026 THE STYLE HUB. UI/UX Interface Design Project.
     </div>
-
-    <script src="product-data.js"></script>
-    <script>
+<script src="product-data.js"></script>
+<script>
         let isLoggedIn = localStorage.getItem('isLoggedInStatus') === 'true'; 
         let userData = { firstName: " ", lastName: " ", email: " " };
 
@@ -768,8 +711,6 @@
             `;
         });
     }
-    </script>  
-
+    </script>
 </body>
-
 </html>

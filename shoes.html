@@ -1,13 +1,13 @@
 <!DOCTYPE html>
-<html lang="vi">
 
+<html lang="vi">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>The Style Hub - Mens Collection</title>
-    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="style.css">
-    <style>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>The Style Hub - Mens Collection</title>
+<link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&amp;display=swap" rel="stylesheet"/>
+<link href="style.css" rel="stylesheet"/>
+<style>
         * { box-sizing: border-box; margin: 0; padding: 0; }
         body { font-family: 'Roboto', sans-serif; background-color: #ffffff; color: #111111; overflow-x: hidden; }
         
@@ -49,285 +49,315 @@
         #fwCanvas { position: fixed; top: 0; left: 0; width: 100%; height: 100vh; pointer-events: none; z-index: 9999; display: none; }
     </style>
 </head>
-
 <body>
-
-    <canvas id="fwCanvas"></canvas>
-    <div class="toast-notification" id="toastMessage">Đăng nhập thành công!</div>
-
-    <header class="main-header">
-        <div class="nav-container">
-            <div class="nav-left">
-                <a href="index.html">FEATURED</a>
-                <a href="mens.html">MENS</a>
-                <a href="womens.html">WOMENS</a>
-                <a href="kids.html">KIDS</a>
-                <a href="sale.html">SALE</a>
-                <a href="shoes.html" style="text-decoration: underline; font-weight: 500;">SHOES</a>
-            </div>
-            <div class="logo"><a href="index.html">THE STYLE HUB</a></div>
-            <div class="nav-right">
-                <a href="#" id="search-trigger">SEARCH</a>
-                <a href="#" id="headerAccountLink">ACCOUNT</a>
-                <a href="#" id="bag-trigger">BAG (<span id="cart-count">0</span>)</a>
-            </div>
-        </div>
-    </header>
-
-    <div class="sub-filter-bar">
-        <div class="filter-left-group">
-            <span class="filter-tag active">All Shoes</span>
-
-        </div>
-    
-        <div class="filter-right-sort">
+<canvas id="fwCanvas"></canvas>
+<div class="toast-notification" id="toastMessage">Đăng nhập thành công!</div>
+<header class="main-header">
+<div class="nav-container">
+<div class="nav-left">
+<div class="menu-item-has-mega">
+<a class="nav-link-featured" href="index.html">FEATURED</a>
+<div class="mega-menu-dropdown">
+<div class="mega-menu-container">
+<div class="mega-links-col">
+<a href="collections.html">NEW ARRIVALS</a>
+<a href="mens.html">MLB SPRING 2026</a>
+<a href="womens.html">COLLECTION NINE WOMENSWEAR</a>
+<a href="mens.html">ESSENTIALS CLASSIC STYLES</a>
+<a href="mens.html">ATHLETICS &amp; TEAM APPAREL</a>
+<a href="mens.html">ESSENTIALS</a>
+<a href="mens.html">FEAR OF GOD</a>
+<a href="sale.html">SALE</a>
+</div>
+<div class="mega-images-col">
+<a class="mega-img-card" href="womens.html">
+<img alt="Collection Nine Womenswear" src="https://fearofgod.com/cdn/shop/files/LOOK_36_26241979-d8f6-4a59-81bf-798c81a576b9.jpg?v=1758565392&amp;width=1200"/>
+<span>COLLECTION NINE WOMENSWEAR</span>
+</a>
+<a class="mega-img-card" href="mens.html">
+<img alt="Collection Nine Menswear" src="https://fearofgod.com/cdn/shop/files/LOOK_29.png?v=1774904924&amp;width=1200"/>
+<span>COLLECTION NINE MENSWEAR</span>
+</a>
+</div>
+</div>
+</div>
+</div>
+<div class="menu-item-has-dropdown">
+<a class="" href="mens.html">MENS</a>
+<div class="nav-dropdown">
+<a href="mens.html">ALL PRODUCTS</a>
+<a href="mens.html?cat=tops">TOPS</a>
+<a href="mens.html?cat=hoodies">HOODIES</a>
+<a href="mens.html?cat=dress-shirt">DRESS SHIRT</a>
+</div>
+</div>
+<div class="menu-item-has-dropdown">
+<a class="" href="womens.html">WOMENS</a>
+<div class="nav-dropdown">
+<a href="womens.html">ALL PRODUCTS</a>
+<a href="womens.html?cat=tops">TOPS</a>
+<a href="womens.html?cat=jackets">JACKETS &amp; OUTERWEAR</a>
+</div>
+</div>
+<div class="menu-item-has-dropdown">
+<a class="" href="kids.html">KIDS</a>
+<div class="nav-dropdown">
+<a href="kids.html">ALL KIDS</a>
+<a href="kids.html?cat=tops">TOPS</a>
+<a href="kids.html?cat=jackets">JACKETS &amp; OUTERWEAR</a>
+</div>
+</div>
+<div class="menu-item-has-dropdown">
+<a class="" href="sale.html">SALE</a>
+<div class="nav-dropdown">
+<a href="sale.html">ALL SALE ITEMS</a>
+<a href="sale.html?cat=tops">TOPS</a>
+<a href="sale.html?cat=jackets">JACKETS &amp; OUTERWEAR</a>
+</div>
+</div>
+<div class="menu-item-has-dropdown">
+<a class="" href="shoes.html">SHOES</a>
+<div class="nav-dropdown">
+<a href="shoes.html">ALL SHOES</a>
+</div>
+</div>
+</div>
+<div class="logo"><a href="index.html">THE STYLE HUB</a></div>
+<div class="nav-right">
+<a href="#" id="search-trigger">SEARCH</a>
+<a href="#" id="headerAccountLink">ACCOUNT</a>
+<a href="#" id="bag-trigger">BAG (<span id="cart-count">0</span>)</a>
+</div>
+</div>
+</header>
+<div class="sub-filter-bar">
+<div class="filter-left-group">
+<span class="filter-tag active">All Shoes</span>
+</div>
+<div class="filter-right-sort">
             FILTER / SORT +
         </div>
-    </div>
-
-    <div class="product-gallery-container">
-        <div class="mens-product-grid">
-            
-            <a href="product-detail.html?id=shoe-1" class="product-card">
-                <div class="product-thumb hover-img">
-                    <img class="img-main" src="https://fearofgod.com/cdn/shop/files/NRA08_ATHLETICS_III_BASKETBALL-CINDERWARM_VANILLA_1_900x.jpg?v=1773344807">
-                    <img class="img-hover" src="https://fearofgod.com/cdn/shop/files/NRA08_ATHLETICS_III_BASKETBALL-CINDERWARM_VANILLA_2_900x.jpg?v=1773344807">
-                </div>
-                <div class="product-info">
-                    <p class="brand">ATHLETICS</p>
-                    <p class="name">Athletics III Basketball - Cinder Warm Vanilla</p>
-                    <p class="price">6.100.000 ₫</p>
-                </div>
-            </a>
-    
-            <a href="product-detail.html?id=shoe-2" class="product-card">
-                <div class="product-thumb hover-img">
-                    <img class="img-main" src="https://fearofgod.com/cdn/shop/files/KJ5967_ATHLETICS_III_BASKETBALL-WONDER_ALUMINA_1_900x.jpg?v=1777386827">
-                    <img class="img-hover" src="https://fearofgod.com/cdn/shop/files/KJ5967_ATHLETICS_III_BASKETBALL-WONDER_ALUMINA_2_900x.jpg?v=1777386827">
-                </div>
-                <div class="product-info">
-                    <p class="brand">ATHLETICS</p>
-                    <p class="name">Athletics III Basketball - Wonder Alumina</p>
-                    <p class="price">6.100.000 ₫</p>
-                </div>
-            </a>
-    
-            <a href="product-detail.html?id=shoe-3" class="product-card">
-                <div class="product-thumb hover-img">
-                    <img class="img-main" src="https://fearofgod.com/cdn/shop/files/ATHLETICS_II_BASKETBALL-CARBON_METGRY_1_900x.jpg?v=1764625443">
-                    <img class="img-hover" src="https://fearofgod.com/cdn/shop/files/ATHLETICS_II_BASKETBALL-CARBON_METGRY_3_900x.jpg?v=1764625443">
-                </div>
-                <div class="product-info">
-                    <p class="brand">ATHLETICS</p>
-                    <p class="name">Athletics II Basketball - Carbon Met Grey</p>
-                    <p class="price">5.900.000 ₫</p>
-                </div>
-            </a>
-    
-            <a href="product-detail.html?id=shoe-4" class="product-card">
-                <div class="product-thumb hover-img">
-                    <img class="img-main" src="https://fearofgod.com/cdn/shop/files/ATHLETICS_II_BASKETBALL_HI-CARBON_METGRY_1_900x.jpg?v=1764623956">
-                    <img class="img-hover" src="https://fearofgod.com/cdn/shop/files/ATHLETICS_II_BASKETBALL_HI-CARBON_METGRY_2_900x.jpg?v=1764623956">
-                </div>
-                <div class="product-info">
-                    <p class="brand">ATHLETICS</p>
-                    <p class="name">Athletics II Basketball Hi - Carbon Met Grey</p>
-                    <p class="price">6.300.000 ₫</p>
-                </div>
-            </a>
-    
-            <a href="product-detail.html?id=shoe-5" class="product-card">
-                <div class="product-thumb hover-img">
-                    <img class="img-main" src="https://fearofgod.com/cdn/shop/files/FG980-8109NUB_101_LIGHT_GREY_1_900x.jpg?v=1772082765">
-                    <img class="img-hover" src="https://fearofgod.com/cdn/shop/files/FG980-8109NUB_101_LIGHT_GREY_2_900x.jpg?v=1772082764">
-                </div>
-                <div class="product-info">
-                    <p class="brand">FEAR OF GOD</p>
-                    <p class="name">Aerobic Sneaker - Light Grey</p>
-                    <p class="price">7.200.000 ₫</p>
-                </div>
-            </a>
-    
-            <a href="product-detail.html?id=shoe-6" class="product-card">
-                <div class="product-thumb hover-img">
-                    <img class="img-main" src="https://fearofgod.com/cdn/shop/files/FG980-101NUB_AEROBIC_LOW-LIGHT_GREY_1_900x.jpg?v=1772082697">
-                    <img class="img-hover" src="https://fearofgod.com/cdn/shop/files/FG980-101NUB_AEROBIC_LOW-LIGHT_GREY_2_900x.jpg?v=1772082696">
-                </div>
-                <div class="product-info">
-                    <p class="brand">FEAR OF GOD</p>
-                    <p class="name">Aerobic Low - Light Grey</p>
-                    <p class="price">6.900.000 ₫</p>
-                </div>
-
-            </a>
-    
-            <a href="product-detail.html?id=shoe-7" class="product-card">
-                <div class="product-thumb hover-img">
-                    <img class="img-main" src="https://fearofgod.com/cdn/shop/files/FG980-101NUB_AEROBIC_LOW-DUST_BLUSH_1_900x.jpg?v=1772082669">
-                    <img class="img-hover" src="https://fearofgod.com/cdn/shop/files/FG980-101NUB_AEROBIC_LOW-DUST_BLUSH_2_900x.jpg?v=1772082670">
-                </div>
-                <div class="product-info">
-                    <p class="brand">FEAR OF GOD</p>
-                    <p class="name">Aerobic Low - Dust Blush</p>
-                    <p class="price">6.900.000 ₫</p>
-                </div>
-            </a>
-    
-            <a href="product-detail.html?id=shoe-8" class="product-card">
-                <div class="product-thumb hover-img">
-                    <img class="img-main" src="https://fearofgod.com/cdn/shop/files/FG980-207CLP_SLIPPERS-BOTTLE_GREEN_1_900x.jpg?v=1773415561">
-                    <img class="img-hover" src="https://fearofgod.com/cdn/shop/files/FG980-207CLP_SLIPPERS-BOTTLE_GREEN_2_900x.jpg?v=1773415560">
-                </div>
-                <div class="product-info">
-                    <p class="brand">FEAR OF GOD</p>
-                    <p class="name">Slippers - Bottle Green</p>
-                    <p class="price">4.900.000 ₫</p>
-                </div>
-
-            </a>
-    
-            <a href="product-detail.html?id=shoe-9" class="product-card">
-                <div class="product-thumb hover-img">
-                    <img class="img-main" src="https://fearofgod.com/cdn/shop/files/FG980-207CLP_SLIPPERS-MIDNIGHT_BLUE_1_900x.jpg?v=1773415929">
-                    <img class="img-hover" src="https://fearofgod.com/cdn/shop/files/FG980-207CLP_SLIPPERS-MIDNIGHT_BLUE_2_900x.jpg?v=1773415929">
-                </div>
-                <div class="product-info">
-                    <p class="brand">FEAR OF GOD</p>
-                    <p class="name">Slippers - Midnight Blue</p>
-                    <p class="price">4.900.000 ₫</p>
-                </div>
-            </a>
-    
-            <a href="product-detail.html?id=shoe-10" class="product-card">
-                <div class="product-thumb hover-img">
-                    <img class="img-main" src="https://fearofgod.com/cdn/shop/files/FG980-210NAPP_BALLERINO-BLACK_1_900x.jpg?v=1773416071">
-                    <img class="img-hover" src="https://fearofgod.com/cdn/shop/files/FG980-210NAPP_BALLERINO-BLACK_2_900x.jpg?v=1773416071">
-                </div>
-                <div class="product-info">
-                    <p class="brand">FEAR OF GOD</p>
-                    <p class="name">Ballerino - Black</p>
-                    <p class="price">5.600.000 ₫</p>
-                </div>
-            </a>
-    
-            <a href="product-detail.html?id=shoe-11" class="product-card">
-                <div class="product-thumb hover-img">
-                    <img class="img-main" src="https://fearofgod.com/cdn/shop/files/FG981-9000CLP_ANKLE_BOOT-MIDNIGHT_BLUE_1_900x.jpg?v=1778520700">
-                    <img class="img-hover" src="https://fearofgod.com/cdn/shop/files/FG981-9000CLP_ANKLE_BOOT-MIDNIGHT_BLUE_2_900x.jpg?v=1778520700">
-                </div>
-                <div class="product-info">
-                    <p class="brand">FEAR OF GOD</p>
-                    <p class="name">Ankle Boot - Midnight Blue</p>
-                    <p class="price">8.200.000 ₫</p>
-                </div>
-            </a>
-    
-            <a href="product-detail.html?id=shoe-12" class="product-card">
-                <div class="product-thumb hover-img">
-                    <img class="img-main" src="https://fearofgod.com/cdn/shop/files/FG981-9000SUE_ANKLE_BOOT-DARK_BROWN_1_900x.jpg?v=1778520737">
-                    <img class="img-hover" src="https://fearofgod.com/cdn/shop/files/FG981-9000SUE_ANKLE_BOOT-DARK_BROWN_2_900x.jpg?v=1778520737">
-                </div>
-                <div class="product-info">
-                    <p class="brand">FEAR OF GOD</p>
-                    <p class="name">Ankle Boot - Dark Brown</p>
-                    <p class="price">8.200.000 ₫</p>
-                </div>
-            </a>
-    
-            <a href="product-detail.html?id=shoe-13" class="product-card">
-                <div class="product-thumb hover-img">
-                    <img class="img-main" src="https://fearofgod.com/cdn/shop/files/BASKETBALLSNEAKER-1_900x.jpg?v=1741986715">
-                    <img class="img-hover" src="https://fearofgod.com/cdn/shop/files/BASKETBALLSNEAKER-2_900x.jpg?v=1741986740">
-                </div>
-                <div class="product-info">
-                    <p class="brand">ATHLETICS</p>
-                    <p class="name">Basketball Sneaker</p>
-                    <p class="price">6.500.000 ₫</p>
-                </div>
-
-            </a>
-    
-            <a href="product-detail.html?id=shoe-14" class="product-card">
-                <div class="product-thumb hover-img">
-                    <img class="img-main" src="https://fearofgod.com/cdn/shop/files/FG980-9019SOFS_LACE_UP_RUNNER-LIGHT_GREY_1_3d11095a-5bb8-4086-b986-fdc55918cca2_900x.jpg?v=1776876890">
-                    <img class="img-hover" src="https://fearofgod.com/cdn/shop/files/FG980-9019SOFS_LACE_UP_RUNNER-LIGHT_GREY_2_427ac223-e6fd-439a-8ad7-509a1bb29e26_900x.jpg?v=1776876890">
-                </div>
-                <div class="product-info">
-                    <p class="brand">FEAR OF GOD</p>
-                    <p class="name">Lace Up Runner - Light Grey</p>
-                    <p class="price">7.400.000 ₫</p>
-                </div>
-            </a>
-    
-            <a href="product-detail.html?id=shoe-15" class="product-card">
-                <div class="product-thumb hover-img">
-                    <img class="img-main" src="https://fearofgod.com/cdn/shop/files/FG980-8109NUB_101_DUST_BLUSH_1_900x.jpg?v=1772082741">
-                    <img class="img-hover" src="https://fearofgod.com/cdn/shop/files/FG980-8109NUB_101_DUST_BLUSH_2_900x.jpg?v=1772082741">
-                </div>
-                <div class="product-info">
-                    <p class="brand">FEAR OF GOD</p>
-                    <p class="name">Aerobic Sneaker - Dust Blush</p>
-                    <p class="price">7.200.000 ₫</p>
-                </div>
-            </a>
-
-        </div>
-    </div>
-
-    <div id="search-modal" style="display:none;" class="modal-overlay">
-        <div class="search-modal-content">
-            <span class="close-modal" id="close-search">&times;</span>
-            <input type="text" id="search-input" placeholder="SEARCH FOR PRODUCTS...">
-            <div id="search-results"></div>
-        </div>
-    </div>
-
-    <div id="account-modal" style="display:none;" class="modal-overlay">
-        <div class="account-box">
-            <span class="close-modal" id="close-account">&times;</span>
-            <div id="login-form-container">
-                <h3>LOGIN</h3>
-                <form onsubmit="event.preventDefault(); handleLogin();">
-                    <input type="email" placeholder="EMAIL" required id="login-email">
-                    <input type="password" placeholder="PASSWORD" required id="login-pass">
-                    <button type="submit" class="auth-submit-btn">SIGN IN</button>
-                </form>
-                <p class="switch-form-text">Don't have an account? <span onclick="toggleAuthForm('register')">CREATE ACCOUNT</span></p>
-            </div>
-            <div id="register-form-container" style="display:none;">
-                <h3>CREATE ACCOUNT</h3>
-                <form onsubmit="event.preventDefault(); handleRegister();">
-                    <input type="text" placeholder="FIRST NAME" required id="reg-fname">
-                    <input type="text" placeholder="LAST NAME" required id="reg-lname">
-                    <input type="email" placeholder="EMAIL ADDRESS" required id="reg-email">
-                    <input type="password" placeholder="PASSWORD" required id="reg-pass">
-                    <button type="submit" class="auth-submit-btn">CREATE</button>
-                </form>
-                <p class="switch-form-text">Already have an account? <span onclick="toggleAuthForm('login')">RETURN TO LOGIN</span></p>
-            </div>
-        </div>
-    </div>
-
-    <div id="bag-modal" style="display:none;" class="modal-overlay">
-        <div class="bag-sidebar">
-            <div class="bag-header">
-                <h3>SHOPPING BAG</h3>
-                <span class="close-modal" id="close-bag">&times;</span>
-            </div>
-            <div id="cart-items-container">
-                <p class="empty-cart-msg">Your bag is empty.</p>
-            </div>
-            <div class="bag-footer">
-                <div class="total-row">
-                    <span>TOTAL:</span>
-                    <span id="cart-total-price">0 ₫</span>
-                </div>
-                <button class="checkout-btn" onclick="alert('Proceeding to checkout!')">CHECKOUT</button>
-            </div>
-        </div>
-    </div>
-
-    <script>
+</div>
+<div class="product-gallery-container">
+<div class="mens-product-grid">
+<a class="product-card" href="product-detail.html?id=shoe-1">
+<div class="product-thumb hover-img">
+<img class="img-main" src="https://fearofgod.com/cdn/shop/files/NRA08_ATHLETICS_III_BASKETBALL-CINDERWARM_VANILLA_1_900x.jpg?v=1773344807"/>
+<img class="img-hover" src="https://fearofgod.com/cdn/shop/files/NRA08_ATHLETICS_III_BASKETBALL-CINDERWARM_VANILLA_2_900x.jpg?v=1773344807"/>
+</div>
+<div class="product-info">
+<p class="brand">ATHLETICS</p>
+<p class="name">Athletics III Basketball - Cinder Warm Vanilla</p>
+<p class="price">6.100.000 ₫</p>
+</div>
+</a>
+<a class="product-card" href="product-detail.html?id=shoe-2">
+<div class="product-thumb hover-img">
+<img class="img-main" src="https://fearofgod.com/cdn/shop/files/KJ5967_ATHLETICS_III_BASKETBALL-WONDER_ALUMINA_1_900x.jpg?v=1777386827"/>
+<img class="img-hover" src="https://fearofgod.com/cdn/shop/files/KJ5967_ATHLETICS_III_BASKETBALL-WONDER_ALUMINA_2_900x.jpg?v=1777386827"/>
+</div>
+<div class="product-info">
+<p class="brand">ATHLETICS</p>
+<p class="name">Athletics III Basketball - Wonder Alumina</p>
+<p class="price">6.100.000 ₫</p>
+</div>
+</a>
+<a class="product-card" href="product-detail.html?id=shoe-3">
+<div class="product-thumb hover-img">
+<img class="img-main" src="https://fearofgod.com/cdn/shop/files/ATHLETICS_II_BASKETBALL-CARBON_METGRY_1_900x.jpg?v=1764625443"/>
+<img class="img-hover" src="https://fearofgod.com/cdn/shop/files/ATHLETICS_II_BASKETBALL-CARBON_METGRY_3_900x.jpg?v=1764625443"/>
+</div>
+<div class="product-info">
+<p class="brand">ATHLETICS</p>
+<p class="name">Athletics II Basketball - Carbon Met Grey</p>
+<p class="price">5.900.000 ₫</p>
+</div>
+</a>
+<a class="product-card" href="product-detail.html?id=shoe-4">
+<div class="product-thumb hover-img">
+<img class="img-main" src="https://fearofgod.com/cdn/shop/files/ATHLETICS_II_BASKETBALL_HI-CARBON_METGRY_1_900x.jpg?v=1764623956"/>
+<img class="img-hover" src="https://fearofgod.com/cdn/shop/files/ATHLETICS_II_BASKETBALL_HI-CARBON_METGRY_2_900x.jpg?v=1764623956"/>
+</div>
+<div class="product-info">
+<p class="brand">ATHLETICS</p>
+<p class="name">Athletics II Basketball Hi - Carbon Met Grey</p>
+<p class="price">6.300.000 ₫</p>
+</div>
+</a>
+<a class="product-card" href="product-detail.html?id=shoe-5">
+<div class="product-thumb hover-img">
+<img class="img-main" src="https://fearofgod.com/cdn/shop/files/FG980-8109NUB_101_LIGHT_GREY_1_900x.jpg?v=1772082765"/>
+<img class="img-hover" src="https://fearofgod.com/cdn/shop/files/FG980-8109NUB_101_LIGHT_GREY_2_900x.jpg?v=1772082764"/>
+</div>
+<div class="product-info">
+<p class="brand">FEAR OF GOD</p>
+<p class="name">Aerobic Sneaker - Light Grey</p>
+<p class="price">7.200.000 ₫</p>
+</div>
+</a>
+<a class="product-card" href="product-detail.html?id=shoe-6">
+<div class="product-thumb hover-img">
+<img class="img-main" src="https://fearofgod.com/cdn/shop/files/FG980-101NUB_AEROBIC_LOW-LIGHT_GREY_1_900x.jpg?v=1772082697"/>
+<img class="img-hover" src="https://fearofgod.com/cdn/shop/files/FG980-101NUB_AEROBIC_LOW-LIGHT_GREY_2_900x.jpg?v=1772082696"/>
+</div>
+<div class="product-info">
+<p class="brand">FEAR OF GOD</p>
+<p class="name">Aerobic Low - Light Grey</p>
+<p class="price">6.900.000 ₫</p>
+</div>
+</a>
+<a class="product-card" href="product-detail.html?id=shoe-7">
+<div class="product-thumb hover-img">
+<img class="img-main" src="https://fearofgod.com/cdn/shop/files/FG980-101NUB_AEROBIC_LOW-DUST_BLUSH_1_900x.jpg?v=1772082669"/>
+<img class="img-hover" src="https://fearofgod.com/cdn/shop/files/FG980-101NUB_AEROBIC_LOW-DUST_BLUSH_2_900x.jpg?v=1772082670"/>
+</div>
+<div class="product-info">
+<p class="brand">FEAR OF GOD</p>
+<p class="name">Aerobic Low - Dust Blush</p>
+<p class="price">6.900.000 ₫</p>
+</div>
+</a>
+<a class="product-card" href="product-detail.html?id=shoe-8">
+<div class="product-thumb hover-img">
+<img class="img-main" src="https://fearofgod.com/cdn/shop/files/FG980-207CLP_SLIPPERS-BOTTLE_GREEN_1_900x.jpg?v=1773415561"/>
+<img class="img-hover" src="https://fearofgod.com/cdn/shop/files/FG980-207CLP_SLIPPERS-BOTTLE_GREEN_2_900x.jpg?v=1773415560"/>
+</div>
+<div class="product-info">
+<p class="brand">FEAR OF GOD</p>
+<p class="name">Slippers - Bottle Green</p>
+<p class="price">4.900.000 ₫</p>
+</div>
+</a>
+<a class="product-card" href="product-detail.html?id=shoe-9">
+<div class="product-thumb hover-img">
+<img class="img-main" src="https://fearofgod.com/cdn/shop/files/FG980-207CLP_SLIPPERS-MIDNIGHT_BLUE_1_900x.jpg?v=1773415929"/>
+<img class="img-hover" src="https://fearofgod.com/cdn/shop/files/FG980-207CLP_SLIPPERS-MIDNIGHT_BLUE_2_900x.jpg?v=1773415929"/>
+</div>
+<div class="product-info">
+<p class="brand">FEAR OF GOD</p>
+<p class="name">Slippers - Midnight Blue</p>
+<p class="price">4.900.000 ₫</p>
+</div>
+</a>
+<a class="product-card" href="product-detail.html?id=shoe-10">
+<div class="product-thumb hover-img">
+<img class="img-main" src="https://fearofgod.com/cdn/shop/files/FG980-210NAPP_BALLERINO-BLACK_1_900x.jpg?v=1773416071"/>
+<img class="img-hover" src="https://fearofgod.com/cdn/shop/files/FG980-210NAPP_BALLERINO-BLACK_2_900x.jpg?v=1773416071"/>
+</div>
+<div class="product-info">
+<p class="brand">FEAR OF GOD</p>
+<p class="name">Ballerino - Black</p>
+<p class="price">5.600.000 ₫</p>
+</div>
+</a>
+<a class="product-card" href="product-detail.html?id=shoe-11">
+<div class="product-thumb hover-img">
+<img class="img-main" src="https://fearofgod.com/cdn/shop/files/FG981-9000CLP_ANKLE_BOOT-MIDNIGHT_BLUE_1_900x.jpg?v=1778520700"/>
+<img class="img-hover" src="https://fearofgod.com/cdn/shop/files/FG981-9000CLP_ANKLE_BOOT-MIDNIGHT_BLUE_2_900x.jpg?v=1778520700"/>
+</div>
+<div class="product-info">
+<p class="brand">FEAR OF GOD</p>
+<p class="name">Ankle Boot - Midnight Blue</p>
+<p class="price">8.200.000 ₫</p>
+</div>
+</a>
+<a class="product-card" href="product-detail.html?id=shoe-12">
+<div class="product-thumb hover-img">
+<img class="img-main" src="https://fearofgod.com/cdn/shop/files/FG981-9000SUE_ANKLE_BOOT-DARK_BROWN_1_900x.jpg?v=1778520737"/>
+<img class="img-hover" src="https://fearofgod.com/cdn/shop/files/FG981-9000SUE_ANKLE_BOOT-DARK_BROWN_2_900x.jpg?v=1778520737"/>
+</div>
+<div class="product-info">
+<p class="brand">FEAR OF GOD</p>
+<p class="name">Ankle Boot - Dark Brown</p>
+<p class="price">8.200.000 ₫</p>
+</div>
+</a>
+<a class="product-card" href="product-detail.html?id=shoe-13">
+<div class="product-thumb hover-img">
+<img class="img-main" src="https://fearofgod.com/cdn/shop/files/BASKETBALLSNEAKER-1_900x.jpg?v=1741986715"/>
+<img class="img-hover" src="https://fearofgod.com/cdn/shop/files/BASKETBALLSNEAKER-2_900x.jpg?v=1741986740"/>
+</div>
+<div class="product-info">
+<p class="brand">ATHLETICS</p>
+<p class="name">Basketball Sneaker</p>
+<p class="price">6.500.000 ₫</p>
+</div>
+</a>
+<a class="product-card" href="product-detail.html?id=shoe-14">
+<div class="product-thumb hover-img">
+<img class="img-main" src="https://fearofgod.com/cdn/shop/files/FG980-9019SOFS_LACE_UP_RUNNER-LIGHT_GREY_1_3d11095a-5bb8-4086-b986-fdc55918cca2_900x.jpg?v=1776876890"/>
+<img class="img-hover" src="https://fearofgod.com/cdn/shop/files/FG980-9019SOFS_LACE_UP_RUNNER-LIGHT_GREY_2_427ac223-e6fd-439a-8ad7-509a1bb29e26_900x.jpg?v=1776876890"/>
+</div>
+<div class="product-info">
+<p class="brand">FEAR OF GOD</p>
+<p class="name">Lace Up Runner - Light Grey</p>
+<p class="price">7.400.000 ₫</p>
+</div>
+</a>
+<a class="product-card" href="product-detail.html?id=shoe-15">
+<div class="product-thumb hover-img">
+<img class="img-main" src="https://fearofgod.com/cdn/shop/files/FG980-8109NUB_101_DUST_BLUSH_1_900x.jpg?v=1772082741"/>
+<img class="img-hover" src="https://fearofgod.com/cdn/shop/files/FG980-8109NUB_101_DUST_BLUSH_2_900x.jpg?v=1772082741"/>
+</div>
+<div class="product-info">
+<p class="brand">FEAR OF GOD</p>
+<p class="name">Aerobic Sneaker - Dust Blush</p>
+<p class="price">7.200.000 ₫</p>
+</div>
+</a>
+</div>
+</div>
+<div class="modal-overlay" id="search-modal" style="display:none;">
+<div class="search-modal-content">
+<span class="close-modal" id="close-search">×</span>
+<input id="search-input" placeholder="SEARCH FOR PRODUCTS..." type="text"/>
+<div id="search-results"></div>
+</div>
+</div>
+<div class="modal-overlay" id="account-modal" style="display:none;">
+<div class="account-box">
+<span class="close-modal" id="close-account">×</span>
+<div id="login-form-container">
+<h3>LOGIN</h3>
+<form onsubmit="event.preventDefault(); handleLogin();">
+<input id="login-email" placeholder="EMAIL" required="" type="email"/>
+<input id="login-pass" placeholder="PASSWORD" required="" type="password"/>
+<button class="auth-submit-btn" type="submit">SIGN IN</button>
+</form>
+<p class="switch-form-text">Don't have an account? <span onclick="toggleAuthForm('register')">CREATE ACCOUNT</span></p>
+</div>
+<div id="register-form-container" style="display:none;">
+<h3>CREATE ACCOUNT</h3>
+<form onsubmit="event.preventDefault(); handleRegister();">
+<input id="reg-fname" placeholder="FIRST NAME" required="" type="text"/>
+<input id="reg-lname" placeholder="LAST NAME" required="" type="text"/>
+<input id="reg-email" placeholder="EMAIL ADDRESS" required="" type="email"/>
+<input id="reg-pass" placeholder="PASSWORD" required="" type="password"/>
+<button class="auth-submit-btn" type="submit">CREATE</button>
+</form>
+<p class="switch-form-text">Already have an account? <span onclick="toggleAuthForm('login')">RETURN TO LOGIN</span></p>
+</div>
+</div>
+</div>
+<div class="modal-overlay" id="bag-modal" style="display:none;">
+<div class="bag-sidebar">
+<div class="bag-header">
+<h3>SHOPPING BAG</h3>
+<span class="close-modal" id="close-bag">×</span>
+</div>
+<div id="cart-items-container">
+<p class="empty-cart-msg">Your bag is empty.</p>
+</div>
+<div class="bag-footer">
+<div class="total-row">
+<span>TOTAL:</span>
+<span id="cart-total-price">0 ₫</span>
+</div>
+<button class="checkout-btn" onclick="alert('Proceeding to checkout!')">CHECKOUT</button>
+</div>
+</div>
+</div>
+<script>
         let isLoggedIn = localStorage.getItem('isLoggedInStatus') === 'true'; 
         let userData = { firstName: "Thanh Tú", lastName: "Phan", email: "phantu210206@gmail.com" };
 
@@ -477,6 +507,18 @@
             }
         }
     </script>
-</body>
+<script>
+/* AUTO FILTER FROM NAVBAR QUERY (?cat=...) */
+document.addEventListener("DOMContentLoaded", function () {
+    const params = new URLSearchParams(window.location.search);
+    const cat = params.get("cat");
 
+    if (cat && typeof filterCategory === "function") {
+        const target = document.querySelector(`.filter-tag[onclick*="'${cat}'"], .filter-tag[onclick*='"${cat}"']`);
+        if (target) {
+            filterCategory(cat, target);
+        }
+    }
+});
+</script></body>
 </html>
