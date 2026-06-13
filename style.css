@@ -1193,3 +1193,38 @@ a {
 @media (max-width: 768px) {
     .site-footer.support-footer { grid-template-columns: 1fr !important; padding: 40px 25px !important; }
 }
+
+
+/* ===== FINAL FIX: HEADER LOGO & FOOTER WITHOUT NEWSLETTER ===== */
+.logo a, .logo {
+    font-size: 20px !important;
+    letter-spacing: 6px !important;
+    font-weight: 700 !important;
+    white-space: nowrap;
+}
+.nav-container {
+    gap: 34px !important;
+}
+.nav-left, .nav-right {
+    gap: 24px !important;
+}
+.site-footer.support-footer {
+    grid-template-columns: repeat(4, minmax(180px, 1fr));
+}
+.footer-categories a,
+.footer-support a {
+    display: block;
+    margin-bottom: 12px;
+    color: #ffffff;
+    opacity: 0.92;
+    text-decoration: none;
+    text-transform: uppercase;
+    font-size: 12px;
+    letter-spacing: 0.5px;
+}
+.footer-categories a:hover,
+.footer-support a:hover,
+.footer-store-link:hover {
+    text-decoration: underline;
+    opacity: 1;
+}
