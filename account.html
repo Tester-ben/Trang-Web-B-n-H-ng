@@ -158,8 +158,8 @@
         };
 
         if (!checkLogin) {
-            alert("Vui lòng đăng nhập để truy cập tài khoản!");
-            window.location.href = "index.html";
+            // Chưa đăng nhập thì quay về trang chủ để đăng nhập lại, không hiện popup lỗi.
+            window.location.replace("index.html");
             return;
         }
 
