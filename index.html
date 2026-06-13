@@ -316,11 +316,11 @@
 <div class="db-card">
 <div class="db-card-row">
 <span class="db-label">Name</span>
-<span class="db-value" id="db-user-name">Phan Thanh Tú</span>
+<span class="db-value" id="db-user-name">USER</span>
 </div>
 <div class="db-card-row">
 <span class="db-label">Email</span>
-<span class="db-value" id="db-user-email">phantu210206@gmail.com</span>
+<span class="db-value" id="db-user-email">No email saved</span>
 </div>
 </div>
 <h3 class="db-sub-title">Addresses <span class="add-btn">+ Add</span></h3>
@@ -418,18 +418,27 @@
 <script src="product-data.js"></script>
 <script>
         let isLoggedIn = localStorage.getItem('isLoggedInStatus') === 'true'; 
-        let userData = { firstName: " ", lastName: " ", email: " " };
+        let userData = JSON.parse(localStorage.getItem("hub_userData")) || { firstName: "", lastName: "", email: "", password: "" };
 
         function checkGlobalLoginStatus() {
             const accountTrigger = document.getElementById('account-trigger');
+            const dbUserName = document.getElementById('db-user-name');
+            const dbUserEmail = document.getElementById('db-user-email');
+
             if (localStorage.getItem('isLoggedInStatus') === 'true') {
                 isLoggedIn = true;
+
                 const savedName = localStorage.getItem('hub_name') || "USER";
+                const savedEmail = localStorage.getItem('hub_email') || "No email saved";
+
                 accountTrigger.innerText = savedName.toUpperCase();
-                document.getElementById('db-user-name').innerText = savedName;
+                if (dbUserName) dbUserName.innerText = savedName;
+                if (dbUserEmail) dbUserEmail.innerText = savedEmail;
             } else {
                 isLoggedIn = false;
                 accountTrigger.innerText = "ACCOUNT";
+                if (dbUserName) dbUserName.innerText = "USER";
+                if (dbUserEmail) dbUserEmail.innerText = "No email saved";
             }
         }
 
@@ -513,10 +522,14 @@
         }
 
         function handleRegister() {
-            userData.firstName = document.getElementById('reg-fname').value;
-            userData.lastName = document.getElementById('reg-lname').value;
-            userData.email = document.getElementById('reg-email').value;
-            userData.password = document.getElementById('reg-pass').value;
+            const firstName = document.getElementById('reg-fname').value.trim();
+            const lastName = document.getElementById('reg-lname').value.trim();
+            const email = document.getElementById('reg-email').value.trim();
+            const password = document.getElementById('reg-pass').value;
+
+            userData = { firstName, lastName, email, password };
+            localStorage.setItem('hub_userData', JSON.stringify(userData));
+
             showToast("Đăng ký thành công! Hãy đăng nhập thông tin.");
             toggleAuthForm('login');
         }
@@ -544,8 +557,14 @@
 
         function handleSignOut() {
             isLoggedIn = false;
-            localStorage.setItem('isLoggedInStatus', 'false'); 
+            localStorage.setItem('isLoggedInStatus', 'false');
+            localStorage.removeItem('hub_name');
+            localStorage.removeItem('hub_email');
+
             accountTrigger.innerText = "ACCOUNT";
+            document.getElementById('db-user-name').innerText = "USER";
+            document.getElementById('db-user-email').innerText = "No email saved";
+
             showToast("Bạn đã đăng xuất tài khoản.");
             showPage('home');
         }
