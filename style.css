@@ -1202,3 +1202,61 @@ a {
     .site-footer.support-footer { grid-template-columns: 1fr !important; padding: 40px 25px !important; }
     .logo a, .logo { font-size: 16px !important; letter-spacing: 4px !important; }
 }
+/* ===== HEADER PERFECT CENTER ===== */
+
+.nav-container{
+    position: relative !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: space-between !important;
+
+    height: 60px !important;
+    padding: 0 36px !important;
+}
+
+.logo{
+    position: absolute !important;
+    left: 50% !important;
+    top: 50% !important;
+    transform: translate(-50%, -50%) !important;
+
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+
+    z-index: 100;
+    pointer-events: auto;
+}
+
+.logo a{
+    font-size: 22px !important;
+    font-weight: 700 !important;
+    letter-spacing: 7px !important;
+    white-space: nowrap !important;
+    line-height: 1 !important;
+}
+
+.nav-left,
+.nav-right{
+    display: flex !important;
+    align-items: center !important;
+    height: 60px !important;
+}
+
+.nav-left{
+    flex: 1;
+    justify-content: flex-start;
+}
+
+.nav-right{
+    flex: 1;
+    justify-content: flex-end;
+    gap: 28px;
+}
+
+.nav-left a,
+.nav-right a{
+    display: flex !important;
+    align-items: center !important;
+    height: 60px !important;
+}
