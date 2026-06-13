@@ -94,7 +94,7 @@
 </div>
 <div class="nav-right">
 <a href="#" id="search-trigger">SEARCH</a>
-<a href="#" id="account-trigger">ACCOUNT</a>
+<a href="account.html" id="account-trigger">ACCOUNT</a>
 <a href="#" id="bag-trigger">BAG (<span id="cart-count">0</span>)</a>
 </div>
 </div>
@@ -204,6 +204,37 @@ document.addEventListener("keydown", function(e) {
 document.addEventListener("click", function(e) {
     const box = document.getElementById("searchBox");
     if (box && e.target === box) closeSearchBox();
+});
+</script>
+
+
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+    const accountLink = document.getElementById("account-trigger");
+    const isLoggedIn = localStorage.getItem("isLoggedInStatus") === "true";
+    const savedName = localStorage.getItem("hub_name");
+
+    if (accountLink) {
+        if (isLoggedIn && savedName && savedName.trim() !== "") {
+            accountLink.textContent = savedName.toUpperCase();
+            accountLink.href = "account.html";
+        } else {
+            accountLink.textContent = "ACCOUNT";
+            accountLink.href = "account.html";
+        }
+    }
+
+    const cartCount = document.getElementById("cart-count");
+    if (cartCount) {
+        let cart = [];
+        try {
+            cart = JSON.parse(localStorage.getItem("cart")) || [];
+        } catch (e) {
+            cart = [];
+        }
+        const total = cart.reduce((sum, item) => sum + (Number(item.quantity) || 1), 0);
+        cartCount.textContent = total;
+    }
 });
 </script>
 
