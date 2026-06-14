@@ -1575,3 +1575,70 @@ header .nav-right a {
     }
 }
 
+
+
+/* =========================================================
+   PAYMENT ICONS FOOTER - THE STYLE HUB
+   5 ảnh đang đặt trong thư mục: images/
+   ========================================================= */
+.payment-tags{
+    display:none !important;
+}
+
+.payment-icons{
+    display:flex !important;
+    align-items:center !important;
+    gap:8px !important;
+    flex-wrap:wrap !important;
+    margin-top:14px !important;
+    margin-bottom:18px !important;
+}
+
+.payment-icons img{
+    height:28px !important;
+    width:auto !important;
+    min-width:42px !important;
+    object-fit:contain !important;
+    display:block !important;
+    background:#ffffff !important;
+    padding:3px 6px !important;
+    border-radius:2px !important;
+    box-shadow:none !important;
+}
+
+.footer-badges{
+    display:flex !important;
+    align-items:center !important;
+    gap:10px !important;
+    flex-wrap:wrap !important;
+    margin-top:12px !important;
+}
+
+.footer-badges span{
+    display:inline-flex !important;
+    align-items:center !important;
+    justify-content:center !important;
+    min-height:30px !important;
+    padding:7px 13px !important;
+    border:1px solid rgba(255,255,255,.75) !important;
+    border-radius:3px !important;
+    color:#ffffff !important;
+    font-size:10px !important;
+    font-weight:700 !important;
+    letter-spacing:.4px !important;
+    text-transform:uppercase !important;
+    line-height:1 !important;
+    background:rgba(255,255,255,.04) !important;
+}
+
+.site-footer .footer-store h4,
+.support-footer .footer-store h4{
+    margin-bottom:16px !important;
+}
+
+@media (max-width: 768px){
+    .payment-icons img{
+        height:26px !important;
+        min-width:38px !important;
+    }
+}
