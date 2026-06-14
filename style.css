@@ -1642,3 +1642,40 @@ header .nav-right a {
         min-width:38px !important;
     }
 }
+.payment-icons{
+    display:flex;
+    gap:10px;
+    align-items:center;
+    margin-top:12px;
+    margin-bottom:16px;
+    flex-wrap:wrap;
+}
+
+.payment-icons img{
+    height:28px;
+    width:auto;
+    background:#fff;
+    padding:2px;
+    border-radius:2px;
+}
+
+.footer-badges{
+    display:flex;
+    align-items:center;
+    gap:12px;
+    flex-wrap:wrap;
+    margin-top:8px;
+}
+
+.footer-badges img{
+    height:48px;
+    width:auto;
+}
+
+.footer-badges span{
+    border:1px solid rgba(255,255,255,.5);
+    padding:8px 14px;
+    border-radius:4px;
+    font-size:12px;
+    letter-spacing:.5px;
+}
