@@ -7,29 +7,57 @@
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
     <style>
         * { box-sizing: border-box; }
+        :root {
+            --bg-main: #08111f;
+            --bg-soft: #0c1728;
+            --card: rgba(20, 28, 42, 0.88);
+            --card-2: rgba(12, 19, 32, 0.95);
+            --border: rgba(148, 163, 184, 0.18);
+            --text: #f8fafc;
+            --muted: #aab5c5;
+            --accent: #60a5fa;
+            --accent-2: #22c55e;
+            --danger: #fb7185;
+        }
         body {
             margin: 0;
             font-family: 'Roboto', sans-serif;
-            background: #111;
-            color: #fff;
+            color: var(--text);
+            min-height: 100vh;
+            background:
+                radial-gradient(circle at 12% 0%, rgba(37, 99, 235, 0.28), transparent 32%),
+                radial-gradient(circle at 85% 12%, rgba(14, 165, 233, 0.16), transparent 30%),
+                linear-gradient(135deg, #05070d 0%, #08111f 45%, #0f172a 100%);
+            background-attachment: fixed;
+        }
+        body::before {
+            content: "";
+            position: fixed;
+            inset: 0;
+            pointer-events: none;
+            background-image: linear-gradient(rgba(255,255,255,.035) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,.025) 1px, transparent 1px);
+            background-size: 44px 44px;
+            opacity: .14;
         }
         .admin-topbar {
-            height: 64px;
-            background: #000;
+            height: 68px;
+            background: rgba(3, 7, 18, 0.82);
+            backdrop-filter: blur(16px);
             display: flex;
             align-items: center;
             justify-content: space-between;
             padding: 0 38px;
-            border-bottom: 1px solid #252525;
+            border-bottom: 1px solid var(--border);
             position: sticky;
             top: 0;
             z-index: 10;
+            box-shadow: 0 16px 40px rgba(0,0,0,.22);
         }
         .admin-logo {
             color: #fff;
             text-decoration: none;
             font-size: 18px;
-            font-weight: 700;
+            font-weight: 800;
             letter-spacing: 6px;
         }
         .admin-topbar-right {
@@ -39,7 +67,7 @@
         }
         .admin-topbar a,
         .admin-topbar button {
-            color: #fff;
+            color: #e5edf8;
             background: transparent;
             border: none;
             text-decoration: none;
@@ -47,11 +75,16 @@
             letter-spacing: 2px;
             text-transform: uppercase;
             cursor: pointer;
+            transition: .2s;
         }
+        .admin-topbar a:hover,
+        .admin-topbar button:hover { color: #93c5fd; }
         .admin-page {
             max-width: 1120px;
-            margin: 42px auto;
-            padding: 0 20px 60px;
+            margin: 46px auto;
+            padding: 0 20px 70px;
+            position: relative;
+            z-index: 1;
         }
         .admin-title-row {
             display: flex;
@@ -62,37 +95,50 @@
         }
         h1 {
             margin: 0;
-            font-size: 24px;
-            letter-spacing: 4px;
+            font-size: 27px;
+            letter-spacing: 5px;
             text-transform: uppercase;
-            font-weight: 500;
+            font-weight: 800;
+            text-shadow: 0 10px 30px rgba(96,165,250,.15);
         }
         .admin-subtitle {
-            margin: 10px 0 0;
-            color: #aaa;
+            margin: 12px 0 0;
+            color: var(--muted);
             font-size: 13px;
+            line-height: 1.6;
         }
         .order-count {
-            padding: 9px 15px;
-            border: 1px solid #444;
+            padding: 10px 16px;
+            border: 1px solid var(--border);
             border-radius: 999px;
             font-size: 12px;
-            color: #ddd;
+            color: #dbeafe;
+            background: rgba(15, 23, 42, .65);
+            box-shadow: inset 0 1px 0 rgba(255,255,255,.05);
         }
         .order-card {
-            background: #1f1f1f;
+            background: linear-gradient(145deg, rgba(17, 24, 39, .94), rgba(15, 23, 42, .86));
             padding: 24px;
-            margin-bottom: 18px;
-            border-radius: 14px;
-            border: 1px solid #303030;
-            box-shadow: 0 12px 28px rgba(0,0,0,0.22);
+            margin-bottom: 20px;
+            border-radius: 18px;
+            border: 1px solid var(--border);
+            box-shadow: 0 22px 55px rgba(0,0,0,0.34), inset 0 1px 0 rgba(255,255,255,.04);
+            position: relative;
+            overflow: hidden;
+        }
+        .order-card::before {
+            content: "";
+            position: absolute;
+            inset: 0 0 auto 0;
+            height: 2px;
+            background: linear-gradient(90deg, transparent, rgba(96, 165, 250, .85), rgba(34, 197, 94, .55), transparent);
         }
         .order-header {
             display: flex;
             justify-content: space-between;
             align-items: center;
             gap: 18px;
-            border-bottom: 1px solid #333;
+            border-bottom: 1px solid rgba(148, 163, 184, 0.15);
             padding-bottom: 14px;
             margin-bottom: 16px;
         }
@@ -105,33 +151,34 @@
             display: inline-flex;
             align-items: center;
             justify-content: center;
-            min-width: 130px;
-            padding: 7px 13px;
+            min-width: 140px;
+            padding: 8px 14px;
             border-radius: 999px;
             font-size: 11px;
-            font-weight: 700;
+            font-weight: 800;
             text-transform: uppercase;
             letter-spacing: .7px;
             white-space: nowrap;
+            box-shadow: 0 10px 26px rgba(0,0,0,.18);
         }
-        .status-pending { background: #fff3cd; color: #856404; }
+        .status-pending { background: #fef3c7; color: #7c4a03; }
         .status-shipping { background: #dbeafe; color: #1d4ed8; }
-        .status-done { background: #d4edda; color: #155724; }
+        .status-done { background: #dcfce7; color: #166534; }
         .customer-grid {
             display: grid;
             grid-template-columns: repeat(2, minmax(0, 1fr));
             gap: 8px 26px;
             font-size: 13px;
-            color: #d5d5d5;
+            color: #d7deea;
             line-height: 1.6;
             margin-bottom: 16px;
         }
         .customer-grid b { color: #fff; }
         .product-list {
-            background: #171717;
-            border: 1px solid #2a2a2a;
+            background: rgba(3, 7, 18, .46);
+            border: 1px solid rgba(148, 163, 184, 0.14);
             padding: 14px;
-            border-radius: 10px;
+            border-radius: 13px;
             margin-top: 12px;
         }
         .product-item {
@@ -139,17 +186,17 @@
             justify-content: space-between;
             gap: 18px;
             padding: 8px 0;
-            border-bottom: 1px solid #292929;
-            color: #ccc;
+            border-bottom: 1px solid rgba(148, 163, 184, 0.12);
+            color: #d1d5db;
             font-size: 13px;
         }
         .product-item:last-child { border-bottom: none; }
         .total-price {
-            font-size: 17px;
-            font-weight: 700;
+            font-size: 18px;
+            font-weight: 800;
             color: #fff;
             text-align: right;
-            margin-top: 16px;
+            margin-top: 17px;
         }
         .btn-group {
             display: flex;
@@ -159,26 +206,27 @@
             flex-wrap: wrap;
         }
         .btn {
-            padding: 11px 18px;
-            border-radius: 8px;
+            padding: 12px 18px;
+            border-radius: 12px;
             cursor: pointer;
-            font-weight: 700;
-            letter-spacing: .5px;
+            font-weight: 800;
+            letter-spacing: .45px;
             border: 1px solid transparent;
             transition: 0.2s;
         }
-        .btn:hover { transform: translateY(-1px); opacity: 0.92; }
-        .btn-confirm { background: #22c55e; color: #06150a; border-color: #22c55e; }
-        .btn-complete { background: #2563eb; color: #fff; }
-        .btn-disabled { background: #2a2a2a; color: #8f8f8f; border-color: #444; cursor: not-allowed; }
-        .btn-delete { background: transparent; color: #fff; border-color: #555; }
+        .btn:hover { transform: translateY(-1px); opacity: 0.94; }
+        .btn-confirm { background: linear-gradient(135deg, #22c55e, #86efac); color: #052e16; border-color: rgba(134,239,172,.75); box-shadow: 0 12px 26px rgba(34,197,94,.18); }
+        .btn-complete { background: linear-gradient(135deg, #2563eb, #60a5fa); color: #fff; }
+        .btn-disabled { background: rgba(148,163,184,.12); color: #8fa0b7; border-color: rgba(148,163,184,.16); cursor: not-allowed; }
+        .btn-delete { background: rgba(15, 23, 42, .35); color: #fff; border-color: rgba(248, 113, 113, .45); }
+        .btn-delete:hover { color: #fecaca; border-color: #fb7185; }
         .empty-state {
             text-align: center;
-            color: #888;
-            border: 1px dashed #444;
+            color: #94a3b8;
+            border: 1px dashed rgba(148, 163, 184, 0.35);
             padding: 45px 20px;
-            border-radius: 14px;
-            background: #181818;
+            border-radius: 18px;
+            background: rgba(15, 23, 42, .66);
         }
         #login-screen {
             min-height: 100vh;
@@ -186,16 +234,18 @@
             align-items: center;
             justify-content: center;
             padding: 24px;
-            background: radial-gradient(circle at top, #242424, #090909 60%);
+            background:
+                radial-gradient(circle at top, rgba(37, 99, 235, 0.34), transparent 36%),
+                linear-gradient(135deg, #030712, #0f172a);
         }
         .login-card {
             width: 100%;
             max-width: 390px;
-            background: #1d1d1d;
-            border: 1px solid #333;
-            border-radius: 16px;
-            padding: 32px;
-            box-shadow: 0 18px 48px rgba(0,0,0,.35);
+            background: rgba(15, 23, 42, .9);
+            border: 1px solid var(--border);
+            border-radius: 20px;
+            padding: 34px;
+            box-shadow: 0 24px 70px rgba(0,0,0,.45), inset 0 1px 0 rgba(255,255,255,.05);
         }
         .login-card h2 {
             margin: 0 0 8px;
@@ -206,7 +256,7 @@
         }
         .login-card p {
             margin: 0 0 24px;
-            color: #aaa;
+            color: #aab5c5;
             font-size: 13px;
             text-align: center;
             line-height: 1.5;
@@ -214,35 +264,78 @@
         .login-card input {
             width: 100%;
             padding: 14px;
-            background: #111;
+            background: rgba(3, 7, 18, .76);
             color: #fff;
-            border: 1px solid #444;
-            border-radius: 9px;
+            border: 1px solid rgba(148, 163, 184, 0.26);
+            border-radius: 12px;
             outline: none;
             margin-bottom: 12px;
             font-size: 14px;
         }
-        .login-card input:focus { border-color: #fff; }
+        .login-card input:focus { border-color: #60a5fa; box-shadow: 0 0 0 3px rgba(96,165,250,.12); }
         .login-card button {
             width: 100%;
             padding: 14px;
             border: none;
-            border-radius: 9px;
-            background: #fff;
-            color: #111;
-            font-weight: 800;
+            border-radius: 12px;
+            background: linear-gradient(135deg, #e0f2fe, #93c5fd);
+            color: #0f172a;
+            font-weight: 900;
             letter-spacing: 2px;
             text-transform: uppercase;
             cursor: pointer;
         }
         .login-error {
             min-height: 20px;
-            color: #ff6b6b;
+            color: #fb7185;
             font-size: 13px;
             margin-top: 12px;
             text-align: center;
         }
         #admin-screen { display: none; }
+        .admin-toast-wrap {
+            position: fixed;
+            top: 86px;
+            right: 28px;
+            z-index: 9999;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            pointer-events: none;
+        }
+        .admin-toast {
+            min-width: 280px;
+            max-width: 390px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 15px 17px;
+            border-radius: 16px;
+            color: #f8fafc;
+            background: rgba(15, 23, 42, .94);
+            border: 1px solid rgba(134, 239, 172, .32);
+            box-shadow: 0 22px 55px rgba(0,0,0,.34), inset 0 1px 0 rgba(255,255,255,.06);
+            backdrop-filter: blur(16px);
+            animation: toastIn .22s ease-out;
+        }
+        .toast-icon {
+            width: 34px;
+            height: 34px;
+            border-radius: 50%;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            background: linear-gradient(135deg, #22c55e, #86efac);
+            color: #052e16;
+            font-weight: 900;
+            flex: 0 0 auto;
+        }
+        .toast-title { font-weight: 900; letter-spacing: .2px; }
+        .toast-note { color: #aab5c5; font-size: 12px; margin-top: 2px; }
+        @keyframes toastIn {
+            from { opacity: 0; transform: translateY(-8px) scale(.98); }
+            to { opacity: 1; transform: translateY(0) scale(1); }
+        }
         @media (max-width: 720px) {
             .admin-topbar { padding: 0 18px; }
             .admin-logo { font-size: 14px; letter-spacing: 4px; }
@@ -251,10 +344,13 @@
             .order-header { align-items: flex-start; flex-direction: column; }
             .btn-group { justify-content: stretch; }
             .btn { width: 100%; }
+            .admin-toast-wrap { top: 76px; left: 16px; right: 16px; }
+            .admin-toast { min-width: 0; max-width: none; }
         }
     </style>
 </head>
 <body>
+<div class="admin-toast-wrap" id="adminToastWrap"></div>
 
 <section id="login-screen">
     <div class="login-card">
@@ -279,7 +375,7 @@
         <div class="admin-title-row">
             <div>
                 <h1>Quản lý đơn hàng</h1>
-                <p class="admin-subtitle">Bấm “Chấp nhận đơn hàng” để trạng thái bên khách chuyển từ “Đang chờ xác nhận” sang “Đang giao”. Có thể xóa đơn test hoặc đơn không hợp lệ.</p>
+                <p class="admin-subtitle">Quản lý đơn hàng, xác nhận trạng thái giao hàng và xóa các đơn test/không hợp lệ.</p>
             </div>
             <div class="order-count" id="orderCount">0 đơn hàng</div>
         </div>
@@ -503,6 +599,27 @@
         }
     }
 
+    function showAdminToast(title, note) {
+        const wrap = document.getElementById('adminToastWrap');
+        if (!wrap) return;
+        const toast = document.createElement('div');
+        toast.className = 'admin-toast';
+        toast.innerHTML = `
+            <span class="toast-icon">✓</span>
+            <span>
+                <span class="toast-title">${escapeHtml(title)}</span>
+                ${note ? `<span class="toast-note">${escapeHtml(note)}</span>` : ''}
+            </span>
+        `;
+        wrap.appendChild(toast);
+        setTimeout(function() {
+            toast.style.opacity = '0';
+            toast.style.transform = 'translateY(-8px) scale(.98)';
+            toast.style.transition = '.22s';
+            setTimeout(function() { toast.remove(); }, 240);
+        }, 2200);
+    }
+
     async function confirmOrder(orderId) {
         if (!orderId || orderId === 'N/A') return;
         try {
@@ -510,9 +627,9 @@
                 await StyleHubOrders.updateOrderStatus(orderId, 'Đang giao');
             }
             await renderOrders();
-            alert('Đã chấp nhận đơn hàng. Bên tài khoản khách sẽ hiện trạng thái: Đang giao.');
+            showAdminToast('Đã chấp nhận đơn hàng');
         } catch (error) {
-            alert('Không cập nhật được trạng thái đơn. Kiểm tra Firebase/config hoặc mạng internet.');
+            showAdminToast('Không cập nhật được đơn hàng', 'Kiểm tra Firebase/config hoặc mạng internet.');
             console.error(error);
         }
     }
@@ -525,7 +642,7 @@
             }
             await renderOrders();
         } catch (error) {
-            alert('Không cập nhật được trạng thái đơn.');
+            showAdminToast('Không cập nhật được trạng thái đơn');
             console.error(error);
         }
     }
@@ -539,7 +656,7 @@
             }
             await renderOrders();
         } catch (error) {
-            alert('Không xóa được đơn.');
+            showAdminToast('Không xóa được đơn');
             console.error(error);
         }
     }
