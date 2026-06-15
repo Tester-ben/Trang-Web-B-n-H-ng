@@ -10,13 +10,14 @@
 
 (function () {
     const STYLEHUB_FIREBASE_CONFIG = {
-        apiKey: "PASTE_API_KEY_HERE",
-        authDomain: "PASTE_PROJECT_ID.firebaseapp.com",
-        databaseURL: "https://PASTE_PROJECT_ID-default-rtdb.asia-southeast1.firebasedatabase.app",
-        projectId: "PASTE_PROJECT_ID",
-        storageBucket: "PASTE_PROJECT_ID.appspot.com",
-        messagingSenderId: "PASTE_MESSAGING_SENDER_ID",
-        appId: "PASTE_APP_ID"
+        apiKey: "AIzaSyBLmPFwTOltztOw28_LUp1L56jgYYAaApM",
+        authDomain: "thestylehub-aaf2f.firebaseapp.com",
+        databaseURL: "https://thestylehub-aaf2f-default-rtdb.firebaseio.com",
+        projectId: "thestylehub-aaf2f",
+        storageBucket: "thestylehub-aaf2f.firebasestorage.app",
+        messagingSenderId: "1044789250378",
+        appId: "1:1044789250378:web:e268f523e323954a6dd9b3",
+        measurementId: "G-Y53W16W4W3"
     };
 
     const DB_ROOT = "stylehub_orders/orders";
