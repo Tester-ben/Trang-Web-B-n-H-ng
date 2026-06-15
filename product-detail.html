@@ -386,6 +386,10 @@
 
     <!-- DATA KHO HÀNG TỔNG HỢP -->
     <script src="product-data.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-database-compat.js"></script>
+    <script src="stylehub-orders-api.js"></script>
+    
     <script>
         
 
@@ -707,7 +711,7 @@
             toggleCheckoutDrawer(true);
         }
 
-        function submitFinalOrder() {
+        async function submitFinalOrder() {
             const name = document.getElementById('cusName').value.trim();
             const phone = document.getElementById('cusPhone').value.trim();
             const address = document.getElementById('cusAddress').value.trim();
@@ -759,24 +763,24 @@
                 status: "Đang chờ xác nhận"
             };
 
-            existingOrdersArray.unshift(newCompletedOrderObject);
-            localStorage.setItem(orderStorageKey, JSON.stringify(existingOrdersArray));
-
-            // Lưu thêm theo tên tài khoản để tránh lỗi tài khoản chưa có email riêng.
-            const nameOrderKey = 'hub_orders_' + (localStorage.getItem('hub_name') || name)
-                .trim()
-                .toLowerCase()
-                .replace(/\s+/g, '_');
-            if (nameOrderKey !== orderStorageKey) {
-                const nameOrders = JSON.parse(localStorage.getItem(nameOrderKey) || '[]');
-                nameOrders.unshift(newCompletedOrderObject);
-                localStorage.setItem(nameOrderKey, JSON.stringify(nameOrders));
+            try {
+                if (window.StyleHubOrders && typeof StyleHubOrders.saveOrder === 'function') {
+                    await StyleHubOrders.saveOrder(newCompletedOrderObject);
+                } else {
+                    existingOrdersArray.unshift(newCompletedOrderObject);
+                    localStorage.setItem(orderStorageKey, JSON.stringify(existingOrdersArray));
+                    const globalOrders = JSON.parse(localStorage.getItem('hub_orders') || '[]');
+                    globalOrders.unshift(newCompletedOrderObject);
+                    localStorage.setItem('hub_orders', JSON.stringify(globalOrders));
+                }
+            } catch (error) {
+                console.error('Không thể lưu đơn hàng lên cloud, đã lưu tạm trên máy:', error);
+                existingOrdersArray.unshift(newCompletedOrderObject);
+                localStorage.setItem(orderStorageKey, JSON.stringify(existingOrdersArray));
+                const globalOrders = JSON.parse(localStorage.getItem('hub_orders') || '[]');
+                globalOrders.unshift(newCompletedOrderObject);
+                localStorage.setItem('hub_orders', JSON.stringify(globalOrders));
             }
-
-            // Lưu thêm bản global có userEmail để account có thể dò lại nếu cần.
-            const globalOrders = JSON.parse(localStorage.getItem('hub_orders') || '[]');
-            globalOrders.unshift(newCompletedOrderObject);
-            localStorage.setItem('hub_orders', JSON.stringify(globalOrders));
             
             toggleCheckoutDrawer(false);
             cartMemoryArray = [];

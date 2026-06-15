@@ -142,6 +142,10 @@
 
     </div>
     <script src="product-data.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-database-compat.js"></script>
+    <script src="stylehub-orders-api.js"></script>
+    
     
 <script>
         
@@ -170,11 +174,17 @@
         syncHeaderUsername();
         renderProfileData();
         renderOrdersData();
-        window.addEventListener('storage', function(event) {
-            if (event.key && event.key.indexOf('hub_orders') === 0) {
+        if (window.StyleHubOrders && typeof StyleHubOrders.onOrdersChanged === 'function') {
+            StyleHubOrders.onOrdersChanged(function() {
                 renderOrdersData();
-            }
-        });
+            });
+        } else {
+            window.addEventListener('storage', function(event) {
+                if (event.key && event.key.indexOf('hub_orders') === 0) {
+                    renderOrdersData();
+                }
+            });
+        }
         });
 
         function syncHeaderUsername() {
@@ -233,9 +243,17 @@
             ).trim().toLowerCase();
         }
 
-        function getOrdersForCurrentUser() {
+        async function getOrdersForCurrentUser() {
             const email = getCurrentUserEmail();
             if (!email) return [];
+
+            try {
+                if (window.StyleHubOrders && typeof StyleHubOrders.getOrdersByEmail === 'function') {
+                    return await StyleHubOrders.getOrdersByEmail(email);
+                }
+            } catch (error) {
+                console.error('Không lấy được đơn hàng cloud, dùng dữ liệu trên máy:', error);
+            }
 
             const userNameKey = `hub_orders_${(localStorage.getItem('hub_name') || '').trim().toLowerCase().replace(/\s+/g, '_')}`;
             const perUserKey = `hub_orders_${email}`;
@@ -243,14 +261,14 @@
             const nameKeyOrders = safeParseOrders(userNameKey);
             const globalOrders = safeParseOrders('hub_orders').filter(order => getOrderOwnerEmail(order) === email);
 
-            // Global để sau cùng để nếu admin cập nhật trạng thái thì trạng thái mới sẽ ghi đè bản cũ.
             const merged = [...perUserOrders, ...nameKeyOrders, ...globalOrders];
             const orderMap = new Map();
 
             merged.forEach(order => {
                 if (!order) return;
-                const key = order.orderId || JSON.stringify(order);
-                orderMap.set(key, order);
+                const normalized = window.StyleHubOrders && StyleHubOrders.normalizeOrder ? StyleHubOrders.normalizeOrder(order) : order;
+                const key = normalized.orderId || JSON.stringify(normalized);
+                orderMap.set(key, normalized);
             });
 
             return Array.from(orderMap.values());
@@ -263,11 +281,11 @@
             return 'order-status-pending';
         }
 
-        function renderOrdersData() {
+        async function renderOrdersData() {
             const container = document.getElementById('injectOrdersContainer');
             container.innerHTML = '';
 
-            const ordersList = getOrdersForCurrentUser();
+            const ordersList = await getOrdersForCurrentUser();
             
             if(ordersList.length === 0) {
                 container.innerHTML = `<p style="font-size: 13px; color: #888; text-align: center; padding: 40px 0;">You haven't placed any orders yet.</p>`;

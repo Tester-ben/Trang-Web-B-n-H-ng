@@ -286,7 +286,11 @@
     </main>
 </section>
 
+<script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-database-compat.js"></script>
+<script src="stylehub-orders-api.js"></script>
 <script>
+
     const ADMIN_PASSWORD = "admin123";
 
     function loginAdmin() {
@@ -317,11 +321,23 @@
         document.getElementById('login-screen').style.display = 'none';
         document.getElementById('admin-screen').style.display = 'block';
         renderOrders();
+        startAdminRealtime();
     }
 
     document.getElementById('adminPassword').addEventListener('keydown', function(event) {
         if (event.key === 'Enter') loginAdmin();
     });
+
+    let adminRealtimeStarted = false;
+
+    function escapeHtml(value) {
+        return String(value === undefined || value === null ? '' : value)
+            .replace(/&/g, '&amp;')
+            .replace(/</g, '&lt;')
+            .replace(/>/g, '&gt;')
+            .replace(/"/g, '&quot;')
+            .replace(/'/g, '&#039;');
+    }
 
     function safeParseOrders(key) {
         try {
@@ -332,38 +348,25 @@
         }
     }
 
-    function saveOrders(key, orders) {
-        localStorage.setItem(key, JSON.stringify(orders));
-    }
-
     function getOrderKeys() {
         return Object.keys(localStorage).filter(function(key) {
             return key === 'hub_orders' || key.indexOf('hub_orders_') === 0;
         });
     }
 
-    function updateOrderEverywhere(orderId, updater) {
+    function getLocalOrdersFallback() {
+        let allOrders = [];
         getOrderKeys().forEach(function(key) {
-            const orders = safeParseOrders(key);
-            let changed = false;
-            const updatedOrders = orders.map(function(order) {
-                if (order && order.orderId === orderId) {
-                    changed = true;
-                    return updater(Object.assign({}, order));
-                }
-                return order;
-            });
-            if (changed) saveOrders(key, updatedOrders);
+            allOrders = allOrders.concat(safeParseOrders(key));
         });
-    }
-
-    function deleteOrderEverywhere(orderId) {
-        getOrderKeys().forEach(function(key) {
-            const orders = safeParseOrders(key);
-            const filtered = orders.filter(function(order) {
-                return !order || order.orderId !== orderId;
-            });
-            if (filtered.length !== orders.length) saveOrders(key, filtered);
+        const map = new Map();
+        allOrders.forEach(function(order) {
+            if (!order) return;
+            const normalized = window.StyleHubOrders && StyleHubOrders.normalizeOrder ? StyleHubOrders.normalizeOrder(order) : order;
+            map.set(normalized.orderId || JSON.stringify(normalized), normalized);
+        });
+        return Array.from(map.values()).sort(function(a, b) {
+            return (Number(b.createdAt) || 0) - (Number(a.createdAt) || 0);
         });
     }
 
@@ -396,8 +399,19 @@
         };
     }
 
-    function renderOrders() {
-        const orders = safeParseOrders('hub_orders');
+    async function getAdminOrders() {
+        try {
+            if (window.StyleHubOrders && typeof StyleHubOrders.getAllOrders === 'function') {
+                return await StyleHubOrders.getAllOrders();
+            }
+        } catch (error) {
+            console.error('Không lấy được đơn hàng từ cloud, chuyển sang localStorage:', error);
+        }
+        return getLocalOrdersFallback();
+    }
+
+    async function renderOrders(preloadedOrders) {
+        const orders = Array.isArray(preloadedOrders) ? preloadedOrders : await getAdminOrders();
         const container = document.getElementById('admin-orders');
         const orderCount = document.getElementById('orderCount');
         orderCount.textContent = orders.length + ' đơn hàng';
@@ -407,7 +421,8 @@
             return;
         }
 
-        container.innerHTML = orders.map(function(order) {
+        container.innerHTML = orders.map(function(rawOrder) {
+            const order = window.StyleHubOrders && StyleHubOrders.normalizeOrder ? StyleHubOrders.normalizeOrder(rawOrder) : rawOrder;
             const items = Array.isArray(order.orderedProductsList) ? order.orderedProductsList : [];
             const customer = getCustomerInfo(order);
             const status = order.status || 'Đang chờ xác nhận';
@@ -421,69 +436,94 @@
             return `
                 <article class="order-card">
                     <div class="order-header">
-                        <strong class="order-id">Mã đơn: ${orderId}</strong>
-                        <span class="status-badge ${statusClass}">${status}</span>
+                        <strong class="order-id">Mã đơn: ${escapeHtml(orderId)}</strong>
+                        <span class="status-badge ${statusClass}">${escapeHtml(status)}</span>
                     </div>
 
                     <div class="customer-grid">
-                        <div>🕒 <b>Thời gian đặt:</b> ${date}</div>
-                        <div>👤 <b>Khách hàng:</b> ${customer.name}</div>
-                        <div>📞 <b>Số điện thoại:</b> ${customer.phone}</div>
-                        <div>✉️ <b>Email:</b> ${customer.email}</div>
-                        <div style="grid-column: 1 / -1;">🏠 <b>Địa chỉ:</b> ${customer.address}</div>
+                        <div>🕒 <b>Thời gian đặt:</b> ${escapeHtml(date)}</div>
+                        <div>👤 <b>Khách hàng:</b> ${escapeHtml(customer.name)}</div>
+                        <div>📞 <b>Số điện thoại:</b> ${escapeHtml(customer.phone)}</div>
+                        <div>✉️ <b>Email:</b> ${escapeHtml(customer.email)}</div>
+                        <div style="grid-column: 1 / -1;">🏠 <b>Địa chỉ:</b> ${escapeHtml(customer.address)}</div>
                     </div>
 
                     <div class="product-list">
                         ${items.length ? items.map(function(item) {
                             return `
                                 <div class="product-item">
-                                    <span>• ${item.name || 'Sản phẩm'} (Size: ${item.size || '-'}) x ${item.qty || item.quantity || 1}</span>
-                                    <span>${item.price || ''}</span>
+                                    <span>• ${escapeHtml(item.name || 'Sản phẩm')} (Size: ${escapeHtml(item.size || '-')}) x ${escapeHtml(item.qty || item.quantity || 1)}</span>
+                                    <span>${escapeHtml(item.price || '')}</span>
                                 </div>
                             `;
                         }).join('') : '<div class="product-item"><span>Không có dữ liệu sản phẩm</span><span></span></div>'}
                     </div>
 
-                    <div class="total-price">TỔNG CỘNG: ${displayTotal}</div>
+                    <div class="total-price">TỔNG CỘNG: ${escapeHtml(displayTotal)}</div>
                     <div class="btn-group">
-                        ${(!isShipping && !isDone) ? `<button class="btn btn-confirm" onclick="confirmOrder('${orderId}')">Xác nhận đơn hàng</button>` : ''}
-                        ${(!isDone) ? `<button class="btn btn-complete" onclick="completeOrder('${orderId}')">Đã giao xong</button>` : ''}
-                        <button class="btn btn-delete" onclick="removeOrder('${orderId}')">Xóa đơn</button>
+                        ${(!isShipping && !isDone) ? `<button class="btn btn-confirm" onclick="confirmOrder('${escapeHtml(orderId)}')">Xác nhận đơn hàng</button>` : ''}
+                        ${(!isDone) ? `<button class="btn btn-complete" onclick="completeOrder('${escapeHtml(orderId)}')">Đã giao xong</button>` : ''}
+                        <button class="btn btn-delete" onclick="removeOrder('${escapeHtml(orderId)}')">Xóa đơn</button>
                     </div>
                 </article>
             `;
         }).join('');
     }
 
-    function confirmOrder(orderId) {
-        if (!orderId || orderId === 'N/A') return;
-        updateOrderEverywhere(orderId, function(order) {
-            order.status = 'Đang giao';
-            order.confirmedAt = new Date().toLocaleString('vi-VN');
-            return order;
-        });
-        renderOrders();
-        alert('Đã xác nhận đơn hàng. Bên tài khoản khách sẽ hiện trạng thái: Đang giao.');
+    function startAdminRealtime() {
+        if (adminRealtimeStarted) return;
+        adminRealtimeStarted = true;
+        if (window.StyleHubOrders && typeof StyleHubOrders.onOrdersChanged === 'function') {
+            StyleHubOrders.onOrdersChanged(function(orders) {
+                renderOrders(orders);
+            });
+        } else {
+            window.addEventListener('storage', function(event) {
+                if (event.key && event.key.indexOf('hub_orders') === 0) renderOrders();
+            });
+        }
     }
 
-    function completeOrder(orderId) {
+    async function confirmOrder(orderId) {
         if (!orderId || orderId === 'N/A') return;
-        updateOrderEverywhere(orderId, function(order) {
-            order.status = 'Đã nhận hàng';
-            order.completedAt = new Date().toLocaleString('vi-VN');
-            return order;
-        });
-        renderOrders();
+        try {
+            if (window.StyleHubOrders && typeof StyleHubOrders.updateOrderStatus === 'function') {
+                await StyleHubOrders.updateOrderStatus(orderId, 'Đang giao');
+            }
+            await renderOrders();
+            alert('Đã xác nhận đơn hàng. Bên tài khoản khách sẽ hiện trạng thái: Đang giao.');
+        } catch (error) {
+            alert('Không cập nhật được trạng thái đơn. Kiểm tra Firebase/config hoặc mạng internet.');
+            console.error(error);
+        }
     }
 
-    function removeOrder(orderId) {
+    async function completeOrder(orderId) {
+        if (!orderId || orderId === 'N/A') return;
+        try {
+            if (window.StyleHubOrders && typeof StyleHubOrders.updateOrderStatus === 'function') {
+                await StyleHubOrders.updateOrderStatus(orderId, 'Đã nhận hàng');
+            }
+            await renderOrders();
+        } catch (error) {
+            alert('Không cập nhật được trạng thái đơn.');
+            console.error(error);
+        }
+    }
+
+    async function removeOrder(orderId) {
         if (!orderId || orderId === 'N/A') return;
         if (!confirm('Bạn có chắc chắn muốn xóa đơn hàng này không?')) return;
-        deleteOrderEverywhere(orderId);
-        renderOrders();
+        try {
+            if (window.StyleHubOrders && typeof StyleHubOrders.deleteOrder === 'function') {
+                await StyleHubOrders.deleteOrder(orderId);
+            }
+            await renderOrders();
+        } catch (error) {
+            alert('Không xóa được đơn.');
+            console.error(error);
+        }
     }
-
-    window.addEventListener('storage', renderOrders);
 
     if (sessionStorage.getItem('stylehub_admin_logged_in') === 'true') {
         showAdminScreen();
