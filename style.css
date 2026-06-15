@@ -1679,3 +1679,55 @@ header .nav-right a {
     font-size:12px;
     letter-spacing:.5px;
 }
+
+/* ===== FIX PAYMENT METHOD IMAGES IN FOOTER ===== */
+.payment-tags {
+    display: none !important;
+}
+
+.payment-icons {
+    display: flex !important;
+    align-items: center !important;
+    gap: 8px !important;
+    flex-wrap: wrap !important;
+    margin: 14px 0 18px !important;
+}
+
+.payment-icons img {
+    height: 28px !important;
+    width: auto !important;
+    min-width: 42px !important;
+    object-fit: contain !important;
+    display: block !important;
+    background: #ffffff !important;
+    padding: 3px 6px !important;
+    border-radius: 2px !important;
+}
+
+.footer-badges {
+    display: flex !important;
+    align-items: center !important;
+    gap: 12px !important;
+    flex-wrap: wrap !important;
+    margin-top: 8px !important;
+}
+
+.footer-badges img {
+    height: 48px !important;
+    width: auto !important;
+    display: block !important;
+}
+
+.footer-badges span {
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    min-height: 30px !important;
+    padding: 8px 14px !important;
+    border: 1px solid rgba(255,255,255,.5) !important;
+    border-radius: 4px !important;
+    color: #ffffff !important;
+    font-size: 12px !important;
+    letter-spacing: .5px !important;
+    font-weight: 700 !important;
+}
