@@ -500,6 +500,21 @@
             setTimeout(() => { toast.classList.remove('show'); }, 2800);
         }
 
+
+        function normalizeHubAccountKey(value) {
+            return String(value || '').trim().toLowerCase().replace(/\s+/g, '_');
+        }
+
+        function rememberHubLoginIdentity(name, email) {
+            const cleanName = String(name || '').trim();
+            const cleanEmail = String(email || '').trim().toLowerCase();
+            if (!cleanEmail) return;
+            localStorage.setItem('hub_email', cleanEmail);
+            localStorage.setItem('hub_current_user_key', cleanEmail);
+            localStorage.setItem('hub_last_user_email', cleanEmail);
+            if (cleanName) localStorage.setItem('hub_account_email_' + normalizeHubAccountKey(cleanName), cleanEmail);
+        }
+
         function handleRegister() {
             const firstName = document.getElementById('reg-fname').value.trim();
             const lastName = document.getElementById('reg-lname').value.trim();
@@ -508,6 +523,8 @@
 
             userData = { firstName, lastName, email, password };
             localStorage.setItem('hub_userData', JSON.stringify(userData));
+            rememberHubLoginIdentity(`${lastName || ''} ${firstName || ''}`.trim(), email);
+            localStorage.setItem('isLoggedInStatus', 'false');
 
             showToast("Đăng ký thành công! Hãy đăng nhập thông tin.");
             toggleAuthForm('login');
@@ -528,8 +545,7 @@
             isLoggedIn = true;
             localStorage.setItem('isLoggedInStatus', 'true');
             localStorage.setItem('hub_name', fullDisplayName);
-            localStorage.setItem('hub_email', emailInput);
-            localStorage.setItem('hub_current_user_key', emailInput.toLowerCase());
+            rememberHubLoginIdentity(fullDisplayName, emailInput);
 
             accountTrigger.innerText = fullDisplayName.toUpperCase();
             document.getElementById('db-user-name').innerText = fullDisplayName;
@@ -541,6 +557,8 @@
 
         function handleSignOut() {
             isLoggedIn = false;
+            const logoutEmail = localStorage.getItem('hub_email') || localStorage.getItem('hub_current_user_key') || '';
+            if (logoutEmail) localStorage.setItem('hub_last_user_email', logoutEmail.trim().toLowerCase());
             localStorage.setItem('isLoggedInStatus', 'false');
             localStorage.removeItem('hub_name');
             localStorage.removeItem('hub_email');

@@ -1744,3 +1744,26 @@ header .nav-right a {
 .order-status-pending { color: #b7791f !important; }
 .order-status-shipping { color: #2563eb !important; }
 .order-status-done { color: #15803d !important; }
+
+
+/* ===== NAV RIGHT SPACING FIX - ACCOUNT / ADMIN / BAG CLOSER ===== */
+header .nav-right,
+.main-header .nav-right,
+.product-detail-header .nav-right,
+.detail-header .nav-right,
+.product-header .nav-right {
+    gap: 16px !important;
+}
+header .nav-right a,
+.main-header .nav-right a,
+.product-detail-header .nav-right a,
+.detail-header .nav-right a,
+.product-header .nav-right a {
+    margin-left: 0 !important;
+    margin-right: 0 !important;
+}
+.product-detail-header .nav-right a + a,
+.detail-header .nav-right a + a,
+.product-header .nav-right a + a {
+    margin-left: 0 !important;
+}

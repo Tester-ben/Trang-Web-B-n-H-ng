@@ -18,8 +18,8 @@
         .nav-left { text-align: left; width: 30%; } .logo { text-align: center; font-size: 16px; font-weight: 700; letter-spacing: 4px; } .nav-right { text-align: right; width: 30%; }
         .nav-container a { color: #ffffff; text-decoration: none; font-size: 12px; text-transform: uppercase; cursor: pointer; }
         .nav-right { text-align: right; width: 30%; white-space: nowrap; }
-        .nav-right a { display: inline-block !important; margin-left: 38px !important; white-space: nowrap; }
-        .nav-right a:first-child { margin-left: 0 !important; margin-right: 38px !important; }
+        .nav-right a { display: inline-block !important; margin-left: 18px !important; white-space: nowrap; }
+        .nav-right a:first-child { margin-left: 0 !important; margin-right: 0 !important; }
         
         /* --- BỐ CỤC CHI TIẾT SẢN PHẨM --- */
         .product-detail-container { max-width: 1300px; margin: 0 auto; padding: 97px 40px 60px 40px; }
@@ -591,6 +591,21 @@
             setTimeout(() => { toast.classList.remove('show'); }, 2800);
         }
 
+
+        function normalizeHubAccountKey(value) {
+            return String(value || '').trim().toLowerCase().replace(/\s+/g, '_');
+        }
+
+        function rememberHubLoginIdentity(name, email) {
+            const cleanName = String(name || '').trim();
+            const cleanEmail = String(email || '').trim().toLowerCase();
+            if (!cleanEmail) return;
+            localStorage.setItem('hub_email', cleanEmail);
+            localStorage.setItem('hub_current_user_key', cleanEmail);
+            localStorage.setItem('hub_last_user_email', cleanEmail);
+            if (cleanName) localStorage.setItem('hub_account_email_' + normalizeHubAccountKey(cleanName), cleanEmail);
+        }
+
         function updateHeaderAccountUI() {
             const links = document.querySelectorAll('#account-trigger, #headerAccountLink');
             links.forEach(function(link) {
@@ -611,10 +626,10 @@
             const savedName = localStorage.getItem('hub_name');
 
             isUserLoggedIn = true;
+            const displayName = savedName && savedName.trim() !== '' ? savedName : emailName;
             localStorage.setItem('isLoggedInStatus', 'true');
-            localStorage.setItem('hub_email', emailInput);
-            localStorage.setItem('hub_current_user_key', emailInput.toLowerCase());
-            localStorage.setItem('hub_name', savedName && savedName.trim() !== '' ? savedName : emailName);
+            localStorage.setItem('hub_name', displayName);
+            rememberHubLoginIdentity(displayName, emailInput);
 
             if(!localStorage.getItem('hub_phone')) localStorage.setItem('hub_phone', '');
             if(!localStorage.getItem('hub_address')) localStorage.setItem('hub_address', '');
@@ -636,8 +651,7 @@
             isUserLoggedIn = true;
             localStorage.setItem('isLoggedInStatus', 'true');
             localStorage.setItem('hub_name', nameInput);
-            localStorage.setItem('hub_email', emailInput);
-            localStorage.setItem('hub_current_user_key', emailInput.toLowerCase());
+            rememberHubLoginIdentity(nameInput, emailInput);
             localStorage.setItem('hub_phone', '');
             localStorage.setItem('hub_address', '');
 
@@ -773,8 +787,7 @@
             ).trim().toLowerCase();
 
             localStorage.setItem('hub_name', name);
-            localStorage.setItem('hub_email', accountEmail);
-            localStorage.setItem('hub_current_user_key', accountEmail);
+            rememberHubLoginIdentity(localStorage.getItem('hub_name') || name || accountEmail, accountEmail);
             localStorage.setItem('hub_shipping_email', email);
             localStorage.setItem('hub_phone', phone);
             localStorage.setItem('hub_address', address);

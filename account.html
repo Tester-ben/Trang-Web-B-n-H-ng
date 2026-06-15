@@ -13,7 +13,7 @@
         /* --- STICKY HEADER ĐỒNG BỘ THANH ĐEN CHUẨN --- */
         .main-header { position: fixed; top: 0; left: 0; width: 100%; height: 57px; background-color: #000000; color: #ffffff; z-index: 1000; }
         .nav-container { max-width: 1440px; margin: 0 auto; height: 100%; display: flex; justify-content: space-between; align-items: center; padding: 0 40px; }
-        .nav-left, .nav-right { display: flex; gap: 20px; align-items: center; }
+        .nav-left, .nav-right { display: flex; gap: 16px; align-items: center; }
         .logo { font-size: 16px; font-weight: 700; letter-spacing: 4px; text-align: center; }
         .nav-container a { color: #ffffff; text-decoration: none; font-size: 11px; letter-spacing: 1.5px; text-transform: uppercase; cursor: pointer; }
 
@@ -203,6 +203,53 @@
         let pendingCancelOrderId = '';
         let cachedAccountOrders = [];
 
+        function normalizeAccountKey(value) {
+            return String(value || '').trim().toLowerCase().replace(/\s+/g, '_');
+        }
+
+        function rememberAccountEmailForName(name, email) {
+            const cleanName = String(name || '').trim();
+            const cleanEmail = String(email || '').trim().toLowerCase();
+            if (!cleanName || !cleanEmail) return;
+            localStorage.setItem('hub_last_user_email', cleanEmail);
+            localStorage.setItem('hub_account_email_' + normalizeAccountKey(cleanName), cleanEmail);
+        }
+
+        function recoverCurrentUserEmail() {
+            const directEmail = (
+                localStorage.getItem('hub_current_user_key') ||
+                localStorage.getItem('hub_email') ||
+                localStorage.getItem('hub_shipping_email') ||
+                ''
+            ).trim().toLowerCase();
+            if (directEmail) {
+                localStorage.setItem('hub_email', directEmail);
+                localStorage.setItem('hub_current_user_key', directEmail);
+                rememberAccountEmailForName(localStorage.getItem('hub_name'), directEmail);
+                return directEmail;
+            }
+
+            const savedName = localStorage.getItem('hub_name') || '';
+            const emailByName = localStorage.getItem('hub_account_email_' + normalizeAccountKey(savedName)) || '';
+            if (emailByName) {
+                const cleanEmail = emailByName.trim().toLowerCase();
+                localStorage.setItem('hub_email', cleanEmail);
+                localStorage.setItem('hub_current_user_key', cleanEmail);
+                return cleanEmail;
+            }
+
+            return '';
+        }
+
+        function getOrderCustomerName(order) {
+            return String(
+                (order && order.userInfo && order.userInfo.name) ||
+                (order && order.customerName) ||
+                (order && order.name) ||
+                ''
+            ).trim().toLowerCase();
+        }
+
         document.addEventListener("DOMContentLoaded", function() {
 
         document.getElementById("search-trigger").onclick = function () {
@@ -215,6 +262,7 @@
             return;
         }
 
+        recoverCurrentUserEmail();
         syncHeaderUsername();
         renderProfileData();
         renderOrdersData();
@@ -257,12 +305,7 @@
         }
 
         function getCurrentUserEmail() {
-            return (
-                localStorage.getItem('hub_current_user_key') ||
-                localStorage.getItem('hub_email') ||
-                localStorage.getItem('hub_shipping_email') ||
-                ''
-            ).trim().toLowerCase();
+            return recoverCurrentUserEmail();
         }
 
         function safeParseOrders(storageKey) {
@@ -289,21 +332,65 @@
 
         async function getOrdersForCurrentUser() {
             const email = getCurrentUserEmail();
-            if (!email) return [];
+            const currentName = String(localStorage.getItem('hub_name') || '').trim().toLowerCase();
+            let cloudOrders = [];
 
             try {
-                if (window.StyleHubOrders && typeof StyleHubOrders.getOrdersByEmail === 'function') {
-                    return await StyleHubOrders.getOrdersByEmail(email);
+                if (window.StyleHubOrders && typeof StyleHubOrders.getAllOrders === 'function') {
+                    cloudOrders = await StyleHubOrders.getAllOrders();
                 }
             } catch (error) {
-                console.error('Không lấy được đơn hàng cloud, dùng dữ liệu trên máy:', error);
+                console.error('Không lấy được toàn bộ đơn cloud:', error);
             }
 
-            const userNameKey = `hub_orders_${(localStorage.getItem('hub_name') || '').trim().toLowerCase().replace(/\s+/g, '_')}`;
-            const perUserKey = `hub_orders_${email}`;
-            const perUserOrders = safeParseOrders(perUserKey);
+            if (email && cloudOrders.length > 0) {
+                const matchedByEmail = cloudOrders.filter(order => getOrderOwnerEmail(order) === email);
+                matchedByEmail.forEach(order => {
+                    const normalized = window.StyleHubOrders && StyleHubOrders.normalizeOrder ? StyleHubOrders.normalizeOrder(order) : order;
+                    if (normalized && normalized.orderId) {
+                        const key = `hub_orders_${email}`;
+                        const existing = safeParseOrders(key);
+                        const idx = existing.findIndex(item => item && item.orderId === normalized.orderId);
+                        if (idx >= 0) existing[idx] = normalized;
+                        else existing.unshift(normalized);
+                        localStorage.setItem(key, JSON.stringify(existing));
+                    }
+                });
+                if (matchedByEmail.length > 0) return matchedByEmail;
+            }
+
+            if (email) {
+                try {
+                    if (window.StyleHubOrders && typeof StyleHubOrders.getOrdersByEmail === 'function') {
+                        const matched = await StyleHubOrders.getOrdersByEmail(email);
+                        if (matched.length > 0) return matched;
+                    }
+                } catch (error) {
+                    console.error('Không lấy được đơn hàng cloud theo email, dùng dữ liệu trên máy:', error);
+                }
+            }
+
+            // Nếu email bị mất sau khi đăng xuất/đăng nhập lại, dò đơn theo tên khách.
+            if (currentName && cloudOrders.length > 0) {
+                const matchedByName = cloudOrders.filter(order => getOrderCustomerName(order) === currentName);
+                const firstEmail = matchedByName.map(getOrderOwnerEmail).find(Boolean);
+                if (firstEmail && !email) {
+                    localStorage.setItem('hub_email', firstEmail);
+                    localStorage.setItem('hub_current_user_key', firstEmail);
+                    rememberAccountEmailForName(localStorage.getItem('hub_name'), firstEmail);
+                }
+                if (matchedByName.length > 0) return matchedByName;
+            }
+
+            const userNameKey = `hub_orders_${normalizeAccountKey(localStorage.getItem('hub_name') || '')}`;
+            const perUserKey = email ? `hub_orders_${email}` : '';
+            const perUserOrders = perUserKey ? safeParseOrders(perUserKey) : [];
             const nameKeyOrders = safeParseOrders(userNameKey);
-            const globalOrders = safeParseOrders('hub_orders').filter(order => getOrderOwnerEmail(order) === email);
+            const globalOrders = safeParseOrders('hub_orders').filter(order => {
+                if (email && getOrderOwnerEmail(order) === email) return true;
+                if (currentName && getOrderCustomerName(order) === currentName) return true;
+                return false;
+            });
 
             const merged = [...perUserOrders, ...nameKeyOrders, ...globalOrders];
             const orderMap = new Map();
@@ -315,7 +402,7 @@
                 orderMap.set(key, normalized);
             });
 
-            return Array.from(orderMap.values());
+            return Array.from(orderMap.values()).sort((a, b) => (Number(b.createdAt) || 0) - (Number(a.createdAt) || 0));
         }
 
         function normalizeStatusText(status) {
@@ -595,6 +682,8 @@
 
         }
         function executeLogout() {
+            const currentEmail = getCurrentUserEmail();
+            if (currentEmail) localStorage.setItem('hub_last_user_email', currentEmail);
             localStorage.setItem('isLoggedInStatus', 'false');
             localStorage.removeItem('hub_name');
             localStorage.removeItem('hub_email');
