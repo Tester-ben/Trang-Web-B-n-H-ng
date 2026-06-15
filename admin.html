@@ -168,8 +168,9 @@
             transition: 0.2s;
         }
         .btn:hover { transform: translateY(-1px); opacity: 0.92; }
-        .btn-confirm { background: #fff; color: #111; }
+        .btn-confirm { background: #22c55e; color: #06150a; border-color: #22c55e; }
         .btn-complete { background: #2563eb; color: #fff; }
+        .btn-disabled { background: #2a2a2a; color: #8f8f8f; border-color: #444; cursor: not-allowed; }
         .btn-delete { background: transparent; color: #fff; border-color: #555; }
         .empty-state {
             text-align: center;
@@ -278,7 +279,7 @@
         <div class="admin-title-row">
             <div>
                 <h1>Quản lý đơn hàng</h1>
-                <p class="admin-subtitle">Xác nhận đơn để khách thấy trạng thái chuyển từ “Đang chờ xác nhận” sang “Đang giao”.</p>
+                <p class="admin-subtitle">Bấm “Chấp nhận đơn hàng” để trạng thái bên khách chuyển từ “Đang chờ xác nhận” sang “Đang giao”. Có thể xóa đơn test hoặc đơn không hợp lệ.</p>
             </div>
             <div class="order-count" id="orderCount">0 đơn hàng</div>
         </div>
@@ -461,8 +462,7 @@
 
                     <div class="total-price">TỔNG CỘNG: ${escapeHtml(displayTotal)}</div>
                     <div class="btn-group">
-                        ${(!isShipping && !isDone) ? `<button class="btn btn-confirm" onclick="confirmOrder('${escapeHtml(orderId)}')">Xác nhận đơn hàng</button>` : ''}
-                        ${(!isDone) ? `<button class="btn btn-complete" onclick="completeOrder('${escapeHtml(orderId)}')">Đã giao xong</button>` : ''}
+                        ${(!isShipping && !isDone) ? `<button class="btn btn-confirm" onclick="confirmOrder('${escapeHtml(orderId)}')">Chấp nhận đơn hàng</button>` : `<button class="btn btn-disabled" disabled>Đã chấp nhận</button>`}
                         <button class="btn btn-delete" onclick="removeOrder('${escapeHtml(orderId)}')">Xóa đơn</button>
                     </div>
                 </article>
@@ -491,7 +491,7 @@
                 await StyleHubOrders.updateOrderStatus(orderId, 'Đang giao');
             }
             await renderOrders();
-            alert('Đã xác nhận đơn hàng. Bên tài khoản khách sẽ hiện trạng thái: Đang giao.');
+            alert('Đã chấp nhận đơn hàng. Bên tài khoản khách sẽ hiện trạng thái: Đang giao.');
         } catch (error) {
             alert('Không cập nhật được trạng thái đơn. Kiểm tra Firebase/config hoặc mạng internet.');
             console.error(error);
