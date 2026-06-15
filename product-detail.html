@@ -253,6 +253,7 @@
             <div class="logo"><a href="index.html">THE STYLE HUB</a></div>
             <div class="nav-right">
                 <a href="account.html" id="account-trigger" class="pd-account-link">ACCOUNT</a>
+<a href="admin.html" target="_blank" rel="noopener" class="admin-nav-link">ADMIN</a>
                 <a href="#" class="pd-bag-link" onclick="event.preventDefault(); toggleCartDrawer(true)">BAG (<span id="bag-count">0</span>)</a>
             </div>
         </div>
@@ -548,13 +549,17 @@
         }
 
         function updateHeaderAccountUI() {
-            const link = document.getElementById('headerAccountLink');
-            if(isUserLoggedIn) {
-                const savedName = localStorage.getItem('hub_name') || "ACCOUNT";
-                link.innerText = savedName.toUpperCase();
-            } else {
-                link.innerText = "ACCOUNT";
-            }
+            const links = document.querySelectorAll('#account-trigger, #headerAccountLink');
+            links.forEach(function(link) {
+                if(isUserLoggedIn) {
+                    const savedName = localStorage.getItem('hub_name') || "ACCOUNT";
+                    link.innerText = savedName.toUpperCase();
+                    link.href = "account.html";
+                } else {
+                    link.innerText = "ACCOUNT";
+                    link.href = "account.html";
+                }
+            });
         }
 
         function handleImmediateLogin() {
@@ -735,14 +740,23 @@
             const existingOrdersArray = JSON.parse(localStorage.getItem(orderStorageKey) || '[]');
             const uniqueOrderId = "STH" + Math.floor(100000 + Math.random() * 900000);
             
+            const orderDate = new Date().toLocaleString('vi-VN');
             const newCompletedOrderObject = {
                 orderId: uniqueOrderId,
                 userEmail: accountEmail,
+                customerEmail: accountEmail,
                 shippingEmail: email,
-                date: new Date().toLocaleString('vi-VN'),
+                orderDate: orderDate,
+                date: orderDate,
+                userInfo: {
+                    name: name,
+                    phone: phone,
+                    email: accountEmail,
+                    address: address
+                },
                 totalPriceFormatted: document.getElementById('cartTotalTarget').innerText,
                 orderedProductsList: [...cartMemoryArray],
-                status: "Đang xử lý"
+                status: "Đang chờ xác nhận"
             };
 
             existingOrdersArray.unshift(newCompletedOrderObject);

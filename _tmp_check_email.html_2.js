@@ -1,67 +1,4 @@
-<!DOCTYPE html>
-<html lang="vi">
-<head>
-    <meta charset="UTF-8">
-    <title>Thanh Toán - The Style Hub</title>
-    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
-    <script type="text/javascript">
-       (function(){
-          // TODO: THAY BẰNG PUBLIC KEY CỦA ÔNG (Lấy ở mục Account trong EmailJS)
-          emailjs.init("MB1m-Q2_ueI82N8Xo"); 
-       })();
-    </script>
-    <style>
-        body { font-family: 'Segoe UI', sans-serif; background: #1a1a1a; color: #fff; padding: 40px 20px; }
-        .container { max-width: 600px; margin: 0 auto; background: #262626; padding: 30px; border-radius: 15px; border: 1px solid #333; box-shadow: 0 10px 30px rgba(0,0,0,0.3); }
-        h2 { text-align: center; text-transform: uppercase; letter-spacing: 2px; margin-bottom: 25px; }
-        
-        .form-group { margin-bottom: 20px; }
-        .form-group label { display: block; margin-bottom: 8px; font-size: 14px; color: #aaa; }
-        .form-group input, .form-group textarea { width: 100%; padding: 12px; border: 1px solid #444; background: #1a1a1a; color: #fff; border-radius: 8px; box-sizing: border-box; font-size: 15px; }
-        .form-group input:focus, .form-group textarea:focus { border-color: #fff; outline: none; }
-        
-        .order-summary { border-top: 1px dashed #444; margin-top: 25px; padding-top: 20px; }
-        .total-price { font-size: 20px; font-weight: 700; color: #ff4d4d; text-align: right; margin-bottom: 25px; }
-        
-        .btn-submit { width: 100%; padding: 14px; background: #fff; color: #111; border: none; border-radius: 8px; font-size: 16px; font-weight: 700; cursor: pointer; transition: 0.3s; text-transform: uppercase; }
-        .btn-submit:hover { transform: translateY(-2px); opacity: 0.9; }
-    </style>
-</head>
-<body>
 
-<div class="container">
-    <h2>Thông tin đặt hàng</h2>
-    
-    <form id="checkout-form" onsubmit="handleCheckout(event)">
-        <div class="form-group">
-            <label for="customer-name">Họ và tên khách hàng *</label>
-            <input type="text" id="cusname" required placeholder="Ví dụ: Võ Thành Trung">
-        </div>
-        
-        <div class="form-group">
-            <label for="customer-phone">Số điện thoại *</label>
-            <input type="tel" id="cusphone" required placeholder="Ví dụ: 0123456789">
-        </div>
-        
-        <div class="form-group">
-            <label for="customer-email">Địa chỉ Email (Để nhận xác nhận đơn) *</label>
-            <input type="email" id="cusemail" required placeholder="Ví dụ: abc@gmail.com">
-        </div>
-        
-        <div class="form-group">
-            <label for="customer-address">Địa chỉ nhận hàng *</label>
-            <textarea id="cusaddress" rows="3" required placeholder="Ghi rõ số nhà, tên đường, phường/xã, quận/huyện..."></textarea>
-        </div>
-
-        <div class="order-summary">
-            <div class="total-price">TỔNG THANH TOÁN: <span id="display-total">0 ₫</span></div>
-        </div>
-        
-        <button type="submit" class="btn-submit">Xác nhận đặt hàng</button>
-    </form>
-</div>
-
-<script>
     // Hàm tính tổng tiền dựa trên giỏ hàng (Giữ nguyên logic của ông)
     function calculateTotal(items) {
         if (!items) return "0 ₫";
@@ -152,6 +89,3 @@
                alert("Có lỗi xảy ra trong quá trình gửi mail xác nhận, nhưng đơn hàng của bạn đã được hệ thống ghi nhận.");
             });
     }
-</script>
-</body>
-</html>

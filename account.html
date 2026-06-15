@@ -43,7 +43,10 @@
         .order-history-list { display: flex; flex-direction: column; gap: 20px; }
         .order-item-card { border: 1px solid #e5e5e5; padding: 20px; background-color: #ffffff; }
         .order-card-top { display: flex; justify-content: space-between; align-items: center; font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: 1px; padding-bottom: 10px; border-bottom: 1px solid #f5f5f5; margin-bottom: 12px; }
-        .order-status-badge { color: #27ae60; }
+        .order-status-badge { font-weight: 700; }
+        .order-status-pending { color: #b7791f; }
+        .order-status-shipping { color: #2563eb; }
+        .order-status-done { color: #15803d; }
         .order-product-row { display: flex; justify-content: space-between; font-size: 13px; color: #444; margin-bottom: 6px; }
         .order-card-bottom { display: flex; justify-content: space-between; align-items: center; border-top: 1px solid #f5f5f5; padding-top: 12px; margin-top: 12px; font-size: 13px; font-weight: 600; }
 
@@ -96,6 +99,7 @@
                    style="text-decoration: underline;">
                    ACCOUNT
                 </a>
+<a href="admin.html" target="_blank" rel="noopener" class="admin-nav-link">ADMIN</a>
             
                 <a id="bag-trigger">BAG (0)</a>
             </div>
@@ -166,6 +170,11 @@
         syncHeaderUsername();
         renderProfileData();
         renderOrdersData();
+        window.addEventListener('storage', function(event) {
+            if (event.key && event.key.indexOf('hub_orders') === 0) {
+                renderOrdersData();
+            }
+        });
         });
 
         function syncHeaderUsername() {
@@ -202,37 +211,56 @@
             ).trim().toLowerCase();
         }
 
+        function safeParseOrders(storageKey) {
+            try {
+                const orders = JSON.parse(localStorage.getItem(storageKey) || '[]');
+                return Array.isArray(orders) ? orders : [];
+            } catch (error) {
+                return [];
+            }
+        }
+
+        function getOrderOwnerEmail(order) {
+            return String(
+                order.userEmail ||
+                order.customerEmail ||
+                order.shippingEmail ||
+                order.email ||
+                order.hub_email ||
+                order.ownerEmail ||
+                (order.userInfo && order.userInfo.email) ||
+                ''
+            ).trim().toLowerCase();
+        }
+
         function getOrdersForCurrentUser() {
             const email = getCurrentUserEmail();
             if (!email) return [];
 
-            const perUserKey = `hub_orders_${email}`;
             const userNameKey = `hub_orders_${(localStorage.getItem('hub_name') || '').trim().toLowerCase().replace(/\s+/g, '_')}`;
-            const perUserOrders = JSON.parse(localStorage.getItem(perUserKey) || '[]');
-            const nameKeyOrders = JSON.parse(localStorage.getItem(userNameKey) || '[]');
-            const globalOrders = JSON.parse(localStorage.getItem('hub_orders') || '[]');
+            const perUserKey = `hub_orders_${email}`;
+            const perUserOrders = safeParseOrders(perUserKey);
+            const nameKeyOrders = safeParseOrders(userNameKey);
+            const globalOrders = safeParseOrders('hub_orders').filter(order => getOrderOwnerEmail(order) === email);
 
-            const ownedGlobalOrders = globalOrders.filter(order => {
-                const ownerEmail = String(
-                    order.userEmail ||
-                    order.customerEmail ||
-                    order.email ||
-                    order.hub_email ||
-                    order.ownerEmail ||
-                    ''
-                ).trim().toLowerCase();
+            // Global để sau cùng để nếu admin cập nhật trạng thái thì trạng thái mới sẽ ghi đè bản cũ.
+            const merged = [...perUserOrders, ...nameKeyOrders, ...globalOrders];
+            const orderMap = new Map();
 
-                return ownerEmail && ownerEmail === email;
-            });
-
-            const merged = [...perUserOrders, ...nameKeyOrders, ...ownedGlobalOrders];
-            const seen = new Set();
-            return merged.filter(order => {
+            merged.forEach(order => {
+                if (!order) return;
                 const key = order.orderId || JSON.stringify(order);
-                if (seen.has(key)) return false;
-                seen.add(key);
-                return true;
+                orderMap.set(key, order);
             });
+
+            return Array.from(orderMap.values());
+        }
+
+        function getAccountStatusClass(status) {
+            const normalizedStatus = String(status || '').toLowerCase();
+            if (normalizedStatus.includes('giao')) return 'order-status-shipping';
+            if (normalizedStatus.includes('nhận') || normalizedStatus.includes('hoàn')) return 'order-status-done';
+            return 'order-status-pending';
         }
 
         function renderOrdersData() {
@@ -260,12 +288,16 @@
                     `;
                 });
 
+                const status = order.status || 'Đang chờ xác nhận';
+                const statusClass = getAccountStatusClass(status);
+                const orderDate = order.orderDate || order.date || '';
+
                 card.innerHTML = `
                     <div class="order-card-top">
                         <span>ID: ${order.orderId || 'N/A'}</span>
-                        <span class="order-status-badge">${order.status || 'ĐANG XỬ LÝ'}</span>
+                        <span class="order-status-badge ${statusClass}">${status}</span>
                     </div>
-                    <div style="font-size: 12px; color: #888; margin-bottom: 12px;">Date: ${order.date || ''}</div>
+                    <div style="font-size: 12px; color: #888; margin-bottom: 12px;">Date: ${orderDate}</div>
                     <div class="order-products-body">${productsHTML}</div>
                     <div class="order-card-bottom">
                         <span>Total Price:</span>

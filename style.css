@@ -1731,3 +1731,16 @@ header .nav-right a {
     letter-spacing: .5px !important;
     font-weight: 700 !important;
 }
+
+
+/* Admin link trên header */
+.admin-nav-link {
+    color: inherit;
+    text-decoration: none;
+    text-transform: uppercase;
+}
+
+/* Trạng thái đơn hàng trong trang tài khoản */
+.order-status-pending { color: #b7791f !important; }
+.order-status-shipping { color: #2563eb !important; }
+.order-status-done { color: #15803d !important; }
