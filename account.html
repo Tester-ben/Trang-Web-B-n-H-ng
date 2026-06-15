@@ -47,8 +47,32 @@
         .order-status-pending { color: #b7791f; }
         .order-status-shipping { color: #2563eb; }
         .order-status-done { color: #15803d; }
+        .order-status-cancelled { color: #dc2626; }
         .order-product-row { display: flex; justify-content: space-between; font-size: 13px; color: #444; margin-bottom: 6px; }
         .order-card-bottom { display: flex; justify-content: space-between; align-items: center; border-top: 1px solid #f5f5f5; padding-top: 12px; margin-top: 12px; font-size: 13px; font-weight: 600; }
+        .order-actions-row { display: flex; justify-content: flex-end; gap: 10px; margin-top: 16px; }
+        .order-mini-note { font-size: 11px; color: #888; margin-top: 10px; letter-spacing: .3px; }
+        .btn-order-action { border: 1px solid #111; background: #111; color: #fff; padding: 10px 18px; font-size: 11px; font-weight: 700; letter-spacing: 1.4px; text-transform: uppercase; cursor: pointer; transition: all .2s ease; }
+        .btn-order-action:hover { background: #333; transform: translateY(-1px); }
+        .btn-cancel-order { background: #fff; color: #d71920; border-color: #d71920; }
+        .btn-cancel-order:hover { background: #d71920; color: #fff; }
+        .btn-reorder { background: #111; color: #fff; border-color: #111; }
+        .cancelled-order-card { cursor: pointer; transition: all .2s ease; }
+        .cancelled-order-card:hover { border-color: #111; box-shadow: 0 12px 26px rgba(0,0,0,.06); }
+        .cancelled-detail-body { display: none; margin-top: 12px; }
+        .cancelled-order-card.expanded .cancelled-detail-body { display: block; }
+        .cancel-modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,.42); display: none; align-items: center; justify-content: center; z-index: 5000; padding: 20px; }
+        .cancel-modal-overlay.open { display: flex; }
+        .cancel-modal-box { width: min(440px, 100%); background: #fff; border-radius: 18px; padding: 28px; box-shadow: 0 24px 70px rgba(0,0,0,.22); animation: modalPop .18s ease; }
+        @keyframes modalPop { from { transform: translateY(12px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+        .cancel-modal-icon { width: 42px; height: 42px; border-radius: 50%; background: #fff1f2; color: #d71920; display: flex; align-items: center; justify-content: center; font-weight: 900; font-size: 22px; margin-bottom: 14px; }
+        .cancel-modal-box h3 { font-size: 18px; margin-bottom: 8px; letter-spacing: .4px; }
+        .cancel-modal-box p { font-size: 13px; color: #555; line-height: 1.6; margin-bottom: 20px; }
+        .cancel-modal-actions { display: flex; justify-content: flex-end; gap: 10px; }
+        .btn-modal-light, .btn-modal-danger { padding: 11px 18px; border-radius: 999px; border: 1px solid #ddd; background: #fff; font-size: 12px; font-weight: 700; cursor: pointer; }
+        .btn-modal-danger { background: #d71920; border-color: #d71920; color: #fff; }
+        .account-toast { position: fixed; top: 78px; right: 28px; z-index: 6000; background: #111; color: #fff; padding: 14px 18px; border-radius: 999px; font-size: 13px; font-weight: 700; letter-spacing: .3px; box-shadow: 0 16px 40px rgba(0,0,0,.24); opacity: 0; transform: translateY(-10px); pointer-events: none; transition: all .25s ease; }
+        .account-toast.show { opacity: 1; transform: translateY(0); }
 
         /* Nút đăng xuất cuối trang */
         .logout-wrapper { margin-top: 40px; text-align: center; border-top: 1px solid #eee; padding-top: 20px; }
@@ -111,6 +135,7 @@
         <div class="account-tabs-nav">
             <button class="tab-btn active" onclick="switchAccountTab('profile-tab', this)">Profile</button>
             <button class="tab-btn" onclick="switchAccountTab('orders-tab', this)">Orders History</button>
+            <button class="tab-btn" onclick="switchAccountTab('cancelled-orders-tab', this)">Cancelled Orders</button>
         </div>
 
         <div id="profile-tab" class="tab-content-panel active">
@@ -132,8 +157,11 @@
         </div>
 
         <div id="orders-tab" class="tab-content-panel">
-            <div class="order-history-list" id="injectOrdersContainer">
-                </div>
+            <div class="order-history-list" id="injectOrdersContainer"></div>
+        </div>
+
+        <div id="cancelled-orders-tab" class="tab-content-panel">
+            <div class="order-history-list" id="injectCancelledOrdersContainer"></div>
         </div>
 
         <div class="logout-wrapper">
@@ -141,6 +169,20 @@
         </div>
 
     </div>
+
+    <div class="cancel-modal-overlay" id="cancelOrderModal">
+        <div class="cancel-modal-box">
+            <div class="cancel-modal-icon">!</div>
+            <h3>Bạn có chắc chắn muốn hủy đơn không?</h3>
+            <p id="cancelOrderMessage">Đơn hàng sau khi hủy sẽ chuyển sang mục Cancelled Orders. Bạn vẫn có thể đặt lại đơn này sau.</p>
+            <div class="cancel-modal-actions">
+                <button class="btn-modal-light" onclick="closeCancelOrderModal()">Không</button>
+                <button class="btn-modal-danger" onclick="confirmCancelOrder()">Đồng ý hủy</button>
+            </div>
+        </div>
+    </div>
+    <div class="account-toast" id="accountToast">Đã cập nhật đơn hàng</div>
+
     <script src="product-data.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-database-compat.js"></script>
@@ -158,6 +200,8 @@
         }
 
         const checkLogin = localStorage.getItem('isLoggedInStatus') === 'true';
+        let pendingCancelOrderId = '';
+        let cachedAccountOrders = [];
 
         document.addEventListener("DOMContentLoaded", function() {
 
@@ -274,57 +318,246 @@
             return Array.from(orderMap.values());
         }
 
+        function normalizeStatusText(status) {
+            return String(status || '').trim().toLowerCase();
+        }
+
+        function isCancelledStatus(status) {
+            const normalizedStatus = normalizeStatusText(status);
+            return normalizedStatus.includes('hủy') || normalizedStatus.includes('cancel');
+        }
+
+        function canCancelOrder(order) {
+            const status = normalizeStatusText(order && order.status);
+            if (isCancelledStatus(status)) return false;
+            if (status.includes('đã nhận') || status.includes('hoàn thành') || status.includes('đã giao xong')) return false;
+            return true;
+        }
+
         function getAccountStatusClass(status) {
-            const normalizedStatus = String(status || '').toLowerCase();
+            const normalizedStatus = normalizeStatusText(status);
+            if (isCancelledStatus(normalizedStatus)) return 'order-status-cancelled';
             if (normalizedStatus.includes('giao')) return 'order-status-shipping';
             if (normalizedStatus.includes('nhận') || normalizedStatus.includes('hoàn')) return 'order-status-done';
             return 'order-status-pending';
         }
 
+        function escapeAccountHtml(value) {
+            return String(value === undefined || value === null ? '' : value)
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;')
+                .replace(/"/g, '&quot;')
+                .replace(/'/g, '&#039;');
+        }
+
+        function showAccountToast(message) {
+            const toast = document.getElementById('accountToast');
+            if (!toast) return;
+            toast.innerText = message;
+            toast.classList.add('show');
+            setTimeout(() => toast.classList.remove('show'), 2500);
+        }
+
         async function renderOrdersData() {
-            const container = document.getElementById('injectOrdersContainer');
-            container.innerHTML = '';
+            const activeContainer = document.getElementById('injectOrdersContainer');
+            const cancelledContainer = document.getElementById('injectCancelledOrdersContainer');
+            activeContainer.innerHTML = '';
+            cancelledContainer.innerHTML = '';
 
             const ordersList = await getOrdersForCurrentUser();
-            
+            cachedAccountOrders = Array.isArray(ordersList) ? ordersList : [];
+            const activeOrders = cachedAccountOrders.filter(order => !isCancelledStatus(order.status));
+            const cancelledOrders = cachedAccountOrders.filter(order => isCancelledStatus(order.status));
+
+            renderActiveOrders(activeContainer, activeOrders);
+            renderCancelledOrders(cancelledContainer, cancelledOrders);
+        }
+
+        function buildProductsHTML(order) {
+            let productsHTML = '';
+            (order.orderedProductsList || []).forEach(item => {
+                productsHTML += `
+                    <div class="order-product-row">
+                        <span>• ${escapeAccountHtml(item.name || 'Sản phẩm')} (Size: ${escapeAccountHtml(item.size || '-')})</span>
+                        <strong>x${escapeAccountHtml(item.qty || item.quantity || 1)}</strong>
+                    </div>
+                `;
+            });
+            return productsHTML || '<p style="font-size:13px;color:#888;">Không có dữ liệu sản phẩm.</p>';
+        }
+
+        function renderActiveOrders(container, ordersList) {
             if(ordersList.length === 0) {
-                container.innerHTML = `<p style="font-size: 13px; color: #888; text-align: center; padding: 40px 0;">You haven't placed any orders yet.</p>`;
+                container.innerHTML = `<p style="font-size: 13px; color: #888; text-align: center; padding: 40px 0;">You haven't placed any active orders yet.</p>`;
                 return;
             }
 
             ordersList.forEach(order => {
                 const card = document.createElement('div');
                 card.className = 'order-item-card';
-                
-                let productsHTML = '';
-                (order.orderedProductsList || []).forEach(item => {
-                    productsHTML += `
-                        <div class="order-product-row">
-                            <span>• ${item.name} (Size: ${item.size || '-'})</span>
-                            <strong>x${item.qty || item.quantity || 1}</strong>
-                        </div>
-                    `;
-                });
-
                 const status = order.status || 'Đang chờ xác nhận';
                 const statusClass = getAccountStatusClass(status);
                 const orderDate = order.orderDate || order.date || '';
+                const orderId = order.orderId || 'N/A';
+                const cancelButton = canCancelOrder(order)
+                    ? `<button class="btn-order-action btn-cancel-order" onclick="requestCancelOrder('${escapeAccountHtml(orderId)}')">Hủy đơn</button>`
+                    : '';
 
                 card.innerHTML = `
                     <div class="order-card-top">
-                        <span>ID: ${order.orderId || 'N/A'}</span>
-                        <span class="order-status-badge ${statusClass}">${status}</span>
+                        <span>ID: ${escapeAccountHtml(orderId)}</span>
+                        <span class="order-status-badge ${statusClass}">${escapeAccountHtml(status)}</span>
                     </div>
-                    <div style="font-size: 12px; color: #888; margin-bottom: 12px;">Date: ${orderDate}</div>
-                    <div class="order-products-body">${productsHTML}</div>
+                    <div style="font-size: 12px; color: #888; margin-bottom: 12px;">Date: ${escapeAccountHtml(orderDate)}</div>
+                    <div class="order-products-body">${buildProductsHTML(order)}</div>
                     <div class="order-card-bottom">
                         <span>Total Price:</span>
-                        <span>${order.totalPriceFormatted || order.totalPrice || ''}</span>
+                        <span>${escapeAccountHtml(order.totalPriceFormatted || order.totalPrice || '')}</span>
+                    </div>
+                    ${cancelButton ? `<div class="order-actions-row">${cancelButton}</div>` : ''}
+                `;
+                container.appendChild(card);
+            });
+        }
+
+        function renderCancelledOrders(container, ordersList) {
+            if(ordersList.length === 0) {
+                container.innerHTML = `<p style="font-size: 13px; color: #888; text-align: center; padding: 40px 0;">Bạn chưa có đơn hàng đã hủy.</p>`;
+                return;
+            }
+
+            ordersList.forEach(order => {
+                const card = document.createElement('div');
+                card.className = 'order-item-card cancelled-order-card';
+                card.setAttribute('onclick', `toggleCancelledOrderDetails('${escapeAccountHtml(order.orderId || '')}')`);
+                card.setAttribute('data-cancelled-order-id', order.orderId || '');
+
+                const status = order.status || 'Đã hủy';
+                const statusClass = getAccountStatusClass(status);
+                const orderDate = order.orderDate || order.date || '';
+                const orderId = order.orderId || 'N/A';
+
+                card.innerHTML = `
+                    <div class="order-card-top">
+                        <span>ID: ${escapeAccountHtml(orderId)}</span>
+                        <span class="order-status-badge ${statusClass}">${escapeAccountHtml(status)}</span>
+                    </div>
+                    <div class="order-mini-note">Click vào đơn để xem chi tiết và đặt lại.</div>
+                    <div class="cancelled-detail-body">
+                        <div style="font-size: 12px; color: #888; margin: 12px 0;">Date: ${escapeAccountHtml(orderDate)}</div>
+                        <div class="order-products-body">${buildProductsHTML(order)}</div>
+                        <div class="order-card-bottom">
+                            <span>Total Price:</span>
+                            <span>${escapeAccountHtml(order.totalPriceFormatted || order.totalPrice || '')}</span>
+                        </div>
+                        <div class="order-actions-row">
+                            <button class="btn-order-action btn-reorder" onclick="reorderCancelledOrder('${escapeAccountHtml(orderId)}', event)">Đặt lại đơn này</button>
+                        </div>
                     </div>
                 `;
                 container.appendChild(card);
             });
         }
+
+        function toggleCancelledOrderDetails(orderId) {
+            const selector = `.cancelled-order-card[data-cancelled-order-id="${CSS.escape(orderId)}"]`;
+            const card = document.querySelector(selector);
+            if (card) card.classList.toggle('expanded');
+        }
+
+        function requestCancelOrder(orderId) {
+            pendingCancelOrderId = orderId;
+            const message = document.getElementById('cancelOrderMessage');
+            if (message) {
+                message.innerText = `Bạn có chắc chắn muốn hủy đơn ${orderId}? Đơn sau khi hủy sẽ chuyển sang mục Cancelled Orders và bạn có thể đặt lại sau.`;
+            }
+            document.getElementById('cancelOrderModal').classList.add('open');
+        }
+
+        function closeCancelOrderModal() {
+            pendingCancelOrderId = '';
+            document.getElementById('cancelOrderModal').classList.remove('open');
+        }
+
+        async function confirmCancelOrder() {
+            if (!pendingCancelOrderId) return;
+            const orderId = pendingCancelOrderId;
+            try {
+                if (window.StyleHubOrders && typeof StyleHubOrders.updateOrderStatus === 'function') {
+                    await StyleHubOrders.updateOrderStatus(orderId, 'Đã hủy');
+                } else {
+                    updateLocalOrderStatus(orderId, 'Đã hủy');
+                }
+                closeCancelOrderModal();
+                showAccountToast('Đã hủy đơn hàng');
+                renderOrdersData();
+            } catch (error) {
+                console.error('Không thể hủy đơn:', error);
+                showAccountToast('Không thể hủy đơn, vui lòng thử lại');
+            }
+        }
+
+        function updateLocalOrderStatus(orderId, status) {
+            Object.keys(localStorage).forEach(key => {
+                if (key !== 'hub_orders' && key.indexOf('hub_orders_') !== 0) return;
+                const orders = safeParseOrders(key);
+                let changed = false;
+                const updated = orders.map(order => {
+                    if (order && order.orderId === orderId) {
+                        changed = true;
+                        return Object.assign({}, order, { status: status, cancelledAt: new Date().toLocaleString('vi-VN'), updatedAt: Date.now() });
+                    }
+                    return order;
+                });
+                if (changed) localStorage.setItem(key, JSON.stringify(updated));
+            });
+        }
+
+        function findProductKeyByName(productName) {
+            if (typeof database === 'undefined' || !productName) return '';
+            const target = String(productName).trim().toLowerCase();
+            return Object.keys(database).find(id => String(database[id].name || '').trim().toLowerCase() === target) || '';
+        }
+
+        function normalizeReorderItems(order) {
+            return (order.orderedProductsList || []).map(item => {
+                const key = item.key || item.id || findProductKeyByName(item.name);
+                const product = key && typeof database !== 'undefined' ? database[key] : null;
+                const priceText = item.price || (product && product.price) || '';
+                const priceNum = Number(item.priceNum) || parseInt(String(priceText).replace(/[^\d]/g, ''), 10) || 0;
+                return {
+                    key: key,
+                    name: item.name || (product && product.name) || 'Sản phẩm',
+                    price: priceText,
+                    priceNum: priceNum,
+                    mainImg: item.mainImg || (product && (product.mainImg || (product.images && product.images[0]))) || '',
+                    size: item.size || 'M',
+                    qty: Number(item.qty || item.quantity || 1)
+                };
+            }).filter(item => item.key || item.name);
+        }
+
+        function reorderCancelledOrder(orderId, event) {
+            if (event) event.stopPropagation();
+            const order = cachedAccountOrders.find(item => item && item.orderId === orderId);
+            if (!order) {
+                showAccountToast('Không tìm thấy đơn hàng');
+                return;
+            }
+            const reorderItems = normalizeReorderItems(order);
+            if (reorderItems.length === 0) {
+                showAccountToast('Đơn này không có sản phẩm để đặt lại');
+                return;
+            }
+            localStorage.setItem('stylehub_reorder_cart', JSON.stringify(reorderItems));
+            showAccountToast('Đang thêm lại sản phẩm vào BAG');
+            const firstProductKey = reorderItems[0].key || 'tops-1';
+            setTimeout(() => {
+                window.location.href = `product-detail.html?id=${encodeURIComponent(firstProductKey)}&reorder=1`;
+            }, 350);
+        }
+
         function searchProducts() {
 
         const keyword =

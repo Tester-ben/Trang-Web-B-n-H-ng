@@ -164,6 +164,7 @@
         .status-pending { background: #fef3c7; color: #7c4a03; }
         .status-shipping { background: #dbeafe; color: #1d4ed8; }
         .status-done { background: #dcfce7; color: #166534; }
+        .status-cancelled { background: #fee2e2; color: #991b1b; }
         .customer-grid {
             display: grid;
             grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -498,7 +499,13 @@
         return normalizedStatus.includes('đã nhận') || normalizedStatus.includes('đã giao xong') || normalizedStatus.includes('hoàn thành');
     }
 
+    function isCancelledStatus(status) {
+        const normalizedStatus = normalizeStatusText(status);
+        return normalizedStatus.includes('hủy') || normalizedStatus.includes('cancel');
+    }
+
     function getStatusClass(status) {
+        if (isCancelledStatus(status)) return 'status-cancelled';
         if (isShippingStatus(status)) return 'status-shipping';
         if (isDoneStatus(status)) return 'status-done';
         return 'status-pending';
@@ -547,7 +554,8 @@
             const orderId = order.orderId || 'N/A';
             const isShipping = isShippingStatus(status);
             const isDone = isDoneStatus(status);
-            const isPending = isPendingStatus(status);
+            const isCancelled = isCancelledStatus(status);
+            const isPending = isPendingStatus(status) && !isCancelled;
 
             return `
                 <article class="order-card">
@@ -577,7 +585,7 @@
 
                     <div class="total-price">TỔNG CỘNG: ${escapeHtml(displayTotal)}</div>
                     <div class="btn-group">
-                        ${isPending ? `<button class="btn btn-confirm" onclick="confirmOrder('${escapeHtml(orderId)}')">Chấp nhận đơn hàng</button>` : `<button class="btn btn-disabled" disabled>${isShipping ? 'Đang giao' : 'Đã xử lý'}</button>`}
+                        ${isPending ? `<button class="btn btn-confirm" onclick="confirmOrder('${escapeHtml(orderId)}')">Chấp nhận đơn hàng</button>` : `<button class="btn btn-disabled" disabled>${isCancelled ? 'Đã hủy' : (isShipping ? 'Đang giao' : 'Đã xử lý')}</button>`}
                         <button class="btn btn-delete" onclick="removeOrder('${escapeHtml(orderId)}')">Xóa đơn</button>
                     </div>
                 </article>

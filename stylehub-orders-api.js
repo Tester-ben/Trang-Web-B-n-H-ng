@@ -218,6 +218,7 @@
         const patch = { status: status, updatedAt: Date.now() };
         if (status === "Đang giao") patch.confirmedAt = new Date().toLocaleString("vi-VN");
         if (status === "Đã nhận hàng") patch.completedAt = new Date().toLocaleString("vi-VN");
+        if (String(status || "").toLowerCase().includes("hủy")) patch.cancelledAt = new Date().toLocaleString("vi-VN");
         updateLocalOrder(orderId, patch);
         if (initFirebase()) {
             await firebaseDatabase.ref(DB_ROOT + "/" + orderId).update(patch);

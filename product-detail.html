@@ -479,6 +479,44 @@
             });
         }
 
+        function loadPendingReorderCart() {
+            const rawCart = localStorage.getItem('stylehub_reorder_cart');
+            if (!rawCart) return;
+
+            try {
+                const savedItems = JSON.parse(rawCart);
+                if (!Array.isArray(savedItems) || savedItems.length === 0) return;
+
+                cartMemoryArray = savedItems.map(function(item) {
+                    const product = item.key && typeof database !== 'undefined' ? database[item.key] : null;
+                    const priceText = item.price || (product && product.price) || '';
+                    const priceNum = Number(item.priceNum) || parseInt(String(priceText).replace(/[^\d]/g, ''), 10) || 0;
+                    return {
+                        key: item.key || '',
+                        name: item.name || (product && product.name) || 'Sản phẩm',
+                        price: priceText,
+                        priceNum: priceNum,
+                        mainImg: item.mainImg || (product && (product.mainImg || (product.images && product.images[0]))) || '',
+                        size: item.size || 'M',
+                        qty: Number(item.qty || item.quantity || 1)
+                    };
+                }).filter(function(item) { return item.name; });
+
+                localStorage.removeItem('stylehub_reorder_cart');
+                renderCartUI();
+
+                if (cartMemoryArray.length > 0) {
+                    setTimeout(function() {
+                        showToastNotification('Đã thêm lại đơn hàng vào BAG!');
+                        toggleCartDrawer(true);
+                    }, 250);
+                }
+            } catch (error) {
+                console.error('Không thể tải lại đơn hàng đã hủy:', error);
+                localStorage.removeItem('stylehub_reorder_cart');
+            }
+        }
+
         document.addEventListener("DOMContentLoaded", function() {
             const urlParams = new URLSearchParams(window.location.search);
             const productId = urlParams.get('id') || 'tops-1';
@@ -521,6 +559,7 @@
             
             loadSavedShippingInfo();
             updateHeaderAccountUI();
+            loadPendingReorderCart();
         });
 
         function changeSize(el) { 
