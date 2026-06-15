@@ -383,10 +383,28 @@
         return total.toLocaleString('vi-VN') + ' ₫';
     }
 
+    function normalizeStatusText(status) {
+        return String(status || '').trim().toLowerCase();
+    }
+
+    function isPendingStatus(status) {
+        const normalizedStatus = normalizeStatusText(status);
+        return normalizedStatus.includes('chờ') || normalizedStatus.includes('xác nhận') || normalizedStatus === '';
+    }
+
+    function isShippingStatus(status) {
+        const normalizedStatus = normalizeStatusText(status);
+        return normalizedStatus === 'đang giao' || normalizedStatus.includes('đang giao');
+    }
+
+    function isDoneStatus(status) {
+        const normalizedStatus = normalizeStatusText(status);
+        return normalizedStatus.includes('đã nhận') || normalizedStatus.includes('đã giao xong') || normalizedStatus.includes('hoàn thành');
+    }
+
     function getStatusClass(status) {
-        const normalizedStatus = String(status || '').toLowerCase();
-        if (normalizedStatus.includes('giao')) return 'status-shipping';
-        if (normalizedStatus.includes('nhận') || normalizedStatus.includes('hoàn')) return 'status-done';
+        if (isShippingStatus(status)) return 'status-shipping';
+        if (isDoneStatus(status)) return 'status-done';
         return 'status-pending';
     }
 
@@ -431,8 +449,9 @@
             const displayTotal = order.totalPriceFormatted || order.totalPrice || calculateTotal(items);
             const date = order.orderDate || order.date || 'N/A';
             const orderId = order.orderId || 'N/A';
-            const isShipping = String(status).toLowerCase().includes('giao');
-            const isDone = String(status).toLowerCase().includes('nhận') || String(status).toLowerCase().includes('hoàn');
+            const isShipping = isShippingStatus(status);
+            const isDone = isDoneStatus(status);
+            const isPending = isPendingStatus(status);
 
             return `
                 <article class="order-card">
@@ -462,7 +481,7 @@
 
                     <div class="total-price">TỔNG CỘNG: ${escapeHtml(displayTotal)}</div>
                     <div class="btn-group">
-                        ${(!isShipping && !isDone) ? `<button class="btn btn-confirm" onclick="confirmOrder('${escapeHtml(orderId)}')">Chấp nhận đơn hàng</button>` : `<button class="btn btn-disabled" disabled>Đã chấp nhận</button>`}
+                        ${isPending ? `<button class="btn btn-confirm" onclick="confirmOrder('${escapeHtml(orderId)}')">Chấp nhận đơn hàng</button>` : `<button class="btn btn-disabled" disabled>${isShipping ? 'Đang giao' : 'Đã xử lý'}</button>`}
                         <button class="btn btn-delete" onclick="removeOrder('${escapeHtml(orderId)}')">Xóa đơn</button>
                     </div>
                 </article>
