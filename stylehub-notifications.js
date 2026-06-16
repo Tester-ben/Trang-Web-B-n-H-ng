@@ -485,6 +485,155 @@
                 border-bottom: 1px solid #eeeeee !important;
             }
 
+
+            /* ===== FIXED BELL ALL PAGES + RESTORE HOODIES PAGE 2 ===== */
+            .stylehub-notification-root {
+                z-index: 999999 !important;
+            }
+
+            .filter-right-sort[data-stylehub-notification-bell] {
+                position: fixed !important;
+                top: 88px !important;
+                right: 66px !important;
+                z-index: 999999 !important;
+                min-width: 42px !important;
+                display: inline-flex !important;
+                justify-content: center !important;
+                align-items: center !important;
+            }
+
+            .filter-right-sort[data-stylehub-notification-bell] .stylehub-bell-btn {
+                width: 42px !important;
+                height: 42px !important;
+                border-radius: 50% !important;
+                background: #ffffff !important;
+                color: #111111 !important;
+                border: 1px solid rgba(17,17,17,.16) !important;
+                box-shadow: 0 10px 25px rgba(0,0,0,.14) !important;
+                font-size: 18px !important;
+            }
+
+            .filter-right-sort[data-stylehub-notification-bell] .stylehub-notification-panel {
+                top: calc(100% + 12px) !important;
+                right: 0 !important;
+                bottom: auto !important;
+                z-index: 1000000 !important;
+            }
+
+            .filter-right-sort[data-stylehub-notification-bell] .stylehub-notification-panel::before {
+                top: -8px !important;
+                bottom: auto !important;
+                right: 20px !important;
+                border-right: none !important;
+                border-bottom: none !important;
+                border-left: 1px solid #eeeeee !important;
+                border-top: 1px solid #eeeeee !important;
+            }
+
+            .home-notification-bell {
+                position: fixed !important;
+                right: 104px !important;
+                bottom: 24px !important;
+                top: auto !important;
+                z-index: 999999 !important;
+                display: inline-flex !important;
+                justify-content: center !important;
+                align-items: center !important;
+            }
+
+            .home-notification-bell .stylehub-bell-btn {
+                width: 56px !important;
+                height: 56px !important;
+                border-radius: 50% !important;
+                background: #ffffff !important;
+                color: #111111 !important;
+                border: 1px solid rgba(17,17,17,.16) !important;
+                box-shadow: 0 12px 30px rgba(0,0,0,.22) !important;
+                font-size: 22px !important;
+            }
+
+            .home-notification-bell .stylehub-notification-panel {
+                top: auto !important;
+                bottom: calc(100% + 14px) !important;
+                right: 0 !important;
+                z-index: 1000000 !important;
+            }
+
+            .home-notification-bell .stylehub-notification-panel::before {
+                top: auto !important;
+                bottom: -8px !important;
+                right: 20px !important;
+                border-top: none !important;
+                border-left: none !important;
+                border-right: 1px solid #eeeeee !important;
+                border-bottom: 1px solid #eeeeee !important;
+            }
+
+            .pd-notification-bell {
+                position: fixed !important;
+                top: 88px !important;
+                right: 66px !important;
+                bottom: auto !important;
+                z-index: 999999 !important;
+                display: inline-flex !important;
+                justify-content: center !important;
+                align-items: center !important;
+            }
+
+            .pd-notification-bell .stylehub-bell-btn {
+                width: 42px !important;
+                height: 42px !important;
+                border-radius: 50% !important;
+                background: #ffffff !important;
+                color: #111111 !important;
+                border: 1px solid rgba(17,17,17,.16) !important;
+                box-shadow: 0 10px 25px rgba(0,0,0,.14) !important;
+                font-size: 18px !important;
+            }
+
+            .pd-notification-bell .stylehub-notification-panel {
+                top: calc(100% + 12px) !important;
+                right: 0 !important;
+                bottom: auto !important;
+                z-index: 1000000 !important;
+            }
+
+            .pd-notification-bell .stylehub-notification-panel::before {
+                top: -8px !important;
+                bottom: auto !important;
+                right: 20px !important;
+                border-right: none !important;
+                border-bottom: none !important;
+                border-left: 1px solid #eeeeee !important;
+                border-top: 1px solid #eeeeee !important;
+            }
+
+            .home-bag-notify-wrap,
+            .pd-bag-notify-wrap {
+                display: inline !important;
+                flex-direction: initial !important;
+                gap: 0 !important;
+            }
+
+            @media (max-width: 768px) {
+                .filter-right-sort[data-stylehub-notification-bell],
+                .pd-notification-bell {
+                    top: 76px !important;
+                    right: 18px !important;
+                }
+
+                .home-notification-bell {
+                    right: 92px !important;
+                    bottom: 22px !important;
+                }
+
+                .home-notification-bell .stylehub-bell-btn {
+                    width: 52px !important;
+                    height: 52px !important;
+                    font-size: 20px !important;
+                }
+            }
+
         `;
         document.head.appendChild(style);
     }
