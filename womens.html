@@ -133,6 +133,7 @@
 <a href="mens.html?cat=tops">TOPS</a>
 <a href="mens.html?cat=hoodies">HOODIES</a>
 <a href="mens.html?cat=dress-shirt">DRESS SHIRT</a>
+<a href="mens.html?cat=bottoms">BOTTOMS</a>
 </div>
 </div>
 <div class="menu-item-has-dropdown">
@@ -529,7 +530,7 @@ function filterCategory(categoryName, element) {
     applyWomensFilter();
 }
 
-function setWomensTopsPage(page) {
+function setWomensTopsPage(page, options = {}) {
     currentWomensTopsPage = page;
 
     const topsTag = document.querySelector(`.filter-tag[onclick*="'tops'"], .filter-tag[onclick*='"tops"']`);
@@ -541,10 +542,17 @@ function setWomensTopsPage(page) {
     currentWomensCategory = 'tops';
     applyWomensFilter();
 
-    const bar = document.querySelector('.sub-filter-bar');
-    if (bar) {
-        bar.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    if (!options.silent) {
+        const bar = document.querySelector('.sub-filter-bar');
+        if (bar) {
+            bar.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
     }
+
+    const url = new URL(window.location.href);
+    url.searchParams.set('cat', 'tops');
+    url.searchParams.set('page', String(currentWomensTopsPage));
+    window.history.replaceState({}, '', url.pathname.split('/').pop() + url.search);
 }
 
 function changeWomensTopsPage(direction) {
@@ -553,20 +561,157 @@ function changeWomensTopsPage(direction) {
 }
 </script>
 <script>
-/* AUTO FILTER FROM NAVBAR QUERY (?cat=...) */
+/* AUTO FILTER FROM NAVBAR QUERY (?cat=...&page=...) */
 document.addEventListener("DOMContentLoaded", function () {
     const params = new URLSearchParams(window.location.search);
     const cat = params.get("cat");
+    const page = Math.min(2, Math.max(1, Number(params.get("page") || "1")));
 
     if (cat && typeof filterCategory === "function") {
         const target = document.querySelector(`.filter-tag[onclick*="'${cat}'"], .filter-tag[onclick*='"${cat}"']`);
         if (target) {
-            currentWomensTopsPage = 1;
+            currentWomensTopsPage = page;
             filterCategory(cat, target);
         }
     }
 });
-</script><script src="product-data.js?v=product-data-hoodies-page2-restored-20260616"></script>
+</script>
+
+<script id="womens-collection-return-fix">
+(function () {
+    const COLLECTION_PAGE = 'womens.html';
+
+    function getActiveCategory() {
+        const params = new URLSearchParams(window.location.search);
+        const urlCat = params.get('cat');
+        if (urlCat) return urlCat;
+
+        if (window.currentWomensCategory) return window.currentWomensCategory;
+
+        const activeTag = document.querySelector('.filter-tag.active');
+        if (!activeTag) return 'all';
+
+        const onclickText = activeTag.getAttribute('onclick') || '';
+        const matched = onclickText.match(/filterCategory\(['"]([^'"]+)['"]/);
+        if (matched && matched[1]) return matched[1];
+
+        const label = activeTag.textContent.trim().toLowerCase();
+        if (label.includes('top')) return 'tops';
+        if (label.includes('jacket') || label.includes('outerwear')) return 'jackets';
+        return 'all';
+    }
+
+    function getActivePage() {
+        if (typeof currentWomensTopsPage === 'number') return currentWomensTopsPage;
+        const params = new URLSearchParams(window.location.search);
+        return Math.min(2, Math.max(1, Number(params.get('page') || '1')));
+    }
+
+    function buildWomensReturnUrl() {
+        const category = getActiveCategory();
+        const url = new URL(COLLECTION_PAGE, window.location.href);
+        url.search = '';
+
+        if (category && category !== 'all') {
+            url.searchParams.set('cat', category);
+        }
+
+        if (category === 'tops') {
+            url.searchParams.set('page', String(getActivePage()));
+        }
+
+        return url.pathname.split('/').pop() + url.search;
+    }
+
+    function rememberWomensReturnPosition(card) {
+        const productUrl = new URL(card.getAttribute('href') || '', window.location.href);
+        const productId = productUrl.searchParams.get('id') || '';
+        const returnUrl = buildWomensReturnUrl();
+
+        sessionStorage.setItem('stylehub_collection_return', JSON.stringify({
+            url: returnUrl,
+            scrollY: window.scrollY || window.pageYOffset || 0,
+            productId: productId,
+            savedAt: Date.now()
+        }));
+
+        productUrl.searchParams.set('from', returnUrl);
+        return productUrl.pathname.split('/').pop() + productUrl.search;
+    }
+
+    function setupWomensReturnLinks() {
+        document.querySelectorAll('a.mens-card[href*="product-detail.html"], a.product-card[href*="product-detail.html"]').forEach(function (card) {
+            if (card.dataset.womensReturnBound === '1') return;
+            card.dataset.womensReturnBound = '1';
+
+            card.addEventListener('click', function (event) {
+                if (event.defaultPrevented || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey || event.button !== 0) return;
+                event.preventDefault();
+                window.location.href = rememberWomensReturnPosition(this);
+            });
+        });
+    }
+
+    function applyFilterFromSavedUrl(savedUrl) {
+        if (!savedUrl) return;
+
+        const url = new URL(savedUrl, window.location.href);
+        const cat = url.searchParams.get('cat') || 'all';
+        const page = Math.min(2, Math.max(1, Number(url.searchParams.get('page') || '1')));
+
+        if (cat === 'tops') {
+            if (typeof setWomensTopsPage === 'function') {
+                setWomensTopsPage(page, { silent: true });
+            }
+            return;
+        }
+
+        const target = document.querySelector(`.filter-tag[onclick*="'${cat}'"], .filter-tag[onclick*='"${cat}"']`);
+        if (target && typeof filterCategory === 'function') {
+            filterCategory(cat, target);
+        }
+    }
+
+    function restoreWomensReturnPosition() {
+        if (sessionStorage.getItem('stylehub_collection_restore') !== '1') return;
+        sessionStorage.removeItem('stylehub_collection_restore');
+
+        let saved = null;
+        try {
+            saved = JSON.parse(sessionStorage.getItem('stylehub_collection_return') || 'null');
+        } catch (error) {
+            saved = null;
+        }
+
+        if (!saved) return;
+
+        applyFilterFromSavedUrl(saved.url);
+
+        function scrollToSavedSpot() {
+            if (typeof saved.scrollY === 'number') {
+                window.scrollTo(0, saved.scrollY);
+                return;
+            }
+
+            if (saved.productId) {
+                const safeId = window.CSS && CSS.escape ? CSS.escape(saved.productId) : saved.productId.replace(/"/g, '\\"');
+                const targetCard = document.querySelector(`a[href*="id=${safeId}"]`);
+                if (targetCard) targetCard.scrollIntoView({ block: 'center' });
+            }
+        }
+
+        setTimeout(scrollToSavedSpot, 80);
+        setTimeout(scrollToSavedSpot, 350);
+        setTimeout(scrollToSavedSpot, 800);
+    }
+
+    document.addEventListener('DOMContentLoaded', function () {
+        setupWomensReturnLinks();
+        restoreWomensReturnPosition();
+    });
+})();
+</script>
+<script src="product-data.js?v=mens-bottoms-15-products-20260616"></script>
 
 
 <script>
@@ -683,7 +828,7 @@ document.addEventListener("click", function(e) {
 </footer>
 <div class="footer-bottom">© 2026 THE STYLE HUB. UI/UX Interface Design Project.</div>
 <script src="stylehub-notifications.js?v=notification-bell-fixed-all-pages-20260616"></script>
-<script src="stylehub-responsive-nav.js?v=hamburger-only-no-more-20260616"></script>
+<script src="stylehub-responsive-nav.js?v=mens-bottoms-15-products-20260616"></script>
 <script src="stylehub-common.js"></script>
 
 <script src="stylehub-ai-chat.js"></script>
