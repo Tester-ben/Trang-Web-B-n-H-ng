@@ -253,6 +253,7 @@
                 display: flex;
             }
 
+            .home-bag-notify-wrap,
             .pd-bag-notify-wrap {
                 display: inline-flex;
                 flex-direction: column;
@@ -261,36 +262,15 @@
                 vertical-align: middle;
             }
 
+            .home-bag-notify-wrap > a,
             .pd-bag-notify-wrap > a {
                 margin-left: 0 !important;
             }
 
+            .home-notification-bell,
             .pd-notification-bell {
                 display: inline-flex;
                 justify-content: center;
-            }
-
-            .home-notification-bell {
-                position: fixed;
-                top: 88px;
-                right: 66px;
-                z-index: 1500;
-                display: inline-flex;
-                justify-content: center;
-            }
-
-            .home-notification-bell .stylehub-bell-btn {
-                width: 34px;
-                height: 34px;
-                background: rgba(255,255,255,.92);
-                color: #111111;
-                border-color: rgba(17,17,17,.2);
-                box-shadow: 0 8px 22px rgba(0,0,0,.12);
-            }
-
-            .home-notification-bell .stylehub-notification-panel {
-                top: calc(100% + 12px);
-                right: 0;
             }
 
             @media (max-width: 768px) {
@@ -307,6 +287,102 @@
                     display: none;
                 }
             }
+
+            /* ===== FINAL FIX: chuông không bị header / featured menu đè ===== */
+            .stylehub-notification-root {
+                z-index: 999999 !important;
+            }
+
+            .filter-right-sort[data-stylehub-notification-bell] {
+                position: relative !important;
+                z-index: 999999 !important;
+                min-width: 42px;
+                display: flex !important;
+                justify-content: flex-end !important;
+                align-items: center !important;
+            }
+
+            .filter-right-sort[data-stylehub-notification-bell] .stylehub-notification-panel {
+                z-index: 1000000 !important;
+            }
+
+            .home-notification-bell,
+            .pd-notification-bell {
+                position: fixed !important;
+                right: 104px !important;
+                bottom: 24px !important;
+                top: auto !important;
+                z-index: 999999 !important;
+                display: inline-flex !important;
+                justify-content: center !important;
+                align-items: center !important;
+            }
+
+            .home-bag-notify-wrap,
+            .pd-bag-notify-wrap {
+                display: inline !important;
+                flex-direction: initial !important;
+                gap: 0 !important;
+            }
+
+            .home-bag-notify-wrap > a,
+            .pd-bag-notify-wrap > a {
+                margin-left: 18px !important;
+            }
+
+            .home-notification-bell .stylehub-bell-btn,
+            .pd-notification-bell .stylehub-bell-btn {
+                width: 56px !important;
+                height: 56px !important;
+                border-radius: 50% !important;
+                background: #ffffff !important;
+                color: #111111 !important;
+                border: 1px solid rgba(17,17,17,.16) !important;
+                box-shadow: 0 12px 30px rgba(0,0,0,.22) !important;
+                font-size: 22px !important;
+            }
+
+            .home-notification-bell .stylehub-bell-btn:hover,
+            .pd-notification-bell .stylehub-bell-btn:hover {
+                transform: translateY(-2px) !important;
+                border-color: #0b3030 !important;
+                box-shadow: 0 16px 36px rgba(0,0,0,.28) !important;
+            }
+
+            .home-notification-bell .stylehub-notification-panel,
+            .pd-notification-bell .stylehub-notification-panel {
+                top: auto !important;
+                bottom: calc(100% + 14px) !important;
+                right: 0 !important;
+                z-index: 1000000 !important;
+            }
+
+            .home-notification-bell .stylehub-notification-panel::before,
+            .pd-notification-bell .stylehub-notification-panel::before {
+                top: auto !important;
+                bottom: -8px !important;
+                right: 20px !important;
+                border-top: none !important;
+                border-left: none !important;
+                border-right: 1px solid #eeeeee !important;
+                border-bottom: 1px solid #eeeeee !important;
+            }
+
+            @media (max-width: 768px) {
+                .home-notification-bell,
+                .pd-notification-bell {
+                    right: 92px !important;
+                    bottom: 22px !important;
+                }
+
+                .home-notification-bell .stylehub-bell-btn,
+                .pd-notification-bell .stylehub-bell-btn {
+                    width: 52px !important;
+                    height: 52px !important;
+                    font-size: 20px !important;
+                }
+            }
+
         `;
         document.head.appendChild(style);
     }
