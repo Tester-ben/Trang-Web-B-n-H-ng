@@ -253,7 +253,6 @@
                 display: flex;
             }
 
-            .home-bag-notify-wrap,
             .pd-bag-notify-wrap {
                 display: inline-flex;
                 flex-direction: column;
@@ -262,15 +261,36 @@
                 vertical-align: middle;
             }
 
-            .home-bag-notify-wrap > a,
             .pd-bag-notify-wrap > a {
                 margin-left: 0 !important;
             }
 
-            .home-notification-bell,
             .pd-notification-bell {
                 display: inline-flex;
                 justify-content: center;
+            }
+
+            .home-notification-bell {
+                position: fixed;
+                top: 88px;
+                right: 66px;
+                z-index: 1500;
+                display: inline-flex;
+                justify-content: center;
+            }
+
+            .home-notification-bell .stylehub-bell-btn {
+                width: 34px;
+                height: 34px;
+                background: rgba(255,255,255,.92);
+                color: #111111;
+                border-color: rgba(17,17,17,.2);
+                box-shadow: 0 8px 22px rgba(0,0,0,.12);
+            }
+
+            .home-notification-bell .stylehub-notification-panel {
+                top: calc(100% + 12px);
+                right: 0;
             }
 
             @media (max-width: 768px) {
@@ -295,10 +315,7 @@
         if (!notifications.length) {
             return `
                 <div class="stylehub-notification-title">Thông báo</div>
-                <div class="stylehub-notification-empty">
-                    Chưa có thông báo mới.<br>
-                    Khi bạn đặt hàng thành công, thư cảm ơn sẽ xuất hiện ở đây.
-                </div>
+                <div class="stylehub-notification-empty">Chưa có thông báo mới.</div>
             `;
         }
 
