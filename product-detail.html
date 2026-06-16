@@ -295,7 +295,7 @@
             <div class="nav-right">
                 <a href="account.html" id="account-trigger" class="pd-account-link">ACCOUNT</a>
 <a href="admin.html" target="_blank" rel="noopener" class="admin-nav-link">ADMIN</a>
-                <a href="#" class="pd-bag-link" onclick="event.preventDefault(); toggleCartDrawer(true)">BAG (<span id="bag-count">0</span>)</a>
+                <span class="pd-bag-notify-wrap"><a href="#" class="pd-bag-link" onclick="event.preventDefault(); toggleCartDrawer(true)">BAG (<span id="bag-count">0</span>)</a><span class="pd-notification-bell" data-stylehub-notification-bell></span></span>
             </div>
         </div>
     </header>
@@ -982,6 +982,11 @@
                 localStorage.setItem('hub_orders', JSON.stringify(globalOrders));
             }
             
+
+            if (window.StyleHubNotifications && typeof StyleHubNotifications.addOrderSuccessNotification === 'function') {
+                StyleHubNotifications.addOrderSuccessNotification(newCompletedOrderObject);
+            }
+
             toggleCheckoutDrawer(false);
             cartMemoryArray = [];
             renderCartUI();
@@ -1143,6 +1148,7 @@ document.addEventListener("click", function(e) {
     </div>
 </footer>
 <div class="footer-bottom">© 2026 THE STYLE HUB. UI/UX Interface Design Project.</div>
+<script src="stylehub-notifications.js?v=order-bell-20260616"></script>
 <script src="stylehub-common.js"></script>
 
 <script src="shoe-size-patch.js?v=shoe-size-no-flash-20260616"></script>
