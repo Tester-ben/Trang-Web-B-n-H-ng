@@ -444,6 +444,47 @@
                 }
             }
 
+
+            /* ===== POLICY/HOME BELL POSITION FIX ===== */
+            .home-notification-bell {
+                position: fixed !important;
+                right: 104px !important;
+                bottom: 24px !important;
+                top: auto !important;
+                z-index: 999999 !important;
+                display: inline-flex !important;
+                justify-content: center !important;
+                align-items: center !important;
+            }
+
+            .home-notification-bell .stylehub-bell-btn {
+                width: 56px !important;
+                height: 56px !important;
+                border-radius: 50% !important;
+                background: #ffffff !important;
+                color: #111111 !important;
+                border: 1px solid rgba(17,17,17,.16) !important;
+                box-shadow: 0 12px 30px rgba(0,0,0,.22) !important;
+                font-size: 22px !important;
+            }
+
+            .home-notification-bell .stylehub-notification-panel {
+                top: auto !important;
+                bottom: calc(100% + 14px) !important;
+                right: 0 !important;
+                z-index: 1000000 !important;
+            }
+
+            .home-notification-bell .stylehub-notification-panel::before {
+                top: auto !important;
+                bottom: -8px !important;
+                right: 20px !important;
+                border-top: none !important;
+                border-left: none !important;
+                border-right: 1px solid #eeeeee !important;
+                border-bottom: 1px solid #eeeeee !important;
+            }
+
         `;
         document.head.appendChild(style);
     }
