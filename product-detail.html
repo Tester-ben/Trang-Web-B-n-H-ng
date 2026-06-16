@@ -524,18 +524,51 @@
             
             const backLink = document.getElementById('back-link-target');
 
-            if (productId.startsWith('womens')) {
-                backLink.href = 'womens.html';
-            } else if (productId.startsWith('dress')) {
-                backLink.href = 'mens.html';
-            } else if (productId.startsWith('kids')) {
-                backLink.href = 'kids.html';
-            } else if (productId.startsWith('sale')) {
-                backLink.href = 'sale.html'; 
-            } else if (productId.startsWith('shoe')) {
-                backLink.href = 'shoes.html'; 
+            function isSafeLocalPage(value) {
+                return !!value && !value.includes('://') && !value.startsWith('//') && !value.startsWith('javascript:');
+            }
+
+            function inferCollectionUrl(id, item) {
+                const itemName = ((item && item.name) || '').toLowerCase();
+                const topsMatch = id.match(/^tops-(\d+)$/);
+
+                if (id.startsWith('womens')) return 'womens.html';
+                if (id.startsWith('kids')) return 'kids.html';
+                if (id.startsWith('sale')) return 'sale.html';
+                if (id.startsWith('shoe')) return 'shoes.html';
+                if (id.startsWith('dress')) return 'mens.html?cat=dress-shirt';
+                if (id.startsWith('hoodies')) return 'mens.html?cat=hoodies';
+
+                if (topsMatch) {
+                    const topNumber = Number(topsMatch[1]);
+                    if (topNumber >= 21) return 'mens.html?cat=tops&page=2';
+                    if (itemName.includes('hoodie') || itemName.includes('jacket')) return 'mens.html?cat=hoodies';
+                    return 'mens.html?cat=tops&page=1';
+                }
+
+                return 'index.html';
+            }
+
+            const fromParam = urlParams.get('from');
+            const lastCollectionUrl = sessionStorage.getItem('stylehub_last_collection_url');
+            let collectionBackUrl = '';
+
+            if (isSafeLocalPage(fromParam)) {
+                collectionBackUrl = fromParam;
+            } else if (isSafeLocalPage(lastCollectionUrl)) {
+                collectionBackUrl = lastCollectionUrl;
+            } else if (document.referrer && document.referrer.startsWith(window.location.origin)) {
+                const ref = new URL(document.referrer);
+                collectionBackUrl = ref.pathname.split('/').pop() + ref.search;
             } else {
-                backLink.href = 'index.html'; 
+                collectionBackUrl = inferCollectionUrl(productId, currentItem);
+            }
+
+            if (backLink) {
+                backLink.href = collectionBackUrl || inferCollectionUrl(productId, currentItem);
+                backLink.addEventListener('click', function() {
+                    sessionStorage.setItem('stylehub_last_collection_url', backLink.href.split('/').pop());
+                });
             }
             
             if (currentItem) {
