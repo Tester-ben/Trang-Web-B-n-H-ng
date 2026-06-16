@@ -1,9 +1,10 @@
 /* =========================================================
-   THE STYLE HUB - RESPONSIVE NAVIGATION
+   THE STYLE HUB - RESPONSIVE NAVIGATION V2
+   - Không dùng MORE nữa.
+   - Khi menu trái gần chạm logo, tự chuyển sang nút 2 gạch.
    ========================================================= */
 (function () {
     const STYLE_ID = "stylehub-responsive-nav-style";
-    const MORE_ID = "stylehub-responsive-more";
     const MOBILE_ID = "stylehub-mobile-menu";
 
     const menuGroups = [
@@ -18,6 +19,7 @@
 
     function injectStyle() {
         if (document.getElementById(STYLE_ID)) return;
+
         const style = document.createElement("style");
         style.id = STYLE_ID;
         style.textContent = `
@@ -34,7 +36,9 @@
                 gap: 6px;
                 padding: 0;
                 z-index: 1000010;
+                color: #ffffff;
             }
+
             .mobile-menu-toggle span {
                 display: block;
                 width: 18px;
@@ -42,37 +46,14 @@
                 background: currentColor;
                 transition: transform .22s ease;
             }
-            .mobile-menu-toggle.is-open span:first-child { transform: translateY(4px) rotate(45deg); }
-            .mobile-menu-toggle.is-open span:last-child { transform: translateY(-4px) rotate(-45deg); }
 
-            .responsive-more-menu { display: none; position: relative; }
-            .responsive-more-trigger { cursor: pointer; }
-            .responsive-more-dropdown {
-                position: absolute;
-                left: 0;
-                top: 100%;
-                min-width: 250px;
-                background: #151515;
-                color: #fff;
-                padding: 28px 30px;
-                display: none;
-                box-shadow: 0 20px 38px rgba(0,0,0,.22);
-                z-index: 1000005;
+            .mobile-menu-toggle.is-open span:first-child {
+                transform: translateY(4px) rotate(45deg);
             }
-            .responsive-more-menu:hover .responsive-more-dropdown,
-            .responsive-more-menu.is-open .responsive-more-dropdown { display: block; }
-            .responsive-more-dropdown a {
-                display: block;
-                color: #fff;
-                text-decoration: none;
-                font-size: 12px;
-                letter-spacing: 2.5px;
-                text-transform: uppercase;
-                padding: 11px 0;
-                white-space: nowrap;
-                opacity: .92;
+
+            .mobile-menu-toggle.is-open span:last-child {
+                transform: translateY(-4px) rotate(-45deg);
             }
-            .responsive-more-dropdown a:hover { opacity: .55; }
 
             .mobile-menu-overlay {
                 display: none;
@@ -81,14 +62,15 @@
                 background: rgba(0,0,0,.28);
                 z-index: 1000000;
             }
+
             .mobile-menu-panel {
                 position: fixed;
                 top: 0;
                 left: 0;
                 width: min(390px, 86vw);
                 height: 100vh;
-                background: #111;
-                color: #fff;
+                background: #111111;
+                color: #ffffff;
                 transform: translateX(-100%);
                 transition: transform .28s ease;
                 z-index: 1000001;
@@ -96,19 +78,27 @@
                 padding: 88px 30px 36px;
                 box-shadow: 24px 0 55px rgba(0,0,0,.25);
             }
-            .mobile-menu-overlay.is-open { display: block; }
-            .mobile-menu-overlay.is-open .mobile-menu-panel { transform: translateX(0); }
+
+            .mobile-menu-overlay.is-open {
+                display: block;
+            }
+
+            .mobile-menu-overlay.is-open .mobile-menu-panel {
+                transform: translateX(0);
+            }
+
             .mobile-menu-close {
                 position: absolute;
                 top: 24px;
                 right: 24px;
                 border: none;
                 background: transparent;
-                color: #fff;
+                color: #ffffff;
                 font-size: 30px;
                 line-height: 1;
                 cursor: pointer;
             }
+
             .mobile-menu-brand {
                 position: absolute;
                 top: 26px;
@@ -118,11 +108,16 @@
                 font-weight: 700;
                 text-transform: uppercase;
             }
+
             .mobile-menu-group {
                 border-top: 1px solid rgba(255,255,255,.12);
                 padding: 20px 0;
             }
-            .mobile-menu-group:first-of-type { border-top: none; }
+
+            .mobile-menu-group:first-of-type {
+                border-top: none;
+            }
+
             .mobile-menu-title {
                 font-size: 12px;
                 letter-spacing: 3px;
@@ -130,9 +125,10 @@
                 font-weight: 700;
                 margin-bottom: 12px;
             }
+
             .mobile-menu-panel a {
                 display: block;
-                color: #fff;
+                color: #ffffff;
                 text-decoration: none;
                 font-size: 13px;
                 letter-spacing: 2px;
@@ -140,14 +136,13 @@
                 padding: 9px 0;
                 opacity: .82;
             }
-            .mobile-menu-panel a:hover { opacity: 1; }
 
-            @media (min-width: 769px) and (max-width: 1120px) {
-                .main-header .nav-left > .menu-item-has-dropdown:nth-of-type(n+4) { display: none !important; }
-                .responsive-more-menu { display: block !important; }
+            .mobile-menu-panel a:hover {
+                opacity: 1;
             }
 
-            @media (max-width: 768px) {
+            /* Khi màn hình vừa/nhỏ, bỏ hết menu chữ bên trái, chỉ hiện nút 2 gạch */
+            @media (max-width: 1120px) {
                 .main-header .nav-container {
                     display: grid !important;
                     grid-template-columns: 48px 1fr auto !important;
@@ -156,71 +151,103 @@
                     padding-right: 16px !important;
                     gap: 8px !important;
                 }
-                .mobile-menu-toggle { display: inline-flex !important; color: #fff; }
-                .main-header .nav-left { display: none !important; }
-                .main-header .logo { justify-self: center !important; text-align: center !important; white-space: nowrap !important; }
-                .main-header .logo a { font-size: 18px !important; letter-spacing: 5px !important; }
+
+                .mobile-menu-toggle {
+                    display: inline-flex !important;
+                }
+
+                .main-header .nav-left {
+                    display: none !important;
+                }
+
+                .main-header .logo {
+                    justify-self: center !important;
+                    text-align: center !important;
+                    white-space: nowrap !important;
+                }
+
+                .main-header .logo a {
+                    letter-spacing: 6px !important;
+                }
+
                 .main-header .nav-right {
                     justify-self: end !important;
                     display: flex !important;
                     align-items: center !important;
+                    gap: 18px !important;
+                }
+
+                .main-header .nav-right a {
+                    margin-left: 0 !important;
+                }
+            }
+
+            @media (max-width: 768px) {
+                .main-header .logo a {
+                    font-size: 18px !important;
+                    letter-spacing: 5px !important;
+                }
+
+                .main-header .nav-right {
                     gap: 14px !important;
                 }
-                .main-header .nav-right a { margin-left: 0 !important; font-size: 10px !important; letter-spacing: 2px !important; }
+
+                .main-header .nav-right a {
+                    font-size: 10px !important;
+                    letter-spacing: 2px !important;
+                }
+
                 .main-header .nav-right a#account-trigger,
                 .main-header .nav-right a.pd-account-link,
-                .main-header .nav-right a.admin-nav-link { display: none !important; }
-                .main-header .nav-right a#search-trigger { display: inline-block !important; }
+                .main-header .nav-right a.admin-nav-link {
+                    display: none !important;
+                }
+
+                .main-header .nav-right a#search-trigger {
+                    display: inline-block !important;
+                }
             }
 
             @media (max-width: 520px) {
-                .main-header .logo a { font-size: 15px !important; letter-spacing: 3px !important; }
-                .main-header .nav-right a#search-trigger { display: none !important; }
-                .mobile-menu-panel { width: 88vw; padding-left: 24px; padding-right: 24px; }
+                .main-header .logo a {
+                    font-size: 15px !important;
+                    letter-spacing: 3px !important;
+                }
+
+                .main-header .nav-right a#search-trigger {
+                    display: none !important;
+                }
+
+                .mobile-menu-panel {
+                    width: 88vw;
+                    padding-left: 24px;
+                    padding-right: 24px;
+                }
             }
         `;
         document.head.appendChild(style);
     }
 
-    function createMoreMenu(navLeft) {
-        if (!navLeft || document.getElementById(MORE_ID)) return;
-        const more = document.createElement("div");
-        more.className = "menu-item-has-dropdown responsive-more-menu";
-        more.id = MORE_ID;
-        more.innerHTML = `
-            <a href="#" class="responsive-more-trigger">MORE</a>
-            <div class="responsive-more-dropdown">
-                <a href="kids.html">KIDS</a>
-                <a href="kids.html?cat=tops">KIDS TOPS</a>
-                <a href="kids.html?cat=jackets">KIDS OUTERWEAR</a>
-                <a href="sale.html">SALE</a>
-                <a href="shoes.html">SHOES</a>
-                <a href="exchange-warranty-policy.html">CHÍNH SÁCH ĐỔI HÀNG</a>
-                <a href="privacy-policy.html">CHÍNH SÁCH BẢO MẬT</a>
-                <a href="shipping-policy.html">CHÍNH SÁCH GIAO HÀNG</a>
-            </div>
-        `;
-        navLeft.appendChild(more);
-        const trigger = more.querySelector(".responsive-more-trigger");
-        trigger.addEventListener("click", function (event) {
-            event.preventDefault();
-            more.classList.toggle("is-open");
-        });
-        document.addEventListener("click", function (event) {
-            if (!more.contains(event.target)) more.classList.remove("is-open");
+    function removeOldMoreMenu() {
+        document.querySelectorAll("#stylehub-responsive-more, .responsive-more-menu").forEach(function (item) {
+            item.remove();
         });
     }
 
     function createMobileMenu(header) {
         if (!header || document.getElementById(MOBILE_ID)) return;
+
         const navContainer = header.querySelector(".nav-container") || header;
 
-        const toggle = document.createElement("button");
-        toggle.type = "button";
-        toggle.className = "mobile-menu-toggle";
-        toggle.setAttribute("aria-label", "Open menu");
-        toggle.innerHTML = "<span></span><span></span>";
-        navContainer.insertBefore(toggle, navContainer.firstElementChild);
+        let toggle = navContainer.querySelector(".mobile-menu-toggle");
+        if (!toggle) {
+            toggle = document.createElement("button");
+            toggle.type = "button";
+            toggle.className = "mobile-menu-toggle";
+            toggle.setAttribute("aria-label", "Open menu");
+            toggle.innerHTML = "<span></span><span></span>";
+            navContainer.insertBefore(toggle, navContainer.firstElementChild);
+        }
 
         const overlay = document.createElement("div");
         overlay.className = "mobile-menu-overlay";
@@ -258,10 +285,13 @@
         toggle.addEventListener("click", function () {
             overlay.classList.contains("is-open") ? closeMenu() : openMenu();
         });
+
         overlay.querySelector(".mobile-menu-close").addEventListener("click", closeMenu);
+
         overlay.addEventListener("click", function (event) {
             if (event.target === overlay) closeMenu();
         });
+
         document.addEventListener("keydown", function (event) {
             if (event.key === "Escape") closeMenu();
         });
@@ -269,12 +299,15 @@
 
     function initResponsiveNav() {
         injectStyle();
+        removeOldMoreMenu();
+
         const header = document.querySelector(".main-header");
-        const navLeft = header ? header.querySelector(".nav-left") : null;
-        createMoreMenu(navLeft);
         createMobileMenu(header);
     }
 
-    if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", initResponsiveNav);
-    else initResponsiveNav();
+    if (document.readyState === "loading") {
+        document.addEventListener("DOMContentLoaded", initResponsiveNav);
+    } else {
+        initResponsiveNav();
+    }
 })();
