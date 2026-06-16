@@ -50,7 +50,38 @@
             .sub-filter-bar { padding-left: 20px; padding-right: 20px; }
             .product-gallery-container { padding: 20px; }
         }
-    </style>
+    
+        .womens-tops-pagination {
+            display: none;
+            justify-content: center;
+            align-items: center;
+            gap: 34px;
+            padding: 36px 0 52px;
+            font-size: 18px;
+            color: #111;
+        }
+        .womens-tops-pagination.show {
+            display: flex;
+        }
+        .womens-tops-pagination button {
+            border: none;
+            background: transparent;
+            color: #111;
+            cursor: pointer;
+            font-size: 18px;
+            letter-spacing: 1px;
+            padding: 8px 10px;
+            min-width: 34px;
+        }
+        .womens-tops-pagination button.active {
+            font-weight: 700;
+        }
+        .womens-tops-pagination button:disabled {
+            color: #bbbbbb;
+            cursor: default;
+        }
+
+</style>
 </head>
 <body>
 
@@ -156,7 +187,7 @@
 </div>
 <div class="product-gallery-container">
 <div class="mens-product-grid">
-<a class="mens-card" data-cat="tops" href="product-detail.html?id=womens-1">
+<a class="mens-card" data-cat="tops" data-page="1" href="product-detail.html?id=womens-1">
 <div class="mens-thumb-box">
 <img class="img-front" src="https://fearofgod.com/cdn/shop/files/125SP267391FW_WOMENS_SIGNATURE_CLASSIC_FIT_BASEBALL_TEE-HEATHER_STONE_IRON_GREY_1_900x.jpg?v=1771538461"/>
 <img class="img-back" src="https://fearofgod.com/cdn/shop/files/125SP267391FW_WOMENS_SIGNATURE_CLASSIC_FIT_BASEBALL_TEE-HEATHER_STONE_IRON_GREY_2_900x.jpg?v=1771538461"/>
@@ -167,7 +198,7 @@
 <p class="item-price">3.250.000 ₫</p>
 </div>
 </a>
-<a class="mens-card" data-cat="tops" href="product-detail.html?id=womens-2">
+<a class="mens-card" data-cat="tops" data-page="1" href="product-detail.html?id=womens-2">
 <div class="mens-thumb-box">
 <img class="img-front" src="https://fearofgod.com/cdn/shop/files/192SP265593FW_WOMENS_SIGNATURE_CLASSIC_HOODIE-CONCRETE_HEATHER_DARK_CONCRETE_HEATHER_1_900x.jpg?v=1770830668"/>
 <img class="img-back" src="https://fearofgod.com/cdn/shop/files/192SP265593FW_WOMENS_SIGNATURE_CLASSIC_HOODIE-CONCRETE_HEATHER_DARK_CONCRETE_HEATHER_2_900x.jpg?v=1770830669"/>
@@ -178,7 +209,7 @@
 <p class="item-price">4.950.000 ₫</p>
 </div>
 </a>
-<a class="mens-card" data-cat="tops" href="product-detail.html?id=womens-3">
+<a class="mens-card" data-cat="tops" data-page="1" href="product-detail.html?id=womens-3">
 <div class="mens-thumb-box">
 <img class="img-front" src="https://fearofgod.com/cdn/shop/files/125SP265913FW_CLASSIC_SHORT_SLEEVE_TEE_BRIGHT_WHITE_1_900x.jpg?v=1776869565"/>
 <img class="img-back" src="https://fearofgod.com/cdn/shop/files/125SP265913FW_CLASSIC_SHORT_SLEEVE_TEE_BRIGHT_WHITE_2_900x.jpg?v=1776869565"/>
@@ -189,7 +220,7 @@
 <p class="item-price">2.150.000 ₫</p>
 </div>
 </a>
-<a class="mens-card" data-cat="tops" href="product-detail.html?id=womens-4">
+<a class="mens-card" data-cat="tops" data-page="1" href="product-detail.html?id=womens-4">
 <div class="mens-thumb-box">
 <img class="img-front" src="https://fearofgod.com/cdn/shop/files/125SP267392FW_WOMENS_SIGNATURE_CLASSIC_FIT_BASEBALL_TEE-OATMEAL_CONCRETE_HEATHER_1_900x.jpg?v=1771538657"/>
 <img class="img-back" src="https://fearofgod.com/cdn/shop/files/125SP267392FW_WOMENS_SIGNATURE_CLASSIC_FIT_BASEBALL_TEE-OATMEAL_CONCRETE_HEATHER_2_900x.jpg?v=1771538166"/>
@@ -200,7 +231,7 @@
 <p class="item-price">3.150.000 ₫</p>
 </div>
 </a>
-<a class="mens-card" data-cat="tops" href="product-detail.html?id=womens-5">
+<a class="mens-card" data-cat="tops" data-page="1" href="product-detail.html?id=womens-5">
 <div class="mens-thumb-box">
 <img class="img-front" src="https://fearofgod.com/cdn/shop/files/192SP265542FW_CLASSIC_HOODIE-VINTAGE_BLACK_1_b54db34e-9f44-49c9-b929-c110f4cbe758_900x.jpg?v=1771538441"/>
 <img class="img-back" src="https://fearofgod.com/cdn/shop/files/192SP265542FW_CLASSIC_HOODIE-VINTAGE_BLACK_2_d60784a0-c1f7-4239-81cc-6fcf8c6d2f65_900x.jpg?v=1771538441"/>
@@ -211,7 +242,7 @@
 <p class="item-price">4.850.000 ₫</p>
 </div>
 </a>
-<a class="mens-card" data-cat="tops" href="product-detail.html?id=womens-6">
+<a class="mens-card" data-cat="tops" data-page="1" href="product-detail.html?id=womens-6">
 <div class="mens-thumb-box">
 <img class="img-front" src="https://fearofgod.com/cdn/shop/files/125SP265222FW_WOMENS_SIGNATURE_CLASSIC_TANK-OATMEAL_HEATHER_1_900x.jpg?v=1771455048"/>
 <img class="img-back" src="https://fearofgod.com/cdn/shop/files/125SP265222FW_WOMENS_SIGNATURE_CLASSIC_TANK-OATMEAL_HEATHER_2_900x.jpg?v=1771455048"/>
@@ -222,7 +253,7 @@
 <p class="item-price">1.950.000 ₫</p>
 </div>
 </a>
-<a class="mens-card" data-cat="tops" href="product-detail.html?id=womens-7">
+<a class="mens-card" data-cat="tops" data-page="1" href="product-detail.html?id=womens-7">
 <div class="mens-thumb-box">
 <img class="img-front" src="https://fearofgod.com/cdn/shop/files/125SP265221FW_WOMENS_SIGNATURE_CLASSIC_TANK-VINTAGE_BLACK_1_900x.jpg?v=1771454376"/>
 <img class="img-back" src="https://fearofgod.com/cdn/shop/files/125SP265221FW_WOMENS_SIGNATURE_CLASSIC_TANK-VINTAGE_BLACK_2_900x.jpg?v=1771454376"/>
@@ -233,7 +264,7 @@
 <p class="item-price">1.950.000 ₫</p>
 </div>
 </a>
-<a class="mens-card" data-cat="tops" href="product-detail.html?id=womens-8">
+<a class="mens-card" data-cat="tops" data-page="1" href="product-detail.html?id=womens-8">
 <div class="mens-thumb-box">
 <img class="img-front" src="https://fearofgod.com/cdn/shop/files/125SP267063FW_FITTED_RIB_TANK-OATMEAL_HEATHER_1_1_900x.jpg?v=1770828315"/>
 <img class="img-back" src="https://fearofgod.com/cdn/shop/files/125SP267063FW_FITTED_RIB_TANK-OATMEAL_HEATHER_2_1_900x.jpg?v=1770828315"/>
@@ -244,7 +275,7 @@
 <p class="item-price">2.250.000 ₫</p>
 </div>
 </a>
-<a class="mens-card" data-cat="tops" href="product-detail.html?id=womens-9">
+<a class="mens-card" data-cat="tops" data-page="1" href="product-detail.html?id=womens-9">
 <div class="mens-thumb-box">
 <img class="img-front" src="https://fearofgod.com/cdn/shop/files/192SP265594FW_WOMENS_SIGNATURE_CLASSIC_HOODIE-OATMEAL_HEATHER_LIGHT_HEATHER_1_900x.jpg?v=1770851330"/>
 <img class="img-back" src="https://fearofgod.com/cdn/shop/files/192SP265594FW_WOMENS_SIGNATURE_CLASSIC_HOODIE-OATMEAL_HEATHER_LIGHT_HEATHER_2_900x.jpg?v=1770851330"/>
@@ -255,6 +286,96 @@
 <p class="item-price">4.850.000 ₫</p>
 </div>
 </a>
+<!-- WOMENS TOPS NEW 8 PRODUCTS START -->
+<a class="mens-card" data-cat="tops" data-page="1" href="product-detail.html?id=womens-17">
+<div class="mens-thumb-box">
+<img class="img-front" src="https://fearofgod.com/cdn/shop/files/FG9W10-9995JER_WOMENS_VARSIRTY_LS-TEE-WHITE_1_acba7eaf-2a53-44a9-9cc7-26f17660e752.jpg?v=1775231220&width=1200"/>
+<img class="img-back" src="https://fearofgod.com/cdn/shop/files/FG9W10-9995JER_WOMENS_VARSIRTY_LS-TEE-WHITE_2_4340e91d-343a-4450-acd6-39816265e4d7.jpg?v=1775231220&width=832"/>
+</div>
+<div class="mens-details">
+<p class="tag-brand">Fear of God</p>
+<h4 class="item-name">Womens Varsity Long Sleeve Tee - White</h4>
+<p class="item-price">3.950.000 ₫</p>
+</div>
+</a>
+<a class="mens-card" data-cat="tops" data-page="1" href="product-detail.html?id=womens-18">
+<div class="mens-thumb-box">
+<img class="img-front" src="https://fearofgod.com/cdn/shop/files/0032_9CS26_WL10_4553.jpg?v=1772663888&width=832"/>
+<img class="img-back" src="https://fearofgod.com/cdn/shop/files/0031_9CS26_WL10_4525.jpg?v=1772663888&width=832"/>
+</div>
+<div class="mens-details">
+<p class="tag-brand">Fear of God</p>
+<h4 class="item-name">Womens Fear of God Short Sleeve Tee - White</h4>
+<p class="item-price">3.650.000 ₫</p>
+</div>
+</a>
+<a class="mens-card" data-cat="tops" data-page="1" href="product-detail.html?id=womens-19">
+<div class="mens-thumb-box">
+<img class="img-front" src="https://fearofgod.com/cdn/shop/files/0020_9CS26_WL01_2370.jpg?v=1772662784&width=832"/>
+<img class="img-back" src="https://fearofgod.com/cdn/shop/files/LOOK_37.jpg?v=1774898423&width=832"/>
+</div>
+<div class="mens-details">
+<p class="tag-brand">Fear of God</p>
+<h4 class="item-name">Womens 9 Short Sleeve Tee - White</h4>
+<p class="item-price">3.650.000 ₫</p>
+</div>
+</a>
+<a class="mens-card" data-cat="tops" data-page="1" href="product-detail.html?id=womens-20">
+<div class="mens-thumb-box">
+<img class="img-front" src="https://fearofgod.com/cdn/shop/files/FG9W10-9987JER_WOMENS_SS_TEE-BLACK_1.jpg?v=1774387859&width=832"/>
+<img class="img-back" src="https://fearofgod.com/cdn/shop/files/FG9W10-9987JER_WOMENS_SS_TEE-BLACK_2.jpg?v=1774387858&width=832"/>
+</div>
+<div class="mens-details">
+<p class="tag-brand">Fear of God</p>
+<h4 class="item-name">Womens Short Sleeve Tee - Black</h4>
+<p class="item-price">3.650.000 ₫</p>
+</div>
+</a>
+<a class="mens-card" data-cat="tops" data-page="1" href="product-detail.html?id=womens-21">
+<div class="mens-thumb-box">
+<img class="img-front" src="https://fearofgod.com/cdn/shop/files/FG9W10-9989JER_WOMENS_VARSITY_SS_TEE-BLACK_1.jpg?v=1774665738&width=832"/>
+<img class="img-back" src="https://fearofgod.com/cdn/shop/files/0050_9CS26_WL23_4043.jpg?v=1772665272&width=832"/>
+</div>
+<div class="mens-details">
+<p class="tag-brand">Fear of God</p>
+<h4 class="item-name">Womens Varsity Short Sleeve Tee - Black</h4>
+<p class="item-price">3.650.000 ₫</p>
+</div>
+</a>
+<a class="mens-card" data-cat="tops" data-page="2" href="product-detail.html?id=womens-22">
+<div class="mens-thumb-box">
+<img class="img-front" src="https://fearofgod.com/cdn/shop/files/FG9W60-603WVV_SLEEVELESS_T-SHIRT-BLACK_1.jpg?v=1775228207&width=832"/>
+<img class="img-back" src="https://fearofgod.com/cdn/shop/files/0033_9CS26_WL11_4677.jpg?v=1775228207&width=832"/>
+</div>
+<div class="mens-details">
+<p class="tag-brand">Fear of God</p>
+<h4 class="item-name">Womens Sleeveless T-Shirt - Black</h4>
+<p class="item-price">3.250.000 ₫</p>
+</div>
+</a>
+<a class="mens-card" data-cat="tops" data-page="2" href="product-detail.html?id=womens-23">
+<div class="mens-thumb-box">
+<img class="img-front" src="https://fearofgod.com/cdn/shop/files/FG9W60-604TCF_RELAXED_SHIRT-GREY_CLAY_1.jpg?v=1775227984&width=1200"/>
+<img class="img-back" src="https://fearofgod.com/cdn/shop/files/0061_9CS26_WL31_4816.jpg?v=1775227984&width=832"/>
+</div>
+<div class="mens-details">
+<p class="tag-brand">Fear of God</p>
+<h4 class="item-name">Womens Relaxed Shirt - Grey Clay</h4>
+<p class="item-price">5.950.000 ₫</p>
+</div>
+</a>
+<a class="mens-card" data-cat="tops" data-page="2" href="product-detail.html?id=womens-24">
+<div class="mens-thumb-box">
+<img class="img-front" src="https://fearofgod.com/cdn/shop/files/FG9W60-604ECW_RELAXED_SHIRT-OXBLOOD_1_7bfaca74-ba99-467c-893c-0e3f747d2b59.jpg?v=1775228147&width=832"/>
+<img class="img-back" src="https://fearofgod.com/cdn/shop/files/FG9W60-604ECW_RELAXED_SHIRT-OXBLOOD_2_d1d80d4f-3f1b-4799-b2e2-1dd08b689960.jpg?v=1775228147&width=832"/>
+</div>
+<div class="mens-details">
+<p class="tag-brand">Fear of God</p>
+<h4 class="item-name">Womens Relaxed Shirt - Oxblood</h4>
+<p class="item-price">5.950.000 ₫</p>
+</div>
+</a>
+<!-- WOMENS TOPS NEW 8 PRODUCTS END -->
 <a class="mens-card" data-cat="jackets" href="product-detail.html?id=womens-10">
 <div class="mens-thumb-box">
 <img class="img-front" src="https://fearofgod.com/cdn/shop/files/0000_9CS26_WKL01_2609_028dfb63-f987-459c-b280-14fb0e9967e0_900x.jpg?v=1772662751"/>
@@ -266,7 +387,7 @@
 <p class="item-price">14.500.000 ₫</p>
 </div>
 </a>
-<a class="mens-card" data-cat="tops" href="product-detail.html?id=womens-11">
+<a class="mens-card" data-cat="tops" data-page="1" href="product-detail.html?id=womens-11">
 <div class="mens-thumb-box">
 <img class="img-front" src="https://fearofgod.com/cdn/shop/files/0022_9CS26_WL04_B_3174_900x.jpg?v=1772663520"/>
 <img class="img-back" src="https://fearofgod.com/cdn/shop/files/0023_9CS26_WL04_B_3243_900x.jpg?v=1772663526"/>
@@ -334,6 +455,14 @@
 </a>
 </div>
 </div>
+
+<div class="womens-tops-pagination" id="womensTopsPagination">
+<button type="button" id="womensTopsPrev" onclick="changeWomensTopsPage(-1)">←</button>
+<button type="button" class="active" data-page-btn="1" onclick="setWomensTopsPage(1)">1</button>
+<button type="button" data-page-btn="2" onclick="setWomensTopsPage(2)">2</button>
+<button type="button" id="womensTopsNext" onclick="changeWomensTopsPage(1)">→</button>
+</div>
+
 <script>
         document.addEventListener("DOMContentLoaded", function() {
             const accountLink = document.getElementById('headerAccountLink');
@@ -345,20 +474,84 @@
             }
         });
 
-        function filterCategory(categoryName, element) {
-            document.querySelectorAll('.filter-tag').forEach(tag => tag.classList.remove('active'));
-            element.classList.add('active');
+        let currentWomensCategory = 'all';
+let currentWomensTopsPage = 1;
 
-            document.querySelectorAll('.mens-card').forEach(card => {
-                const itemCat = card.getAttribute('data-cat');
-                if (categoryName === 'all' || itemCat === categoryName) {
-                    card.classList.remove('hide-item');
-                } else {
-                    card.classList.add('hide-item');
-                }
-            });
+function updateWomensTopsPagination() {
+    const pagination = document.getElementById('womensTopsPagination');
+    const prev = document.getElementById('womensTopsPrev');
+    const next = document.getElementById('womensTopsNext');
+
+    if (!pagination) return;
+
+    const isTops = currentWomensCategory === 'tops';
+    pagination.classList.toggle('show', isTops);
+
+    document.querySelectorAll('[data-page-btn]').forEach(btn => {
+        btn.classList.toggle('active', Number(btn.getAttribute('data-page-btn')) === currentWomensTopsPage);
+    });
+
+    if (prev) prev.disabled = currentWomensTopsPage === 1;
+    if (next) next.disabled = currentWomensTopsPage === 2;
+}
+
+function applyWomensFilter() {
+    document.querySelectorAll('.mens-card').forEach(card => {
+        const itemCat = card.getAttribute('data-cat');
+        const itemPage = Number(card.getAttribute('data-page') || '1');
+
+        let shouldShow = false;
+
+        if (currentWomensCategory === 'all') {
+            shouldShow = true;
+        } else if (currentWomensCategory === 'tops') {
+            shouldShow = itemCat === 'tops' && itemPage === currentWomensTopsPage;
+        } else {
+            shouldShow = itemCat === currentWomensCategory;
         }
-    </script>
+
+        card.classList.toggle('hide-item', !shouldShow);
+    });
+
+    updateWomensTopsPagination();
+}
+
+function filterCategory(categoryName, element) {
+    currentWomensCategory = categoryName;
+
+    if (categoryName !== 'tops') {
+        currentWomensTopsPage = 1;
+    }
+
+    document.querySelectorAll('.filter-tag').forEach(tag => tag.classList.remove('active'));
+    if (element) element.classList.add('active');
+
+    applyWomensFilter();
+}
+
+function setWomensTopsPage(page) {
+    currentWomensTopsPage = page;
+
+    const topsTag = document.querySelector(`.filter-tag[onclick*="'tops'"], .filter-tag[onclick*='"tops"']`);
+    if (topsTag) {
+        document.querySelectorAll('.filter-tag').forEach(tag => tag.classList.remove('active'));
+        topsTag.classList.add('active');
+    }
+
+    currentWomensCategory = 'tops';
+    applyWomensFilter();
+
+    const bar = document.querySelector('.sub-filter-bar');
+    if (bar) {
+        bar.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+}
+
+function changeWomensTopsPage(direction) {
+    const nextPage = Math.min(2, Math.max(1, currentWomensTopsPage + direction));
+    setWomensTopsPage(nextPage);
+}
+</script>
 <script>
 /* AUTO FILTER FROM NAVBAR QUERY (?cat=...) */
 document.addEventListener("DOMContentLoaded", function () {
@@ -368,6 +561,7 @@ document.addEventListener("DOMContentLoaded", function () {
     if (cat && typeof filterCategory === "function") {
         const target = document.querySelector(`.filter-tag[onclick*="'${cat}'"], .filter-tag[onclick*='"${cat}"']`);
         if (target) {
+            currentWomensTopsPage = 1;
             filterCategory(cat, target);
         }
     }
