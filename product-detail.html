@@ -524,50 +524,58 @@
             
             const backLink = document.getElementById('back-link-target');
 
-            function isSafeLocalPage(value) {
-                return !!value && !value.includes('://') && !value.startsWith('//') && !value.startsWith('javascript:');
+            function isSafeLocalCollectionUrl(urlValue) {
+                if (!urlValue) return false;
+                try {
+                    const parsed = new URL(urlValue, window.location.href);
+                    if (parsed.origin !== window.location.origin) return false;
+                    return /^(mens|womens|kids|sale|shoes|collections)\.html$/.test(parsed.pathname.split('/').pop());
+                } catch (error) {
+                    return false;
+                }
             }
 
-            function inferCollectionUrl(id, item) {
-                const itemName = ((item && item.name) || '').toLowerCase();
-                const topsMatch = id.match(/^tops-(\d+)$/);
+            function getSavedCollectionReturnUrl(id) {
+                try {
+                    const saved = JSON.parse(sessionStorage.getItem('stylehub_collection_return') || 'null');
+                    if (!saved || !saved.url) return '';
+                    if (saved.productId && saved.productId !== id) return '';
+                    if (saved.savedAt && Date.now() - saved.savedAt > 24 * 60 * 60 * 1000) return '';
+                    return saved.url;
+                } catch (error) {
+                    return '';
+                }
+            }
 
+            function inferCollectionUrlFromProduct(id) {
                 if (id.startsWith('womens')) return 'womens.html';
                 if (id.startsWith('kids')) return 'kids.html';
                 if (id.startsWith('sale')) return 'sale.html';
                 if (id.startsWith('shoe')) return 'shoes.html';
                 if (id.startsWith('dress')) return 'mens.html?cat=dress-shirt';
                 if (id.startsWith('hoodies')) return 'mens.html?cat=hoodies';
-
-                if (topsMatch) {
-                    const topNumber = Number(topsMatch[1]);
-                    if (topNumber >= 21) return 'mens.html?cat=tops&page=2';
-                    if (itemName.includes('hoodie') || itemName.includes('jacket')) return 'mens.html?cat=hoodies';
+                if (id.startsWith('tops-')) {
+                    const numberPart = parseInt(id.replace('tops-', ''), 10);
+                    if (numberPart >= 21) return 'mens.html?cat=tops&page=2';
                     return 'mens.html?cat=tops&page=1';
                 }
-
                 return 'index.html';
             }
 
             const fromParam = urlParams.get('from');
-            const lastCollectionUrl = sessionStorage.getItem('stylehub_last_collection_url');
-            let collectionBackUrl = '';
+            const savedReturnUrl = getSavedCollectionReturnUrl(productId);
+            let collectionBackUrl = inferCollectionUrlFromProduct(productId);
 
-            if (isSafeLocalPage(fromParam)) {
+            if (isSafeLocalCollectionUrl(fromParam)) {
                 collectionBackUrl = fromParam;
-            } else if (isSafeLocalPage(lastCollectionUrl)) {
-                collectionBackUrl = lastCollectionUrl;
-            } else if (document.referrer && document.referrer.startsWith(window.location.origin)) {
-                const ref = new URL(document.referrer);
-                collectionBackUrl = ref.pathname.split('/').pop() + ref.search;
-            } else {
-                collectionBackUrl = inferCollectionUrl(productId, currentItem);
+            } else if (isSafeLocalCollectionUrl(savedReturnUrl)) {
+                collectionBackUrl = savedReturnUrl;
             }
 
             if (backLink) {
-                backLink.href = collectionBackUrl || inferCollectionUrl(productId, currentItem);
+                backLink.href = collectionBackUrl;
                 backLink.addEventListener('click', function() {
-                    sessionStorage.setItem('stylehub_last_collection_url', backLink.href.split('/').pop());
+                    sessionStorage.setItem('stylehub_collection_restore', '1');
                 });
             }
             
