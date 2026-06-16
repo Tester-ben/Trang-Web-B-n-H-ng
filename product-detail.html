@@ -219,6 +219,47 @@
             color: #222;
         }
 
+
+        /* --- SIZE GIÀY RENDER TRỰC TIẾP, KHÔNG HIỆN S/M/L/XL TRƯỚC --- */
+        .shoe-size-panel {
+            display: flex;
+            flex-direction: column;
+            gap: 28px;
+            margin-top: 14px;
+            margin-bottom: 30px;
+        }
+        .shoe-size-row {
+            display: grid;
+            grid-template-columns: 90px 1fr;
+            gap: 18px;
+            align-items: start;
+        }
+        .shoe-size-label {
+            font-size: 12px;
+            font-weight: 700;
+            letter-spacing: 1.2px;
+            padding-top: 14px;
+            white-space: nowrap;
+        }
+        .shoe-size-options {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px 12px;
+            max-width: 420px;
+        }
+        .shoe-number-size {
+            min-width: 48px !important;
+            height: 42px !important;
+            margin: 0 !important;
+            padding: 0 !important;
+        }
+        @media(max-width: 768px) {
+            .shoe-size-row {
+                grid-template-columns: 1fr;
+                gap: 10px;
+            }
+        }
+
         @media (max-width: 768px) {
             .detail-table-layout, .detail-column { display: block; width: 100%; }
             .product-detail-container { padding: 80px 20px 40px 20px; }
@@ -273,12 +314,7 @@
 
                     <div class="size-selector-section">
                         <p class="selector-label">Select Size:</p>
-                        <div class="size-buttons-group">
-                            <button class="size-button" onclick="changeSize(this)">S</button>
-                            <button class="size-button selected" onclick="changeSize(this)">M</button>
-                            <button class="size-button" onclick="changeSize(this)">L</button>
-                            <button class="size-button" onclick="changeSize(this)">XL</button>
-                        </div>
+                        <div class="size-buttons-group" id="size-buttons-target"></div>
                     </div>
 
                     <div class="cta-buttons-group">
@@ -395,7 +431,7 @@
 
 
         let currentItem = null;
-        let selectedSizeText = "M";
+        let selectedSizeText = "";
         let cartMemoryArray = [];
         let isUserLoggedIn = localStorage.getItem('isLoggedInStatus') === 'true'; 
         let pendingCheckoutAction = false; 
@@ -517,9 +553,60 @@
             }
         }
 
+
+        function isShoeProductId(productId) {
+            return String(productId || "").toLowerCase().startsWith("shoe");
+        }
+
+        function renderProductSizeSelector(productId) {
+            const group = document.getElementById("size-buttons-target") || document.querySelector(".size-buttons-group");
+            if (!group) return;
+
+            if (isShoeProductId(productId)) {
+                group.setAttribute("data-size-type", "shoes");
+                group.innerHTML = `
+                    <div class="shoe-size-panel">
+                        <div class="shoe-size-row">
+                            <div class="shoe-size-label">SIZE NAM</div>
+                            <div class="shoe-size-options">
+                                ${Array.from({ length: 16 }, (_, i) => 21 + i)
+                                    .map(n => `<button type="button" class="size-button shoe-number-size" data-size="${n}" onclick="changeSize(this)">${n}</button>`)
+                                    .join("")}
+                            </div>
+                        </div>
+
+                        <div class="shoe-size-row">
+                            <div class="shoe-size-label">SIZE NỮ</div>
+                            <div class="shoe-size-options">
+                                ${Array.from({ length: 15 }, (_, i) => 19 + i)
+                                    .map(n => `<button type="button" class="size-button shoe-number-size" data-size="${n}" onclick="changeSize(this)">${n}</button>`)
+                                    .join("")}
+                            </div>
+                        </div>
+                    </div>
+                `;
+
+                const first = group.querySelector(".shoe-number-size");
+                if (first) changeSize(first);
+                return;
+            }
+
+            group.setAttribute("data-size-type", "clothing");
+            group.innerHTML = `
+                <button type="button" class="size-button" onclick="changeSize(this)">S</button>
+                <button type="button" class="size-button selected" onclick="changeSize(this)">M</button>
+                <button type="button" class="size-button" onclick="changeSize(this)">L</button>
+                <button type="button" class="size-button" onclick="changeSize(this)">XL</button>
+            `;
+            selectedSizeText = "M";
+            window.selectedSizeText = "M";
+            window.selectedSize = "M";
+        }
+
         document.addEventListener("DOMContentLoaded", function() {
             const urlParams = new URLSearchParams(window.location.search);
             const productId = urlParams.get('id') || 'tops-1';
+            renderProductSizeSelector(productId);
             if (typeof database !== 'undefined' && database) {
                 currentItem = database[productId];
             }
@@ -624,7 +711,9 @@
         function changeSize(el) { 
             document.querySelectorAll('.size-button').forEach(b => b.classList.remove('selected')); 
             el.classList.add('selected');
-            selectedSizeText = el.innerText;
+            selectedSizeText = el.dataset.size || el.innerText.trim();
+            window.selectedSizeText = selectedSizeText;
+            window.selectedSize = selectedSizeText;
         }
         
         function toggleCartDrawer(isOpen) { document.getElementById('cartOverlay').classList.toggle('open', isOpen); }
@@ -1056,7 +1145,7 @@ document.addEventListener("click", function(e) {
 <div class="footer-bottom">© 2026 THE STYLE HUB. UI/UX Interface Design Project.</div>
 <script src="stylehub-common.js"></script>
 
-<script src="shoe-size-patch.js"></script>
-<script src="stylehub-ai-pro.js?v=ai-size-smart-v2-20260616"></script>
+<script src="shoe-size-patch.js?v=shoe-size-no-flash-20260616"></script>
+<script src="stylehub-ai-pro.js"></script>
 </body>
 </html>

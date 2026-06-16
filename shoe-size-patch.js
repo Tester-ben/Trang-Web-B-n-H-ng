@@ -15,6 +15,10 @@
         const group = document.querySelector(".size-buttons-group");
         if (!group) return;
 
+        // product-detail.html mới đã render size giày trực tiếp để tránh nháy S/M/L/XL.
+        // Nếu đã render rồi thì không patch lại nữa.
+        if (group.getAttribute("data-size-type") === "shoes" && group.querySelector(".shoe-number-size")) return;
+
         group.innerHTML = `
             <div class="shoe-size-panel">
                 <div class="shoe-size-row">
@@ -109,6 +113,6 @@
     }
 
     document.addEventListener("DOMContentLoaded", function () {
-        setTimeout(patchShoeSizes, 300);
+        patchShoeSizes();
     });
 })();
