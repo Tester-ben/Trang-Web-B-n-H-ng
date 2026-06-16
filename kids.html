@@ -14,7 +14,7 @@
         /* --- STICKY HEADER ĐỒNG BỘ THANH ĐEN --- */
         .main-header { position: fixed; top: 0; left: 0; width: 100%; height: 57px; background-color: #000000; color: #ffffff; z-index: 1000; }
         .nav-container { max-width: 1440px; margin: 0 auto; height: 100%; display: flex; justify-content: space-between; align-items: center; padding: 0 40px; }
-        .nav-left, .nav-right { display: flex; gap: 20px; align-items: center; }
+        .nav-left, .nav-right { display: flex; gap: 16px; align-items: center; }
         .logo { font-size: 16px; font-weight: 700; letter-spacing: 4px; text-align: center; }
         .nav-container a { color: #ffffff; text-decoration: none; font-size: 11px; letter-spacing: 1.5px; text-transform: uppercase; cursor: pointer; }
 
@@ -397,107 +397,7 @@ document.addEventListener("DOMContentLoaded", function () {
         }
     }
 });
-</script>
-<script>
-/* RETURN TO SAME COLLECTION TAB + SAME SCROLL POSITION */
-(function () {
-    const COLLECTION_PAGE = window.location.pathname.split('/').pop() || 'index.html';
-
-    function getCurrentCategoryFromUrlOrActiveTab() {
-        const params = new URLSearchParams(window.location.search);
-        const urlCat = params.get('cat');
-        if (urlCat) return urlCat;
-
-        const activeTag = document.querySelector('.filter-tag.active');
-        if (!activeTag) return 'all';
-
-        const onclickText = activeTag.getAttribute('onclick') || '';
-        const matched = onclickText.match(/filterCategory\(['"]([^'"]+)['"]/);
-        if (matched && matched[1]) return matched[1];
-
-        const label = activeTag.textContent.trim().toLowerCase();
-        if (label.includes('top')) return 'tops';
-        if (label.includes('jacket') || label.includes('outerwear')) return 'jackets';
-        return 'all';
-    }
-
-    function buildCollectionReturnUrl() {
-        const category = getCurrentCategoryFromUrlOrActiveTab();
-        const url = new URL(COLLECTION_PAGE, window.location.href);
-        url.search = '';
-        if (category && category !== 'all') {
-            url.searchParams.set('cat', category);
-        }
-        return url.pathname.split('/').pop() + url.search;
-    }
-
-    function rememberCollectionReturnPosition(card) {
-        const rawHref = card.getAttribute('href') || '';
-        const productUrl = new URL(rawHref, window.location.href);
-        const productId = productUrl.searchParams.get('id') || '';
-        const returnUrl = buildCollectionReturnUrl();
-
-        sessionStorage.setItem('stylehub_collection_return', JSON.stringify({
-            url: returnUrl,
-            scrollY: window.scrollY || window.pageYOffset || 0,
-            productId: productId,
-            savedAt: Date.now()
-        }));
-
-        productUrl.searchParams.set('from', returnUrl);
-        return productUrl.pathname.split('/').pop() + productUrl.search;
-    }
-
-    function setupCollectionReturnLinks() {
-        document.querySelectorAll('a.mens-card[href*="product-detail.html"], a.product-card[href*="product-detail.html"]').forEach(function(card) {
-            if (card.dataset.collectionReturnBound === '1') return;
-            card.dataset.collectionReturnBound = '1';
-
-            card.addEventListener('click', function(event) {
-                if (event.defaultPrevented || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey || event.button !== 0) return;
-                event.preventDefault();
-                window.location.href = rememberCollectionReturnPosition(this);
-            });
-        });
-    }
-
-    function restoreCollectionReturnPosition() {
-        if (sessionStorage.getItem('stylehub_collection_restore') !== '1') return;
-        sessionStorage.removeItem('stylehub_collection_restore');
-
-        let saved = null;
-        try {
-            saved = JSON.parse(sessionStorage.getItem('stylehub_collection_return') || 'null');
-        } catch (error) {
-            saved = null;
-        }
-        if (!saved) return;
-
-        function scrollToSavedSpot() {
-            if (typeof saved.scrollY === 'number') {
-                window.scrollTo(0, saved.scrollY);
-                return;
-            }
-
-            if (saved.productId) {
-                const safeId = window.CSS && CSS.escape ? CSS.escape(saved.productId) : saved.productId.replace(/"/g, '\\"');
-                const targetCard = document.querySelector(`a[href*="id=${safeId}"]`);
-                if (targetCard) targetCard.scrollIntoView({ block: 'center' });
-            }
-        }
-
-        setTimeout(scrollToSavedSpot, 80);
-        setTimeout(scrollToSavedSpot, 450);
-        setTimeout(scrollToSavedSpot, 900);
-    }
-
-    document.addEventListener('DOMContentLoaded', function () {
-        setupCollectionReturnLinks();
-        restoreCollectionReturnPosition();
-    });
-})();
-</script>
-<script src="product-data.js"></script>
+</script><script src="product-data.js"></script>
 
 
 <script>
@@ -615,6 +515,6 @@ document.addEventListener("click", function(e) {
 <div class="footer-bottom">© 2026 THE STYLE HUB. UI/UX Interface Design Project.</div>
 <script src="stylehub-common.js"></script>
 
-<script src="stylehub-ai-chat.js"></script>
+<script src="stylehub-ai-chat.js?v=ai-size-smart-v2-20260616"></script>
 </body>
 </html>

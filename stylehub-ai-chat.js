@@ -420,6 +420,22 @@
 
     function wantsProducts(text) {
         const t = normalize(text);
+
+        // Nếu khách đang hỏi size thì ưu tiên tư vấn size, không nhảy qua gợi ý sản phẩm.
+        if (
+            t.includes("tu van size") ||
+            t.includes("tu van size") ||
+            t === "size" ||
+            t.includes("chon size") ||
+            t.includes("mac size") ||
+            t.includes("nen mac") ||
+            t.includes("cao") ||
+            t.includes("nang") ||
+            /\d+\s*(kg|m|cm)/.test(t)
+        ) {
+            return false;
+        }
+
         return (
             t.includes("cho toi coi") ||
             t.includes("cho toi xem") ||
@@ -486,18 +502,29 @@
 
     function parseHeight(text) {
         const t = normalize(text);
-        let m = t.match(/1\s*m\s*(\d{1,2})/);
+
+        // 1m70, 1m7, 1m 70
+        let m = t.match(/1m\s*(\d{1,2})/);
         if (m) {
             const tail = Number(m[1]);
-            return 100 + (tail < 10 ? tail * 10 : tail);
+            return tail < 10 ? 100 + tail * 10 : 100 + tail;
         }
+
+        // 170cm
         m = t.match(/(\d{3})\s*cm/);
         if (m) return Number(m[1]);
-        m = t.match(/(\d)\.(\d{1,2})\s*m/);
-        if (m) {
-            const tail = String(m[2]).padEnd(2, "0");
-            return Number(m[1]) * 100 + Number(tail);
+
+        // 1.70m hoặc 1.70
+        m = t.match(/(\d)\.(\d{2})\s*m?/);
+        if (m) return Number(m[1]) * 100 + Number(m[2]);
+
+        // nhập riêng 170
+        const nums = t.match(/\b\d{3}\b/g);
+        if (nums) {
+            const possible = nums.map(Number).filter(n => n >= 140 && n <= 205);
+            if (possible.length) return possible[0];
         }
+
         return null;
     }
 
@@ -522,41 +549,39 @@
         return "";
     }
 
-    function clothingSize(weight, height, gender, fit) {
+    function clothingSize(weight, gender, fit) {
         const list = CLOTHING_SIZE[gender] || CLOTHING_SIZE.male;
-        const heightGuide = gender === "female"
-            ? [
-                { size: "XS", min: 142, max: 147 },
-                { size: "S", min: 148, max: 153 },
-                { size: "M", min: 154, max: 159 },
-                { size: "L", min: 160, max: 165 },
-                { size: "XL", min: 166, max: 172 },
-                { size: "XXL", min: 173, max: 230 }
-              ]
-            : [
-                { size: "XS", min: 154, max: 159 },
-                { size: "S", min: 160, max: 164 },
-                { size: "M", min: 165, max: 169 },
-                { size: "L", min: 170, max: 175 },
-                { size: "XL", min: 176, max: 182 },
-                { size: "XXL", min: 183, max: 230 }
-              ];
+        let row = list.find(r => weight >= r.minW && weight <= r.maxW) || list[list.length - 1];
 
-        const foundWeightIndex = list.findIndex(r => weight >= r.minW && weight <= r.maxW);
-        const weightIndex = foundWeightIndex >= 0 ? foundWeightIndex : list.length - 1;
-        const foundHeightIndex = height ? heightGuide.findIndex(r => height >= r.min && height <= r.max) : -1;
-        const heightIndex = foundHeightIndex >= 0 ? foundHeightIndex : weightIndex;
+        if (fit === "loose") {
+            const idx = list.findIndex(r => r.size === row.size);
+            if (idx >= 0 && idx < list.length - 1) row = list[idx + 1];
+        }
 
-        let index = Math.max(weightIndex, heightIndex);
-        if (fit === "loose" && index < list.length - 1) index += 1;
+        return row;
+    }
 
-        return {
-            ...list[index],
-            baseSize: list[Math.max(weightIndex, heightIndex)].size,
-            usedHeight: Boolean(height),
-            heightSize: heightGuide[heightIndex]?.size || "",
-            weightSize: list[weightIndex]?.size || ""
-        };
+    function smartClothingSize(weight, height, gender, fit) {
+        // Không bắt khách phải chọn nam/nữ. Nếu chưa rõ giới tính, dùng bảng unisex/nam làm mặc định,
+        // vì form size S/M/L/XL của shop dùng chung khá giống unisex.
+        const mainGender = gender || "male";
+        const row = clothingSize(weight, mainGender, fit);
+
+        let note = "";
+        if (!gender) {
+            note = " Mình đang tính theo form unisex/nam. Nếu bạn chọn đồ nữ ôm body thì có thể giảm 1 size.";
+        }
+
+        if (height) {
+            if (height >= 175 && ["S", "M"].includes(row.size)) {
+                note += " Vì bạn khá cao, nếu thích che form hoặc áo dài hơn thì nên ưu tiên tăng thêm 1 size.";
+            }
+            if (height <= 158 && ["XL", "XXL"].includes(row.size) && fit !== "loose") {
+                note += " Nếu bạn không muốn áo quá dài, có thể cân nhắc giảm 1 size.";
+            }
+        }
+
+        return { row, note };
     }
 
     function shoeNumberSize(size, gender, fit) {
@@ -567,35 +592,6 @@
         result = Math.max(range.min, Math.min(range.max, result));
 
         return result;
-    }
-
-    function getCurrentProductId() {
-        try { return new URLSearchParams(window.location.search).get("id") || ""; }
-        catch (e) { return ""; }
-    }
-
-    function inferGenderFromCurrentContext() {
-        const id = getCurrentProductId();
-        const data = getDB();
-        const item = data[id] || {};
-        const pageText = normalize(`${id} ${item.name || ""} ${item.brand || ""} ${location.pathname || ""} ${location.search || ""}`);
-
-        if (pageText.includes("womens") || pageText.includes("women") || pageText.includes("female")) return "female";
-        if (pageText.includes("mens") || pageText.includes("men") || id.startsWith("tops-") || id.startsWith("hoodies-") || id.startsWith("dress-")) return "male";
-        return "";
-    }
-
-    function isSizeQuestion(text) {
-        const t = normalize(text);
-        return t.includes("tu van size") || t.includes("chon size") || t.includes("size nao") || t.includes("mac size") || t.includes("lay size") || t.includes("toi muon tu van size") || t === "size";
-    }
-
-    function clearSizeContext(context) {
-        delete context.awaitingSize;
-        delete context.weight;
-        delete context.height;
-        delete context.fit;
-        delete context.shoeSize;
     }
 
     function productScore(item, id, category, intent, query) {
@@ -674,16 +670,13 @@
         const intent = inferIntent(text);
         const category = inferCategory(text);
 
-        const explicitGender = inferGender(text);
-        const pageGender = inferGenderFromCurrentContext();
+        const newGender = inferGender(text);
         const newFit = inferFit(text);
         const newWeight = parseWeight(text);
         const newHeight = parseHeight(text);
         const newShoeSize = parseShoeSize(text);
-        const sizeQuestion = isSizeQuestion(text);
 
-        if (explicitGender) context.gender = explicitGender;
-        else if (!context.gender && pageGender) context.gender = pageGender;
+        if (newGender) context.gender = newGender;
         if (newFit) context.fit = newFit;
         if (newWeight) context.weight = newWeight;
         if (newHeight) context.height = newHeight;
@@ -691,75 +684,51 @@
 
         if (intent === "shoes" || category === "shoes") context.lastIntent = "shoes";
         if (["tops", "pants", "hoodie", "jeans", "dress", "dress-shirt"].includes(intent)) context.lastIntent = "clothing";
-        if (sizeQuestion || intent === "size" || newWeight || newHeight) context.awaitingSize = true;
+
+        saveContext(context);
 
         if (t.includes("hi") || t.includes("hello") || t.includes("chao")) {
-            saveContext(context);
-            return "Chào bạn! Mình là Stylist AI của THE STYLE HUB. Bạn muốn xem sản phẩm hay cần mình tư vấn size?";
+            return "Chào bạn! Mình là Stylist AI của THE STYLE HUB. Bạn muốn xem áo, quần, giày, dress shirt hay cần tư vấn size?";
         }
 
-        const isShoeSizeFlow = context.lastIntent === "shoes" && (sizeQuestion || intent === "size" || newShoeSize || newFit || explicitGender);
-        if (isShoeSizeFlow) {
-            if (!context.gender) {
-                saveContext(context);
-                return "Bạn muốn mình tư vấn size giày nam hay nữ?";
-            }
-            if (!context.shoeSize) {
-                saveContext(context);
-                return "Bạn đang mang size giày số mấy? Ví dụ: 41 hoặc 42.";
-            }
-            if (!context.fit) {
-                saveContext(context);
-                return "Bạn muốn mang vừa chân hay rộng/thoải mái hơn?";
-            }
+        // Ưu tiên tư vấn size trước để khi khách gõ "size" không bị chuyển qua gợi ý sản phẩm.
+        if (context.lastIntent === "shoes" && (intent === "size" || newShoeSize || newFit || newGender)) {
+            if (!context.gender) return "Bạn muốn chọn size giày nam hay nữ?";
+            if (!context.shoeSize) return "Bạn đang mang size giày số mấy? Ví dụ: 42.";
+            if (!context.fit) return "Bạn muốn mang vừa chân hay rộng/thoải mái hơn?";
 
             const finalSize = shoeNumberSize(context.shoeSize, context.gender, context.fit);
-            const originalShoeSize = context.shoeSize;
             const genderText = context.gender === "female" ? "nữ" : "nam";
-            const fitText = context.fit === "loose" ? "rộng/thoải mái" : "vừa chân";
-            clearSizeContext(context);
-            context.lastIntent = "shoes";
-            saveContext(context);
-            return `Mình gợi ý size giày ${genderText}: bạn đang mang size ${originalShoeSize}, thích ${fitText} thì nên chọn size ${finalSize}. Nếu chân bè hoặc hay đi tất dày, ưu tiên tăng thêm 1 size.`;
+            const fitText = context.fit === "loose" ? "mang rộng/thoải mái" : "mang vừa";
+
+            return `Theo bảng size giày ${genderText}, nếu bạn đang mang size ${context.shoeSize} và muốn ${fitText}, bạn nên chọn size ${finalSize}. Nếu chân bè hoặc thích đi tất dày, nên ưu tiên tăng thêm 1 size.`;
         }
 
-        const isClothingSizeFlow = context.awaitingSize || sizeQuestion || intent === "size" || newWeight || newHeight || newFit;
-        if (isClothingSizeFlow) {
+        if (intent === "size" || newWeight || newHeight || newFit) {
             context.lastIntent = "clothing";
+            saveContext(context);
 
-            if (!context.weight || !context.height) {
-                saveContext(context);
-                if (!context.weight && !context.height) return "Bạn cho mình chiều cao và cân nặng hiện tại nhé. Ví dụ: 1m70 65kg.";
-                if (!context.weight) return "Bạn cho mình thêm cân nặng nữa nhé. Ví dụ: 65kg.";
-                return "Bạn cho mình thêm chiều cao nữa nhé. Ví dụ: 1m70 hoặc 170cm.";
+            if (!context.height || !context.weight) {
+                return "Bạn cho mình chiều cao và cân nặng hiện tại nhé. Ví dụ: 1m70 65kg.";
             }
 
             if (!context.fit) {
-                saveContext(context);
                 return "Bạn thích mặc vừa vặn hay rộng rãi/thoải mái hơn?";
             }
 
-            const finalGender = context.gender || "male";
-            const row = clothingSize(context.weight, context.height, finalGender, context.fit);
-            const genderText = context.gender ? (context.gender === "female" ? "nữ" : "nam") : "unisex/nam";
+            const result = smartClothingSize(context.weight, context.height, context.gender, context.fit);
+            const row = result.row;
+            const genderText = context.gender === "female" ? "nữ" : (context.gender === "male" ? "nam" : "unisex");
             const fitText = context.fit === "loose" ? "rộng rãi/thoải mái" : "vừa vặn";
-            const note = context.gender ? "" : " Mình đang tạm tính theo form unisex/nam; nếu bạn cần size nữ thì nhắn thêm 'nữ' để mình chỉnh lại.";
 
-            const reply = `Với chiều cao khoảng ${context.height}cm và cân nặng khoảng ${context.weight}kg, nếu bạn thích mặc ${fitText} thì mình gợi ý chọn size ${row.size}. Theo form ${genderText}, size gốc của bạn khoảng ${row.baseSize}, nhưng mình đã cộng form theo dáng bạn thích.${note}`;
-
-            clearSizeContext(context);
-            context.lastIntent = "clothing";
-            saveContext(context);
-            return reply;
+            return `Với chiều cao khoảng ${context.height}cm và cân nặng khoảng ${context.weight}kg, nếu bạn thích mặc ${fitText} thì mình gợi ý chọn size ${row.size}. Size này hợp khoảng chiều cao ${row.height}.${result.note}`;
         }
 
         if (wantsProducts(text) || ["tops", "pants", "hoodie", "jeans", "dress", "dress-shirt", "shoes"].includes(intent) || category) {
-            saveContext(context);
             return introByIntent(intent, category) + productCards(getProducts(text));
         }
 
-        saveContext(context);
-        return "Mình có thể tư vấn size, gợi ý outfit hoặc lọc sản phẩm theo nam/nữ, loại sản phẩm, giá và sale. Ví dụ: 'tư vấn size 1m70 65kg mặc rộng' hoặc 'cho tôi xem hoodie nam'.";
+        return "Bạn muốn mình hỗ trợ gì? Mình có thể tư vấn size, gợi ý áo nam/nữ, hoodie, dress shirt, giày hoặc sản phẩm sale.";
     }
 
     function renderHistory() {
