@@ -383,6 +383,67 @@
                 }
             }
 
+
+            /* ===== PRODUCT DETAIL BELL TOP FIX ===== */
+            .pd-notification-bell {
+                position: fixed !important;
+                top: 88px !important;
+                right: 66px !important;
+                bottom: auto !important;
+                z-index: 999999 !important;
+                display: inline-flex !important;
+                justify-content: center !important;
+                align-items: center !important;
+            }
+
+            .pd-notification-bell .stylehub-bell-btn {
+                width: 42px !important;
+                height: 42px !important;
+                border-radius: 50% !important;
+                background: #ffffff !important;
+                color: #111111 !important;
+                border: 1px solid rgba(17,17,17,.16) !important;
+                box-shadow: 0 10px 25px rgba(0,0,0,.14) !important;
+                font-size: 18px !important;
+            }
+
+            .pd-notification-bell .stylehub-bell-btn:hover {
+                transform: translateY(-2px) !important;
+                border-color: #0b3030 !important;
+                box-shadow: 0 16px 36px rgba(0,0,0,.22) !important;
+            }
+
+            .pd-notification-bell .stylehub-notification-panel {
+                top: calc(100% + 12px) !important;
+                bottom: auto !important;
+                right: 0 !important;
+                z-index: 1000000 !important;
+            }
+
+            .pd-notification-bell .stylehub-notification-panel::before {
+                top: -8px !important;
+                bottom: auto !important;
+                right: 20px !important;
+                border-right: none !important;
+                border-bottom: none !important;
+                border-left: 1px solid #eeeeee !important;
+                border-top: 1px solid #eeeeee !important;
+            }
+
+            @media (max-width: 768px) {
+                .pd-notification-bell {
+                    top: 76px !important;
+                    right: 20px !important;
+                    bottom: auto !important;
+                }
+
+                .pd-notification-bell .stylehub-bell-btn {
+                    width: 38px !important;
+                    height: 38px !important;
+                    font-size: 17px !important;
+                }
+            }
+
         `;
         document.head.appendChild(style);
     }
