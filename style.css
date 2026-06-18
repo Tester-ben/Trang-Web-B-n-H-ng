@@ -1767,3 +1767,150 @@ header .nav-right a,
 .product-header .nav-right a + a {
     margin-left: 0 !important;
 }
+
+
+/* ===== THE STYLE HUB: MOBILE 2-COLUMN COLLECTION GRID ===== */
+@media (max-width: 768px) {
+    /*
+      Áp dụng cho Mens, Womens, Kids, Sale, Shoes và Collections.
+      !important dùng để ghi đè các CSS 1 cột đang nằm trực tiếp trong từng file HTML.
+    */
+    .product-gallery-container {
+        width: 100% !important;
+        max-width: none !important;
+        padding: 16px 12px 32px !important;
+    }
+
+    .mens-product-grid,
+    .product-grid,
+    .collection-grid {
+        display: grid !important;
+        grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+        gap: 28px 12px !important;
+        width: 100% !important;
+        align-items: start !important;
+    }
+
+    .mens-card,
+    .product-card,
+    .product-item {
+        width: 100% !important;
+        min-width: 0 !important;
+    }
+
+    .mens-thumb-box,
+    .product-card-image,
+    .product-item-image {
+        width: 100% !important;
+        aspect-ratio: 3 / 4 !important;
+        margin-bottom: 10px !important;
+        overflow: hidden !important;
+        background: #f6f6f6 !important;
+    }
+
+    .mens-thumb-box img,
+    .product-card img,
+    .product-item img {
+        width: 100% !important;
+        height: 100% !important;
+        object-fit: cover !important;
+        object-position: center top !important;
+    }
+
+    .mens-details,
+    .product-info {
+        min-width: 0 !important;
+    }
+
+    .tag-brand,
+    .product-brand {
+        font-size: 9px !important;
+        letter-spacing: 1.4px !important;
+        margin-bottom: 5px !important;
+        line-height: 1.25 !important;
+    }
+
+    .item-name,
+    .product-name {
+        font-size: 12px !important;
+        line-height: 1.42 !important;
+        margin-bottom: 5px !important;
+        overflow-wrap: anywhere !important;
+    }
+
+    .item-price,
+    .product-price {
+        font-size: 12px !important;
+        line-height: 1.35 !important;
+    }
+
+    /*
+      Các tab danh mục có thể kéo ngang trên điện thoại,
+      không làm vỡ giao diện khi có nhiều mục như Bottoms.
+    */
+    .sub-filter-bar {
+        width: 100% !important;
+        padding: 72px 12px 12px !important;
+        overflow: hidden !important;
+    }
+
+    .filter-left-group {
+        display: flex !important;
+        flex: 1 1 auto !important;
+        gap: 18px !important;
+        min-width: 0 !important;
+        overflow-x: auto !important;
+        overflow-y: hidden !important;
+        white-space: nowrap !important;
+        -webkit-overflow-scrolling: touch !important;
+        scrollbar-width: none !important;
+        padding: 0 0 4px !important;
+    }
+
+    .filter-left-group::-webkit-scrollbar {
+        display: none !important;
+    }
+
+    .filter-tag {
+        flex: 0 0 auto !important;
+        font-size: 10px !important;
+        letter-spacing: 1.2px !important;
+        line-height: 1.2 !important;
+    }
+
+    .filter-right-sort {
+        flex: 0 0 auto !important;
+        margin-left: 8px !important;
+    }
+
+    .womens-tops-pagination,
+    .tops-pagination {
+        margin-top: 34px !important;
+        margin-bottom: 18px !important;
+        padding-bottom: 16px !important;
+    }
+}
+
+@media (max-width: 380px) {
+    .product-gallery-container {
+        padding-left: 10px !important;
+        padding-right: 10px !important;
+    }
+
+    .mens-product-grid,
+    .product-grid,
+    .collection-grid {
+        gap: 24px 10px !important;
+    }
+
+    .item-name,
+    .product-name {
+        font-size: 11px !important;
+    }
+
+    .item-price,
+    .product-price {
+        font-size: 11px !important;
+    }
+}
+/* ===== END MOBILE 2-COLUMN COLLECTION GRID ===== */
