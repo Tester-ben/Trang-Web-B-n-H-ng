@@ -10,7 +10,7 @@
     const menuGroups = [
         { title: "FEATURED", links: [["Home", "index.html"], ["New Arrivals", "collections.html"]] },
         { title: "MENS", links: [["All Products", "mens.html"], ["Tops", "mens.html?cat=tops"], ["Hoodies", "mens.html?cat=hoodies"], ["Dress Shirt", "mens.html?cat=dress-shirt"], ["Bottoms", "mens.html?cat=bottoms"]] },
-        { title: "WOMENS", links: [["All Products", "womens.html"], ["Tops", "womens.html?cat=tops"], ["Jackets & Outerwear", "womens.html?cat=jackets"]] },
+        { title: "WOMENS", links: [["All Products", "womens.html"], ["Tops", "womens.html?cat=tops"], ["Jackets & Outerwear", "womens.html?cat=jackets"], ["Bottoms", "womens.html?cat=bottoms"]] },
         { title: "KIDS", links: [["All Kids", "kids.html"], ["Tops", "kids.html?cat=tops"], ["Jackets & Outerwear", "kids.html?cat=jackets"]] },
         { title: "SALE", links: [["All Sale Items", "sale.html"], ["Tops", "sale.html?cat=tops"], ["Jackets & Outerwear", "sale.html?cat=jackets"]] },
         { title: "SHOES", links: [["All Shoes", "shoes.html"]] },
