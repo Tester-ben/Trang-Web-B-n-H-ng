@@ -111,6 +111,7 @@
 <a href="womens.html">ALL PRODUCTS</a>
 <a href="womens.html?cat=tops">TOPS</a>
 <a href="womens.html?cat=jackets">JACKETS &amp; OUTERWEAR</a>
+<a href="womens.html?cat=bottoms">BOTTOMS</a>
 </div>
 </div>
 <div class="menu-item-has-dropdown">
@@ -119,6 +120,7 @@
 <a href="kids.html">ALL KIDS</a>
 <a href="kids.html?cat=tops">TOPS</a>
 <a href="kids.html?cat=jackets">JACKETS &amp; OUTERWEAR</a>
+<a href="kids.html?cat=bottoms">BOTTOMS</a>
 </div>
 </div>
 <div class="menu-item-has-dropdown">
@@ -152,6 +154,7 @@
 <span class="filter-tag active" onclick="filterCategory('all', this)">All Kids</span>
 <span class="filter-tag" onclick="filterCategory('tops', this)">Tops</span>
 <span class="filter-tag" onclick="filterCategory('jackets', this)">Jackets &amp; Outerwear</span>
+<span class="filter-tag" id="filter-bottoms" onclick="filterCategory('bottoms', this)">Bottoms</span>
 </div>
 <div class="filter-right-sort" data-stylehub-notification-bell></div>
 </div>
@@ -337,6 +340,41 @@
 <p class="item-price">1.950.000 ₫</p>
 </div>
 </a>
+<!-- KIDS BOTTOMS PRODUCTS START -->
+<a class="mens-card" data-cat="bottoms" href="product-detail.html?id=kids-bottoms-1">
+<div class="mens-thumb-box">
+<img class="img-front" src="https://fearofgod.com/cdn/shop/files/785SP263001K_KIDS_CLASSIC_SWEATPANT-OATMEAL_HEATHER_LIGHT_HEATHER_1.jpg?v=1772488502&width=1600"/>
+<img class="img-back" src="https://fearofgod.com/cdn/shop/files/785SP263001K_KIDS_CLASSIC_SWEATPANT-OATMEAL_HEATHER_LIGHT_HEATHER_2.jpg?v=1772488503&width=1600"/>
+</div>
+<div class="mens-details">
+<p class="tag-brand">Essentials</p>
+<h4 class="item-name">Kids Classic Sweatpant - Oatmeal Heather</h4>
+<p class="item-price">1.550.000 ₫</p>
+</div>
+</a>
+<a class="mens-card" data-cat="bottoms" href="product-detail.html?id=kids-bottoms-2">
+<div class="mens-thumb-box">
+<img class="img-front" src="https://fearofgod.com/cdn/shop/files/785SP264013K_KIDS_SIGNATURE_CLASSIC_SHORT-FADED_COASTAL_1.jpg?v=1772487802&width=1600"/>
+<img class="img-back" src="https://fearofgod.com/cdn/shop/files/785SP264013K_KIDS_SIGNATURE_CLASSIC_SHORT-FADED_COASTAL_2.jpg?v=1772487802&width=1600"/>
+</div>
+<div class="mens-details">
+<p class="tag-brand">Essentials</p>
+<h4 class="item-name">Kids Signature Classic Short - Faded Coastal</h4>
+<p class="item-price">1.250.000 ₫</p>
+</div>
+</a>
+<a class="mens-card" data-cat="bottoms" href="product-detail.html?id=kids-bottoms-3">
+<div class="mens-thumb-box">
+<img class="img-front" src="https://fearofgod.com/cdn/shop/files/785SP263002K_KIDS_CLASSIC_SWEATPANT-VINTAGE_BLACK_1.jpg?v=1772215079&width=1600"/>
+<img class="img-back" src="https://fearofgod.com/cdn/shop/files/785SP263002K_KIDS_CLASSIC_SWEATPANT-VINTAGE_BLACK_2.jpg?v=1772215079&width=1600"/>
+</div>
+<div class="mens-details">
+<p class="tag-brand">Essentials</p>
+<h4 class="item-name">Kids Classic Sweatpant - Vintage Black</h4>
+<p class="item-price">1.550.000 ₫</p>
+</div>
+</a>
+<!-- KIDS BOTTOMS PRODUCTS END -->
 </div>
 </div>
 <script>
@@ -351,36 +389,26 @@
         });
 
         function filterCategory(categoryName, element) {
-            // Xóa class active ở tất cả các tag lọc và thêm vào tag vừa click
             document.querySelectorAll('.filter-tag').forEach(tag => tag.classList.remove('active'));
-            element.classList.add('active');
+            if (element) element.classList.add('active');
 
             document.querySelectorAll('.mens-card').forEach(card => {
                 const itemCat = card.getAttribute('data-cat');
-                
-                // Lấy tên sản phẩm và chuyển về chữ thường để so sánh chính xác hơn
-                const itemName = card.querySelector('.item-name').innerText.toLowerCase();
-                
-                // Kiểm tra xem tên có chứa hoodie hoặc crewneck không
+                const itemName = (card.querySelector('.item-name')?.innerText || '').toLowerCase();
                 const isHoodieOrCrewneck = itemName.includes('hoodie') || itemName.includes('crewneck');
 
                 if (categoryName === 'all') {
-                    // Hiển thị tất cả sản phẩm
                     card.classList.remove('hide-item');
                 } else if (categoryName === 'jackets') {
-                    // Nếu bấm vào Jackets: Hiện các sản phẩm có data-cat="jackets" HOẶC tên có chứa Hoodie/Crewneck
                     if (itemCat === 'jackets' || isHoodieOrCrewneck) {
                         card.classList.remove('hide-item');
                     } else {
                         card.classList.add('hide-item');
                     }
+                } else if (itemCat === categoryName) {
+                    card.classList.remove('hide-item');
                 } else {
-                    // Đối với các danh mục khác (ví dụ: tops)
-                    if (itemCat === categoryName) {
-                        card.classList.remove('hide-item');
-                    } else {
-                        card.classList.add('hide-item');
-                    }
+                    card.classList.add('hide-item');
                 }
             });
         }
@@ -398,7 +426,124 @@ document.addEventListener("DOMContentLoaded", function () {
         }
     }
 });
-</script><script src="product-data.js?v=mens-bottoms-15-products-20260616"></script>
+</script>
+<script>
+/* KIDS COLLECTION RETURN: bấm ← Collection quay lại đúng tab và đúng vị trí sản phẩm */
+(function () {
+    const COLLECTION_PAGE = 'kids.html';
+
+    function getActiveCategory() {
+        const activeTag = document.querySelector('.filter-tag.active');
+        if (!activeTag) {
+            const params = new URLSearchParams(window.location.search);
+            return params.get('cat') || 'all';
+        }
+
+        const onclickText = activeTag.getAttribute('onclick') || '';
+        const matched = onclickText.match(/filterCategory\(['"]([^'"]+)['"]/);
+        if (matched && matched[1]) return matched[1];
+
+        const label = activeTag.textContent.trim().toLowerCase();
+        if (label.includes('top')) return 'tops';
+        if (label.includes('jacket') || label.includes('outerwear')) return 'jackets';
+        if (label.includes('bottom')) return 'bottoms';
+        return 'all';
+    }
+
+    function buildKidsReturnUrl() {
+        const category = getActiveCategory();
+        const url = new URL(COLLECTION_PAGE, window.location.href);
+        url.search = '';
+
+        if (category && category !== 'all') {
+            url.searchParams.set('cat', category);
+        }
+
+        return url.pathname.split('/').pop() + url.search;
+    }
+
+    function rememberKidsReturnPosition(card) {
+        const productUrl = new URL(card.getAttribute('href') || '', window.location.href);
+        const productId = productUrl.searchParams.get('id') || '';
+        const returnUrl = buildKidsReturnUrl();
+
+        sessionStorage.setItem('stylehub_collection_return', JSON.stringify({
+            url: returnUrl,
+            scrollY: window.scrollY || window.pageYOffset || 0,
+            productId: productId,
+            savedAt: Date.now()
+        }));
+
+        productUrl.searchParams.set('from', returnUrl);
+        return productUrl.pathname.split('/').pop() + productUrl.search;
+    }
+
+    function setupKidsReturnLinks() {
+        document.querySelectorAll('a.mens-card[href*="product-detail.html"], a.product-card[href*="product-detail.html"]').forEach(function (card) {
+            if (card.dataset.kidsReturnBound === '1') return;
+            card.dataset.kidsReturnBound = '1';
+
+            card.addEventListener('click', function (event) {
+                if (event.defaultPrevented || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey || event.button !== 0) return;
+                event.preventDefault();
+                window.location.href = rememberKidsReturnPosition(this);
+            });
+        });
+    }
+
+    function applyKidsFilterFromSavedUrl(savedUrl) {
+        if (!savedUrl) return;
+
+        const url = new URL(savedUrl, window.location.href);
+        const cat = url.searchParams.get('cat') || 'all';
+
+        const target = document.querySelector(`.filter-tag[onclick*="'${cat}'"], .filter-tag[onclick*='"${cat}"']`);
+        if (target && typeof filterCategory === 'function') {
+            filterCategory(cat, target);
+        }
+    }
+
+    function restoreKidsReturnPosition() {
+        if (sessionStorage.getItem('stylehub_collection_restore') !== '1') return;
+        sessionStorage.removeItem('stylehub_collection_restore');
+
+        let saved = null;
+        try {
+            saved = JSON.parse(sessionStorage.getItem('stylehub_collection_return') || 'null');
+        } catch (error) {
+            saved = null;
+        }
+
+        if (!saved) return;
+
+        applyKidsFilterFromSavedUrl(saved.url);
+
+        function scrollToSavedSpot() {
+            if (typeof saved.scrollY === 'number') {
+                window.scrollTo(0, saved.scrollY);
+                return;
+            }
+
+            if (saved.productId) {
+                const safeId = window.CSS && CSS.escape ? CSS.escape(saved.productId) : saved.productId.replace(/"/g, '\\"');
+                const targetCard = document.querySelector(`a[href*="id=${safeId}"]`);
+                if (targetCard) targetCard.scrollIntoView({ block: 'center' });
+            }
+        }
+
+        setTimeout(scrollToSavedSpot, 80);
+        setTimeout(scrollToSavedSpot, 350);
+        setTimeout(scrollToSavedSpot, 800);
+    }
+
+    document.addEventListener('DOMContentLoaded', function () {
+        setupKidsReturnLinks();
+        restoreKidsReturnPosition();
+    });
+})();
+</script>
+
+<script src="product-data.js?v=kids-bottoms-3-products-20260618"></script>
 
 
 <script>
@@ -515,7 +660,7 @@ document.addEventListener("click", function(e) {
 </footer>
 <div class="footer-bottom">© 2026 THE STYLE HUB. UI/UX Interface Design Project.</div>
 <script src="stylehub-notifications.js?v=notification-bell-fixed-all-pages-20260616"></script>
-<script src="stylehub-responsive-nav.js?v=mens-bottoms-15-products-20260616"></script>
+<script src="stylehub-responsive-nav.js?v=kids-bottoms-3-products-20260618"></script>
 <script src="stylehub-common.js"></script>
 
 <script src="stylehub-ai-chat.js"></script>
