@@ -421,7 +421,7 @@
     </div>
 
     <!-- DATA KHO HÀNG TỔNG HỢP -->
-    <script src="product-data.js?v=womens-bottoms-15-products-20260617"></script>
+    <script src="product-data.js?v=womens-bottoms-page2-20260618"></script>
     <script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-database-compat.js"></script>
     <script src="stylehub-orders-api.js"></script>
@@ -642,7 +642,10 @@
             }
 
             function inferCollectionUrlFromProduct(id) {
-                if (id.startsWith('womens-bottoms')) return 'womens.html?cat=bottoms';
+                if (id.startsWith('womens-bottoms')) {
+                    const bottomsNumber = parseInt(id.replace('womens-bottoms-', ''), 10);
+                    return bottomsNumber >= 16 ? 'womens.html?cat=bottoms&page=2' : 'womens.html?cat=bottoms&page=1';
+                }
                 if (id.startsWith('womens')) {
                     const numberPart = parseInt(id.replace('womens-', ''), 10);
                     if (numberPart >= 22 && numberPart <= 24) return 'womens.html?cat=tops&page=2';
@@ -1156,7 +1159,7 @@ document.addEventListener("click", function(e) {
 </footer>
 <div class="footer-bottom">© 2026 THE STYLE HUB. UI/UX Interface Design Project.</div>
 <script src="stylehub-notifications.js?v=notification-bell-fixed-all-pages-20260616"></script>
-<script src="stylehub-responsive-nav.js?v=womens-bottoms-15-products-20260617"></script>
+<script src="stylehub-responsive-nav.js?v=womens-bottoms-page2-20260618"></script>
 <script src="stylehub-common.js"></script>
 
 <script src="shoe-size-patch.js?v=shoe-size-no-flash-20260616"></script>
