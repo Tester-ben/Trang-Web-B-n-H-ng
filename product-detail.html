@@ -12,7 +12,7 @@
     <script type="text/javascript">
         window.STYLEHUB_EMAILJS_PUBLIC_KEY = "MB1m-Q2_ueI82N8Xo";
         window.STYLEHUB_EMAILJS_SERVICE_ID = "service_xjsmniq";
-        window.STYLEHUB_EMAILJS_TEMPLATE_ID = "template_1v0d3yr";
+        window.STYLEHUB_EMAILJS_TEMPLATE_ID = "template_f4bnal4";
 
         (function () {
             if (window.emailjs && typeof window.emailjs.init === "function") {
@@ -956,34 +956,10 @@
             }).join("\n");
         }
 
-
-        function waitForStyleHubEmailJS(timeoutMs = 6000) {
-            return new Promise(function(resolve, reject) {
-                const start = Date.now();
-
-                function check() {
-                    if (window.emailjs && typeof window.emailjs.send === "function") {
-                        if (typeof window.emailjs.init === "function") {
-                            window.emailjs.init(window.STYLEHUB_EMAILJS_PUBLIC_KEY);
-                        }
-                        resolve();
-                        return;
-                    }
-
-                    if (Date.now() - start > timeoutMs) {
-                        reject(new Error("EmailJS SDK chưa tải được. Hãy kiểm tra mạng hoặc CDN @emailjs/browser."));
-                        return;
-                    }
-
-                    setTimeout(check, 120);
-                }
-
-                check();
-            });
-        }
-
         async function sendStyleHubOrderEmail(orderObject) {
-            await waitForStyleHubEmailJS();
+            if (!window.emailjs || typeof window.emailjs.send !== "function") {
+                throw new Error("EmailJS SDK chưa được tải. Kiểm tra script cdn.jsdelivr.net/npm/@emailjs/browser.");
+            }
 
             const userInfo = orderObject.userInfo || {};
             const toEmail = (
@@ -1010,8 +986,6 @@
             };
 
             console.log("Đang gửi EmailJS với dữ liệu:", templateParams);
-            console.log("EmailJS Service ID:", window.STYLEHUB_EMAILJS_SERVICE_ID);
-            console.log("EmailJS Template ID:", window.STYLEHUB_EMAILJS_TEMPLATE_ID);
 
             return window.emailjs.send(
                 window.STYLEHUB_EMAILJS_SERVICE_ID,
