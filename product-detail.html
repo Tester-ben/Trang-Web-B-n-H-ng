@@ -696,6 +696,7 @@
                 backLink.href = collectionBackUrl;
                 backLink.addEventListener('click', function() {
                     sessionStorage.setItem('stylehub_collection_restore', '1');
+                    sessionStorage.setItem('stylehub_collection_back_clicked_at', String(Date.now()));
                 });
             }
             

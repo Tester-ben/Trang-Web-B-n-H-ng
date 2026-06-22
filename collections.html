@@ -99,7 +99,7 @@
            
         </div>
     </div>
-    <script src="product-data.js?v=property-la-visible-final-20260618"></script>
+    <script src="product-data.js?v=collections-back-position-fix-20260618"></script>
 
     <script>
     const grid = document.querySelector(".mens-product-grid");
@@ -108,7 +108,7 @@
         const item = database[id];
 
         grid.innerHTML += `
-            <a href="product-detail.html?id=${id}" class="product-card">
+            <a href="product-detail.html?id=${id}" class="product-card" data-product-id="${id}">
                 <div class="product-thumb hover-img">
                     <img class="img-main" src="${item.mainImg}" alt="${item.name}">
                     <img class="img-hover" src="${item.images && item.images[1] ? item.images[1] : item.mainImg}" alt="${item.name}">
@@ -123,6 +123,92 @@
         `;
     });
     </script>
+
+<script>
+/* COLLECTIONS RETURN POSITION FIX START */
+(function () {
+    const COLLECTIONS_PAGE = "collections.html";
+
+    function buildCollectionsReturnUrl() {
+        const url = new URL(COLLECTIONS_PAGE, window.location.href);
+        return url.pathname.split("/").pop() + url.search;
+    }
+
+    function rememberCollectionsReturnPosition(card) {
+        const productUrl = new URL(card.getAttribute("href") || "", window.location.href);
+        const productId = productUrl.searchParams.get("id") || card.dataset.productId || "";
+        const returnUrl = buildCollectionsReturnUrl();
+
+        sessionStorage.setItem("stylehub_collection_return", JSON.stringify({
+            url: returnUrl,
+            scrollY: window.scrollY || window.pageYOffset || 0,
+            productId: productId,
+            fromPage: "collections",
+            savedAt: Date.now()
+        }));
+
+        productUrl.searchParams.set("from", returnUrl);
+        return productUrl.pathname.split("/").pop() + productUrl.search;
+    }
+
+    function bindCollectionsProductLinks() {
+        document.querySelectorAll('a.product-card[href*="product-detail.html"], a.mens-card[href*="product-detail.html"]').forEach(function (card) {
+            if (card.dataset.collectionsReturnBound === "1") return;
+            card.dataset.collectionsReturnBound = "1";
+
+            card.addEventListener("click", function (event) {
+                if (event.defaultPrevented || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey || event.button !== 0) return;
+                event.preventDefault();
+                window.location.href = rememberCollectionsReturnPosition(this);
+            });
+        });
+    }
+
+    function restoreCollectionsPosition() {
+        if (sessionStorage.getItem("stylehub_collection_restore") !== "1") return;
+        sessionStorage.removeItem("stylehub_collection_restore");
+
+        let saved = null;
+        try {
+            saved = JSON.parse(sessionStorage.getItem("stylehub_collection_return") || "null");
+        } catch (error) {
+            saved = null;
+        }
+
+        if (!saved || !saved.url || !saved.url.includes("collections.html")) return;
+
+        function scrollToSavedPosition() {
+            if (typeof saved.scrollY === "number") {
+                window.scrollTo(0, saved.scrollY);
+            }
+
+            if (saved.productId) {
+                const selectorId = window.CSS && CSS.escape ? CSS.escape(saved.productId) : saved.productId.replace(/"/g, '\\"');
+                const targetCard = document.querySelector(`[data-product-id="${selectorId}"], a[href*="id=${selectorId}"]`);
+                if (targetCard) {
+                    targetCard.scrollIntoView({ block: "center" });
+                }
+            }
+        }
+
+        setTimeout(scrollToSavedPosition, 80);
+        setTimeout(scrollToSavedPosition, 350);
+        setTimeout(scrollToSavedPosition, 800);
+    }
+
+    document.addEventListener("DOMContentLoaded", function () {
+        bindCollectionsProductLinks();
+        restoreCollectionsPosition();
+    });
+
+    // Vì products được render bằng JS, bind lại sau khi grid đã được đổ dữ liệu.
+    window.addEventListener("load", function () {
+        bindCollectionsProductLinks();
+        restoreCollectionsPosition();
+    });
+})();
+/* COLLECTIONS RETURN POSITION FIX END */
+</script>
 
     <div id="search-modal" style="display:none;" class="modal-overlay">
         <div class="search-modal-content">
@@ -445,7 +531,7 @@ document.addEventListener("click", function(e) {
 <script src="stylehub-notifications.js?v=notification-bell-fixed-all-pages-20260616"></script>
 <script src="stylehub-responsive-nav.js?v=kids-bottoms-3-products-20260618"></script>
 <script src="stylehub-common.js"></script>
-<script src="stylehub-cart-sync.js?v=fix-property-la-image-20260618"></script>
+<script src="stylehub-cart-sync.js?v=collections-back-position-fix-20260618"></script>
 
 <script>
 /* PROPERTY OF LA IMAGE FALLBACK */
