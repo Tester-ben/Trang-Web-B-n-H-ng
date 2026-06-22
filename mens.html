@@ -57,95 +57,112 @@
     </style>
 
 
+
 <style>
-/* ===== FOOTER SOCIAL LOGOS FINAL ALIGN FIX ===== */
+/* ===== FOOTER SOCIAL LOGOS NO BORDER FINAL ===== */
 .site-footer .social-links,
 .site-footer .footer-social-links {
     display: flex !important;
     align-items: center !important;
     justify-content: flex-start !important;
-    gap: 12px !important;
+    gap: 24px !important;
     margin-top: 26px !important;
     flex-wrap: nowrap !important;
     width: 100% !important;
-    max-width: 340px !important;
+    max-width: 420px !important;
 }
 
 .site-footer .social-links .footer-social-icon,
 .site-footer .footer-social-links .footer-social-icon {
-    width: 44px !important;
-    height: 44px !important;
-    min-width: 44px !important;
-    max-width: 44px !important;
-    min-height: 44px !important;
-    max-height: 44px !important;
+    width: 42px !important;
+    height: 42px !important;
+    min-width: 42px !important;
+    max-width: 42px !important;
+    min-height: 42px !important;
+    max-height: 42px !important;
     padding: 0 !important;
     margin: 0 !important;
-    border: 1px solid rgba(255,255,255,0.45) !important;
-    border-radius: 9px !important;
+    border: none !important;
+    border-radius: 0 !important;
+    background: transparent !important;
     display: inline-flex !important;
     align-items: center !important;
     justify-content: center !important;
     text-decoration: none !important;
-    background: transparent !important;
-    overflow: hidden !important;
+    overflow: visible !important;
+    box-shadow: none !important;
     box-sizing: border-box !important;
-    transition: all 0.25s ease !important;
+    transition: transform 0.25s ease, opacity 0.25s ease !important;
 }
 
 .site-footer .social-links .footer-social-icon:hover,
 .site-footer .footer-social-links .footer-social-icon:hover {
-    transform: translateY(-2px) !important;
-    border-color: #ffffff !important;
-    background: rgba(255,255,255,0.10) !important;
+    transform: translateY(-2px) scale(1.06) !important;
+    background: transparent !important;
+    opacity: 0.88 !important;
 }
 
 .site-footer .social-links .footer-social-icon img,
 .site-footer .footer-social-links .footer-social-icon img {
-    width: 25px !important;
-    height: 25px !important;
-    min-width: 25px !important;
-    max-width: 25px !important;
-    min-height: 25px !important;
-    max-height: 25px !important;
+    width: 36px !important;
+    height: 36px !important;
+    min-width: 36px !important;
+    max-width: 36px !important;
+    min-height: 36px !important;
+    max-height: 36px !important;
     display: block !important;
     object-fit: contain !important;
     object-position: center !important;
     border: 0 !important;
+    border-radius: 0 !important;
+    background: transparent !important;
     margin: 0 !important;
     padding: 0 !important;
+    box-shadow: none !important;
 }
 
-/* Shopee logo usually has more horizontal details, so make it slightly wider inside the same box */
+/* Shopee logo nhìn nhỏ hơn nên tăng nhẹ */
 .site-footer .footer-social-icon[aria-label="Shopee"] img {
-    width: 27px !important;
-    height: 27px !important;
+    width: 38px !important;
+    height: 38px !important;
+    max-width: 38px !important;
+    max-height: 38px !important;
 }
 
 @media (max-width: 768px) {
     .site-footer .social-links,
     .site-footer .footer-social-links {
-        gap: 9px !important;
-        max-width: 280px !important;
+        gap: 18px !important;
+        max-width: 340px !important;
+        flex-wrap: nowrap !important;
     }
 
     .site-footer .social-links .footer-social-icon,
     .site-footer .footer-social-links .footer-social-icon {
-        width: 40px !important;
-        height: 40px !important;
-        min-width: 40px !important;
-        max-width: 40px !important;
-        min-height: 40px !important;
-        max-height: 40px !important;
+        width: 36px !important;
+        height: 36px !important;
+        min-width: 36px !important;
+        max-width: 36px !important;
+        min-height: 36px !important;
+        max-height: 36px !important;
     }
 
     .site-footer .social-links .footer-social-icon img,
     .site-footer .footer-social-links .footer-social-icon img {
-        width: 23px !important;
-        height: 23px !important;
+        width: 32px !important;
+        height: 32px !important;
+        max-width: 32px !important;
+        max-height: 32px !important;
+    }
+
+    .site-footer .footer-social-icon[aria-label="Shopee"] img {
+        width: 34px !important;
+        height: 34px !important;
+        max-width: 34px !important;
+        max-height: 34px !important;
     }
 }
-/* ===== END FOOTER SOCIAL LOGOS FINAL ALIGN FIX ===== */
+/* ===== END FOOTER SOCIAL LOGOS NO BORDER FINAL ===== */
 </style>
 
 </head>
