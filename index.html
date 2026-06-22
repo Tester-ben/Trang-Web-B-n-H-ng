@@ -133,6 +133,183 @@
             .outfit-grid-right-box { width: 100%; }
             .outfit-item-link-card { flex: 0 0 calc(50% - 8px); } 
         }
+
+        /* ==================== HOME SHOES MARQUEE - AUTO RUNNING PRODUCTS ==================== */
+        .home-shoes-marquee-section {
+            max-width: 1440px;
+            margin: 0 auto 70px auto;
+            padding: 55px 0 25px;
+            background: #ffffff;
+            overflow: hidden;
+        }
+
+        .home-shoes-marquee-heading {
+            padding: 0 40px 30px;
+            display: flex;
+            align-items: end;
+            justify-content: space-between;
+            gap: 20px;
+            text-transform: uppercase;
+        }
+
+        .home-shoes-marquee-heading p {
+            margin: 0;
+            font-size: 11px;
+            letter-spacing: 4px;
+            color: #8a8a8a;
+        }
+
+        .home-shoes-marquee-heading h3 {
+            margin: 6px 0 0;
+            font-size: 28px;
+            font-weight: 400;
+            letter-spacing: 8px;
+            color: #111111;
+        }
+
+        .home-shoes-marquee-heading a {
+            color: #111111;
+            text-decoration: none;
+            border-bottom: 1px solid #111111;
+            font-size: 11px;
+            letter-spacing: 3px;
+            padding-bottom: 5px;
+            white-space: nowrap;
+        }
+
+        .home-shoes-marquee-viewport {
+            width: 100%;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .home-shoes-marquee-viewport::before,
+        .home-shoes-marquee-viewport::after {
+            content: "";
+            position: absolute;
+            top: 0;
+            width: 80px;
+            height: 100%;
+            z-index: 2;
+            pointer-events: none;
+        }
+
+        .home-shoes-marquee-viewport::before {
+            left: 0;
+            background: linear-gradient(to right, #ffffff, rgba(255,255,255,0));
+        }
+
+        .home-shoes-marquee-viewport::after {
+            right: 0;
+            background: linear-gradient(to left, #ffffff, rgba(255,255,255,0));
+        }
+
+        .home-shoes-marquee-track {
+            display: flex;
+            gap: 22px;
+            width: max-content;
+            animation: stylehubShoesMarquee 45s linear infinite;
+            will-change: transform;
+        }
+
+        .home-shoes-marquee-viewport:hover .home-shoes-marquee-track {
+            animation-play-state: paused;
+        }
+
+        .home-shoe-marquee-card {
+            flex: 0 0 260px;
+            color: #111111;
+            text-decoration: none;
+            display: block;
+        }
+
+        .home-shoe-marquee-card img {
+            width: 260px;
+            height: 330px;
+            display: block;
+            object-fit: contain;
+            background: #f7f7f7;
+            transition: transform 0.45s ease;
+        }
+
+        .home-shoe-marquee-card:hover img {
+            transform: scale(1.035);
+        }
+
+        .home-shoe-marquee-info {
+            padding-top: 14px;
+        }
+
+        .home-shoe-marquee-info p {
+            margin: 0 0 8px;
+            font-size: 10px;
+            letter-spacing: 4px;
+            color: #8a8a8a;
+            text-transform: uppercase;
+        }
+
+        .home-shoe-marquee-info h4 {
+            margin: 0 0 8px;
+            font-size: 15px;
+            line-height: 1.35;
+            font-weight: 400;
+        }
+
+        .home-shoe-marquee-info span {
+            font-size: 14px;
+            color: #333333;
+        }
+
+        @keyframes stylehubShoesMarquee {
+            from { transform: translateX(0); }
+            to { transform: translateX(calc(-50% - 11px)); }
+        }
+
+        @media (max-width: 768px) {
+            .home-shoes-marquee-section {
+                margin-bottom: 45px;
+                padding-top: 38px;
+            }
+
+            .home-shoes-marquee-heading {
+                padding: 0 16px 22px;
+                align-items: flex-start;
+                flex-direction: column;
+            }
+
+            .home-shoes-marquee-heading h3 {
+                font-size: 22px;
+                letter-spacing: 6px;
+            }
+
+            .home-shoe-marquee-card {
+                flex-basis: 165px;
+            }
+
+            .home-shoe-marquee-card img {
+                width: 165px;
+                height: 215px;
+            }
+
+            .home-shoes-marquee-track {
+                gap: 14px;
+                animation-duration: 32s;
+            }
+
+            @keyframes stylehubShoesMarquee {
+                from { transform: translateX(0); }
+                to { transform: translateX(calc(-50% - 7px)); }
+            }
+
+            .home-shoe-marquee-info h4 {
+                font-size: 12px;
+            }
+
+            .home-shoe-marquee-info span {
+                font-size: 12px;
+            }
+        }
+
     </style>
 </head>
 <body>
@@ -311,6 +488,179 @@
 <a class="shoes-shop-btn" href="shoes.html">SHOP</a>
 </div>
 </section>
+
+<section class="home-shoes-marquee-section" aria-label="Shoes product marquee">
+<div class="home-shoes-marquee-heading">
+<p>THE STYLE HUB SHOES</p>
+<h3>SHOP SHOES</h3>
+<a href="shoes.html">VIEW ALL SHOES</a>
+</div>
+<div class="home-shoes-marquee-viewport">
+<div class="home-shoes-marquee-track">
+<a class="home-shoe-marquee-card" href="product-detail.html?id=shoe-1">
+<img src="https://fearofgod.com/cdn/shop/files/NRA08_ATHLETICS_III_BASKETBALL-CINDERWARM_VANILLA_1_900x.jpg?v=1773344807" alt="Athletics III Basketball - Cinder Warm Vanilla" loading="lazy"/>
+<div class="home-shoe-marquee-info">
+<p>ATHLETICS</p>
+<h4>Athletics III Basketball - Cinder Warm Vanilla</h4>
+<span>6.100.000 ₫</span>
+</div>
+</a>
+<a class="home-shoe-marquee-card" href="product-detail.html?id=shoe-2">
+<img src="https://fearofgod.com/cdn/shop/files/KJ5967_ATHLETICS_III_BASKETBALL-WONDER_ALUMINA_1_900x.jpg?v=1777386827" alt="Athletics III Basketball - Wonder Alumina" loading="lazy"/>
+<div class="home-shoe-marquee-info">
+<p>ATHLETICS</p>
+<h4>Athletics III Basketball - Wonder Alumina</h4>
+<span>6.100.000 ₫</span>
+</div>
+</a>
+<a class="home-shoe-marquee-card" href="product-detail.html?id=shoe-3">
+<img src="https://fearofgod.com/cdn/shop/files/ATHLETICS_II_BASKETBALL-CARBON_METGRY_1_900x.jpg?v=1764625443" alt="Athletics II Basketball - Carbon Met Grey" loading="lazy"/>
+<div class="home-shoe-marquee-info">
+<p>ATHLETICS</p>
+<h4>Athletics II Basketball - Carbon Met Grey</h4>
+<span>5.900.000 ₫</span>
+</div>
+</a>
+<a class="home-shoe-marquee-card" href="product-detail.html?id=shoe-4">
+<img src="https://fearofgod.com/cdn/shop/files/ATHLETICS_II_BASKETBALL_HI-CARBON_METGRY_1_900x.jpg?v=1764623956" alt="Athletics II Basketball Hi - Carbon Met Grey" loading="lazy"/>
+<div class="home-shoe-marquee-info">
+<p>ATHLETICS</p>
+<h4>Athletics II Basketball Hi - Carbon Met Grey</h4>
+<span>6.300.000 ₫</span>
+</div>
+</a>
+<a class="home-shoe-marquee-card" href="product-detail.html?id=shoe-5">
+<img src="https://fearofgod.com/cdn/shop/files/FG980-8109NUB_101_LIGHT_GREY_1_900x.jpg?v=1772082765" alt="Aerobic Sneaker - Light Grey" loading="lazy"/>
+<div class="home-shoe-marquee-info">
+<p>FEAR OF GOD</p>
+<h4>Aerobic Sneaker - Light Grey</h4>
+<span>7.200.000 ₫</span>
+</div>
+</a>
+<a class="home-shoe-marquee-card" href="product-detail.html?id=shoe-6">
+<img src="https://fearofgod.com/cdn/shop/files/FG980-101NUB_AEROBIC_LOW-LIGHT_GREY_1_900x.jpg?v=1772082697" alt="Aerobic Low - Light Grey" loading="lazy"/>
+<div class="home-shoe-marquee-info">
+<p>FEAR OF GOD</p>
+<h4>Aerobic Low - Light Grey</h4>
+<span>6.900.000 ₫</span>
+</div>
+</a>
+<a class="home-shoe-marquee-card" href="product-detail.html?id=shoe-7">
+<img src="https://fearofgod.com/cdn/shop/files/FG980-101NUB_AEROBIC_LOW-DUST_BLUSH_1_900x.jpg?v=1772082669" alt="Aerobic Low - Dust Blush" loading="lazy"/>
+<div class="home-shoe-marquee-info">
+<p>FEAR OF GOD</p>
+<h4>Aerobic Low - Dust Blush</h4>
+<span>6.900.000 ₫</span>
+</div>
+</a>
+<a class="home-shoe-marquee-card" href="product-detail.html?id=shoe-8">
+<img src="https://fearofgod.com/cdn/shop/files/FG980-207CLP_SLIPPERS-BOTTLE_GREEN_1_900x.jpg?v=1773415561" alt="Slippers - Bottle Green" loading="lazy"/>
+<div class="home-shoe-marquee-info">
+<p>FEAR OF GOD</p>
+<h4>Slippers - Bottle Green</h4>
+<span>4.900.000 ₫</span>
+</div>
+</a>
+<a class="home-shoe-marquee-card" href="product-detail.html?id=shoe-9">
+<img src="https://fearofgod.com/cdn/shop/files/FG980-207CLP_SLIPPERS-MIDNIGHT_BLUE_1_900x.jpg?v=1773415929" alt="Slippers - Midnight Blue" loading="lazy"/>
+<div class="home-shoe-marquee-info">
+<p>FEAR OF GOD</p>
+<h4>Slippers - Midnight Blue</h4>
+<span>4.900.000 ₫</span>
+</div>
+</a>
+<a class="home-shoe-marquee-card" href="product-detail.html?id=shoe-10">
+<img src="https://fearofgod.com/cdn/shop/files/FG980-210NAPP_BALLERINO-BLACK_1_900x.jpg?v=1773416071" alt="Ballerino - Black" loading="lazy"/>
+<div class="home-shoe-marquee-info">
+<p>FEAR OF GOD</p>
+<h4>Ballerino - Black</h4>
+<span>5.600.000 ₫</span>
+</div>
+</a>
+<a class="home-shoe-marquee-card" href="product-detail.html?id=shoe-1">
+<img src="https://fearofgod.com/cdn/shop/files/NRA08_ATHLETICS_III_BASKETBALL-CINDERWARM_VANILLA_1_900x.jpg?v=1773344807" alt="Athletics III Basketball - Cinder Warm Vanilla" loading="lazy"/>
+<div class="home-shoe-marquee-info">
+<p>ATHLETICS</p>
+<h4>Athletics III Basketball - Cinder Warm Vanilla</h4>
+<span>6.100.000 ₫</span>
+</div>
+</a>
+<a class="home-shoe-marquee-card" href="product-detail.html?id=shoe-2">
+<img src="https://fearofgod.com/cdn/shop/files/KJ5967_ATHLETICS_III_BASKETBALL-WONDER_ALUMINA_1_900x.jpg?v=1777386827" alt="Athletics III Basketball - Wonder Alumina" loading="lazy"/>
+<div class="home-shoe-marquee-info">
+<p>ATHLETICS</p>
+<h4>Athletics III Basketball - Wonder Alumina</h4>
+<span>6.100.000 ₫</span>
+</div>
+</a>
+<a class="home-shoe-marquee-card" href="product-detail.html?id=shoe-3">
+<img src="https://fearofgod.com/cdn/shop/files/ATHLETICS_II_BASKETBALL-CARBON_METGRY_1_900x.jpg?v=1764625443" alt="Athletics II Basketball - Carbon Met Grey" loading="lazy"/>
+<div class="home-shoe-marquee-info">
+<p>ATHLETICS</p>
+<h4>Athletics II Basketball - Carbon Met Grey</h4>
+<span>5.900.000 ₫</span>
+</div>
+</a>
+<a class="home-shoe-marquee-card" href="product-detail.html?id=shoe-4">
+<img src="https://fearofgod.com/cdn/shop/files/ATHLETICS_II_BASKETBALL_HI-CARBON_METGRY_1_900x.jpg?v=1764623956" alt="Athletics II Basketball Hi - Carbon Met Grey" loading="lazy"/>
+<div class="home-shoe-marquee-info">
+<p>ATHLETICS</p>
+<h4>Athletics II Basketball Hi - Carbon Met Grey</h4>
+<span>6.300.000 ₫</span>
+</div>
+</a>
+<a class="home-shoe-marquee-card" href="product-detail.html?id=shoe-5">
+<img src="https://fearofgod.com/cdn/shop/files/FG980-8109NUB_101_LIGHT_GREY_1_900x.jpg?v=1772082765" alt="Aerobic Sneaker - Light Grey" loading="lazy"/>
+<div class="home-shoe-marquee-info">
+<p>FEAR OF GOD</p>
+<h4>Aerobic Sneaker - Light Grey</h4>
+<span>7.200.000 ₫</span>
+</div>
+</a>
+<a class="home-shoe-marquee-card" href="product-detail.html?id=shoe-6">
+<img src="https://fearofgod.com/cdn/shop/files/FG980-101NUB_AEROBIC_LOW-LIGHT_GREY_1_900x.jpg?v=1772082697" alt="Aerobic Low - Light Grey" loading="lazy"/>
+<div class="home-shoe-marquee-info">
+<p>FEAR OF GOD</p>
+<h4>Aerobic Low - Light Grey</h4>
+<span>6.900.000 ₫</span>
+</div>
+</a>
+<a class="home-shoe-marquee-card" href="product-detail.html?id=shoe-7">
+<img src="https://fearofgod.com/cdn/shop/files/FG980-101NUB_AEROBIC_LOW-DUST_BLUSH_1_900x.jpg?v=1772082669" alt="Aerobic Low - Dust Blush" loading="lazy"/>
+<div class="home-shoe-marquee-info">
+<p>FEAR OF GOD</p>
+<h4>Aerobic Low - Dust Blush</h4>
+<span>6.900.000 ₫</span>
+</div>
+</a>
+<a class="home-shoe-marquee-card" href="product-detail.html?id=shoe-8">
+<img src="https://fearofgod.com/cdn/shop/files/FG980-207CLP_SLIPPERS-BOTTLE_GREEN_1_900x.jpg?v=1773415561" alt="Slippers - Bottle Green" loading="lazy"/>
+<div class="home-shoe-marquee-info">
+<p>FEAR OF GOD</p>
+<h4>Slippers - Bottle Green</h4>
+<span>4.900.000 ₫</span>
+</div>
+</a>
+<a class="home-shoe-marquee-card" href="product-detail.html?id=shoe-9">
+<img src="https://fearofgod.com/cdn/shop/files/FG980-207CLP_SLIPPERS-MIDNIGHT_BLUE_1_900x.jpg?v=1773415929" alt="Slippers - Midnight Blue" loading="lazy"/>
+<div class="home-shoe-marquee-info">
+<p>FEAR OF GOD</p>
+<h4>Slippers - Midnight Blue</h4>
+<span>4.900.000 ₫</span>
+</div>
+</a>
+<a class="home-shoe-marquee-card" href="product-detail.html?id=shoe-10">
+<img src="https://fearofgod.com/cdn/shop/files/FG980-210NAPP_BALLERINO-BLACK_1_900x.jpg?v=1773416071" alt="Ballerino - Black" loading="lazy"/>
+<div class="home-shoe-marquee-info">
+<p>FEAR OF GOD</p>
+<h4>Ballerino - Black</h4>
+<span>5.600.000 ₫</span>
+</div>
+</a>
+</div>
+</div>
+</section>
+
 </main>
 </div>
 <div class="hidden" id="dashboard-page-view">
@@ -392,7 +742,7 @@
 </div>
 
 
-<script src="product-data.js?v=kids-bottoms-3-products-20260618"></script>
+<script src="product-data.js?v=home-shoes-marquee-20260618"></script>
 <script>
         let isLoggedIn = localStorage.getItem('isLoggedInStatus') === 'true'; 
         let userData = JSON.parse(localStorage.getItem("hub_userData")) || { firstName: "", lastName: "", email: "", password: "" };
@@ -791,6 +1141,36 @@
 <script src="stylehub-common.js"></script>
 
 <script src="stylehub-ai-chat.js"></script>
-<script src="stylehub-cart-sync.js?v=bag-email-persistence-fix-20260618"></script>
+<script src="stylehub-cart-sync.js?v=home-shoes-marquee-20260618"></script>
+
+<script>
+/* PROPERTY OF LA IMAGE FALLBACK */
+(function () {
+    const fallbackUrl = "https://fearofgod.com/cdn/shop/files/RW00201_WHITE_SOX_SPORT_HOODIE-OATMEAL_HEATHER_W_BLACK_PINSTRIPES_1_x800.jpg?v=1777997926";
+
+    function fixBrokenPropertyLAImages() {
+        const productNameText = document.body.innerText || "";
+        if (!productNameText.includes("Property Of LA Crewneck Sweatshirt")) return;
+
+        document.querySelectorAll("img").forEach(function(img) {
+            const altText = (img.getAttribute("alt") || "").toLowerCase();
+            const srcText = (img.getAttribute("src") || "").toLowerCase();
+
+            if (
+                altText.includes("property of la") ||
+                srcText.includes("property_of_la") ||
+                srcText.includes("rw00184")
+            ) {
+                img.onerror = null;
+                img.src = fallbackUrl;
+            }
+        });
+    }
+
+    document.addEventListener("DOMContentLoaded", fixBrokenPropertyLAImages);
+    window.addEventListener("load", fixBrokenPropertyLAImages);
+})();
+</script>
+
 </body>
 </html>
