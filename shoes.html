@@ -54,101 +54,6 @@
 
 
 <style>
-/* ===== FOOTER SOCIAL LOGOS EVEN FINAL ===== */
-.site-footer .social-links,
-.site-footer .footer-social-links {
-    display: flex !important;
-    align-items: center !important;
-    justify-content: flex-start !important;
-    gap: 24px !important;
-    margin-top: 26px !important;
-    flex-wrap: nowrap !important;
-    width: 100% !important;
-    max-width: 420px !important;
-}
-
-.site-footer .footer-social-icon {
-    width: 42px !important;
-    height: 42px !important;
-    min-width: 42px !important;
-    max-width: 42px !important;
-    min-height: 42px !important;
-    max-height: 42px !important;
-    padding: 0 !important;
-    margin: 0 !important;
-    border: none !important;
-    border-radius: 0 !important;
-    background: transparent !important;
-    display: inline-flex !important;
-    align-items: center !important;
-    justify-content: center !important;
-    text-decoration: none !important;
-    overflow: visible !important;
-    box-shadow: none !important;
-    transition: transform 0.25s ease, opacity 0.25s ease !important;
-}
-
-.site-footer .footer-social-icon:hover {
-    transform: translateY(-2px) scale(1.07) !important;
-    opacity: 0.9 !important;
-}
-
-.site-footer .footer-social-icon img,
-.site-footer .footer-social-icon svg {
-    width: 36px !important;
-    height: 36px !important;
-    min-width: 36px !important;
-    max-width: 36px !important;
-    min-height: 36px !important;
-    max-height: 36px !important;
-    display: block !important;
-    object-fit: contain !important;
-    object-position: center !important;
-    border: 0 !important;
-    background: transparent !important;
-    margin: 0 !important;
-    padding: 0 !important;
-    box-shadow: none !important;
-}
-
-/* YouTube và Shopee dùng SVG vuông nên đều hàng hơn */
-.site-footer .footer-youtube-icon svg,
-.site-footer .footer-shopee-icon svg {
-    width: 36px !important;
-    height: 36px !important;
-}
-
-@media (max-width: 768px) {
-    .site-footer .social-links,
-    .site-footer .footer-social-links {
-        gap: 18px !important;
-        max-width: 340px !important;
-    }
-
-    .site-footer .footer-social-icon {
-        width: 36px !important;
-        height: 36px !important;
-        min-width: 36px !important;
-        max-width: 36px !important;
-        min-height: 36px !important;
-        max-height: 36px !important;
-    }
-
-    .site-footer .footer-social-icon img,
-    .site-footer .footer-social-icon svg {
-        width: 32px !important;
-        height: 32px !important;
-        min-width: 32px !important;
-        max-width: 32px !important;
-        min-height: 32px !important;
-        max-height: 32px !important;
-    }
-}
-/* ===== END FOOTER SOCIAL LOGOS EVEN FINAL ===== */
-</style>
-
-
-<style>
 /* ===== FOOTER CATEGORY ALIGN FIX ===== */
 @media (min-width: 769px) {
     .site-footer .footer-categories {
@@ -163,6 +68,130 @@
     }
 }
 /* ===== END FOOTER CATEGORY ALIGN FIX ===== */
+</style>
+
+
+<style>
+/* ===== FOOTER SOCIAL PNG EVEN ALIGN FINAL ===== */
+.site-footer .social-links,
+.site-footer .footer-social-links {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: flex-start !important;
+    gap: 24px !important;
+    margin-top: 26px !important;
+    flex-wrap: nowrap !important;
+    width: 100% !important;
+    max-width: 430px !important;
+}
+
+.site-footer .footer-social-icon {
+    width: 42px !important;
+    height: 42px !important;
+    min-width: 42px !important;
+    max-width: 42px !important;
+    min-height: 42px !important;
+    max-height: 42px !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    border: none !important;
+    outline: none !important;
+    border-radius: 0 !important;
+    background: transparent !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    text-decoration: none !important;
+    overflow: visible !important;
+    box-shadow: none !important;
+    line-height: 1 !important;
+    transition: transform 0.25s ease, opacity 0.25s ease !important;
+}
+
+.site-footer .footer-social-icon:hover {
+    transform: translateY(-2px) scale(1.07) !important;
+    opacity: 0.9 !important;
+}
+
+.site-footer .footer-social-icon img {
+    display: block !important;
+    object-fit: contain !important;
+    object-position: center !important;
+    border: 0 !important;
+    outline: none !important;
+    border-radius: 0 !important;
+    background: transparent !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    box-shadow: none !important;
+}
+
+/* 3 logo đầu giữ kích thước chuẩn */
+.site-footer .footer-fb-icon img,
+.site-footer .footer-zalo-icon img,
+.site-footer .footer-instagram-icon img {
+    width: 36px !important;
+    height: 36px !important;
+    max-width: 36px !important;
+    max-height: 36px !important;
+}
+
+/* YouTube và Shopee lấy đúng ảnh PNG mới của bạn, canh đều với các icon còn lại */
+.site-footer .footer-youtube-icon img {
+    width: 37px !important;
+    height: 37px !important;
+    max-width: 37px !important;
+    max-height: 37px !important;
+}
+
+.site-footer .footer-shopee-icon img {
+    width: 38px !important;
+    height: 38px !important;
+    max-width: 38px !important;
+    max-height: 38px !important;
+}
+
+@media (max-width: 768px) {
+    .site-footer .social-links,
+    .site-footer .footer-social-links {
+        gap: 18px !important;
+        max-width: 340px !important;
+        flex-wrap: nowrap !important;
+    }
+
+    .site-footer .footer-social-icon {
+        width: 36px !important;
+        height: 36px !important;
+        min-width: 36px !important;
+        max-width: 36px !important;
+        min-height: 36px !important;
+        max-height: 36px !important;
+    }
+
+    .site-footer .footer-fb-icon img,
+    .site-footer .footer-zalo-icon img,
+    .site-footer .footer-instagram-icon img {
+        width: 32px !important;
+        height: 32px !important;
+        max-width: 32px !important;
+        max-height: 32px !important;
+    }
+
+    .site-footer .footer-youtube-icon img {
+        width: 33px !important;
+        height: 33px !important;
+        max-width: 33px !important;
+        max-height: 33px !important;
+    }
+
+    .site-footer .footer-shopee-icon img {
+        width: 34px !important;
+        height: 34px !important;
+        max-width: 34px !important;
+        max-height: 34px !important;
+    }
+}
+/* ===== END FOOTER SOCIAL PNG EVEN ALIGN FINAL ===== */
 </style>
 
 </head>
@@ -271,7 +300,7 @@
 </div>
 <div class="product-gallery-container">
 <div class="mens-product-grid">
-<a class="product-card" href="product-detail.html?id=shoe-1">
+<a class="product-card" data-product-id="shoe-1" href="product-detail.html?id=shoe-1">
 <div class="product-thumb hover-img">
 <img class="img-main" src="https://fearofgod.com/cdn/shop/files/NRA08_ATHLETICS_III_BASKETBALL-CINDERWARM_VANILLA_1_900x.jpg?v=1773344807"/>
 <img class="img-hover" src="https://fearofgod.com/cdn/shop/files/NRA08_ATHLETICS_III_BASKETBALL-CINDERWARM_VANILLA_2_900x.jpg?v=1773344807"/>
@@ -282,7 +311,7 @@
 <p class="price">6.100.000 ₫</p>
 </div>
 </a>
-<a class="product-card" href="product-detail.html?id=shoe-2">
+<a class="product-card" data-product-id="shoe-2" href="product-detail.html?id=shoe-2">
 <div class="product-thumb hover-img">
 <img class="img-main" src="https://fearofgod.com/cdn/shop/files/KJ5967_ATHLETICS_III_BASKETBALL-WONDER_ALUMINA_1_900x.jpg?v=1777386827"/>
 <img class="img-hover" src="https://fearofgod.com/cdn/shop/files/KJ5967_ATHLETICS_III_BASKETBALL-WONDER_ALUMINA_2_900x.jpg?v=1777386827"/>
@@ -293,7 +322,7 @@
 <p class="price">6.100.000 ₫</p>
 </div>
 </a>
-<a class="product-card" href="product-detail.html?id=shoe-3">
+<a class="product-card" data-product-id="shoe-3" href="product-detail.html?id=shoe-3">
 <div class="product-thumb hover-img">
 <img class="img-main" src="https://fearofgod.com/cdn/shop/files/ATHLETICS_II_BASKETBALL-CARBON_METGRY_1_900x.jpg?v=1764625443"/>
 <img class="img-hover" src="https://fearofgod.com/cdn/shop/files/ATHLETICS_II_BASKETBALL-CARBON_METGRY_3_900x.jpg?v=1764625443"/>
@@ -304,7 +333,7 @@
 <p class="price">5.900.000 ₫</p>
 </div>
 </a>
-<a class="product-card" href="product-detail.html?id=shoe-4">
+<a class="product-card" data-product-id="shoe-4" href="product-detail.html?id=shoe-4">
 <div class="product-thumb hover-img">
 <img class="img-main" src="https://fearofgod.com/cdn/shop/files/ATHLETICS_II_BASKETBALL_HI-CARBON_METGRY_1_900x.jpg?v=1764623956"/>
 <img class="img-hover" src="https://fearofgod.com/cdn/shop/files/ATHLETICS_II_BASKETBALL_HI-CARBON_METGRY_2_900x.jpg?v=1764623956"/>
@@ -315,7 +344,7 @@
 <p class="price">6.300.000 ₫</p>
 </div>
 </a>
-<a class="product-card" href="product-detail.html?id=shoe-5">
+<a class="product-card" data-product-id="shoe-5" href="product-detail.html?id=shoe-5">
 <div class="product-thumb hover-img">
 <img class="img-main" src="https://fearofgod.com/cdn/shop/files/FG980-8109NUB_101_LIGHT_GREY_1_900x.jpg?v=1772082765"/>
 <img class="img-hover" src="https://fearofgod.com/cdn/shop/files/FG980-8109NUB_101_LIGHT_GREY_2_900x.jpg?v=1772082764"/>
@@ -326,7 +355,7 @@
 <p class="price">7.200.000 ₫</p>
 </div>
 </a>
-<a class="product-card" href="product-detail.html?id=shoe-6">
+<a class="product-card" data-product-id="shoe-6" href="product-detail.html?id=shoe-6">
 <div class="product-thumb hover-img">
 <img class="img-main" src="https://fearofgod.com/cdn/shop/files/FG980-101NUB_AEROBIC_LOW-LIGHT_GREY_1_900x.jpg?v=1772082697"/>
 <img class="img-hover" src="https://fearofgod.com/cdn/shop/files/FG980-101NUB_AEROBIC_LOW-LIGHT_GREY_2_900x.jpg?v=1772082696"/>
@@ -337,7 +366,7 @@
 <p class="price">6.900.000 ₫</p>
 </div>
 </a>
-<a class="product-card" href="product-detail.html?id=shoe-7">
+<a class="product-card" data-product-id="shoe-7" href="product-detail.html?id=shoe-7">
 <div class="product-thumb hover-img">
 <img class="img-main" src="https://fearofgod.com/cdn/shop/files/FG980-101NUB_AEROBIC_LOW-DUST_BLUSH_1_900x.jpg?v=1772082669"/>
 <img class="img-hover" src="https://fearofgod.com/cdn/shop/files/FG980-101NUB_AEROBIC_LOW-DUST_BLUSH_2_900x.jpg?v=1772082670"/>
@@ -348,7 +377,7 @@
 <p class="price">6.900.000 ₫</p>
 </div>
 </a>
-<a class="product-card" href="product-detail.html?id=shoe-8">
+<a class="product-card" data-product-id="shoe-8" href="product-detail.html?id=shoe-8">
 <div class="product-thumb hover-img">
 <img class="img-main" src="https://fearofgod.com/cdn/shop/files/FG980-207CLP_SLIPPERS-BOTTLE_GREEN_1_900x.jpg?v=1773415561"/>
 <img class="img-hover" src="https://fearofgod.com/cdn/shop/files/FG980-207CLP_SLIPPERS-BOTTLE_GREEN_2_900x.jpg?v=1773415560"/>
@@ -359,7 +388,7 @@
 <p class="price">4.900.000 ₫</p>
 </div>
 </a>
-<a class="product-card" href="product-detail.html?id=shoe-9">
+<a class="product-card" data-product-id="shoe-9" href="product-detail.html?id=shoe-9">
 <div class="product-thumb hover-img">
 <img class="img-main" src="https://fearofgod.com/cdn/shop/files/FG980-207CLP_SLIPPERS-MIDNIGHT_BLUE_1_900x.jpg?v=1773415929"/>
 <img class="img-hover" src="https://fearofgod.com/cdn/shop/files/FG980-207CLP_SLIPPERS-MIDNIGHT_BLUE_2_900x.jpg?v=1773415929"/>
@@ -370,7 +399,7 @@
 <p class="price">4.900.000 ₫</p>
 </div>
 </a>
-<a class="product-card" href="product-detail.html?id=shoe-10">
+<a class="product-card" data-product-id="shoe-10" href="product-detail.html?id=shoe-10">
 <div class="product-thumb hover-img">
 <img class="img-main" src="https://fearofgod.com/cdn/shop/files/FG980-210NAPP_BALLERINO-BLACK_1_900x.jpg?v=1773416071"/>
 <img class="img-hover" src="https://fearofgod.com/cdn/shop/files/FG980-210NAPP_BALLERINO-BLACK_2_900x.jpg?v=1773416071"/>
@@ -381,7 +410,7 @@
 <p class="price">5.600.000 ₫</p>
 </div>
 </a>
-<a class="product-card" href="product-detail.html?id=shoe-11">
+<a class="product-card" data-product-id="shoe-11" href="product-detail.html?id=shoe-11">
 <div class="product-thumb hover-img">
 <img class="img-main" src="https://fearofgod.com/cdn/shop/files/FG981-9000CLP_ANKLE_BOOT-MIDNIGHT_BLUE_1_900x.jpg?v=1778520700"/>
 <img class="img-hover" src="https://fearofgod.com/cdn/shop/files/FG981-9000CLP_ANKLE_BOOT-MIDNIGHT_BLUE_2_900x.jpg?v=1778520700"/>
@@ -392,7 +421,7 @@
 <p class="price">8.200.000 ₫</p>
 </div>
 </a>
-<a class="product-card" href="product-detail.html?id=shoe-12">
+<a class="product-card" data-product-id="shoe-12" href="product-detail.html?id=shoe-12">
 <div class="product-thumb hover-img">
 <img class="img-main" src="https://fearofgod.com/cdn/shop/files/FG981-9000SUE_ANKLE_BOOT-DARK_BROWN_1_900x.jpg?v=1778520737"/>
 <img class="img-hover" src="https://fearofgod.com/cdn/shop/files/FG981-9000SUE_ANKLE_BOOT-DARK_BROWN_2_900x.jpg?v=1778520737"/>
@@ -403,7 +432,7 @@
 <p class="price">8.200.000 ₫</p>
 </div>
 </a>
-<a class="product-card" href="product-detail.html?id=shoe-13">
+<a class="product-card" data-product-id="shoe-13" href="product-detail.html?id=shoe-13">
 <div class="product-thumb hover-img">
 <img class="img-main" src="https://fearofgod.com/cdn/shop/files/BASKETBALLSNEAKER-1_900x.jpg?v=1741986715"/>
 <img class="img-hover" src="https://fearofgod.com/cdn/shop/files/BASKETBALLSNEAKER-2_900x.jpg?v=1741986740"/>
@@ -414,7 +443,7 @@
 <p class="price">6.500.000 ₫</p>
 </div>
 </a>
-<a class="product-card" href="product-detail.html?id=shoe-14">
+<a class="product-card" data-product-id="shoe-14" href="product-detail.html?id=shoe-14">
 <div class="product-thumb hover-img">
 <img class="img-main" src="https://fearofgod.com/cdn/shop/files/FG980-9019SOFS_LACE_UP_RUNNER-LIGHT_GREY_1_3d11095a-5bb8-4086-b986-fdc55918cca2_900x.jpg?v=1776876890"/>
 <img class="img-hover" src="https://fearofgod.com/cdn/shop/files/FG980-9019SOFS_LACE_UP_RUNNER-LIGHT_GREY_2_427ac223-e6fd-439a-8ad7-509a1bb29e26_900x.jpg?v=1776876890"/>
@@ -425,7 +454,7 @@
 <p class="price">7.400.000 ₫</p>
 </div>
 </a>
-<a class="product-card" href="product-detail.html?id=shoe-15">
+<a class="product-card" data-product-id="shoe-15" href="product-detail.html?id=shoe-15">
 <div class="product-thumb hover-img">
 <img class="img-main" src="https://fearofgod.com/cdn/shop/files/FG980-8109NUB_101_DUST_BLUSH_1_900x.jpg?v=1772082741"/>
 <img class="img-hover" src="https://fearofgod.com/cdn/shop/files/FG980-8109NUB_101_DUST_BLUSH_2_900x.jpg?v=1772082741"/>
@@ -651,7 +680,7 @@ document.addEventListener("DOMContentLoaded", function () {
         }
     }
 });
-</script><script src="product-data.js?v=property-la-visible-final-20260618"></script>
+</script><script src="product-data.js?v=shoes-back-position-fix-20260618"></script>
 
 
 <script>
@@ -724,22 +753,11 @@ document.addEventListener("click", function(e) {
         <h3>THE STYLE HUB</h3>
         <p>Modern fashion store for menswear, womenswear, kidswear, shoes and seasonal sale collections.</p>
         <div class="social-links footer-social-links">
-            <a class="footer-social-icon" href="#" aria-label="Facebook"><img src="images/fb.png" alt="Facebook"></a>
-            <a class="footer-social-icon" href="#" aria-label="Zalo"><img src="images/zalo.png" alt="Zalo"></a>
-            <a class="footer-social-icon" href="#" aria-label="Instagram"><img src="images/instagram.png" alt="Instagram"></a>
-            <a class="footer-social-icon footer-youtube-icon" href="#" aria-label="YouTube">
-                <svg viewBox="0 0 64 64" aria-hidden="true">
-                    <rect x="9" y="16" width="46" height="32" rx="8" fill="#FF0000"/>
-                    <path d="M28 25.5L41 32L28 38.5V25.5Z" fill="#FFFFFF"/>
-                </svg>
-            </a>
-            <a class="footer-social-icon footer-shopee-icon" href="#" aria-label="Shopee">
-                <svg viewBox="0 0 64 64" aria-hidden="true">
-                    <path d="M20 22H44L47 56H17L20 22Z" fill="#EE4D2D"/>
-                    <path d="M25 22C25.2 13.5 28.1 8 32 8C35.9 8 38.8 13.5 39 22" fill="none" stroke="#EE4D2D" stroke-width="4.6" stroke-linecap="round"/>
-                    <path d="M37.2 30.4C35.6 29.2 33.8 28.6 31.7 28.6C28.9 28.6 27.2 29.8 27.2 31.8C27.2 34 29.4 34.7 32 35.6C35.4 36.7 39.1 38.1 39.1 42.6C39.1 47.2 35.4 50.1 30.2 50.1C26.9 50.1 23.9 49 21.7 47L24 43.8C25.8 45.4 27.9 46.3 30.2 46.3C32.8 46.3 34.4 45.1 34.4 43C34.4 40.9 32.4 40.2 29.9 39.4C26.4 38.2 22.8 36.9 22.8 32.2C22.8 27.8 26.5 25 31.7 25C34.8 25 37.3 25.8 39.4 27.4L37.2 30.4Z" fill="#FFFFFF"/>
-                </svg>
-            </a>
+            <a class="footer-social-icon footer-fb-icon" href="#" aria-label="Facebook"><img src="images/fb.png" alt="Facebook"></a>
+            <a class="footer-social-icon footer-zalo-icon" href="#" aria-label="Zalo"><img src="images/zalo.png" alt="Zalo"></a>
+            <a class="footer-social-icon footer-instagram-icon" href="#" aria-label="Instagram"><img src="images/instagram.png" alt="Instagram"></a>
+            <a class="footer-social-icon footer-youtube-icon" href="#" aria-label="YouTube"><img src="images/ytb.png" alt="YouTube"></a>
+            <a class="footer-social-icon footer-shopee-icon" href="#" aria-label="Shopee"><img src="images/shoppe.png" alt="Shopee"></a>
         </div>
     </div>
 
@@ -787,7 +805,7 @@ document.addEventListener("click", function(e) {
 <script src="stylehub-common.js"></script>
 
 <script src="stylehub-ai-chat.js"></script>
-<script src="stylehub-cart-sync.js?v=fix-property-la-image-20260618"></script>
+<script src="stylehub-cart-sync.js?v=shoes-back-position-fix-20260618"></script>
 
 <script>
 /* PROPERTY OF LA IMAGE FALLBACK */
@@ -816,6 +834,112 @@ document.addEventListener("click", function(e) {
     document.addEventListener("DOMContentLoaded", fixBrokenPropertyLAImages);
     window.addEventListener("load", fixBrokenPropertyLAImages);
 })();
+</script>
+
+
+<script>
+/* SHOES BACK POSITION FIX START */
+(function () {
+    const SHOES_PAGE = "shoes.html";
+
+    function getProductIdFromCard(card) {
+        const href = card.getAttribute("href") || "";
+        try {
+            const url = new URL(href, window.location.href);
+            return url.searchParams.get("id") || card.dataset.productId || "";
+        } catch (error) {
+            return card.dataset.productId || "";
+        }
+    }
+
+    function rememberShoesReturnPosition(card) {
+        const productId = getProductIdFromCard(card);
+        const savedData = {
+            url: SHOES_PAGE,
+            scrollY: window.scrollY || window.pageYOffset || 0,
+            productId: productId,
+            fromPage: "shoes",
+            savedAt: Date.now()
+        };
+
+        sessionStorage.setItem("stylehub_collection_return", JSON.stringify(savedData));
+
+        const targetUrl = new URL(card.getAttribute("href") || "product-detail.html", window.location.href);
+        if (productId) targetUrl.searchParams.set("id", productId);
+        targetUrl.searchParams.set("from", SHOES_PAGE);
+
+        return targetUrl.pathname.split("/").pop() + targetUrl.search;
+    }
+
+    function bindShoesProductLinks() {
+        document.querySelectorAll('a.product-card[href*="product-detail.html?id=shoe-"]').forEach(function (card) {
+            if (card.dataset.shoesBackBound === "1") return;
+            card.dataset.shoesBackBound = "1";
+
+            const productId = getProductIdFromCard(card);
+            if (productId && !card.dataset.productId) {
+                card.dataset.productId = productId;
+            }
+
+            card.addEventListener("click", function (event) {
+                if (event.defaultPrevented || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey || event.button !== 0) return;
+                event.preventDefault();
+                window.location.href = rememberShoesReturnPosition(this);
+            });
+        });
+    }
+
+    function restoreShoesPosition() {
+        if (sessionStorage.getItem("stylehub_collection_restore") !== "1") return;
+
+        let saved = null;
+        try {
+            saved = JSON.parse(sessionStorage.getItem("stylehub_collection_return") || "null");
+        } catch (error) {
+            saved = null;
+        }
+
+        if (!saved || saved.fromPage !== "shoes" || !saved.url || !saved.url.includes("shoes.html")) return;
+
+        sessionStorage.removeItem("stylehub_collection_restore");
+
+        function scrollBack() {
+            if (typeof saved.scrollY === "number") {
+                window.scrollTo(0, saved.scrollY);
+            }
+        }
+
+        function ensureProductVisible() {
+            if (!saved.productId) return;
+            const safeId = window.CSS && CSS.escape ? CSS.escape(saved.productId) : saved.productId.replace(/"/g, '\\"');
+            const targetCard = document.querySelector(`[data-product-id="${safeId}"], a[href*="id=${safeId}"]`);
+            if (!targetCard) return;
+
+            const rect = targetCard.getBoundingClientRect();
+            const isVisible = rect.top >= 90 && rect.bottom <= (window.innerHeight - 80);
+            if (!isVisible) {
+                targetCard.scrollIntoView({ block: "center", behavior: "auto" });
+            }
+        }
+
+        // Gọi nhiều lần để đợi ảnh load xong, tránh lệch vị trí.
+        setTimeout(scrollBack, 60);
+        setTimeout(scrollBack, 250);
+        setTimeout(scrollBack, 650);
+        setTimeout(ensureProductVisible, 900);
+    }
+
+    document.addEventListener("DOMContentLoaded", function () {
+        bindShoesProductLinks();
+        restoreShoesPosition();
+    });
+
+    window.addEventListener("load", function () {
+        bindShoesProductLinks();
+        restoreShoesPosition();
+    });
+})();
+/* SHOES BACK POSITION FIX END */
 </script>
 
 </body>
