@@ -83,58 +83,96 @@
 
 </style>
 
+
 <style>
-/* ===== FOOTER SOCIAL IMAGE LOGOS ===== */
-.social-links {
-    display: flex;
-    align-items: center;
-    gap: 14px;
-    margin-top: 26px;
-    flex-wrap: wrap;
+/* ===== FOOTER SOCIAL LOGOS FINAL ALIGN FIX ===== */
+.site-footer .social-links,
+.site-footer .footer-social-links {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: flex-start !important;
+    gap: 12px !important;
+    margin-top: 26px !important;
+    flex-wrap: nowrap !important;
+    width: 100% !important;
+    max-width: 340px !important;
 }
 
-.social-links .footer-social-icon {
-    width: 46px;
-    height: 46px;
-    border: 1px solid rgba(255,255,255,0.45);
-    border-radius: 8px;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    text-decoration: none;
-    transition: all 0.25s ease;
-    background: transparent;
+.site-footer .social-links .footer-social-icon,
+.site-footer .footer-social-links .footer-social-icon {
+    width: 44px !important;
+    height: 44px !important;
+    min-width: 44px !important;
+    max-width: 44px !important;
+    min-height: 44px !important;
+    max-height: 44px !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    border: 1px solid rgba(255,255,255,0.45) !important;
+    border-radius: 9px !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    text-decoration: none !important;
+    background: transparent !important;
+    overflow: hidden !important;
+    box-sizing: border-box !important;
+    transition: all 0.25s ease !important;
 }
 
-.social-links .footer-social-icon:hover {
-    transform: translateY(-2px);
-    border-color: #ffffff;
-    background: rgba(255,255,255,0.08);
+.site-footer .social-links .footer-social-icon:hover,
+.site-footer .footer-social-links .footer-social-icon:hover {
+    transform: translateY(-2px) !important;
+    border-color: #ffffff !important;
+    background: rgba(255,255,255,0.10) !important;
 }
 
-.social-links .footer-social-icon img {
-    width: 24px;
-    height: 24px;
-    display: block;
-    object-fit: contain;
+.site-footer .social-links .footer-social-icon img,
+.site-footer .footer-social-links .footer-social-icon img {
+    width: 25px !important;
+    height: 25px !important;
+    min-width: 25px !important;
+    max-width: 25px !important;
+    min-height: 25px !important;
+    max-height: 25px !important;
+    display: block !important;
+    object-fit: contain !important;
+    object-position: center !important;
+    border: 0 !important;
+    margin: 0 !important;
+    padding: 0 !important;
+}
+
+/* Shopee logo usually has more horizontal details, so make it slightly wider inside the same box */
+.site-footer .footer-social-icon[aria-label="Shopee"] img {
+    width: 27px !important;
+    height: 27px !important;
 }
 
 @media (max-width: 768px) {
-    .social-links {
-        gap: 10px;
+    .site-footer .social-links,
+    .site-footer .footer-social-links {
+        gap: 9px !important;
+        max-width: 280px !important;
     }
 
-    .social-links .footer-social-icon {
-        width: 42px;
-        height: 42px;
+    .site-footer .social-links .footer-social-icon,
+    .site-footer .footer-social-links .footer-social-icon {
+        width: 40px !important;
+        height: 40px !important;
+        min-width: 40px !important;
+        max-width: 40px !important;
+        min-height: 40px !important;
+        max-height: 40px !important;
     }
 
-    .social-links .footer-social-icon img {
-        width: 22px;
-        height: 22px;
+    .site-footer .social-links .footer-social-icon img,
+    .site-footer .footer-social-links .footer-social-icon img {
+        width: 23px !important;
+        height: 23px !important;
     }
 }
-/* ===== END FOOTER SOCIAL IMAGE LOGOS ===== */
+/* ===== END FOOTER SOCIAL LOGOS FINAL ALIGN FIX ===== */
 </style>
 
 </head>
@@ -1183,12 +1221,12 @@ document.addEventListener("click", function(e) {
     <div class="footer-col footer-brand">
         <h3>THE STYLE HUB</h3>
         <p>Modern fashion store for menswear, womenswear, kidswear, shoes and seasonal sale collections.</p>
-        <div class="social-links">
+        <div class="social-links footer-social-links">
             <a class="footer-social-icon" href="#" aria-label="Facebook"><img src="images/fb.png" alt="Facebook"></a>
             <a class="footer-social-icon" href="#" aria-label="Zalo"><img src="images/zalo.png" alt="Zalo"></a>
             <a class="footer-social-icon" href="#" aria-label="Instagram"><img src="images/instagram.png" alt="Instagram"></a>
             <a class="footer-social-icon" href="#" aria-label="YouTube"><img src="images/ytb.png" alt="YouTube"></a>
-            <a class="footer-social-icon" href="#" aria-label="Shopee"><img src="images/shopee.png" alt="Shopee"></a>
+            <a class="footer-social-icon" href="#" aria-label="Shopee"><img src="images/shoppe.png" alt="Shopee"></a>
         </div>
     </div>
 
