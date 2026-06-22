@@ -99,7 +99,7 @@
            
         </div>
     </div>
-    <script src="product-data.js?v=kids-bottoms-3-products-20260618"></script>
+    <script src="product-data.js?v=property-la-visible-final-20260618"></script>
 
     <script>
     const grid = document.querySelector(".mens-product-grid");
@@ -445,7 +445,37 @@ document.addEventListener("click", function(e) {
 <script src="stylehub-notifications.js?v=notification-bell-fixed-all-pages-20260616"></script>
 <script src="stylehub-responsive-nav.js?v=kids-bottoms-3-products-20260618"></script>
 <script src="stylehub-common.js"></script>
-<script src="stylehub-cart-sync.js?v=bag-email-persistence-fix-20260618"></script>
+<script src="stylehub-cart-sync.js?v=fix-property-la-image-20260618"></script>
+
+<script>
+/* PROPERTY OF LA IMAGE FALLBACK */
+(function () {
+    const fallbackUrl = "https://fearofgod.com/cdn/shop/files/RW00201_WHITE_SOX_SPORT_HOODIE-OATMEAL_HEATHER_W_BLACK_PINSTRIPES_1_x800.jpg?v=1777997926";
+
+    function fixBrokenPropertyLAImages() {
+        const productNameText = document.body.innerText || "";
+        if (!productNameText.includes("Property Of LA Crewneck Sweatshirt")) return;
+
+        document.querySelectorAll("img").forEach(function(img) {
+            const altText = (img.getAttribute("alt") || "").toLowerCase();
+            const srcText = (img.getAttribute("src") || "").toLowerCase();
+
+            if (
+                altText.includes("property of la") ||
+                srcText.includes("property_of_la") ||
+                srcText.includes("rw00184")
+            ) {
+                img.onerror = null;
+                img.src = fallbackUrl;
+            }
+        });
+    }
+
+    document.addEventListener("DOMContentLoaded", fixBrokenPropertyLAImages);
+    window.addEventListener("load", fixBrokenPropertyLAImages);
+})();
+</script>
+
 </body>
 
 </html>
