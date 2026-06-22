@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<title>Test EmailJS - The Style Hub</title>
+<script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
+<style>
+body { font-family: Arial, sans-serif; padding: 40px; background:#f7f7f7; color:#111; }
+.box { max-width: 560px; margin:auto; background:#fff; padding:28px; border:1px solid #ddd; }
+input, textarea { width:100%; padding:12px; margin:8px 0 16px; border:1px solid #ccc; }
+button { width:100%; padding:14px; background:#111; color:#fff; border:none; cursor:pointer; }
+pre { background:#111; color:#0f0; padding:14px; white-space:pre-wrap; margin-top:20px; }
+</style>
+</head>
+<body>
+<div class="box">
+<h2>Test gửi EmailJS</h2>
+<p>Dùng trang này để kiểm tra riêng EmailJS trước. Nhập email của bạn rồi bấm gửi.</p>
+<label>Email nhận test</label>
+<input id="toEmail" type="email" placeholder="emailcuaban@gmail.com" required>
+<button onclick="sendTest()">Gửi email test</button>
+<pre id="log">Chưa gửi.</pre>
+</div>
+
+<script>
+emailjs.init("MB1m-Q2_ueI82N8Xo");
+
+function log(msg) {
+    document.getElementById("log").textContent += "\n" + msg;
+}
+
+async function sendTest() {
+    const toEmail = document.getElementById("toEmail").value.trim();
+    document.getElementById("log").textContent = "Đang gửi...";
+    try {
+        const params = {
+            to_email: toEmail,
+            customer_name: "Khách test",
+            orderId: "TEST" + Math.floor(Math.random() * 999999),
+            order_date: new Date().toLocaleString("vi-VN"),
+            customer_phone: "0900000000",
+            customer_address: "Test address",
+            product_details: "1. Sản phẩm test x 1 - Giá: 1.000.000 ₫",
+            total_price: "1.000.000 ₫"
+        };
+
+        log("Service ID: service_xjsmniq");
+        log("Template ID: template_1v0d3yr");
+        log("Params: " + JSON.stringify(params, null, 2));
+
+        const res = await emailjs.send("service_xjsmniq", "template_1v0d3yr", params);
+        log("THÀNH CÔNG: " + JSON.stringify(res));
+        alert("Gửi test thành công. Kiểm tra EmailJS History và hộp thư.");
+    } catch (err) {
+        log("LỖI: " + JSON.stringify(err, Object.getOwnPropertyNames(err), 2));
+        console.error(err);
+        alert("Gửi test thất bại. Xem log trên màn hình hoặc Console.");
+    }
+}
+</script>
+</body>
+</html>
