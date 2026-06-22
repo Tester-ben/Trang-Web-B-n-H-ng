@@ -729,8 +729,9 @@
 
             renderRelatedProducts(productId);
             
-            cartMemoryArray = readStyleHubCartFromStorage();
+            loadStyleHubCartIntoMemory();
             renderCartUI();
+            forceStyleHubCartSyncNow();
 
             loadSavedShippingInfo();
             bindShippingFormPersistence();
@@ -746,7 +747,13 @@
             window.selectedSize = selectedSizeText;
         }
         
-        function toggleCartDrawer(isOpen) { document.getElementById('cartOverlay').classList.toggle('open', isOpen); }
+        function toggleCartDrawer(isOpen) {
+            if (isOpen) {
+                loadStyleHubCartIntoMemory();
+                renderCartUI();
+            }
+            document.getElementById('cartOverlay').classList.toggle('open', isOpen);
+        }
         function toggleCheckoutDrawer(isOpen) { document.getElementById('checkoutOverlay').classList.toggle('open', isOpen); }
         function toggleAuthModal(isOpen) { document.getElementById('authModal').classList.toggle('open', isOpen); }
 
@@ -841,17 +848,46 @@
                 return total + getStyleHubItemQuantity(item);
             }, 0);
 
-            document.querySelectorAll("#cart-count, #bag-count, [data-stylehub-cart-count]").forEach(function(el) {
+            // Update spans first
+            document.querySelectorAll("#bag-count, #cart-count, [data-stylehub-cart-count]").forEach(function(el) {
                 el.textContent = String(totalQty);
             });
 
-            document.querySelectorAll("#bag-trigger, a").forEach(function(el) {
+            // For BAG links without a span, rebuild them safely.
+            document.querySelectorAll("a, #bag-trigger, .pd-bag-link").forEach(function(el) {
                 const text = (el.textContent || "").trim().toUpperCase();
-                if (text.startsWith("BAG")) {
-                    el.innerHTML = `BAG (<span id="cart-count">${totalQty}</span>)`;
+                if (!text.startsWith("BAG")) return;
+
+                if (!el.querySelector("#bag-count") && !el.querySelector("#cart-count") && !el.querySelector("[data-stylehub-cart-count]")) {
+                    el.innerHTML = 'BAG (<span id="bag-count" data-stylehub-cart-count>' + totalQty + '</span>)';
                 }
             });
         }
+
+
+        function forceStyleHubCartSyncNow() {
+            const cleanCart = (cartMemoryArray || []).map(normalizeStyleHubCartItem).filter(Boolean);
+            const data = JSON.stringify(cleanCart);
+
+            localStorage.setItem("stylehub_cart_memory_v1", data);
+            localStorage.setItem("stylehub_cart", data);
+            localStorage.setItem("hub_cart", data);
+            localStorage.setItem("cartMemoryArray", data);
+
+            updateStyleHubCartBadges(cleanCart);
+
+            if (window.StyleHubCartSync && typeof window.StyleHubCartSync.save === "function") {
+                window.StyleHubCartSync.save(cleanCart);
+            }
+        }
+
+        function loadStyleHubCartIntoMemory() {
+            const savedCart = readStyleHubCartFromStorage();
+            cartMemoryArray = savedCart.map(normalizeStyleHubCartItem).filter(Boolean);
+            updateStyleHubCartBadges(cartMemoryArray);
+            return cartMemoryArray;
+        }
+
 
         function bindShippingFormPersistence() {
             const fields = [
@@ -953,22 +989,50 @@
         }
 
         function addBag() { 
-            if (!currentItem) return;
-            const existingItem = cartMemoryArray.find(item => item.key === currentItem.key && item.size === selectedSizeText);
-            if (existingItem) { existingItem.qty += 1; } 
-            else {
+            if (!currentItem) {
+                showToastNotification("Không tìm thấy sản phẩm để thêm vào BAG!");
+                return;
+            }
+
+            if (!selectedSizeText) {
+                const selectedButton = document.querySelector(".size-button.selected");
+                selectedSizeText = selectedButton ? (selectedButton.dataset.size || selectedButton.innerText.trim()) : "M";
+            }
+
+            // Luôn lấy lại BAG từ localStorage trước, tránh bị reset khi qua trang khác.
+            loadStyleHubCartIntoMemory();
+
+            const existingItem = cartMemoryArray.find(function(item) {
+                return item.key === currentItem.key && item.size === selectedSizeText;
+            });
+
+            if (existingItem) {
+                existingItem.qty = getStyleHubItemQuantity(existingItem) + 1;
+            } else {
                 cartMemoryArray.push({
-                    key: currentItem.key, name: currentItem.name, price: currentItem.price,
-                    priceNum: Number(currentItem.priceNum) || getStyleHubItemPriceNumber(currentItem), mainImg: currentItem.mainImg, size: selectedSizeText, qty: 1
+                    key: currentItem.key,
+                    name: currentItem.name,
+                    price: currentItem.price,
+                    priceNum: Number(currentItem.priceNum) || getStyleHubItemPriceNumber(currentItem),
+                    mainImg: currentItem.mainImg || (currentItem.images && currentItem.images[0]) || "",
+                    size: selectedSizeText,
+                    qty: 1
                 });
             }
+
+            forceStyleHubCartSyncNow();
             renderCartUI();
+            forceStyleHubCartSyncNow();
+
             showToastNotification(`ĐÃ THÊM SẢN PHẨM (SIZE ${selectedSizeText}) VÀO BAG!`);
         }
 
         function removeCartItem(index) {
+            loadStyleHubCartIntoMemory();
             cartMemoryArray.splice(index, 1);
+            forceStyleHubCartSyncNow();
             renderCartUI();
+            forceStyleHubCartSyncNow();
         }
 
         function renderCartUI() {
@@ -982,7 +1046,7 @@
                 emptyMsg.classList.remove('hidden');
                 document.getElementById('bag-count').innerText = "0";
                 document.getElementById('cartTotalTarget').innerText = "0 ₫";
-                saveStyleHubCartToStorage();
+                forceStyleHubCartSyncNow();
                 return;
             }
             emptyMsg.classList.add('hidden');
@@ -1005,7 +1069,7 @@
             });
             document.getElementById('bag-count').innerText = totalItemsCount;
             document.getElementById('cartTotalTarget').innerText = totalAmountMoney.toLocaleString('vi-VN') + " ₫";
-            saveStyleHubCartToStorage();
+            forceStyleHubCartSyncNow();
         }
 
         function loadSavedShippingInfo() {
@@ -1047,15 +1111,40 @@
 
         function openCheckoutDirectly() {
             if (!currentItem) return;
-            const existingItem = cartMemoryArray.find(item => item.key === currentItem.key && item.size === selectedSizeText);
+
+            if (!selectedSizeText) {
+                const selectedButton = document.querySelector(".size-button.selected");
+                selectedSizeText = selectedButton ? (selectedButton.dataset.size || selectedButton.innerText.trim()) : "M";
+            }
+
+            loadStyleHubCartIntoMemory();
+
+            const existingItem = cartMemoryArray.find(function(item) {
+                return item.key === currentItem.key && item.size === selectedSizeText;
+            });
+
             if (!existingItem) {
                 cartMemoryArray.push({
-                    key: currentItem.key, name: currentItem.name, price: currentItem.price,
-                    priceNum: Number(currentItem.priceNum) || getStyleHubItemPriceNumber(currentItem), mainImg: currentItem.mainImg, size: selectedSizeText, qty: 1
+                    key: currentItem.key,
+                    name: currentItem.name,
+                    price: currentItem.price,
+                    priceNum: Number(currentItem.priceNum) || getStyleHubItemPriceNumber(currentItem),
+                    mainImg: currentItem.mainImg || (currentItem.images && currentItem.images[0]) || "",
+                    size: selectedSizeText,
+                    qty: 1
                 });
-                renderCartUI();
             }
-            if(!isUserLoggedIn) { pendingCheckoutAction = true; toggleAuthModal(true); return; }
+
+            forceStyleHubCartSyncNow();
+            renderCartUI();
+            forceStyleHubCartSyncNow();
+
+            if(!isUserLoggedIn) {
+                pendingCheckoutAction = true;
+                toggleAuthModal(true);
+                return;
+            }
+
             toggleCheckoutDrawer(true);
         }
 
@@ -1267,6 +1356,7 @@
             toggleCheckoutDrawer(false);
             cartMemoryArray = [];
             clearStyleHubCartStorage();
+            forceStyleHubCartSyncNow();
             renderCartUI();
             triggerFireworkCelebration();
         }
@@ -1432,6 +1522,6 @@ document.addEventListener("click", function(e) {
 
 <script src="shoe-size-patch.js?v=shoe-size-no-flash-20260616"></script>
 <script src="stylehub-ai-pro.js"></script>
-<script src="stylehub-cart-sync.js?v=bag-email-persistence-fix-20260618"></script>
+<script src="stylehub-cart-sync.js?v=bag-final-fix-20260618"></script>
 </body>
 </html>

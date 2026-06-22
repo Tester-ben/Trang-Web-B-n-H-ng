@@ -1,4 +1,4 @@
-/* THE STYLE HUB - CART SYNC ACROSS ALL PAGES */
+/* THE STYLE HUB - CART SYNC ACROSS ALL PAGES - FINAL FIX */
 (function () {
     const CART_KEYS = ["stylehub_cart_memory_v1", "stylehub_cart", "hub_cart", "cartMemoryArray", "the_style_hub_cart"];
 
@@ -24,22 +24,24 @@
         return Number.isNaN(qty) || qty < 1 ? 1 : qty;
     }
 
-    function writeCart(cart) {
+    function save(cart) {
         const safeCart = Array.isArray(cart) ? cart : [];
         const data = JSON.stringify(safeCart);
         localStorage.setItem("stylehub_cart_memory_v1", data);
         localStorage.setItem("stylehub_cart", data);
         localStorage.setItem("hub_cart", data);
+        localStorage.setItem("cartMemoryArray", data);
         update(safeCart);
     }
 
-    function clearCart() {
+    function clear() {
         CART_KEYS.forEach(function (key) {
             localStorage.removeItem(key);
         });
         localStorage.setItem("stylehub_cart_memory_v1", "[]");
         localStorage.setItem("stylehub_cart", "[]");
         localStorage.setItem("hub_cart", "[]");
+        localStorage.setItem("cartMemoryArray", "[]");
         update([]);
     }
 
@@ -49,22 +51,27 @@
             return sum + getQty(item);
         }, 0);
 
-        document.querySelectorAll("#cart-count, #bag-count, [data-stylehub-cart-count]").forEach(function (el) {
+        document.querySelectorAll("#bag-count, #cart-count, [data-stylehub-cart-count]").forEach(function (el) {
             el.textContent = String(totalQty);
         });
 
-        document.querySelectorAll("#bag-trigger, a").forEach(function (el) {
+        document.querySelectorAll("a, #bag-trigger, .pd-bag-link").forEach(function (el) {
             const text = (el.textContent || "").trim().toUpperCase();
-            if (text.startsWith("BAG")) {
-                el.innerHTML = 'BAG (<span id="cart-count">' + totalQty + '</span>)';
+            if (!text.startsWith("BAG")) return;
+
+            const countEl = el.querySelector("#bag-count, #cart-count, [data-stylehub-cart-count]");
+            if (countEl) {
+                countEl.textContent = String(totalQty);
+            } else {
+                el.innerHTML = 'BAG (<span id="cart-count" data-stylehub-cart-count>' + totalQty + '</span>)';
             }
         });
     }
 
     window.StyleHubCartSync = {
         read: readCart,
-        save: writeCart,
-        clear: clearCart,
+        save: save,
+        clear: clear,
         update: update
     };
 
