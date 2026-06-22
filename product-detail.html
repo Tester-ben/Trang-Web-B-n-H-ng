@@ -729,7 +729,11 @@
 
             renderRelatedProducts(productId);
             
+            cartMemoryArray = readStyleHubCartFromStorage();
+            renderCartUI();
+
             loadSavedShippingInfo();
+            bindShippingFormPersistence();
             updateHeaderAccountUI();
             loadPendingReorderCart();
         });
@@ -763,6 +767,113 @@
             toast.innerText = textMsg;
             toast.classList.add('show');
             setTimeout(() => { toast.classList.remove('show'); }, 2800);
+        }
+
+
+
+        /* ==================== BAG PERSISTENCE ACROSS PAGES ==================== */
+        const STYLEHUB_CART_STORAGE_KEY = "stylehub_cart_memory_v1";
+        const STYLEHUB_CART_COMPAT_KEYS = ["stylehub_cart_memory_v1", "stylehub_cart", "hub_cart", "cartMemoryArray", "the_style_hub_cart"];
+
+        function normalizeStyleHubCartItem(item) {
+            if (!item) return null;
+            const product = item.key && typeof database !== 'undefined' ? database[item.key] : null;
+            const priceText = item.price || item.itemPrice || item.productPrice || (product && product.price) || "";
+            const priceNum = Number(item.priceNum) || parseInt(String(priceText).replace(/[^\d]/g, ""), 10) || 0;
+            const qty = Number(item.qty || item.quantity || item.amount || 1);
+
+            return {
+                key: item.key || item.id || "",
+                name: item.name || item.productName || (product && product.name) || "Sản phẩm",
+                price: priceText || (priceNum ? priceNum.toLocaleString("vi-VN") + " ₫" : ""),
+                priceNum: priceNum,
+                mainImg: item.mainImg || item.image || item.img || (product && (product.mainImg || (product.images && product.images[0]))) || "",
+                size: item.size || item.selectedSize || "M",
+                qty: Number.isNaN(qty) || qty < 1 ? 1 : qty
+            };
+        }
+
+        function readStyleHubCartFromStorage() {
+            for (const key of STYLEHUB_CART_COMPAT_KEYS) {
+                try {
+                    const raw = localStorage.getItem(key);
+                    if (!raw) continue;
+                    const parsed = JSON.parse(raw);
+                    if (!Array.isArray(parsed) || parsed.length === 0) continue;
+                    return parsed.map(normalizeStyleHubCartItem).filter(Boolean);
+                } catch (error) {
+                    console.warn("Không đọc được giỏ hàng từ", key, error);
+                }
+            }
+            return [];
+        }
+
+        function saveStyleHubCartToStorage() {
+            try {
+                const cleanCart = (cartMemoryArray || []).map(normalizeStyleHubCartItem).filter(Boolean);
+                localStorage.setItem(STYLEHUB_CART_STORAGE_KEY, JSON.stringify(cleanCart));
+                localStorage.setItem("stylehub_cart", JSON.stringify(cleanCart));
+                localStorage.setItem("hub_cart", JSON.stringify(cleanCart));
+
+                if (window.StyleHubCartSync && typeof window.StyleHubCartSync.update === "function") {
+                    window.StyleHubCartSync.update(cleanCart);
+                } else {
+                    updateStyleHubCartBadges(cleanCart);
+                }
+            } catch (error) {
+                console.error("Không lưu được giỏ hàng:", error);
+            }
+        }
+
+        function clearStyleHubCartStorage() {
+            STYLEHUB_CART_COMPAT_KEYS.forEach(function(key) {
+                localStorage.removeItem(key);
+            });
+            localStorage.setItem(STYLEHUB_CART_STORAGE_KEY, "[]");
+            localStorage.setItem("stylehub_cart", "[]");
+            localStorage.setItem("hub_cart", "[]");
+            updateStyleHubCartBadges([]);
+        }
+
+        function updateStyleHubCartBadges(cartItems) {
+            const items = Array.isArray(cartItems) ? cartItems : readStyleHubCartFromStorage();
+            const totalQty = items.reduce(function(total, item) {
+                return total + getStyleHubItemQuantity(item);
+            }, 0);
+
+            document.querySelectorAll("#cart-count, #bag-count, [data-stylehub-cart-count]").forEach(function(el) {
+                el.textContent = String(totalQty);
+            });
+
+            document.querySelectorAll("#bag-trigger, a").forEach(function(el) {
+                const text = (el.textContent || "").trim().toUpperCase();
+                if (text.startsWith("BAG")) {
+                    el.innerHTML = `BAG (<span id="cart-count">${totalQty}</span>)`;
+                }
+            });
+        }
+
+        function bindShippingFormPersistence() {
+            const fields = [
+                { id: "cusName", key: "hub_name" },
+                { id: "cusPhone", key: "hub_phone" },
+                { id: "cusAddress", key: "hub_address" },
+                { id: "cusEmail", key: "hub_shipping_email", lower: true }
+            ];
+
+            fields.forEach(function(field) {
+                const el = document.getElementById(field.id);
+                if (!el || el.dataset.stylehubPersistenceBound === "1") return;
+                el.dataset.stylehubPersistenceBound = "1";
+
+                el.addEventListener("input", function() {
+                    const value = field.lower ? el.value.trim().toLowerCase() : el.value.trim();
+                    localStorage.setItem(field.key, value);
+                    if (field.id === "cusEmail") {
+                        localStorage.setItem("stylehub_last_checkout_email", value);
+                    }
+                });
+            });
         }
 
 
@@ -871,6 +982,7 @@
                 emptyMsg.classList.remove('hidden');
                 document.getElementById('bag-count').innerText = "0";
                 document.getElementById('cartTotalTarget').innerText = "0 ₫";
+                saveStyleHubCartToStorage();
                 return;
             }
             emptyMsg.classList.add('hidden');
@@ -893,23 +1005,32 @@
             });
             document.getElementById('bag-count').innerText = totalItemsCount;
             document.getElementById('cartTotalTarget').innerText = totalAmountMoney.toLocaleString('vi-VN') + " ₫";
+            saveStyleHubCartToStorage();
         }
 
         function loadSavedShippingInfo() {
             const savedName = localStorage.getItem('hub_name');
             const savedPhone = localStorage.getItem('hub_phone');
             const savedAddress = localStorage.getItem('hub_address');
-            const savedEmail = localStorage.getItem('hub_email');
-            
+
+            // Ưu tiên email người nhận hàng đã nhập gần nhất.
+            // Không ép quay lại email đăng nhập cũ khi reload.
+            const savedEmail = (
+                localStorage.getItem('hub_shipping_email') ||
+                localStorage.getItem('stylehub_last_checkout_email') ||
+                localStorage.getItem('hub_email') ||
+                ''
+            );
+
             if (savedName) { document.getElementById('cusName').value = savedName; }
             if (savedEmail) { document.getElementById('cusEmail').value = savedEmail; }
-            
+
             if (savedPhone && savedPhone !== "Chưa cập nhật") { 
                 document.getElementById('cusPhone').value = savedPhone; 
             } else {
                 document.getElementById('cusPhone').value = ""; 
             }
-            
+
             if (savedAddress && savedAddress !== "Chưa cập nhật địa chỉ giao hàng") { 
                 document.getElementById('cusAddress').value = savedAddress; 
             } else {
@@ -1075,6 +1196,7 @@
             localStorage.setItem('hub_name', name);
             rememberHubLoginIdentity(localStorage.getItem('hub_name') || name || accountEmail, accountEmail);
             localStorage.setItem('hub_shipping_email', email);
+            localStorage.setItem('stylehub_last_checkout_email', email);
             localStorage.setItem('hub_phone', phone);
             localStorage.setItem('hub_address', address);
 
@@ -1096,7 +1218,8 @@
                 userInfo: {
                     name: name,
                     phone: phone,
-                    email: accountEmail,
+                    email: email,
+                    accountEmail: accountEmail,
                     address: address
                 },
                 totalPriceFormatted: finalOrderTotalFormatted,
@@ -1143,6 +1266,7 @@
 
             toggleCheckoutDrawer(false);
             cartMemoryArray = [];
+            clearStyleHubCartStorage();
             renderCartUI();
             triggerFireworkCelebration();
         }
@@ -1308,5 +1432,6 @@ document.addEventListener("click", function(e) {
 
 <script src="shoe-size-patch.js?v=shoe-size-no-flash-20260616"></script>
 <script src="stylehub-ai-pro.js"></script>
+<script src="stylehub-cart-sync.js?v=bag-email-persistence-fix-20260618"></script>
 </body>
 </html>
