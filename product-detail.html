@@ -12,7 +12,7 @@
     <script type="text/javascript">
         window.STYLEHUB_EMAILJS_PUBLIC_KEY = "MB1m-Q2_ueI82N8Xo";
         window.STYLEHUB_EMAILJS_SERVICE_ID = "service_xjsmniq";
-        window.STYLEHUB_EMAILJS_TEMPLATE_ID = "template_f4bnal4";
+        window.STYLEHUB_EMAILJS_TEMPLATE_ID = "template_1v0d3yr";
 
         (function () {
             if (window.emailjs && typeof window.emailjs.init === "function") {
@@ -956,10 +956,34 @@
             }).join("\n");
         }
 
+
+        function waitForStyleHubEmailJS(timeoutMs = 6000) {
+            return new Promise(function(resolve, reject) {
+                const start = Date.now();
+
+                function check() {
+                    if (window.emailjs && typeof window.emailjs.send === "function") {
+                        if (typeof window.emailjs.init === "function") {
+                            window.emailjs.init(window.STYLEHUB_EMAILJS_PUBLIC_KEY);
+                        }
+                        resolve();
+                        return;
+                    }
+
+                    if (Date.now() - start > timeoutMs) {
+                        reject(new Error("EmailJS SDK chưa tải được. Kiểm tra mạng hoặc CDN @emailjs/browser."));
+                        return;
+                    }
+
+                    setTimeout(check, 120);
+                }
+
+                check();
+            });
+        }
+
         async function sendStyleHubOrderEmail(orderObject) {
-            if (!window.emailjs || typeof window.emailjs.send !== "function") {
-                throw new Error("EmailJS SDK chưa được tải. Kiểm tra script cdn.jsdelivr.net/npm/@emailjs/browser.");
-            }
+            await waitForStyleHubEmailJS();
 
             const userInfo = orderObject.userInfo || {};
             const toEmail = (
@@ -986,6 +1010,8 @@
             };
 
             console.log("Đang gửi EmailJS với dữ liệu:", templateParams);
+            console.log("EmailJS Service ID:", window.STYLEHUB_EMAILJS_SERVICE_ID);
+            console.log("EmailJS Template ID:", window.STYLEHUB_EMAILJS_TEMPLATE_ID);
 
             return window.emailjs.send(
                 window.STYLEHUB_EMAILJS_SERVICE_ID,
@@ -1046,6 +1072,19 @@
                 status: "Đang chờ xác nhận"
             };
 
+
+            // GỬI EMAIL NGAY SAU KHI TẠO ĐƠN, TRƯỚC KHI CHỜ FIREBASE.
+            // Lý do: nếu Firebase/cloud bị chậm hoặc treo, EmailJS vẫn được gọi ngay.
+            let styleHubEmailSent = false;
+            try {
+                await sendStyleHubOrderEmail(newCompletedOrderObject);
+                styleHubEmailSent = true;
+                console.log("Email xác nhận đơn hàng đã gửi thành công.");
+            } catch (emailError) {
+                console.error("Gửi email xác nhận thất bại:", emailError);
+                showToastNotification("EMAIL CHƯA GỬI ĐƯỢC. MỞ CONSOLE ĐỂ XEM LỖI EMAILJS.");
+            }
+
             try {
                 if (window.StyleHubOrders && typeof StyleHubOrders.saveOrder === 'function') {
                     await StyleHubOrders.saveOrder(newCompletedOrderObject);
@@ -1068,23 +1107,6 @@
 
             if (window.StyleHubNotifications && typeof StyleHubNotifications.addOrderSuccessNotification === 'function') {
                 StyleHubNotifications.addOrderSuccessNotification(newCompletedOrderObject);
-            }
-
-
-
-            let styleHubEmailSent = false;
-            try {
-                await sendStyleHubOrderEmail(newCompletedOrderObject);
-                styleHubEmailSent = true;
-                console.log("Email xác nhận đơn hàng đã gửi thành công.");
-            } catch (emailError) {
-                console.error("Gửi email xác nhận thất bại:", emailError);
-            }
-
-            if (styleHubEmailSent) {
-                showToastNotification("ĐẶT HÀNG THÀNH CÔNG! EMAIL XÁC NHẬN ĐÃ ĐƯỢC GỬI.");
-            } else {
-                showToastNotification("ĐƠN HÀNG ĐÃ ĐƯỢC GHI NHẬN, NHƯNG EMAIL CHƯA GỬI ĐƯỢC.");
             }
 
             toggleCheckoutDrawer(false);
@@ -1119,7 +1141,7 @@
                 }
                 framesCount++;
                 if (particles.length > 0 && framesCount < 200) { animationFrameId = requestAnimationFrame(loop); } 
-                else { cancelAnimationFrame(animationFrameId); canvas.style.display = 'none'; showToastNotification("ĐẶT HÀNG THÀNH CÔNG!"); }
+                else { cancelAnimationFrame(animationFrameId); canvas.style.display = 'none'; }
             }
             loop();
         }
