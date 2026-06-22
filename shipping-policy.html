@@ -6,6 +6,61 @@
 <title>Chính sách giao hàng - The Style Hub</title>
 <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
 <link href="style.css" rel="stylesheet">
+
+<style>
+/* ===== FOOTER SOCIAL IMAGE LOGOS ===== */
+.social-links {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    margin-top: 26px;
+    flex-wrap: wrap;
+}
+
+.social-links .footer-social-icon {
+    width: 46px;
+    height: 46px;
+    border: 1px solid rgba(255,255,255,0.45);
+    border-radius: 8px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    text-decoration: none;
+    transition: all 0.25s ease;
+    background: transparent;
+}
+
+.social-links .footer-social-icon:hover {
+    transform: translateY(-2px);
+    border-color: #ffffff;
+    background: rgba(255,255,255,0.08);
+}
+
+.social-links .footer-social-icon img {
+    width: 24px;
+    height: 24px;
+    display: block;
+    object-fit: contain;
+}
+
+@media (max-width: 768px) {
+    .social-links {
+        gap: 10px;
+    }
+
+    .social-links .footer-social-icon {
+        width: 42px;
+        height: 42px;
+    }
+
+    .social-links .footer-social-icon img {
+        width: 22px;
+        height: 22px;
+    }
+}
+/* ===== END FOOTER SOCIAL IMAGE LOGOS ===== */
+</style>
+
 </head>
 <body>
 
@@ -113,7 +168,7 @@
     <section class="policy-section"><h2>Liên hệ hỗ trợ giao hàng</h2><p>Hotline: 02873066060</p><p>Email: support@thestylehub.com</p><p>Thời gian hỗ trợ: 9:00–18:00 từ Thứ Hai đến Chủ Nhật.</p></section>
 </main>
 
-<script src="product-data.js?v=kids-bottoms-3-products-20260618"></script>
+<script src="product-data.js?v=property-la-visible-final-20260618"></script>
 
 <script>
 function openSearchBox() {
@@ -185,7 +240,11 @@ document.addEventListener("click", function(e) {
         <h3>THE STYLE HUB</h3>
         <p>Modern fashion store for menswear, womenswear, kidswear, shoes and seasonal sale collections.</p>
         <div class="social-links">
-            <span>f</span><span>Zalo</span><span>◎</span><span>▶</span><span>♪</span>
+            <a class="footer-social-icon" href="#" aria-label="Facebook"><img src="images/fb.png" alt="Facebook"></a>
+            <a class="footer-social-icon" href="#" aria-label="Zalo"><img src="images/zalo.png" alt="Zalo"></a>
+            <a class="footer-social-icon" href="#" aria-label="Instagram"><img src="images/instagram.png" alt="Instagram"></a>
+            <a class="footer-social-icon" href="#" aria-label="YouTube"><img src="images/ytb.png" alt="YouTube"></a>
+            <a class="footer-social-icon" href="#" aria-label="Shopee"><img src="images/shopee.png" alt="Shopee"></a>
         </div>
     </div>
 
@@ -227,6 +286,36 @@ document.addEventListener("click", function(e) {
 <script src="stylehub-common.js"></script>
 
 <script src="stylehub-ai-chat.js"></script>
-<script src="stylehub-cart-sync.js?v=bag-email-persistence-fix-20260618"></script>
+<script src="stylehub-cart-sync.js?v=fix-property-la-image-20260618"></script>
+
+<script>
+/* PROPERTY OF LA IMAGE FALLBACK */
+(function () {
+    const fallbackUrl = "https://fearofgod.com/cdn/shop/files/RW00201_WHITE_SOX_SPORT_HOODIE-OATMEAL_HEATHER_W_BLACK_PINSTRIPES_1_x800.jpg?v=1777997926";
+
+    function fixBrokenPropertyLAImages() {
+        const productNameText = document.body.innerText || "";
+        if (!productNameText.includes("Property Of LA Crewneck Sweatshirt")) return;
+
+        document.querySelectorAll("img").forEach(function(img) {
+            const altText = (img.getAttribute("alt") || "").toLowerCase();
+            const srcText = (img.getAttribute("src") || "").toLowerCase();
+
+            if (
+                altText.includes("property of la") ||
+                srcText.includes("property_of_la") ||
+                srcText.includes("rw00184")
+            ) {
+                img.onerror = null;
+                img.src = fallbackUrl;
+            }
+        });
+    }
+
+    document.addEventListener("DOMContentLoaded", fixBrokenPropertyLAImages);
+    window.addEventListener("load", fixBrokenPropertyLAImages);
+})();
+</script>
+
 </body>
 </html>
