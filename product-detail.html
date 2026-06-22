@@ -6,6 +6,21 @@
     <title>Product Detail - The Style Hub</title>
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="style.css">
+
+    <!-- EmailJS: gửi mail xác nhận đơn hàng -->
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
+    <script type="text/javascript">
+        window.STYLEHUB_EMAILJS_PUBLIC_KEY = "MB1m-Q2_ueI82N8Xo";
+        window.STYLEHUB_EMAILJS_SERVICE_ID = "service_xjsmniq";
+        window.STYLEHUB_EMAILJS_TEMPLATE_ID = "template_f4bnal4";
+
+        (function () {
+            if (window.emailjs && typeof window.emailjs.init === "function") {
+                window.emailjs.init(window.STYLEHUB_EMAILJS_PUBLIC_KEY);
+            }
+        })();
+    </script>
+
     
     <style>
         * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -923,6 +938,63 @@
             toggleCheckoutDrawer(true);
         }
 
+
+        /* ==================== EMAILJS ORDER CONFIRMATION ==================== */
+        function buildStyleHubProductDetails(orderObject) {
+            const items = orderObject && Array.isArray(orderObject.orderedProductsList)
+                ? orderObject.orderedProductsList
+                : [];
+
+            if (items.length === 0) return "Không có sản phẩm";
+
+            return items.map(function(item, index) {
+                const name = item.name || "Sản phẩm";
+                const size = item.size || "N/A";
+                const qty = item.qty || 1;
+                const price = item.price || "";
+                return `${index + 1}. ${name} (Size: ${size}) x ${qty} - Giá: ${price}`;
+            }).join("\n");
+        }
+
+        async function sendStyleHubOrderEmail(orderObject) {
+            if (!window.emailjs || typeof window.emailjs.send !== "function") {
+                throw new Error("EmailJS SDK chưa được tải. Kiểm tra script cdn.jsdelivr.net/npm/@emailjs/browser.");
+            }
+
+            const userInfo = orderObject.userInfo || {};
+            const toEmail = (
+                orderObject.shippingEmail ||
+                orderObject.customerEmail ||
+                orderObject.userEmail ||
+                userInfo.email ||
+                ""
+            ).trim().toLowerCase();
+
+            if (!toEmail) {
+                throw new Error("Thiếu email người nhận.");
+            }
+
+            const templateParams = {
+                to_email: toEmail,
+                customer_name: userInfo.name || localStorage.getItem("hub_name") || "Khách hàng",
+                orderId: orderObject.orderId || "",
+                order_date: orderObject.orderDate || orderObject.date || new Date().toLocaleString("vi-VN"),
+                customer_phone: userInfo.phone || localStorage.getItem("hub_phone") || "",
+                customer_address: userInfo.address || localStorage.getItem("hub_address") || "",
+                product_details: buildStyleHubProductDetails(orderObject),
+                total_price: orderObject.totalPriceFormatted || document.getElementById("cartTotalTarget").innerText || "0 ₫"
+            };
+
+            console.log("Đang gửi EmailJS với dữ liệu:", templateParams);
+
+            return window.emailjs.send(
+                window.STYLEHUB_EMAILJS_SERVICE_ID,
+                window.STYLEHUB_EMAILJS_TEMPLATE_ID,
+                templateParams
+            );
+        }
+
+
         async function submitFinalOrder() {
             const name = document.getElementById('cusName').value.trim();
             const phone = document.getElementById('cusPhone').value.trim();
@@ -998,6 +1070,23 @@
                 StyleHubNotifications.addOrderSuccessNotification(newCompletedOrderObject);
             }
 
+
+
+            let styleHubEmailSent = false;
+            try {
+                await sendStyleHubOrderEmail(newCompletedOrderObject);
+                styleHubEmailSent = true;
+                console.log("Email xác nhận đơn hàng đã gửi thành công.");
+            } catch (emailError) {
+                console.error("Gửi email xác nhận thất bại:", emailError);
+            }
+
+            if (styleHubEmailSent) {
+                showToastNotification("ĐẶT HÀNG THÀNH CÔNG! EMAIL XÁC NHẬN ĐÃ ĐƯỢC GỬI.");
+            } else {
+                showToastNotification("ĐƠN HÀNG ĐÃ ĐƯỢC GHI NHẬN, NHƯNG EMAIL CHƯA GỬI ĐƯỢC.");
+            }
+
             toggleCheckoutDrawer(false);
             cartMemoryArray = [];
             renderCartUI();
@@ -1030,7 +1119,7 @@
                 }
                 framesCount++;
                 if (particles.length > 0 && framesCount < 200) { animationFrameId = requestAnimationFrame(loop); } 
-                else { cancelAnimationFrame(animationFrameId); canvas.style.display = 'none'; showToastNotification("THAO TÁC XÁC THỰC THÀNH CÔNG!"); }
+                else { cancelAnimationFrame(animationFrameId); canvas.style.display = 'none'; showToastNotification("ĐẶT HÀNG THÀNH CÔNG!"); }
             }
             loop();
         }
