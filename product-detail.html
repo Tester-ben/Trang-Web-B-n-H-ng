@@ -1261,6 +1261,14 @@
 
 
         async function submitFinalOrder() {
+            const submitButton = document.querySelector('#checkout-form button[type="submit"], #checkout-form .btn-submit, .checkout-submit-btn, button.btn-submit');
+            const originalButtonText = submitButton ? submitButton.innerText : "";
+
+            if (submitButton) {
+                submitButton.disabled = true;
+                submitButton.innerText = "ĐANG XỬ LÝ...";
+            }
+
             const name = document.getElementById('cusName').value.trim();
             const phone = document.getElementById('cusPhone').value.trim();
             const address = document.getElementById('cusAddress').value.trim();
@@ -1268,14 +1276,24 @@
 
             if(!name || !phone || !address || !email) {
                 showToastNotification("Vui lòng điền đầy đủ thông tin giao hàng!");
+                if (submitButton) {
+                    submitButton.disabled = false;
+                    submitButton.innerText = originalButtonText || "XÁC NHẬN ĐẶT HÀNG";
+                }
                 return;
             }
 
+            loadStyleHubCartIntoMemory();
+
             if(cartMemoryArray.length === 0) {
                 showToastNotification("Giỏ hàng của bạn đang trống!");
+                if (submitButton) {
+                    submitButton.disabled = false;
+                    submitButton.innerText = originalButtonText || "XÁC NHẬN ĐẶT HÀNG";
+                }
                 return;
             }
-            
+
             const accountEmail = (
                 localStorage.getItem('hub_current_user_key') ||
                 localStorage.getItem('hub_email') ||
@@ -1292,7 +1310,7 @@
             const orderStorageKey = 'hub_orders_' + accountEmail;
             const existingOrdersArray = JSON.parse(localStorage.getItem(orderStorageKey) || '[]');
             const uniqueOrderId = "STH" + Math.floor(100000 + Math.random() * 900000);
-            
+
             const orderDate = new Date().toLocaleString('vi-VN');
             const finalOrderTotalAmount = calculateStyleHubOrderTotal(cartMemoryArray);
             const finalOrderTotalFormatted = formatStyleHubVND(finalOrderTotalAmount);
@@ -1316,38 +1334,17 @@
                 status: "Đang chờ xác nhận"
             };
 
+            /*
+              FAST CHECKOUT:
+              Lưu local và đóng giao diện ngay để người dùng không phải chờ EmailJS/Firebase.
+              EmailJS + Firebase vẫn chạy ở nền sau đó.
+            */
+            existingOrdersArray.unshift(newCompletedOrderObject);
+            localStorage.setItem(orderStorageKey, JSON.stringify(existingOrdersArray));
 
-            // GỬI EMAIL NGAY SAU KHI TẠO ĐƠN, TRƯỚC KHI CHỜ FIREBASE.
-            // Lý do: nếu Firebase/cloud bị chậm hoặc treo, EmailJS vẫn được gọi ngay.
-            let styleHubEmailSent = false;
-            try {
-                await sendStyleHubOrderEmail(newCompletedOrderObject);
-                styleHubEmailSent = true;
-                console.log("Email xác nhận đơn hàng đã gửi thành công.");
-            } catch (emailError) {
-                console.error("Gửi email xác nhận thất bại:", emailError);
-                showToastNotification("EMAIL CHƯA GỬI ĐƯỢC. MỞ CONSOLE ĐỂ XEM LỖI EMAILJS.");
-            }
-
-            try {
-                if (window.StyleHubOrders && typeof StyleHubOrders.saveOrder === 'function') {
-                    await StyleHubOrders.saveOrder(newCompletedOrderObject);
-                } else {
-                    existingOrdersArray.unshift(newCompletedOrderObject);
-                    localStorage.setItem(orderStorageKey, JSON.stringify(existingOrdersArray));
-                    const globalOrders = JSON.parse(localStorage.getItem('hub_orders') || '[]');
-                    globalOrders.unshift(newCompletedOrderObject);
-                    localStorage.setItem('hub_orders', JSON.stringify(globalOrders));
-                }
-            } catch (error) {
-                console.error('Không thể lưu đơn hàng lên cloud, đã lưu tạm trên máy:', error);
-                existingOrdersArray.unshift(newCompletedOrderObject);
-                localStorage.setItem(orderStorageKey, JSON.stringify(existingOrdersArray));
-                const globalOrders = JSON.parse(localStorage.getItem('hub_orders') || '[]');
-                globalOrders.unshift(newCompletedOrderObject);
-                localStorage.setItem('hub_orders', JSON.stringify(globalOrders));
-            }
-            
+            const globalOrders = JSON.parse(localStorage.getItem('hub_orders') || '[]');
+            globalOrders.unshift(newCompletedOrderObject);
+            localStorage.setItem('hub_orders', JSON.stringify(globalOrders));
 
             if (window.StyleHubNotifications && typeof StyleHubNotifications.addOrderSuccessNotification === 'function') {
                 StyleHubNotifications.addOrderSuccessNotification(newCompletedOrderObject);
@@ -1359,6 +1356,34 @@
             forceStyleHubCartSyncNow();
             renderCartUI();
             triggerFireworkCelebration();
+            showToastNotification("ĐẶT HÀNG THÀNH CÔNG! EMAIL XÁC NHẬN ĐANG ĐƯỢC GỬI.");
+
+            if (submitButton) {
+                submitButton.disabled = false;
+                submitButton.innerText = originalButtonText || "XÁC NHẬN ĐẶT HÀNG";
+            }
+
+            setTimeout(function() {
+                // Gửi email ở nền, không chặn màn hình đặt hàng.
+                sendStyleHubOrderEmail(newCompletedOrderObject)
+                    .then(function() {
+                        console.log("Email xác nhận đơn hàng đã gửi thành công.");
+                    })
+                    .catch(function(emailError) {
+                        console.error("Gửi email xác nhận thất bại:", emailError);
+                    });
+
+                // Lưu cloud ở nền, không làm chậm nút đặt hàng.
+                if (window.StyleHubOrders && typeof StyleHubOrders.saveOrder === 'function') {
+                    StyleHubOrders.saveOrder(newCompletedOrderObject)
+                        .then(function() {
+                            console.log("Đơn hàng đã đồng bộ Firebase thành công.");
+                        })
+                        .catch(function(error) {
+                            console.error("Không thể đồng bộ Firebase, đơn hàng đã lưu local:", error);
+                        });
+                }
+            }, 50);
         }
 
         /* --- HIỆU ỨNG PHÁO HOA --- */
