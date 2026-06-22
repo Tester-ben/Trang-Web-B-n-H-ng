@@ -200,6 +200,104 @@
 /* ===== END FOOTER SOCIAL 3 ICONS LEFT ALIGN FINAL ===== */
 </style>
 
+
+<style>
+/* ===== ACCOUNT PROFILE EMAIL + EDIT ADDRESS FIX ===== */
+.account-edit-form {
+    display: none;
+    border: 1px solid #eeeeee;
+    background: #ffffff;
+    padding: 24px 25px;
+    margin-top: 18px;
+}
+
+.account-edit-form.active {
+    display: block;
+}
+
+.account-edit-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 18px 22px;
+}
+
+.account-edit-field {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.account-edit-field.full-row {
+    grid-column: 1 / -1;
+}
+
+.account-edit-field label {
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 1.2px;
+    text-transform: uppercase;
+    color: #111111;
+}
+
+.account-edit-field input,
+.account-edit-field textarea {
+    width: 100%;
+    border: 1px solid #d9d9d9;
+    background: #ffffff;
+    padding: 13px 14px;
+    font-size: 13px;
+    color: #111111;
+    outline: none;
+    box-sizing: border-box;
+    font-family: inherit;
+}
+
+.account-edit-field textarea {
+    min-height: 92px;
+    resize: vertical;
+}
+
+.account-edit-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 12px;
+    margin-top: 22px;
+}
+
+.account-edit-btn {
+    min-width: 130px;
+    height: 42px;
+    border: 1px solid #111111;
+    background: #111111;
+    color: #ffffff;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 1.6px;
+    text-transform: uppercase;
+    cursor: pointer;
+}
+
+.account-edit-btn.secondary {
+    background: #ffffff;
+    color: #111111;
+}
+
+@media (max-width: 768px) {
+    .account-edit-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .account-edit-actions {
+        flex-direction: column;
+    }
+
+    .account-edit-btn {
+        width: 100%;
+    }
+}
+/* ===== END ACCOUNT PROFILE EMAIL + EDIT ADDRESS FIX ===== */
+</style>
+
 </head>
 <body>
     <div id="searchBox" class="search-overlay">
@@ -256,8 +354,9 @@
         <div id="profile-tab" class="tab-content-panel active">
             <div class="profile-title-row">
                 <h3>Default Shipping Address</h3>
-                <span class="edit-info-link">Edit Address</span>
+                <span class="edit-info-link" onclick="openProfileEditForm()">Edit Address</span>
             </div>
+
             <div class="profile-card-details">
                 <div class="info-field-group">
                     <strong>Full Name:</strong> <span id="displayFullName">Loading...</span>
@@ -266,7 +365,35 @@
                     <strong>Phone Number:</strong> <span id="displayPhone">Loading...</span>
                 </div>
                 <div class="info-field-group">
+                    <strong>Email:</strong> <span id="displayEmail">Loading...</span>
+                </div>
+                <div class="info-field-group">
                     <strong>Address:</strong> <span id="displayAddress">Loading...</span>
+                </div>
+            </div>
+
+            <div class="account-edit-form" id="profileEditForm">
+                <div class="account-edit-grid">
+                    <div class="account-edit-field">
+                        <label for="editFullName">Full Name</label>
+                        <input type="text" id="editFullName" placeholder="Full name">
+                    </div>
+                    <div class="account-edit-field">
+                        <label for="editPhone">Phone Number</label>
+                        <input type="text" id="editPhone" placeholder="Phone number">
+                    </div>
+                    <div class="account-edit-field full-row">
+                        <label for="editEmail">Email</label>
+                        <input type="email" id="editEmail" placeholder="Email nhận xác nhận đơn hàng">
+                    </div>
+                    <div class="account-edit-field full-row">
+                        <label for="editAddress">Address</label>
+                        <textarea id="editAddress" placeholder="Địa chỉ nhận hàng"></textarea>
+                    </div>
+                </div>
+                <div class="account-edit-actions">
+                    <button type="button" class="account-edit-btn secondary" onclick="closeProfileEditForm()">Cancel</button>
+                    <button type="button" class="account-edit-btn" onclick="saveProfileEditForm()">Save Address</button>
                 </div>
             </div>
         </div>
@@ -413,10 +540,74 @@
             document.getElementById(tabId).classList.add('active');
         }
 
+        function getProfileShippingEmail() {
+            return (
+                localStorage.getItem('hub_shipping_email') ||
+                localStorage.getItem('stylehub_last_checkout_email') ||
+                localStorage.getItem('hub_email') ||
+                localStorage.getItem('hub_current_user_key') ||
+                ''
+            ).trim().toLowerCase();
+        }
+
         function renderProfileData() {
+            const profileEmail = getProfileShippingEmail();
+
             document.getElementById('displayFullName').innerText = localStorage.getItem('hub_name') || "USER";
             document.getElementById('displayPhone').innerText = localStorage.getItem('hub_phone') || "090 XXXXXXX";
+
+            const emailDisplay = document.getElementById('displayEmail');
+            if (emailDisplay) {
+                emailDisplay.innerText = profileEmail || "Chưa cập nhật email nhận hàng";
+            }
+
             document.getElementById('displayAddress').innerText = localStorage.getItem('hub_address') || "Chưa cập nhật địa chỉ giao hàng";
+        }
+
+        function openProfileEditForm() {
+            const form = document.getElementById('profileEditForm');
+            if (!form) return;
+
+            document.getElementById('editFullName').value = localStorage.getItem('hub_name') || '';
+            document.getElementById('editPhone').value = localStorage.getItem('hub_phone') || '';
+            document.getElementById('editEmail').value = getProfileShippingEmail();
+            document.getElementById('editAddress').value = localStorage.getItem('hub_address') || '';
+
+            form.classList.add('active');
+            form.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        }
+
+        function closeProfileEditForm() {
+            const form = document.getElementById('profileEditForm');
+            if (form) form.classList.remove('active');
+        }
+
+        function saveProfileEditForm() {
+            const name = document.getElementById('editFullName').value.trim();
+            const phone = document.getElementById('editPhone').value.trim();
+            const email = document.getElementById('editEmail').value.trim().toLowerCase();
+            const address = document.getElementById('editAddress').value.trim();
+
+            if (!name || !phone || !email || !address) {
+                showAccountToast('Vui lòng nhập đầy đủ tên, số điện thoại, email và địa chỉ.');
+                return;
+            }
+
+            localStorage.setItem('hub_name', name);
+            localStorage.setItem('hub_phone', phone);
+            localStorage.setItem('hub_address', address);
+
+            // Email này là email người dùng nhập khi đặt hàng / nhận xác nhận đơn.
+            localStorage.setItem('hub_shipping_email', email);
+            localStorage.setItem('stylehub_last_checkout_email', email);
+
+            // Lưu mapping theo tên để lần sau account tìm lại được email.
+            rememberAccountEmailForName(name, email);
+
+            renderProfileData();
+            syncHeaderUsername();
+            closeProfileEditForm();
+            showAccountToast('Đã cập nhật thông tin giao hàng.');
         }
 
         function getCurrentUserEmail() {
