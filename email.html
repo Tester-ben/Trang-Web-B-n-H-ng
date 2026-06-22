@@ -54,7 +54,7 @@
         </div>
 
         <div class="order-summary">
-            <div class="total-price">TỔNG THANH TOÁN: <span id="display-total">0 ₫</span></div>
+            <div class="total-price">TỔNG SỐ TIỀN THANH TOÁN: <span id="display-total">0 ₫</span></div>
         </div>
         
         <button type="submit" class="btn-submit">Xác nhận đặt hàng</button>
@@ -67,12 +67,20 @@
 <script>
     // Hàm tính tổng tiền dựa trên giỏ hàng (Giữ nguyên logic của ông)
     function calculateTotal(items) {
-        if (!items) return "0 ₫";
+        if (!Array.isArray(items) || items.length === 0) return "0 ₫";
         let total = 0;
+
         items.forEach(item => {
-            let price = parseInt(item.price.replace(/[^\d]/g, ''));
-            total += price * item.qty;
+            const qty = Number(item.qty || item.quantity || 1);
+            const priceNum = Number(item.priceNum);
+            const priceText = String(item.price || item.itemPrice || item.productPrice || "0");
+            const parsedPrice = Number.isNaN(priceNum) || priceNum <= 0
+                ? parseInt(priceText.replace(/[^\d]/g, ''), 10) || 0
+                : priceNum;
+
+            total += parsedPrice * (Number.isNaN(qty) || qty < 1 ? 1 : qty);
         });
+
         return total.toLocaleString('vi-VN') + " ₫";
     }
 
@@ -163,7 +171,7 @@
 
         // Tiến hành gửi lên hệ thống EmailJS
         // TODO: THAY "YOUR_SERVICE_ID" và "YOUR_TEMPLATE_ID" bằng mã thực tế 
-        emailjs.send('service_xjsmniq', 'template_1v0d3yr', templateParams)
+        emailjs.send('service_xjsmniq', 'template_f4bnal4', templateParams)
             .then(function(response) {
                console.log('Email gửi thành công!', response.status, response.text);
                // Xóa giỏ hàng sau khi đặt thành công

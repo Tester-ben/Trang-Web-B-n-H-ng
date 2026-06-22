@@ -848,7 +848,7 @@
             else {
                 cartMemoryArray.push({
                     key: currentItem.key, name: currentItem.name, price: currentItem.price,
-                    priceNum: currentItem.priceNum, mainImg: currentItem.mainImg, size: selectedSizeText, qty: 1
+                    priceNum: Number(currentItem.priceNum) || getStyleHubItemPriceNumber(currentItem), mainImg: currentItem.mainImg, size: selectedSizeText, qty: 1
                 });
             }
             renderCartUI();
@@ -877,7 +877,7 @@
 
             cartMemoryArray.forEach((item, index) => {
                 totalItemsCount += item.qty;
-                totalAmountMoney += (item.priceNum * item.qty);
+                totalAmountMoney += (getStyleHubItemPriceNumber(item) * getStyleHubItemQuantity(item));
                 const row = document.createElement('div');
                 row.className = 'cart-product-row';
                 row.innerHTML = `
@@ -930,7 +930,7 @@
             if (!existingItem) {
                 cartMemoryArray.push({
                     key: currentItem.key, name: currentItem.name, price: currentItem.price,
-                    priceNum: currentItem.priceNum, mainImg: currentItem.mainImg, size: selectedSizeText, qty: 1
+                    priceNum: Number(currentItem.priceNum) || getStyleHubItemPriceNumber(currentItem), mainImg: currentItem.mainImg, size: selectedSizeText, qty: 1
                 });
                 renderCartUI();
             }
@@ -1006,7 +1006,7 @@
                 customer_phone: userInfo.phone || localStorage.getItem("hub_phone") || "",
                 customer_address: userInfo.address || localStorage.getItem("hub_address") || "",
                 product_details: buildStyleHubProductDetails(orderObject),
-                total_price: orderObject.totalPriceFormatted || document.getElementById("cartTotalTarget").innerText || "0 ₫"
+                total_price: orderObject.totalPriceFormatted || formatStyleHubVND(calculateStyleHubOrderTotal(orderObject.orderedProductsList)) || "0 ₫"
             };
 
             console.log("Đang gửi EmailJS với dữ liệu:", templateParams);
@@ -1018,6 +1018,35 @@
                 window.STYLEHUB_EMAILJS_TEMPLATE_ID,
                 templateParams
             );
+        }
+
+
+
+        function getStyleHubItemPriceNumber(item) {
+            if (!item) return 0;
+            const fromPriceNum = Number(item.priceNum);
+            if (!Number.isNaN(fromPriceNum) && fromPriceNum > 0) return fromPriceNum;
+
+            const priceText = String(item.price || item.itemPrice || item.productPrice || "0");
+            const parsed = parseInt(priceText.replace(/[^\d]/g, ""), 10);
+            return Number.isNaN(parsed) ? 0 : parsed;
+        }
+
+        function getStyleHubItemQuantity(item) {
+            const qty = Number(item && (item.qty || item.quantity || item.amount || 1));
+            return Number.isNaN(qty) || qty < 1 ? 1 : qty;
+        }
+
+        function calculateStyleHubOrderTotal(items) {
+            if (!Array.isArray(items)) return 0;
+            return items.reduce(function(total, item) {
+                return total + (getStyleHubItemPriceNumber(item) * getStyleHubItemQuantity(item));
+            }, 0);
+        }
+
+        function formatStyleHubVND(amount) {
+            const safeAmount = Number(amount) || 0;
+            return safeAmount.toLocaleString("vi-VN") + " ₫";
         }
 
 
@@ -1054,6 +1083,9 @@
             const uniqueOrderId = "STH" + Math.floor(100000 + Math.random() * 900000);
             
             const orderDate = new Date().toLocaleString('vi-VN');
+            const finalOrderTotalAmount = calculateStyleHubOrderTotal(cartMemoryArray);
+            const finalOrderTotalFormatted = formatStyleHubVND(finalOrderTotalAmount);
+
             const newCompletedOrderObject = {
                 orderId: uniqueOrderId,
                 userEmail: accountEmail,
@@ -1067,7 +1099,7 @@
                     email: accountEmail,
                     address: address
                 },
-                totalPriceFormatted: document.getElementById('cartTotalTarget').innerText,
+                totalPriceFormatted: finalOrderTotalFormatted,
                 orderedProductsList: [...cartMemoryArray],
                 status: "Đang chờ xác nhận"
             };
