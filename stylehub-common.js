@@ -137,6 +137,7 @@ function initFooterSupportContactBlock() {
                 font-size: 13px;
                 line-height: 1.55;
                 letter-spacing: 0.2px;
+                white-space: nowrap;
             }
 
             .footer-support-contact-line strong {
@@ -163,6 +164,7 @@ function initFooterSupportContactBlock() {
 
                 .footer-support-contact-line {
                     font-size: 12px;
+                    white-space: nowrap;
                 }
             }
         `;
@@ -176,9 +178,9 @@ function initFooterSupportContactBlock() {
         block.className = "footer-support-contact-block";
         block.innerHTML = `
             <h4 class="footer-support-contact-title">Liên Hệ Hỗ Trợ</h4>
-            <p class="footer-support-contact-line"><strong>Gọi mua:</strong> <a href="tel:02796096060">02796096060</a> (8:00 - 21:30)</p>
-            <p class="footer-support-contact-line"><strong>Khiếu nại:</strong> <a href="tel:02873066060">02873066060</a> (8:00 - 21:30)</p>
-            <p class="footer-support-contact-line"><strong>Bảo hành:</strong> <a href="tel:02873066060">02873066060</a> (8:00 - 21:00)</p>
+            <p class="footer-support-contact-line"><strong>Gọi mua:</strong>&nbsp;<a href="tel:02796096060">02796096060</a>&nbsp;(8:00 - 21:30)</p>
+            <p class="footer-support-contact-line"><strong>Khiếu nại:</strong>&nbsp;<a href="tel:02873066060">02873066060</a>&nbsp;(8:00 - 21:30)</p>
+            <p class="footer-support-contact-line"><strong>Bảo hành:</strong>&nbsp;<a href="tel:02873066060">02873066060</a>&nbsp;(8:00 - 21:00)</p>
         `;
 
         const socialLinks = brandCol.querySelector(".social-links, .footer-social-links");
@@ -207,10 +209,25 @@ function initSmartHeaderScroll() {
                 transform: translateY(0);
                 transition: transform 0.26s ease;
                 will-change: transform;
+                z-index: 5000 !important;
+                overflow: visible !important;
+                pointer-events: auto;
             }
 
             body.stylehub-smart-header.stylehub-header-hidden .main-header {
                 transform: translateY(-100%);
+                pointer-events: none;
+            }
+
+            body.stylehub-smart-header .main-header .nav-dropdown,
+            body.stylehub-smart-header .main-header .mega-menu-dropdown {
+                z-index: 6000 !important;
+                pointer-events: auto !important;
+            }
+
+            body.stylehub-smart-header .main-header .menu-item-has-dropdown:hover .nav-dropdown,
+            body.stylehub-smart-header .main-header .menu-item-has-mega:hover .mega-menu-dropdown {
+                display: block;
             }
 
             body.stylehub-smart-header .sub-filter-bar {
@@ -275,6 +292,16 @@ function initSmartHeaderScroll() {
             ticking = true;
         }
     }, { passive: true });
+
+
+    if (!window.stylehubHeaderMouseFix) {
+        window.stylehubHeaderMouseFix = true;
+        window.addEventListener("mousemove", function (event) {
+            if (event.clientY <= 70) {
+                document.body.classList.remove("stylehub-header-hidden");
+            }
+        }, { passive: true });
+    }
 
     window.addEventListener("resize", showHeader);
 }
