@@ -7,6 +7,7 @@
     const STYLE_ID = "stylehub-notification-style";
     const ROOT_SELECTOR = "[data-stylehub-notification-bell]";
     const STORAGE_PREFIX = "stylehub_notifications_";
+    const BELL_POS_KEY = "stylehub_notification_bell_position_like_ai";
 
     function normalizeKey(value) {
         return String(value || "guest").trim().toLowerCase().replace(/\s+/g, "_");
@@ -71,11 +72,15 @@
         style.id = STYLE_ID;
         style.textContent = `
             .stylehub-notification-root {
-                position: relative;
+                position: fixed !important;
+                right: 82px;
+                bottom: calc(24px + 76px);
                 display: inline-flex;
                 align-items: center;
                 justify-content: center;
-                z-index: 1005;
+                z-index: 99989 !important;
+                user-select: none;
+                touch-action: none;
             }
 
             .stylehub-bell-btn {
@@ -85,7 +90,7 @@
                 border: 1px solid rgba(17,17,17,.18);
                 background: #ffffff;
                 color: #111111;
-                cursor: pointer;
+                cursor: grab;
                 display: inline-flex;
                 align-items: center;
                 justify-content: center;
@@ -108,6 +113,12 @@
                 transform: translateY(-1px);
                 border-color: #111111;
                 box-shadow: 0 8px 22px rgba(0,0,0,.12);
+            }
+
+            .stylehub-notification-root.dragging .stylehub-bell-btn {
+                cursor: grabbing;
+                transform: scale(1.04);
+                box-shadow: 0 12px 30px rgba(0,0,0,.20);
             }
 
             .main-header .stylehub-bell-btn:hover {
@@ -139,7 +150,7 @@
 
             .stylehub-notification-panel {
                 position: absolute;
-                top: calc(100% + 12px);
+                bottom: calc(100% + 12px);
                 right: 0;
                 width: 360px;
                 max-height: 460px;
@@ -160,7 +171,7 @@
             .stylehub-notification-panel::before {
                 content: "";
                 position: absolute;
-                top: -8px;
+                bottom: -8px;
                 right: 14px;
                 width: 14px;
                 height: 14px;
@@ -668,6 +679,123 @@
         `;
     }
 
+
+    function getSavedBellPosition() {
+        try {
+            const saved = JSON.parse(localStorage.getItem(BELL_POS_KEY) || "null");
+            if (saved && typeof saved.right === "number" && typeof saved.bottom === "number") {
+                return saved;
+            }
+        } catch (error) {}
+        return { right: 82, bottom: 100 };
+    }
+
+    function applyBellPosition(root, position) {
+        if (!root) return;
+        const rect = root.getBoundingClientRect();
+        const width = rect.width || 42;
+        const height = rect.height || 42;
+
+        let right = Number(position.right);
+        let bottom = Number(position.bottom);
+
+        right = Math.max(16, Math.min(window.innerWidth - width - 16, right));
+        bottom = Math.max(16, Math.min(window.innerHeight - height - 16, bottom));
+
+        root.style.right = right + "px";
+        root.style.bottom = bottom + "px";
+        root.style.left = "auto";
+        root.style.top = "auto";
+    }
+
+    function saveBellPosition(root) {
+        if (!root) return;
+        const right = parseFloat(getComputedStyle(root).right) || 82;
+        const bottom = parseFloat(getComputedStyle(root).bottom) || 100;
+        localStorage.setItem(BELL_POS_KEY, JSON.stringify({ right: right, bottom: bottom }));
+    }
+
+    function bindBellDragLikeAI(root, btn) {
+        if (!root || !btn || root.dataset.stylehubAiLikeDragBound === "1") return;
+        root.dataset.stylehubAiLikeDragBound = "1";
+
+        applyBellPosition(root, getSavedBellPosition());
+
+        let dragging = false;
+        let moved = false;
+        let startX = 0;
+        let startY = 0;
+        let startRight = 0;
+        let startBottom = 0;
+
+        btn.addEventListener("pointerdown", function (e) {
+            if (e.button !== undefined && e.button !== 0) return;
+
+            dragging = true;
+            moved = false;
+            startX = e.clientX;
+            startY = e.clientY;
+            startRight = parseFloat(getComputedStyle(root).right) || 82;
+            startBottom = parseFloat(getComputedStyle(root).bottom) || 100;
+
+            root.classList.add("dragging");
+            root.classList.remove("open");
+
+            if (btn.setPointerCapture) btn.setPointerCapture(e.pointerId);
+        });
+
+        btn.addEventListener("pointermove", function (e) {
+            if (!dragging) return;
+
+            const dx = startX - e.clientX;
+            const dy = startY - e.clientY;
+
+            if (Math.abs(dx) > 4 || Math.abs(dy) > 4) moved = true;
+
+            let right = startRight + dx;
+            let bottom = startBottom + dy;
+
+            const rect = root.getBoundingClientRect();
+            right = Math.max(16, Math.min(window.innerWidth - (rect.width || 42) - 16, right));
+            bottom = Math.max(16, Math.min(window.innerHeight - (rect.height || 42) - 16, bottom));
+
+            root.style.right = right + "px";
+            root.style.bottom = bottom + "px";
+            root.style.left = "auto";
+            root.style.top = "auto";
+
+            e.preventDefault();
+        });
+
+        btn.addEventListener("pointerup", function (e) {
+            if (!dragging) return;
+
+            dragging = false;
+            root.classList.remove("dragging");
+            saveBellPosition(root);
+
+            if (moved) {
+                root.dataset.stylehubBellMoved = "1";
+                setTimeout(function () {
+                    root.dataset.stylehubBellMoved = "";
+                }, 180);
+            }
+        });
+
+        btn.addEventListener("pointercancel", function () {
+            if (!dragging) return;
+            dragging = false;
+            root.classList.remove("dragging");
+            saveBellPosition(root);
+        });
+
+        window.addEventListener("resize", function () {
+            applyBellPosition(root, getSavedBellPosition());
+            saveBellPosition(root);
+        });
+    }
+
+
     function renderRoot(root) {
         if (!root) return;
         root.classList.add("stylehub-notification-root");
@@ -688,9 +816,15 @@
         const btn = root.querySelector(".stylehub-bell-btn");
         const panel = root.querySelector(".stylehub-notification-panel");
 
+        bindBellDragLikeAI(root, btn);
+
         btn.addEventListener("click", function (event) {
             event.preventDefault();
             event.stopPropagation();
+
+            if (root.dataset.stylehubBellMoved === "1") {
+                return;
+            }
 
             document.querySelectorAll(".stylehub-notification-root.open").forEach(function (item) {
                 if (item !== root) item.classList.remove("open");
