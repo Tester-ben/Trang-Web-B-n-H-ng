@@ -20,9 +20,7 @@
             }
         })();
     </script>
-
-    
-    <style>
+<style>
         * { box-sizing: border-box; margin: 0; padding: 0; }
         body { font-family: 'Roboto', sans-serif; background-color: #ffffff; color: #111111; overflow-x: hidden; }
         
@@ -533,9 +531,25 @@
                         <label>Số điện thoại</label>
                         <input type="tel" id="cusPhone" required placeholder="Chưa cập nhật">
                     </div>
-                    <div class="form-group">
+                    <div class="form-group vn-address-group">
                         <label>Địa chỉ nhận hàng</label>
-                        <textarea id="cusAddress" rows="4" required placeholder="Chưa cập nhật địa chỉ giao hàng"></textarea>
+
+                        <select id="cusProvince" class="vn-address-select" required>
+                            <option value="">Chọn Tỉnh/Thành phố</option>
+                        </select>
+
+                        <select id="cusDistrict" class="vn-address-select" required disabled>
+                            <option value="">Chọn Quận/Huyện</option>
+                        </select>
+
+                        <select id="cusWard" class="vn-address-select" required disabled>
+                            <option value="">Chọn Phường/Xã</option>
+                        </select>
+
+                        <input type="text" id="cusStreet" class="vn-address-input" required placeholder="Nhập số nhà, tên đường...">
+
+                        <textarea id="cusAddress" rows="3" required readonly placeholder="Địa chỉ đầy đủ sẽ tự tạo sau khi bạn chọn đầy đủ thông tin"></textarea>
+                        <small class="address-hint">Chọn Tỉnh/Thành phố → Quận/Huyện → Phường/Xã, sau đó nhập số nhà và tên đường.</small>
                     </div>
                     <div class="form-group">
                         <label>Email</label>
@@ -1901,5 +1915,6 @@ document.addEventListener("click", function(e) {
 /* PRODUCT DETAIL BACK RESTORE SAFETY END */
 </script>
 
+<script src="stylehub-vn-address.js?v=vietnam-address-no-api-key-20260623"></script>
 </body>
 </html>
