@@ -332,7 +332,152 @@ const database = {
         images: ["https://fearofgod.com/cdn/shop/files/785SP262031K_KIDS_CLASSIC_FULL_ZIP_HOODIE-OATMEAL_HEATHER_LIGHT_HEATHER_1_c2f28201-4065-42e4-b908-c0dbd7340f8f_900x.jpg?v=1772490948", "https://fearofgod.com/cdn/shop/files/785SP262031K_KIDS_CLASSIC_FULL_ZIP_HOODIE-OATMEAL_HEATHER_LIGHT_HEATHER_2_3f5bcbc3-8dc1-42b6-bfe1-4cf032c7f1e7_900x.jpg?v=1772490948"] 
     },
                             
-                               /* DATA phần sale */
+    /* ==================== KIDS PAGE 2 DATA ==================== */
+    "kids-20": {
+        key: "kids-20",
+        brand: "Essentials",
+        name: "Kids Cropped Relaxed Panelled Hoodie - Iron Grey Heather / Seal Heather",
+        price: "1.850.000 ₫",
+        priceNum: 1850000,
+        mainImg: "https://fearofgod.com/cdn/shop/files/RW00328_KIDS_CROPPED_RELAXED_PANELLED_HOODIE-IRON_GREY_HEATHER_SEAL_HEATHER_1.jpg?v=1781023189&width=832",
+        images: [
+            "https://fearofgod.com/cdn/shop/files/RW00328_KIDS_CROPPED_RELAXED_PANELLED_HOODIE-IRON_GREY_HEATHER_SEAL_HEATHER_1.jpg?v=1781023189&width=832",
+            "https://fearofgod.com/cdn/shop/files/RW00328_KIDS_CROPPED_RELAXED_PANELLED_HOODIE-IRON_GREY_HEATHER_SEAL_HEATHER_2.jpg?v=1781023189&width=832",
+            "https://fearofgod.com/cdn/shop/files/RW00328_KIDS_CROPPED_RELAXED_PANELLED_HOODIE-IRON_GREY_HEATHER_SEAL_HEATHER_3.jpg?v=1781023189&width=832",
+            "https://fearofgod.com/cdn/shop/files/RW00328_KIDS_CROPPED_RELAXED_PANELLED_HOODIE-IRON_GREY_HEATHER_SEAL_HEATHER_4.jpg?v=1781023181&width=832"
+        ]
+    },
+
+    "kids-21": {
+        key: "kids-21",
+        brand: "Essentials",
+        name: "Kids Cropped Polo - Iron Grey / Seal Heather",
+        price: "1.350.000 ₫",
+        priceNum: 1350000,
+        mainImg: "https://fearofgod.com/cdn/shop/files/RW00327_KIDS_CROPPED_POLO-IRON_GREY_SEAL_HEATHER_1_6d1a407d-9778-4519-92c9-13e5d51a70e2.jpg?v=1781127191&width=832",
+        images: [
+            "https://fearofgod.com/cdn/shop/files/RW00327_KIDS_CROPPED_POLO-IRON_GREY_SEAL_HEATHER_1_6d1a407d-9778-4519-92c9-13e5d51a70e2.jpg?v=1781127191&width=832",
+            "https://fearofgod.com/cdn/shop/files/RW00327_KIDS_CROPPED_POLO-IRON_GREY_SEAL_HEATHER_2_b3782ce8-2a1d-426d-afa6-4c9232e6481b.jpg?v=1781127191&width=832",
+            "https://fearofgod.com/cdn/shop/files/RW00327_KIDS_CROPPED_POLO-IRON_GREY_SEAL_HEATHER_3_8c1bcf75-9436-4d33-bf98-f7d5d06c52ab.jpg?v=1781127191&width=832"
+        ]
+    },
+
+    "kids-22": {
+        key: "kids-22",
+        brand: "Essentials",
+        name: "Kids Cropped Relaxed Panelled Sweatshirt - Iron Grey Heather / Seal Heather",
+        price: "1.650.000 ₫",
+        priceNum: 1650000,
+        mainImg: "https://fearofgod.com/cdn/shop/files/RW00329_KIDS_CROPPED_RELAXED_PANELLED_SWEATSHIRT-IRON_GREY_HEATHER_SEAL_HEATHER_1.jpg?v=1781023411&width=3840",
+        images: [
+            "https://fearofgod.com/cdn/shop/files/RW00329_KIDS_CROPPED_RELAXED_PANELLED_SWEATSHIRT-IRON_GREY_HEATHER_SEAL_HEATHER_1.jpg?v=1781023411&width=3840",
+            "https://fearofgod.com/cdn/shop/files/RW00329_KIDS_CROPPED_RELAXED_PANELLED_SWEATSHIRT-IRON_GREY_HEATHER_SEAL_HEATHER_2.jpg?v=1781023411&width=3840",
+            "https://fearofgod.com/cdn/shop/files/RW00329_KIDS_CROPPED_RELAXED_PANELLED_SWEATSHIRT-IRON_GREY_HEATHER_SEAL_HEATHER_3.jpg?v=1781023412&width=832",
+            "https://fearofgod.com/cdn/shop/files/RW00329_KIDS_CROPPED_RELAXED_PANELLED_SWEATSHIRT-IRON_GREY_HEATHER_SEAL_HEATHER_4.jpg?v=1781023412&width=832"
+        ]
+    },
+
+    "kids-23": {
+        key: "kids-23",
+        brand: "Essentials",
+        name: "Kids Cropped Relaxed Panelled Hoodie - Seal Heather / Iron Grey",
+        price: "1.850.000 ₫",
+        priceNum: 1850000,
+        mainImg: "https://fearofgod.com/cdn/shop/files/RW00328_KIDS_CROPPED_RELAXED_PANELLED_HOODIE-SEAL_HEATHER_IRON_GREY_1.jpg?v=1781023246&width=832",
+        images: [
+            "https://fearofgod.com/cdn/shop/files/RW00328_KIDS_CROPPED_RELAXED_PANELLED_HOODIE-SEAL_HEATHER_IRON_GREY_1.jpg?v=1781023246&width=832",
+            "https://fearofgod.com/cdn/shop/files/RW00328_KIDS_CROPPED_RELAXED_PANELLED_HOODIE-SEAL_HEATHER_IRON_GREY_2.jpg?v=1781023246&width=832",
+            "https://fearofgod.com/cdn/shop/files/RW00328_KIDS_CROPPED_RELAXED_PANELLED_HOODIE-SEAL_HEATHER_IRON_GREY_3.jpg?v=1781023247&width=832",
+            "https://fearofgod.com/cdn/shop/files/RW00328_KIDS_CROPPED_RELAXED_PANELLED_HOODIE-SEAL_HEATHER_IRON_GREY_4.jpg?v=1781023247&width=832"
+        ]
+    },
+
+    "kids-24": {
+        key: "kids-24",
+        brand: "Essentials",
+        name: "Kids Cropped Polo - Seal Heather / Iron Grey",
+        price: "1.350.000 ₫",
+        priceNum: 1350000,
+        mainImg: "https://fearofgod.com/cdn/shop/files/RW00327_KIDS_CROPPED_POLO-SEAL_HEATHER_IRON_GREY_1_f5426cdd-3b0b-432a-a4bb-085e9477d377.jpg?v=1781127614&width=832",
+        images: [
+            "https://fearofgod.com/cdn/shop/files/RW00327_KIDS_CROPPED_POLO-SEAL_HEATHER_IRON_GREY_1_f5426cdd-3b0b-432a-a4bb-085e9477d377.jpg?v=1781127614&width=832",
+            "https://fearofgod.com/cdn/shop/files/RW00327_KIDS_CROPPED_POLO-SEAL_HEATHER_IRON_GREY_2_9a73ad39-4d47-47fe-9eef-337c3e4b3c67.jpg?v=1781127614&width=832",
+            "https://fearofgod.com/cdn/shop/files/RW00327_KIDS_CROPPED_POLO-SEAL_HEATHER_IRON_GREY_3_3a52a4d7-6048-4de2-8ac0-cdc63386d2e3.jpg?v=1781127615&width=832"
+        ]
+    },
+
+    "kids-25": {
+        key: "kids-25",
+        brand: "Essentials",
+        name: "Kids Cropped Relaxed Panelled Sweatshirt - Seal Heather / Iron Grey",
+        price: "1.650.000 ₫",
+        priceNum: 1650000,
+        mainImg: "https://fearofgod.com/cdn/shop/files/RW00329_KIDS_CROPPED_RELAXED_PANELLED_SWEATSHIRT-SEAL_HEATHER_IRON_GREY_1.jpg?v=1781023434&width=832",
+        images: [
+            "https://fearofgod.com/cdn/shop/files/RW00329_KIDS_CROPPED_RELAXED_PANELLED_SWEATSHIRT-SEAL_HEATHER_IRON_GREY_1.jpg?v=1781023434&width=832",
+            "https://fearofgod.com/cdn/shop/files/RW00329_KIDS_CROPPED_RELAXED_PANELLED_SWEATSHIRT-SEAL_HEATHER_IRON_GREY_2.jpg?v=1781023438&width=832",
+            "https://fearofgod.com/cdn/shop/files/RW00329_KIDS_CROPPED_RELAXED_PANELLED_SWEATSHIRT-SEAL_HEATHER_IRON_GREY_3.jpg?v=1781023434&width=832",
+            "https://fearofgod.com/cdn/shop/files/RW00329_KIDS_CROPPED_RELAXED_PANELLED_SWEATSHIRT-SEAL_HEATHER_IRON_GREY_4.jpg?v=1781023434&width=832"
+        ]
+    },
+
+    "kids-26": {
+        key: "kids-26",
+        brand: "Essentials",
+        name: "Kids Essential Tee - Vintage Black",
+        price: "1.150.000 ₫",
+        priceNum: 1150000,
+        mainImg: "https://fearofgod.com/cdn/shop/files/RW00330_KIDS_ESSENTIAL_TEE-VINTAGE_BLACK_1.jpg?v=1781023864&width=3840",
+        images: [
+            "https://fearofgod.com/cdn/shop/files/RW00330_KIDS_ESSENTIAL_TEE-VINTAGE_BLACK_1.jpg?v=1781023864&width=3840",
+            "https://fearofgod.com/cdn/shop/files/RW00330_KIDS_ESSENTIAL_TEE-VINTAGE_BLACK_2.jpg?v=1781023864&width=3840",
+            "https://fearofgod.com/cdn/shop/files/RW00330_KIDS_ESSENTIAL_TEE-VINTAGE_BLACK_3.jpg?v=1781023863&width=3840"
+        ]
+    },
+
+    "kids-bottoms-20": {
+        key: "kids-bottoms-20",
+        brand: "Essentials",
+        name: "Kids Classic Fleece Sweatpant - Iron Grey Heather",
+        price: "1.550.000 ₫",
+        priceNum: 1550000,
+        mainImg: "https://fearofgod.com/cdn/shop/files/RW00363_KIDS_CLASSIC_FLEECE_SWEATPANT-IRON_GREY_HEATHER_1_c69ee527-3363-42fc-ad5f-4d86df9b1632.jpg?v=1781024548&width=3840",
+        images: [
+            "https://fearofgod.com/cdn/shop/files/RW00363_KIDS_CLASSIC_FLEECE_SWEATPANT-IRON_GREY_HEATHER_1_c69ee527-3363-42fc-ad5f-4d86df9b1632.jpg?v=1781024548&width=3840",
+            "https://fearofgod.com/cdn/shop/files/RW00363_KIDS_CLASSIC_FLEECE_SWEATPANT-IRON_GREY_HEATHER_2_39f5ba5c-ccc7-4e68-8698-f759a1dbf8bf.jpg?v=1781024549&width=3840",
+            "https://fearofgod.com/cdn/shop/files/RW00363_KIDS_CLASSIC_FLEECE_SWEATPANT-IRON_GREY_HEATHER_3_d40318ef-fd34-445f-bce6-e8b966f06b5f.jpg?v=1781024548&width=3840"
+        ]
+    },
+
+    "kids-bottoms-21": {
+        key: "kids-bottoms-21",
+        brand: "Essentials",
+        name: "Kids Classic Short - Ginger",
+        price: "1.250.000 ₫",
+        priceNum: 1250000,
+        mainImg: "https://fearofgod.com/cdn/shop/files/RW00364_KIDS_CLASSIC_SHORT-GINGER_1.jpg?v=1781025138&width=832",
+        images: [
+            "https://fearofgod.com/cdn/shop/files/RW00364_KIDS_CLASSIC_SHORT-GINGER_1.jpg?v=1781025138&width=832",
+            "https://fearofgod.com/cdn/shop/files/RW00364_KIDS_CLASSIC_SHORT-GINGER_2.jpg?v=1781025138&width=832",
+            "https://fearofgod.com/cdn/shop/files/RW00364_KIDS_CLASSIC_SHORT-GINGER_3.jpg?v=1781025138&width=832"
+        ]
+    },
+
+    "kids-27": {
+        key: "kids-27",
+        brand: "Essentials",
+        name: "Kids Merch Tee - Overcast",
+        price: "1.150.000 ₫",
+        priceNum: 1150000,
+        mainImg: "https://fearofgod.com/cdn/shop/files/RW00334_KIDS_MERCH_TEE-OVERCAST_1_e8298948-ba98-44bc-86a3-7f5eeb6f5506.jpg?v=1781024165&width=832",
+        images: [
+            "https://fearofgod.com/cdn/shop/files/RW00334_KIDS_MERCH_TEE-OVERCAST_1_e8298948-ba98-44bc-86a3-7f5eeb6f5506.jpg?v=1781024165&width=832",
+            "https://fearofgod.com/cdn/shop/files/RW00334_KIDS_MERCH_TEE-OVERCAST_2_637a1239-802b-47d2-85f8-14876b139374.jpg?v=1781024167&width=832",
+            "https://fearofgod.com/cdn/shop/files/RW00334_KIDS_MERCH_TEE-OVERCAST_3_2286aabb-178e-466d-a7e4-fb6d4c5a8af3.jpg?v=1781024166&width=832"
+        ]
+    },
+
+                            /* DATA phần sale */
     "sale-1": { name: "Womens Signature Classic Fit Baseball Tee (Sale)", brand: "Essentials", price: "2.450.000 ₫", priceNum: 2450000, mainImg: "https://fearofgod.com/cdn/shop/files/192AL246301F_KNICKS_ESSENTIALS_HOODIE_LIGHT_HEATHER-BLUE_2copy_900x.jpg?v=1732045661", images: ["https://fearofgod.com/cdn/shop/files/192AL246301F_KNICKS_ESSENTIALS_HOODIE_LIGHT_HEATHER-BLUE_2copy_900x.jpg?v=1732045661", "https://fearofgod.com/cdn/shop/files/Essentials_HO24_NBAKnicks01_0029_2_copy-3-4crop_900x.jpg?v=1732044256"] },
     "sale-2": { name: "Womens Signature Classic Hoodie (Sale)", brand: "Essentials", price: "3.950.000 ₫", priceNum: 3950000, mainImg: "https://fearofgod.com/cdn/shop/files/HomDsEKQ_900x.jpg?v=1758811371", images: ["https://fearofgod.com/cdn/shop/files/HomDsEKQ_900x.jpg?v=1758811371", "https://fearofgod.com/cdn/shop/files/lP3cvCSg_900x.jpg?v=1758811371"] },
     "sale-3": { name: "Classic Short Sleeve Tee - Bright White (Sale)", brand: "Essentials", price: "1.650.000 ₫", priceNum: 1650000, mainImg: "https://fearofgod.com/cdn/shop/files/oNWQI_UQ_900x.jpg?v=1758743119", images: ["https://fearofgod.com/cdn/shop/files/oNWQI_UQ_900x.jpg?v=1758743119", "https://fearofgod.com/cdn/shop/files/xQBGNBuA_900x.jpg?v=1758743195"] },
