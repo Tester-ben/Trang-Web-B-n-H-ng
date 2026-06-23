@@ -695,8 +695,13 @@
 
         function getOrderDedupeKey(order) {
             if (!order) return '';
+
+            // Quan trọng: nếu cùng orderId thì chỉ hiển thị 1 lần.
+            // Lỗi trước đó là cùng 1 order được lưu ở local + Firebase/global nên hiện 2 card.
+            const orderId = String(order.orderId || '').trim();
+            if (orderId) return 'ORDER_ID::' + orderId;
+
             return [
-                order.orderId || '',
                 order.orderDate || order.date || '',
                 order.totalPriceFormatted || order.totalPrice || '',
                 getOrderProductsSignature(order),
@@ -718,9 +723,14 @@
                 }
 
                 const oldOrder = map.get(key);
+
+                // Ưu tiên bản có status mới hơn / có dữ liệu đầy đủ hơn.
                 const oldTime = Number(oldOrder.updatedAt || oldOrder.createdAt || 0);
                 const newTime = Number(normalized.updatedAt || normalized.createdAt || 0);
-                if (newTime >= oldTime) {
+                const oldProducts = ((oldOrder.orderedProductsList || []).length);
+                const newProducts = ((normalized.orderedProductsList || []).length);
+
+                if (newTime > oldTime || newProducts > oldProducts) {
                     map.set(key, normalized);
                 }
             });
@@ -732,6 +742,27 @@
             });
         }
 
+        function cleanDuplicateOrdersInLocalStorageForCurrentUser() {
+            const email = getCurrentUserEmail();
+            const keys = [];
+
+            if (email) keys.push('hub_orders_' + email);
+            keys.push('hub_orders');
+
+            keys.forEach(function(key) {
+                try {
+                    const orders = JSON.parse(localStorage.getItem(key) || '[]');
+                    if (!Array.isArray(orders) || orders.length === 0) return;
+
+                    const cleaned = dedupeAccountOrders(orders);
+                    if (cleaned.length !== orders.length) {
+                        localStorage.setItem(key, JSON.stringify(cleaned));
+                    }
+                } catch (error) {
+                    console.warn('Không thể dọn đơn trùng ở', key, error);
+                }
+            });
+        }
 
         async function getOrdersForCurrentUser() {
             const email = getCurrentUserEmail();
@@ -855,9 +886,11 @@
             activeContainer.innerHTML = '';
             cancelledContainer.innerHTML = '';
 
+            cleanDuplicateOrdersInLocalStorageForCurrentUser();
+
             const ordersList = await getOrdersForCurrentUser();
             cachedAccountOrders = dedupeAccountOrders(Array.isArray(ordersList) ? ordersList : []);
-            const activeOrders = cachedAccountOrders.filter(order => !isCancelledStatus(order.status));
+            const activeOrders = dedupeAccountOrders(cachedAccountOrders.filter(order => !isCancelledStatus(order.status)));
             const cancelledOrders = dedupeAccountOrders(cachedAccountOrders.filter(order => isCancelledStatus(order.status)));
             cachedCancelledOrders = cancelledOrders;
 
@@ -884,7 +917,13 @@
                 return;
             }
 
+            const renderedOrderIds = new Set();
+
             ordersList.forEach(order => {
+                const currentOrderId = String(order.orderId || '').trim();
+                if (currentOrderId && renderedOrderIds.has(currentOrderId)) return;
+                if (currentOrderId) renderedOrderIds.add(currentOrderId);
+
                 const card = document.createElement('div');
                 card.className = 'order-item-card';
                 const status = order.status || 'Đang chờ xác nhận';
@@ -920,7 +959,13 @@
 
             cachedCancelledOrders = ordersList;
 
+            const renderedCancelledIds = new Set();
+
             ordersList.forEach((order, index) => {
+                const currentOrderId = String(order.orderId || '').trim();
+                if (currentOrderId && renderedCancelledIds.has(currentOrderId)) return;
+                if (currentOrderId) renderedCancelledIds.add(currentOrderId);
+
                 const card = document.createElement('div');
                 const uniqueCancelledKey = `cancelled-${index}-${order.orderId || 'no-id'}-${order.cancelledAt || order.updatedAt || order.orderDate || order.date || ''}`;
 

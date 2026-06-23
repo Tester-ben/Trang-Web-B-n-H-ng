@@ -1466,6 +1466,27 @@
         }
 
 
+
+        function getStyleHubOrderSubmitFingerprint(accountEmail, cartItems, name, phone, address, email) {
+            const products = (cartItems || []).map(function(item) {
+                return [
+                    item.key || item.id || item.name || '',
+                    item.size || '',
+                    item.qty || item.quantity || 1,
+                    item.price || item.priceNum || ''
+                ].join('|');
+            }).join('||');
+
+            return [
+                accountEmail || '',
+                name || '',
+                phone || '',
+                address || '',
+                email || '',
+                products
+            ].join('@@');
+        }
+
         async function submitFinalOrder() {
             if (styleHubOrderSubmitLocked) {
                 return;
@@ -1516,6 +1537,24 @@
                 email
             ).trim().toLowerCase();
 
+            const orderFingerprint = getStyleHubOrderSubmitFingerprint(accountEmail, cartMemoryArray, name, phone, address, email);
+            const lastFingerprint = sessionStorage.getItem('stylehub_last_order_submit_fingerprint') || '';
+            const lastSubmitTime = Number(sessionStorage.getItem('stylehub_last_order_submit_time') || 0);
+
+            if (lastFingerprint === orderFingerprint && Date.now() - lastSubmitTime < 8000) {
+                showToastNotification("Đơn hàng đang được xử lý, vui lòng không bấm lại.");
+                styleHubOrderSubmitLocked = false;
+                if (submitButton) {
+                    submitButton.disabled = false;
+                    submitButton.style.pointerEvents = "";
+                    submitButton.innerText = originalButtonText || "XÁC NHẬN ĐẶT HÀNG";
+                }
+                return;
+            }
+
+            sessionStorage.setItem('stylehub_last_order_submit_fingerprint', orderFingerprint);
+            sessionStorage.setItem('stylehub_last_order_submit_time', String(Date.now()));
+
             localStorage.setItem('hub_name', name);
             rememberHubLoginIdentity(localStorage.getItem('hub_name') || name || accountEmail, accountEmail);
 
@@ -1532,7 +1571,8 @@
             const existingOrdersArray = JSON.parse(localStorage.getItem(orderStorageKey) || '[]');
             const uniqueOrderId = "STH" + Date.now().toString().slice(-6) + Math.floor(10 + Math.random() * 90);
 
-            const orderDate = new Date().toLocaleString('vi-VN');
+            const orderCreatedAt = Date.now();
+            const orderDate = new Date(orderCreatedAt).toLocaleString('vi-VN');
             const finalOrderTotalAmount = calculateStyleHubOrderTotal(cartMemoryArray);
             const finalOrderTotalFormatted = formatStyleHubVND(finalOrderTotalAmount);
 
@@ -1543,6 +1583,9 @@
                 shippingEmail: email,
                 orderDate: orderDate,
                 date: orderDate,
+                createdAt: orderCreatedAt,
+                updatedAt: orderCreatedAt,
+                clientOrderUid: uniqueOrderId,
                 userInfo: {
                     name: name,
                     phone: phone,
@@ -1563,9 +1606,8 @@
             existingOrdersArray.unshift(newCompletedOrderObject);
             localStorage.setItem(orderStorageKey, JSON.stringify(existingOrdersArray));
 
-            const globalOrders = JSON.parse(localStorage.getItem('hub_orders') || '[]');
-            globalOrders.unshift(newCompletedOrderObject);
-            localStorage.setItem('hub_orders', JSON.stringify(globalOrders));
+            // Không lưu vào hub_orders global nữa để tránh Orders History hiển thị 2 đơn giống nhau.
+            // Đơn đã được lưu riêng theo account bằng hub_orders_<email> và đồng bộ Firebase ở nền.
 
             if (window.StyleHubNotifications && typeof StyleHubNotifications.addOrderSuccessNotification === 'function') {
                 StyleHubNotifications.addOrderSuccessNotification(newCompletedOrderObject);
