@@ -199,6 +199,41 @@ function initFooterSupportContactBlock() {
                 line-break: strict !important;
             }
 
+
+            #checkoutOverlay .checkout-side-panel,
+            .checkout-side-panel {
+                scrollbar-gutter: stable both-edges;
+                padding-right: 28px !important;
+            }
+
+            #checkoutOverlay .checkout-side-panel::-webkit-scrollbar,
+            .checkout-side-panel::-webkit-scrollbar {
+                width: 14px;
+            }
+
+            #checkoutOverlay .checkout-side-panel::-webkit-scrollbar-track,
+            .checkout-side-panel::-webkit-scrollbar-track {
+                background: #f1f1f1;
+            }
+
+            #checkoutOverlay .checkout-side-panel::-webkit-scrollbar-thumb,
+            .checkout-side-panel::-webkit-scrollbar-thumb {
+                background: #b8b8b8;
+                border-radius: 10px;
+                border: 3px solid #f1f1f1;
+            }
+
+            #checkoutOverlay .checkout-side-panel::-webkit-scrollbar-thumb:hover,
+            .checkout-side-panel::-webkit-scrollbar-thumb:hover {
+                background: #777;
+            }
+
+            #stylehubCheckoutTotals strong {
+                min-width: 100px;
+                text-align: right;
+                white-space: nowrap;
+            }
+
             @media (max-width: 768px) {
                 .footer-support-contact-block {
                     margin-top: 24px;
@@ -1152,11 +1187,56 @@ function searchProducts() {
         `;
         checkoutBody.appendChild(box);
 
+        function readCartFromStorage() {
+            const keys = ["stylehub_cart_memory_v1", "stylehub_cart", "hub_cart", "cart", "cartMemoryArray", "the_style_hub_cart"];
+
+            for (const key of keys) {
+                try {
+                    const data = JSON.parse(localStorage.getItem(key) || "[]");
+                    if (Array.isArray(data) && data.length) return data;
+                } catch (error) {}
+            }
+
+            return [];
+        }
+
+        function getCurrentDetailItemAsCart() {
+            try {
+                const params = new URLSearchParams(window.location.search);
+                const id = params.get("id") || "";
+                if (!id || typeof database === "undefined" || !database[id]) return [];
+
+                const item = database[id];
+                const selectedBtn = document.querySelector(".size-button.selected");
+                const selectedSize = selectedBtn ? (selectedBtn.dataset.size || selectedBtn.innerText.trim()) : "M";
+
+                return [{
+                    key: id,
+                    name: item.name || "",
+                    price: item.price || "",
+                    priceNum: Number(item.priceNum) || parseMoney(item.price),
+                    qty: 1,
+                    size: selectedSize
+                }];
+            } catch (error) {
+                return [];
+            }
+        }
+
         function calcSubtotal() {
-            let cart = [];
-            try { cart = JSON.parse(localStorage.getItem("cart") || "[]"); } catch (e) { cart = []; }
-            if (!cart.length && Array.isArray(window.cartMemoryArray)) cart = window.cartMemoryArray;
-            return cart.reduce((sum, item) => sum + (Number(item.priceNum) || parseMoney(item.price)) * (Number(item.qty || item.quantity) || 1), 0);
+            let cart = readCartFromStorage();
+
+            // Khi khách bấm Order Now, một số browser chưa kịp sync localStorage,
+            // nên fallback bằng sản phẩm đang mở trên product-detail.
+            if (!cart.length && /product-detail\.html/i.test(window.location.pathname)) {
+                cart = getCurrentDetailItemAsCart();
+            }
+
+            return cart.reduce((sum, item) => {
+                const price = Number(item.priceNum) || parseMoney(item.price || item.productPrice || item.itemPrice);
+                const qty = Number(item.qty || item.quantity || item.amount || 1);
+                return sum + price * qty;
+            }, 0);
         }
 
         function renderTotals() {
@@ -1164,11 +1244,14 @@ function searchProducts() {
             const subtotal = calcSubtotal();
             let shipping = subtotal > 0 ? 30000 : 0;
             let discount = 0;
+
             if (code === "STYLE10") discount = Math.round(subtotal * 0.1);
             if (code === "FREESHIP") shipping = 0;
+
             const total = Math.max(0, subtotal + shipping - discount);
             const totals = document.getElementById("stylehubCheckoutTotals");
             if (!totals) return;
+
             totals.innerHTML = `
                 <div class="stylehub-checkout-line"><span>Tạm tính</span><strong>${formatMoney(subtotal)}</strong></div>
                 <div class="stylehub-checkout-line"><span>Phí ship</span><strong>${formatMoney(shipping)}</strong></div>
@@ -1183,8 +1266,18 @@ function searchProducts() {
             else localStorage.removeItem(VOUCHER_KEY);
             renderTotals();
         });
+
         renderTotals();
-        document.addEventListener("click", () => setTimeout(renderTotals, 150));
+        window.StyleHubRenderCheckoutTotals = renderTotals;
+
+        ["click", "input", "change", "storage"].forEach(eventName => {
+            window.addEventListener(eventName, () => setTimeout(renderTotals, 120));
+            document.addEventListener(eventName, () => setTimeout(renderTotals, 120));
+        });
+
+        setTimeout(renderTotals, 250);
+        setTimeout(renderTotals, 800);
+        setTimeout(renderTotals, 1500);
     }
 
     function initFormValidation() {

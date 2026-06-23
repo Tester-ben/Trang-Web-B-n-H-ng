@@ -608,6 +608,7 @@
         let currentItem = null;
         let selectedSizeText = "";
         let cartMemoryArray = [];
+        window.cartMemoryArray = cartMemoryArray;
         let styleHubOrderSubmitLocked = false;
         let isUserLoggedIn = localStorage.getItem('isLoggedInStatus') === 'true'; 
         let pendingCheckoutAction = false; 
@@ -938,6 +939,11 @@
         function toggleCheckoutDrawer(isOpen) {
             if (isOpen) {
                 loadSavedShippingInfo();
+                forceStyleHubCartSyncNow();
+                if (typeof window.StyleHubRenderCheckoutTotals === "function") {
+                    setTimeout(window.StyleHubRenderCheckoutTotals, 120);
+                    setTimeout(window.StyleHubRenderCheckoutTotals, 450);
+                }
             }
             document.getElementById('checkoutOverlay').classList.toggle('open', isOpen);
         }
@@ -1070,6 +1076,7 @@
         function loadStyleHubCartIntoMemory() {
             const savedCart = readStyleHubCartFromStorage();
             cartMemoryArray = savedCart.map(normalizeStyleHubCartItem).filter(Boolean);
+            window.cartMemoryArray = cartMemoryArray;
             updateStyleHubCartBadges(cartMemoryArray);
             return cartMemoryArray;
         }
