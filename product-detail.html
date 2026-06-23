@@ -309,10 +309,8 @@
 </style>
 
 
-
-
 <style>
-/* ===== FOOTER SOCIAL 3 ICONS LEFT ALIGN FINAL ===== */
+/* ===== FOOTER SOCIAL PNG EVEN ALIGN FINAL ===== */
 .site-footer .social-links,
 .site-footer .footer-social-links {
     display: flex !important;
@@ -320,11 +318,9 @@
     justify-content: flex-start !important;
     gap: 24px !important;
     margin-top: 26px !important;
-    margin-left: 0 !important;
-    padding-left: 0 !important;
     flex-wrap: nowrap !important;
     width: 100% !important;
-    max-width: 260px !important;
+    max-width: 430px !important;
 }
 
 .site-footer .footer-social-icon {
@@ -351,15 +347,11 @@
 }
 
 .site-footer .footer-social-icon:hover {
-    transform: translateY(-2px) scale(1.08) !important;
+    transform: translateY(-2px) scale(1.07) !important;
     opacity: 0.9 !important;
 }
 
 .site-footer .footer-social-icon img {
-    width: 38px !important;
-    height: 38px !important;
-    max-width: 38px !important;
-    max-height: 38px !important;
     display: block !important;
     object-fit: contain !important;
     object-position: center !important;
@@ -372,33 +364,72 @@
     box-shadow: none !important;
 }
 
+/* 3 logo đầu giữ kích thước chuẩn */
+.site-footer .footer-fb-icon img,
+.site-footer .footer-zalo-icon img,
+.site-footer .footer-instagram-icon img {
+    width: 36px !important;
+    height: 36px !important;
+    max-width: 36px !important;
+    max-height: 36px !important;
+}
+
+/* YouTube và Shopee lấy đúng ảnh PNG mới của bạn, canh đều với các icon còn lại */
+.site-footer .footer-youtube-icon img {
+    width: 37px !important;
+    height: 37px !important;
+    max-width: 37px !important;
+    max-height: 37px !important;
+}
+
+.site-footer .footer-shopee-icon img {
+    width: 38px !important;
+    height: 38px !important;
+    max-width: 38px !important;
+    max-height: 38px !important;
+}
+
 @media (max-width: 768px) {
     .site-footer .social-links,
     .site-footer .footer-social-links {
-        justify-content: flex-start !important;
-        gap: 22px !important;
-        max-width: 230px !important;
-        margin-left: 0 !important;
-        padding-left: 0 !important;
+        gap: 18px !important;
+        max-width: 340px !important;
+        flex-wrap: nowrap !important;
     }
 
     .site-footer .footer-social-icon {
-        width: 38px !important;
-        height: 38px !important;
-        min-width: 38px !important;
-        max-width: 38px !important;
-        min-height: 38px !important;
-        max-height: 38px !important;
+        width: 36px !important;
+        height: 36px !important;
+        min-width: 36px !important;
+        max-width: 36px !important;
+        min-height: 36px !important;
+        max-height: 36px !important;
     }
 
-    .site-footer .footer-social-icon img {
+    .site-footer .footer-fb-icon img,
+    .site-footer .footer-zalo-icon img,
+    .site-footer .footer-instagram-icon img {
+        width: 32px !important;
+        height: 32px !important;
+        max-width: 32px !important;
+        max-height: 32px !important;
+    }
+
+    .site-footer .footer-youtube-icon img {
+        width: 33px !important;
+        height: 33px !important;
+        max-width: 33px !important;
+        max-height: 33px !important;
+    }
+
+    .site-footer .footer-shopee-icon img {
         width: 34px !important;
         height: 34px !important;
         max-width: 34px !important;
         max-height: 34px !important;
     }
 }
-/* ===== END FOOTER SOCIAL 3 ICONS LEFT ALIGN FINAL ===== */
+/* ===== END FOOTER SOCIAL PNG EVEN ALIGN FINAL ===== */
 </style>
 
 </head>
@@ -870,7 +901,12 @@
             }
             document.getElementById('cartOverlay').classList.toggle('open', isOpen);
         }
-        function toggleCheckoutDrawer(isOpen) { document.getElementById('checkoutOverlay').classList.toggle('open', isOpen); }
+        function toggleCheckoutDrawer(isOpen) {
+            if (isOpen) {
+                loadSavedShippingInfo();
+            }
+            document.getElementById('checkoutOverlay').classList.toggle('open', isOpen);
+        }
         function toggleAuthModal(isOpen) { document.getElementById('authModal').classList.toggle('open', isOpen); }
 
         function toggleAuthView(targetBlock) {
@@ -1005,12 +1041,59 @@
         }
 
 
+
+        /* ==================== ACCOUNT-SPECIFIC SHIPPING INFO ==================== */
+        function getStyleHubCurrentAccountEmail() {
+            return (
+                localStorage.getItem('hub_current_user_key') ||
+                localStorage.getItem('hub_email') ||
+                ''
+            ).trim().toLowerCase();
+        }
+
+        function getStyleHubShippingProfileKey(accountEmail) {
+            return 'stylehub_shipping_profile_' + String(accountEmail || '').trim().toLowerCase();
+        }
+
+        function readStyleHubShippingProfile(accountEmail) {
+            const email = String(accountEmail || getStyleHubCurrentAccountEmail() || '').trim().toLowerCase();
+            if (!email) return {};
+            try {
+                const profile = JSON.parse(localStorage.getItem(getStyleHubShippingProfileKey(email)) || '{}');
+                return profile && typeof profile === 'object' ? profile : {};
+            } catch (error) {
+                return {};
+            }
+        }
+
+        function saveStyleHubShippingProfile(profileData) {
+            const accountEmail = getStyleHubCurrentAccountEmail();
+            if (!accountEmail) return;
+
+            const oldProfile = readStyleHubShippingProfile(accountEmail);
+            const nextProfile = Object.assign({}, oldProfile, profileData || {}, {
+                accountEmail: accountEmail,
+                updatedAt: Date.now()
+            });
+
+            localStorage.setItem(getStyleHubShippingProfileKey(accountEmail), JSON.stringify(nextProfile));
+            localStorage.setItem('stylehub_last_shipping_profile_key', getStyleHubShippingProfileKey(accountEmail));
+
+            // Compat keys có hậu tố tài khoản để không lẫn sang account khác.
+            const safeKey = normalizeHubAccountKey(accountEmail);
+            if (nextProfile.email) localStorage.setItem('hub_shipping_email_' + safeKey, nextProfile.email);
+            if (nextProfile.phone) localStorage.setItem('hub_phone_' + safeKey, nextProfile.phone);
+            if (nextProfile.address) localStorage.setItem('hub_address_' + safeKey, nextProfile.address);
+            if (nextProfile.name) localStorage.setItem('hub_name_' + safeKey, nextProfile.name);
+        }
+
+
         function bindShippingFormPersistence() {
             const fields = [
-                { id: "cusName", key: "hub_name" },
-                { id: "cusPhone", key: "hub_phone" },
-                { id: "cusAddress", key: "hub_address" },
-                { id: "cusEmail", key: "hub_shipping_email", lower: true }
+                { id: "cusName", profileKey: "name" },
+                { id: "cusPhone", profileKey: "phone" },
+                { id: "cusAddress", profileKey: "address" },
+                { id: "cusEmail", profileKey: "email", lower: true }
             ];
 
             fields.forEach(function(field) {
@@ -1020,9 +1103,13 @@
 
                 el.addEventListener("input", function() {
                     const value = field.lower ? el.value.trim().toLowerCase() : el.value.trim();
-                    localStorage.setItem(field.key, value);
-                    if (field.id === "cusEmail") {
-                        localStorage.setItem("stylehub_last_checkout_email", value);
+                    const patch = {};
+                    patch[field.profileKey] = value;
+                    saveStyleHubShippingProfile(patch);
+
+                    // Chỉ cập nhật tên hiển thị global của account đang đăng nhập.
+                    if (field.id === "cusName") {
+                        localStorage.setItem("hub_name", value);
                     }
                 });
             });
@@ -1060,16 +1147,14 @@
         function handleImmediateLogin() {
             const emailInput = document.getElementById('authEmail').value.trim();
             const emailName = emailInput ? emailInput.split('@')[0] : 'USER';
-            const savedName = localStorage.getItem('hub_name');
 
             isUserLoggedIn = true;
-            const displayName = savedName && savedName.trim() !== '' ? savedName : emailName;
             localStorage.setItem('isLoggedInStatus', 'true');
-            localStorage.setItem('hub_name', displayName);
-            rememberHubLoginIdentity(displayName, emailInput);
+            rememberHubLoginIdentity(emailName, emailInput);
 
-            if(!localStorage.getItem('hub_phone')) localStorage.setItem('hub_phone', '');
-            if(!localStorage.getItem('hub_address')) localStorage.setItem('hub_address', '');
+            const loginProfile = readStyleHubShippingProfile(emailInput);
+            const displayName = loginProfile.name || emailName;
+            localStorage.setItem('hub_name', displayName);
 
             loadSavedShippingInfo();
             updateHeaderAccountUI();
@@ -1089,8 +1174,12 @@
             localStorage.setItem('isLoggedInStatus', 'true');
             localStorage.setItem('hub_name', nameInput);
             rememberHubLoginIdentity(nameInput, emailInput);
-            localStorage.setItem('hub_phone', '');
-            localStorage.setItem('hub_address', '');
+            saveStyleHubShippingProfile({
+                name: nameInput,
+                phone: '',
+                address: '',
+                email: emailInput.trim().toLowerCase()
+            });
 
             loadSavedShippingInfo();
             updateHeaderAccountUI();
@@ -1189,21 +1278,21 @@
         }
 
         function loadSavedShippingInfo() {
-            const savedName = localStorage.getItem('hub_name');
-            const savedPhone = localStorage.getItem('hub_phone');
-            const savedAddress = localStorage.getItem('hub_address');
+            const accountEmail = getStyleHubCurrentAccountEmail();
+            const profile = readStyleHubShippingProfile(accountEmail);
 
-            // Ưu tiên email người nhận hàng đã nhập gần nhất.
-            // Không ép quay lại email đăng nhập cũ khi reload.
-            const savedEmail = (
-                localStorage.getItem('hub_shipping_email') ||
-                localStorage.getItem('stylehub_last_checkout_email') ||
-                localStorage.getItem('hub_email') ||
-                ''
-            );
+            // Mỗi tài khoản có thông tin giao hàng riêng.
+            // Không lấy hub_phone / hub_address / hub_shipping_email global nữa để tránh lẫn thông tin giữa các tài khoản.
+            const savedName = profile.name || localStorage.getItem('hub_name') || '';
+            const savedPhone = profile.phone || '';
+            const savedAddress = profile.address || '';
+            const savedEmail = profile.email || accountEmail || '';
 
             if (savedName) { document.getElementById('cusName').value = savedName; }
+            else { document.getElementById('cusName').value = ""; }
+
             if (savedEmail) { document.getElementById('cusEmail').value = savedEmail; }
+            else { document.getElementById('cusEmail').value = ""; }
 
             if (savedPhone && savedPhone !== "Chưa cập nhật") { 
                 document.getElementById('cusPhone').value = savedPhone; 
@@ -1418,10 +1507,15 @@
 
             localStorage.setItem('hub_name', name);
             rememberHubLoginIdentity(localStorage.getItem('hub_name') || name || accountEmail, accountEmail);
-            localStorage.setItem('hub_shipping_email', email);
-            localStorage.setItem('stylehub_last_checkout_email', email);
-            localStorage.setItem('hub_phone', phone);
-            localStorage.setItem('hub_address', address);
+
+            // Lưu thông tin giao hàng RIÊNG theo account đang đăng nhập.
+            // Không ghi phone/address/email vào key global để account khác không bị tự động load nhầm.
+            saveStyleHubShippingProfile({
+                name: name,
+                phone: phone,
+                address: address,
+                email: email
+            });
 
             const orderStorageKey = 'hub_orders_' + accountEmail;
             const existingOrdersArray = JSON.parse(localStorage.getItem(orderStorageKey) || '[]');
@@ -1617,6 +1711,8 @@ document.addEventListener("click", function(e) {
             <a class="footer-social-icon footer-fb-icon" href="#" aria-label="Facebook"><img src="images/fb.png" alt="Facebook"></a>
             <a class="footer-social-icon footer-zalo-icon" href="#" aria-label="Zalo"><img src="images/zalo.png" alt="Zalo"></a>
             <a class="footer-social-icon footer-instagram-icon" href="#" aria-label="Instagram"><img src="images/instagram.png" alt="Instagram"></a>
+            <a class="footer-social-icon footer-youtube-icon" href="#" aria-label="YouTube"><img src="images/ytb.png" alt="YouTube"></a>
+            <a class="footer-social-icon footer-shopee-icon" href="#" aria-label="Shopee"><img src="images/shoppe.png" alt="Shopee"></a>
         </div>
     </div>
 

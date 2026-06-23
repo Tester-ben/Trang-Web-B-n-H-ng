@@ -462,7 +462,6 @@
             const directEmail = (
                 localStorage.getItem('hub_current_user_key') ||
                 localStorage.getItem('hub_email') ||
-                localStorage.getItem('hub_shipping_email') ||
                 ''
             ).trim().toLowerCase();
             if (directEmail) {
@@ -541,38 +540,77 @@
             document.getElementById(tabId).classList.add('active');
         }
 
+
+        function getAccountShippingProfileKey(accountEmail) {
+            return 'stylehub_shipping_profile_' + String(accountEmail || '').trim().toLowerCase();
+        }
+
+        function readAccountShippingProfile() {
+            const accountEmail = getCurrentUserEmail();
+            if (!accountEmail) return {};
+            try {
+                const profile = JSON.parse(localStorage.getItem(getAccountShippingProfileKey(accountEmail)) || '{}');
+                return profile && typeof profile === 'object' ? profile : {};
+            } catch (error) {
+                return {};
+            }
+        }
+
+        function saveAccountShippingProfile(profileData) {
+            const accountEmail = getCurrentUserEmail();
+            if (!accountEmail) return;
+            const oldProfile = readAccountShippingProfile();
+            const nextProfile = Object.assign({}, oldProfile, profileData || {}, {
+                accountEmail: accountEmail,
+                updatedAt: Date.now()
+            });
+            localStorage.setItem(getAccountShippingProfileKey(accountEmail), JSON.stringify(nextProfile));
+
+            const safeKey = normalizeAccountKey(accountEmail);
+            if (nextProfile.email) localStorage.setItem('hub_shipping_email_' + safeKey, nextProfile.email);
+            if (nextProfile.phone) localStorage.setItem('hub_phone_' + safeKey, nextProfile.phone);
+            if (nextProfile.address) localStorage.setItem('hub_address_' + safeKey, nextProfile.address);
+            if (nextProfile.name) localStorage.setItem('hub_name_' + safeKey, nextProfile.name);
+        }
+
+
         function getProfileShippingEmail() {
+            const profile = readAccountShippingProfile();
+            const accountEmail = getCurrentUserEmail();
             return (
-                localStorage.getItem('hub_shipping_email') ||
-                localStorage.getItem('stylehub_last_checkout_email') ||
-                localStorage.getItem('hub_email') ||
-                localStorage.getItem('hub_current_user_key') ||
+                profile.email ||
+                accountEmail ||
                 ''
             ).trim().toLowerCase();
         }
 
         function renderProfileData() {
-            const profileEmail = getProfileShippingEmail();
+            const profile = readAccountShippingProfile();
+            const accountEmail = getCurrentUserEmail();
+            const profileName = profile.name || localStorage.getItem('hub_name') || (accountEmail ? accountEmail.split('@')[0] : 'USER');
 
-            document.getElementById('displayFullName').innerText = localStorage.getItem('hub_name') || "USER";
-            document.getElementById('displayPhone').innerText = localStorage.getItem('hub_phone') || "090 XXXXXXX";
+            document.getElementById('displayFullName').innerText = profileName;
+            document.getElementById('displayPhone').innerText = profile.phone || "Chưa cập nhật số điện thoại";
 
             const emailDisplay = document.getElementById('displayEmail');
             if (emailDisplay) {
-                emailDisplay.innerText = profileEmail || "Chưa cập nhật email nhận hàng";
+                emailDisplay.innerText = getProfileShippingEmail() || "Chưa cập nhật email nhận hàng";
             }
 
-            document.getElementById('displayAddress').innerText = localStorage.getItem('hub_address') || "Chưa cập nhật địa chỉ giao hàng";
+            document.getElementById('displayAddress').innerText = profile.address || "Chưa cập nhật địa chỉ giao hàng";
         }
 
         function openProfileEditForm() {
             const form = document.getElementById('profileEditForm');
             if (!form) return;
 
-            document.getElementById('editFullName').value = localStorage.getItem('hub_name') || '';
-            document.getElementById('editPhone').value = localStorage.getItem('hub_phone') || '';
-            document.getElementById('editEmail').value = getProfileShippingEmail();
-            document.getElementById('editAddress').value = localStorage.getItem('hub_address') || '';
+            const profile = readAccountShippingProfile();
+            const accountEmail = getCurrentUserEmail();
+
+            document.getElementById('editFullName').value = profile.name || localStorage.getItem('hub_name') || (accountEmail ? accountEmail.split('@')[0] : '');
+            document.getElementById('editPhone').value = profile.phone || '';
+            document.getElementById('editEmail').value = profile.email || accountEmail || '';
+            document.getElementById('editAddress').value = profile.address || '';
 
             form.classList.add('active');
             form.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
@@ -595,15 +633,16 @@
             }
 
             localStorage.setItem('hub_name', name);
-            localStorage.setItem('hub_phone', phone);
-            localStorage.setItem('hub_address', address);
 
-            // Email này là email người dùng nhập khi đặt hàng / nhận xác nhận đơn.
-            localStorage.setItem('hub_shipping_email', email);
-            localStorage.setItem('stylehub_last_checkout_email', email);
+            saveAccountShippingProfile({
+                name: name,
+                phone: phone,
+                email: email,
+                address: address
+            });
 
-            // Lưu mapping theo tên để lần sau account tìm lại được email.
-            rememberAccountEmailForName(name, email);
+            // Không lưu phone/address/email vào key global để tài khoản khác không bị lẫn.
+            rememberAccountEmailForName(name, getCurrentUserEmail());
 
             renderProfileData();
             syncHeaderUsername();
