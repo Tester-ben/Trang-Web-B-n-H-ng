@@ -2,6 +2,7 @@ document.addEventListener("DOMContentLoaded", function () {
     syncHeaderAccountName();
     syncBagCount();
     bindSearchBox();
+    initSmartHeaderScroll();
 });
 
 function syncHeaderAccountName() {
@@ -101,6 +102,96 @@ function bindSearchBox() {
             if (firstResult) firstResult.click();
         }
     });
+}
+
+
+/* ===== SMART HEADER SCROLL: hide main header on scroll down, show on scroll up ===== */
+function initSmartHeaderScroll() {
+    const header = document.querySelector(".main-header");
+    const subFilter = document.querySelector(".sub-filter-bar");
+
+    if (!header || !subFilter || document.body.dataset.smartHeaderReady === "1") return;
+    document.body.dataset.smartHeaderReady = "1";
+    document.body.classList.add("stylehub-smart-header");
+
+    if (!document.getElementById("stylehub-smart-header-style")) {
+        const style = document.createElement("style");
+        style.id = "stylehub-smart-header-style";
+        style.textContent = `
+            body.stylehub-smart-header .main-header {
+                transform: translateY(0);
+                transition: transform 0.26s ease;
+                will-change: transform;
+            }
+
+            body.stylehub-smart-header.stylehub-header-hidden .main-header {
+                transform: translateY(-100%);
+            }
+
+            body.stylehub-smart-header .sub-filter-bar {
+                position: sticky !important;
+                top: 57px;
+                z-index: 950;
+                background: #ffffff;
+                padding-top: 15px !important;
+                transition: top 0.26s ease, box-shadow 0.26s ease;
+            }
+
+            body.stylehub-smart-header.stylehub-header-hidden .sub-filter-bar {
+                top: 0;
+                box-shadow: 0 1px 0 rgba(0, 0, 0, 0.06);
+            }
+
+            @media (max-width: 768px) {
+                body.stylehub-smart-header .sub-filter-bar {
+                    top: 57px;
+                    overflow-x: auto;
+                    white-space: nowrap;
+                }
+
+                body.stylehub-smart-header.stylehub-header-hidden .sub-filter-bar {
+                    top: 0;
+                }
+            }
+        `;
+        document.head.appendChild(style);
+    }
+
+    let lastScrollY = window.scrollY || window.pageYOffset || 0;
+    let ticking = false;
+
+    function showHeader() {
+        document.body.classList.remove("stylehub-header-hidden");
+    }
+
+    function hideHeader() {
+        document.body.classList.add("stylehub-header-hidden");
+    }
+
+    function updateHeaderByScroll() {
+        const currentScrollY = Math.max(0, window.scrollY || window.pageYOffset || 0);
+        const diff = currentScrollY - lastScrollY;
+
+        if (currentScrollY < 20) {
+            showHeader();
+        } else if (diff > 4 && currentScrollY > 90) {
+            hideHeader();
+        } else if (diff < -1) {
+            showHeader();
+        }
+
+        lastScrollY = currentScrollY;
+        ticking = false;
+    }
+
+    window.addEventListener("scroll", function () {
+        if (!ticking) {
+            window.requestAnimationFrame(updateHeaderByScroll);
+            ticking = true;
+        }
+    }, { passive: true });
+
+    window.addEventListener("resize", showHeader);
 }
 
 function normalizeSearchText(value) {
