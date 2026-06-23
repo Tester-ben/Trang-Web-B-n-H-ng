@@ -176,6 +176,29 @@ function initFooterSupportContactBlock() {
                 max-width: none !important;
             }
 
+
+            .site-footer .footer-brand {
+                overflow: visible !important;
+            }
+
+            .site-footer .footer-support-contact-block {
+                width: max-content !important;
+                min-width: max-content !important;
+                max-width: none !important;
+                overflow: visible !important;
+            }
+
+            .site-footer .footer-support-contact-line {
+                display: block !important;
+                width: max-content !important;
+                min-width: max-content !important;
+                max-width: none !important;
+                white-space: nowrap !important;
+                word-break: keep-all !important;
+                overflow-wrap: normal !important;
+                line-break: strict !important;
+            }
+
             @media (max-width: 768px) {
                 .footer-support-contact-block {
                     margin-top: 24px;
@@ -184,7 +207,11 @@ function initFooterSupportContactBlock() {
 
                 .footer-support-contact-line {
                     font-size: 12px;
-                    white-space: nowrap;
+                    white-space: nowrap !important;
+                    display: block !important;
+                    width: max-content !important;
+                    min-width: max-content !important;
+                    max-width: none !important;
                 }
             }
         `;
@@ -198,9 +225,9 @@ function initFooterSupportContactBlock() {
         block.className = "footer-support-contact-block";
         block.innerHTML = `
             <h4 class="footer-support-contact-title">Liên Hệ Hỗ Trợ</h4>
-            <p class="footer-support-contact-line"><span><strong>Gọi mua:</strong>&nbsp;<a href="tel:02796096060">02796096060</a>&nbsp;(8:00 - 21:30)</span></p>
-            <p class="footer-support-contact-line"><span><strong>Khiếu nại:</strong>&nbsp;<a href="tel:02873066060">02873066060</a>&nbsp;(8:00 - 21:30)</span></p>
-            <p class="footer-support-contact-line"><span><strong>Bảo hành:</strong>&nbsp;<a href="tel:02873066060">02873066060</a>&nbsp;(8:00 - 21:00)</span></p>
+            <p class="footer-support-contact-line" style="white-space:nowrap !important;display:block !important;width:max-content !important;max-width:none !important;">Gọi&nbsp;mua:&nbsp;02796096060&nbsp;(8:00&nbsp;-&nbsp;21:30)</p>
+            <p class="footer-support-contact-line" style="white-space:nowrap !important;display:block !important;width:max-content !important;max-width:none !important;">Khiếu&nbsp;nại:&nbsp;02873066060&nbsp;(8:00&nbsp;-&nbsp;21:30)</p>
+            <p class="footer-support-contact-line" style="white-space:nowrap !important;display:block !important;width:max-content !important;max-width:none !important;">Bảo&nbsp;hành:&nbsp;02873066060&nbsp;(8:00&nbsp;-&nbsp;21:00)</p>
         `;
 
         const socialLinks = brandCol.querySelector(".social-links, .footer-social-links");
