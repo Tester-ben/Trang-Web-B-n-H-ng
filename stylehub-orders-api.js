@@ -141,9 +141,14 @@
 
     function saveLocalOrder(order) {
         const normalized = normalizeOrder(order);
-        upsertIntoKey("hub_orders", normalized);
+
+        // Chỉ lưu đơn theo đúng email tài khoản hiện tại.
+        // Không ghi thêm vào hub_orders global nữa, vì account.html có thể đọc cả local + cloud
+        // và gây cảm giác một lần đặt hàng bị nhảy thành 2 đơn giống nhau.
         if (normalized.userEmail && normalized.userEmail !== "n/a") {
             upsertIntoKey("hub_orders_" + normalized.userEmail, normalized);
+        } else {
+            upsertIntoKey("hub_orders_guest", normalized);
         }
         return normalized;
     }

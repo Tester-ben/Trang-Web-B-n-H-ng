@@ -445,6 +445,10 @@
         let pendingCancelOrderId = '';
         let cachedAccountOrders = [];
         let cachedCancelledOrders = [];
+        // Chặn lỗi hiển thị trùng đơn khi renderOrdersData bị gọi nhiều lần gần như cùng lúc
+        // (DOMContentLoaded + Firebase/onOrdersChanged/storage cùng chạy).
+        let accountOrdersRenderToken = 0;
+        let accountOrdersRenderBusy = false;
 
         function normalizeAccountKey(value) {
             return String(value || '').trim().toLowerCase().replace(/\s+/g, '_');
@@ -881,21 +885,31 @@
         }
 
         async function renderOrdersData() {
+            const renderToken = ++accountOrdersRenderToken;
+            accountOrdersRenderBusy = true;
+
             const activeContainer = document.getElementById('injectOrdersContainer');
             const cancelledContainer = document.getElementById('injectCancelledOrdersContainer');
-            activeContainer.innerHTML = '';
-            cancelledContainer.innerHTML = '';
+            if (!activeContainer || !cancelledContainer) return;
 
             cleanDuplicateOrdersInLocalStorageForCurrentUser();
 
             const ordersList = await getOrdersForCurrentUser();
+
+            // Nếu trong lúc đang đợi Firebase/localStorage có lượt render mới hơn,
+            // bỏ lượt cũ để không append 2 lần cùng một danh sách đơn.
+            if (renderToken !== accountOrdersRenderToken) return;
+
             cachedAccountOrders = dedupeAccountOrders(Array.isArray(ordersList) ? ordersList : []);
             const activeOrders = dedupeAccountOrders(cachedAccountOrders.filter(order => !isCancelledStatus(order.status)));
             const cancelledOrders = dedupeAccountOrders(cachedAccountOrders.filter(order => isCancelledStatus(order.status)));
             cachedCancelledOrders = cancelledOrders;
 
+            activeContainer.innerHTML = '';
+            cancelledContainer.innerHTML = '';
             renderActiveOrders(activeContainer, activeOrders);
             renderCancelledOrders(cancelledContainer, cancelledOrders);
+            accountOrdersRenderBusy = false;
         }
 
         function buildProductsHTML(order) {
