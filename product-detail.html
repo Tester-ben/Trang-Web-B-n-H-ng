@@ -594,6 +594,7 @@
         let currentItem = null;
         let selectedSizeText = "";
         let cartMemoryArray = [];
+        let styleHubOrderSubmitLocked = false;
         let isUserLoggedIn = localStorage.getItem('isLoggedInStatus') === 'true'; 
         let pendingCheckoutAction = false; 
 
@@ -1466,11 +1467,17 @@
 
 
         async function submitFinalOrder() {
-            const submitButton = document.querySelector('#checkout-form button[type="submit"], #checkout-form .btn-submit, .checkout-submit-btn, button.btn-submit');
+            if (styleHubOrderSubmitLocked) {
+                return;
+            }
+            styleHubOrderSubmitLocked = true;
+
+            const submitButton = document.querySelector('.btn-checkout, #checkout-form button[type="submit"], #checkout-form .btn-submit, .checkout-submit-btn, button.btn-submit');
             const originalButtonText = submitButton ? submitButton.innerText : "";
 
             if (submitButton) {
                 submitButton.disabled = true;
+                submitButton.style.pointerEvents = "none";
                 submitButton.innerText = "ĐANG XỬ LÝ...";
             }
 
@@ -1481,8 +1488,10 @@
 
             if(!name || !phone || !address || !email) {
                 showToastNotification("Vui lòng điền đầy đủ thông tin giao hàng!");
+                styleHubOrderSubmitLocked = false;
                 if (submitButton) {
                     submitButton.disabled = false;
+                    submitButton.style.pointerEvents = "";
                     submitButton.innerText = originalButtonText || "XÁC NHẬN ĐẶT HÀNG";
                 }
                 return;
@@ -1492,8 +1501,10 @@
 
             if(cartMemoryArray.length === 0) {
                 showToastNotification("Giỏ hàng của bạn đang trống!");
+                styleHubOrderSubmitLocked = false;
                 if (submitButton) {
                     submitButton.disabled = false;
+                    submitButton.style.pointerEvents = "";
                     submitButton.innerText = originalButtonText || "XÁC NHẬN ĐẶT HÀNG";
                 }
                 return;
@@ -1519,7 +1530,7 @@
 
             const orderStorageKey = 'hub_orders_' + accountEmail;
             const existingOrdersArray = JSON.parse(localStorage.getItem(orderStorageKey) || '[]');
-            const uniqueOrderId = "STH" + Math.floor(100000 + Math.random() * 900000);
+            const uniqueOrderId = "STH" + Date.now().toString().slice(-6) + Math.floor(10 + Math.random() * 90);
 
             const orderDate = new Date().toLocaleString('vi-VN');
             const finalOrderTotalAmount = calculateStyleHubOrderTotal(cartMemoryArray);
@@ -1570,8 +1581,12 @@
 
             if (submitButton) {
                 submitButton.disabled = false;
+                submitButton.style.pointerEvents = "";
                 submitButton.innerText = originalButtonText || "XÁC NHẬN ĐẶT HÀNG";
             }
+            setTimeout(function() {
+                styleHubOrderSubmitLocked = false;
+            }, 1200);
 
             setTimeout(function() {
                 // Gửi email ở nền, không chặn màn hình đặt hàng.

@@ -676,6 +676,63 @@
             ).trim().toLowerCase();
         }
 
+
+        function getOrderProductsSignature(order) {
+            try {
+                const products = (order && order.orderedProductsList) || [];
+                return products.map(function(item) {
+                    return [
+                        item.key || item.id || item.name || '',
+                        item.size || '',
+                        item.qty || item.quantity || 1,
+                        item.price || item.priceNum || ''
+                    ].join('|');
+                }).join('||');
+            } catch (error) {
+                return '';
+            }
+        }
+
+        function getOrderDedupeKey(order) {
+            if (!order) return '';
+            return [
+                order.orderId || '',
+                order.orderDate || order.date || '',
+                order.totalPriceFormatted || order.totalPrice || '',
+                getOrderProductsSignature(order),
+                normalizeStatusText(order.status)
+            ].join('@@');
+        }
+
+        function dedupeAccountOrders(orders) {
+            const map = new Map();
+
+            (orders || []).forEach(function(order) {
+                if (!order) return;
+                const normalized = window.StyleHubOrders && StyleHubOrders.normalizeOrder ? StyleHubOrders.normalizeOrder(order) : order;
+                const key = getOrderDedupeKey(normalized) || JSON.stringify(normalized);
+
+                if (!map.has(key)) {
+                    map.set(key, normalized);
+                    return;
+                }
+
+                const oldOrder = map.get(key);
+                const oldTime = Number(oldOrder.updatedAt || oldOrder.createdAt || 0);
+                const newTime = Number(normalized.updatedAt || normalized.createdAt || 0);
+                if (newTime >= oldTime) {
+                    map.set(key, normalized);
+                }
+            });
+
+            return Array.from(map.values()).sort(function(a, b) {
+                const timeA = Number(a.updatedAt || a.createdAt || 0);
+                const timeB = Number(b.updatedAt || b.createdAt || 0);
+                return timeB - timeA;
+            });
+        }
+
+
         async function getOrdersForCurrentUser() {
             const email = getCurrentUserEmail();
             const currentName = String(localStorage.getItem('hub_name') || '').trim().toLowerCase();
@@ -702,14 +759,14 @@
                         localStorage.setItem(key, JSON.stringify(existing));
                     }
                 });
-                if (matchedByEmail.length > 0) return matchedByEmail;
+                if (matchedByEmail.length > 0) return dedupeAccountOrders(matchedByEmail);
             }
 
             if (email) {
                 try {
                     if (window.StyleHubOrders && typeof StyleHubOrders.getOrdersByEmail === 'function') {
                         const matched = await StyleHubOrders.getOrdersByEmail(email);
-                        if (matched.length > 0) return matched;
+                        if (matched.length > 0) return dedupeAccountOrders(matched);
                     }
                 } catch (error) {
                     console.error('Không lấy được đơn hàng cloud theo email, dùng dữ liệu trên máy:', error);
@@ -725,7 +782,7 @@
                     localStorage.setItem('hub_current_user_key', firstEmail);
                     rememberAccountEmailForName(localStorage.getItem('hub_name'), firstEmail);
                 }
-                if (matchedByName.length > 0) return matchedByName;
+                if (matchedByName.length > 0) return dedupeAccountOrders(matchedByName);
             }
 
             const userNameKey = `hub_orders_${normalizeAccountKey(localStorage.getItem('hub_name') || '')}`;
@@ -748,7 +805,7 @@
                 orderMap.set(key, normalized);
             });
 
-            return Array.from(orderMap.values()).sort((a, b) => (Number(b.createdAt) || 0) - (Number(a.createdAt) || 0));
+            return dedupeAccountOrders(Array.from(orderMap.values()));
         }
 
         function normalizeStatusText(status) {
@@ -799,9 +856,9 @@
             cancelledContainer.innerHTML = '';
 
             const ordersList = await getOrdersForCurrentUser();
-            cachedAccountOrders = Array.isArray(ordersList) ? ordersList : [];
+            cachedAccountOrders = dedupeAccountOrders(Array.isArray(ordersList) ? ordersList : []);
             const activeOrders = cachedAccountOrders.filter(order => !isCancelledStatus(order.status));
-            const cancelledOrders = cachedAccountOrders.filter(order => isCancelledStatus(order.status));
+            const cancelledOrders = dedupeAccountOrders(cachedAccountOrders.filter(order => isCancelledStatus(order.status)));
             cachedCancelledOrders = cancelledOrders;
 
             renderActiveOrders(activeContainer, activeOrders);
