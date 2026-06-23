@@ -2,6 +2,7 @@ document.addEventListener("DOMContentLoaded", function () {
     syncHeaderAccountName();
     syncBagCount();
     bindSearchBox();
+    initFooterSupportContactBlock();
     initSmartHeaderScroll();
 });
 
@@ -104,6 +105,90 @@ function bindSearchBox() {
     });
 }
 
+
+
+/* ===== FOOTER SUPPORT CONTACT BLOCK ===== */
+function initFooterSupportContactBlock() {
+    const footerBrands = document.querySelectorAll(".site-footer .footer-brand");
+    if (!footerBrands.length) return;
+
+    if (!document.getElementById("stylehub-footer-support-style")) {
+        const style = document.createElement("style");
+        style.id = "stylehub-footer-support-style";
+        style.textContent = `
+            .footer-support-contact-block {
+                margin-top: 28px;
+                color: #ffffff;
+                max-width: 330px;
+            }
+
+            .footer-support-contact-title {
+                margin: 0 0 14px 0;
+                color: #ffffff;
+                font-size: 14px;
+                font-weight: 700;
+                letter-spacing: 1.4px;
+                text-transform: uppercase;
+            }
+
+            .footer-support-contact-line {
+                margin: 0 0 10px 0;
+                color: rgba(255, 255, 255, 0.92);
+                font-size: 13px;
+                line-height: 1.55;
+                letter-spacing: 0.2px;
+            }
+
+            .footer-support-contact-line strong {
+                color: #ffffff;
+                font-weight: 500;
+            }
+
+            .footer-support-contact-line a {
+                color: #ffffff !important;
+                text-decoration: none;
+                font-weight: 700;
+                letter-spacing: 0.3px;
+            }
+
+            .footer-support-contact-line a:hover {
+                text-decoration: underline;
+            }
+
+            @media (max-width: 768px) {
+                .footer-support-contact-block {
+                    margin-top: 24px;
+                    max-width: 100%;
+                }
+
+                .footer-support-contact-line {
+                    font-size: 12px;
+                }
+            }
+        `;
+        document.head.appendChild(style);
+    }
+
+    footerBrands.forEach(function (brandCol) {
+        if (brandCol.querySelector(".footer-support-contact-block")) return;
+
+        const block = document.createElement("div");
+        block.className = "footer-support-contact-block";
+        block.innerHTML = `
+            <h4 class="footer-support-contact-title">Liên Hệ Hỗ Trợ</h4>
+            <p class="footer-support-contact-line"><strong>Gọi mua:</strong> <a href="tel:02796096060">02796096060</a> (8:00 - 21:30)</p>
+            <p class="footer-support-contact-line"><strong>Khiếu nại:</strong> <a href="tel:02873066060">02873066060</a> (8:00 - 21:30)</p>
+            <p class="footer-support-contact-line"><strong>Bảo hành:</strong> <a href="tel:02873066060">02873066060</a> (8:00 - 21:00)</p>
+        `;
+
+        const socialLinks = brandCol.querySelector(".social-links, .footer-social-links");
+        if (socialLinks && socialLinks.parentNode) {
+            socialLinks.insertAdjacentElement("afterend", block);
+        } else {
+            brandCol.appendChild(block);
+        }
+    });
+}
 
 /* ===== SMART HEADER SCROLL: hide main header on scroll down, show on scroll up ===== */
 function initSmartHeaderScroll() {

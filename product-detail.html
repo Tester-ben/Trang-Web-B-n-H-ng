@@ -1334,10 +1334,14 @@
                 document.getElementById('cusPhone').value = ""; 
             }
 
-            if (savedAddress && savedAddress !== "Chưa cập nhật địa chỉ giao hàng") { 
-                document.getElementById('cusAddress').value = savedAddress; 
+            if (savedAddress && savedAddress !== "Chưa cập nhật địa chỉ giao hàng") {
+                if (window.StyleHubVNAddress && typeof window.StyleHubVNAddress.setExistingAddress === 'function') {
+                    window.StyleHubVNAddress.setExistingAddress('checkout', savedAddress);
+                } else {
+                    document.getElementById('cusAddress').value = savedAddress;
+                }
             } else {
-                document.getElementById('cusAddress').value = ""; 
+                document.getElementById('cusAddress').value = "";
             }
         }
 
@@ -1916,5 +1920,12 @@ document.addEventListener("click", function(e) {
 </script>
 
 <script src="stylehub-vn-address.js?v=vietnam-address-no-api-key-20260623"></script>
+<script>
+        document.addEventListener("stylehub-vn-address-ready", function () {
+            if (typeof loadSavedShippingInfo === "function") {
+                loadSavedShippingInfo();
+            }
+        });
+</script>
 </body>
 </html>
