@@ -444,6 +444,7 @@
         const checkLogin = localStorage.getItem('isLoggedInStatus') === 'true';
         let pendingCancelOrderId = '';
         let cachedAccountOrders = [];
+        let cachedCancelledOrders = [];
 
         function normalizeAccountKey(value) {
             return String(value || '').trim().toLowerCase().replace(/\s+/g, '_');
@@ -762,6 +763,7 @@
             cachedAccountOrders = Array.isArray(ordersList) ? ordersList : [];
             const activeOrders = cachedAccountOrders.filter(order => !isCancelledStatus(order.status));
             const cancelledOrders = cachedAccountOrders.filter(order => isCancelledStatus(order.status));
+            cachedCancelledOrders = cancelledOrders;
 
             renderActiveOrders(activeContainer, activeOrders);
             renderCancelledOrders(cancelledContainer, cancelledOrders);
@@ -820,11 +822,17 @@
                 return;
             }
 
-            ordersList.forEach(order => {
+            cachedCancelledOrders = ordersList;
+
+            ordersList.forEach((order, index) => {
                 const card = document.createElement('div');
+                const uniqueCancelledKey = `cancelled-${index}-${order.orderId || 'no-id'}-${order.cancelledAt || order.updatedAt || order.orderDate || order.date || ''}`;
+
                 card.className = 'order-item-card cancelled-order-card';
-                card.setAttribute('onclick', `toggleCancelledOrderDetails('${escapeAccountHtml(order.orderId || '')}')`);
+                card.setAttribute('onclick', `toggleCancelledOrderDetailsByIndex(${index})`);
+                card.setAttribute('data-cancelled-index', String(index));
                 card.setAttribute('data-cancelled-order-id', order.orderId || '');
+                card.setAttribute('data-cancelled-unique-key', uniqueCancelledKey);
 
                 const status = order.status || 'Đã hủy';
                 const statusClass = getAccountStatusClass(status);
@@ -845,7 +853,7 @@
                             <span>${escapeAccountHtml(order.totalPriceFormatted || order.totalPrice || '')}</span>
                         </div>
                         <div class="order-actions-row">
-                            <button class="btn-order-action btn-reorder" onclick="reorderCancelledOrder('${escapeAccountHtml(orderId)}', event)">Đặt lại đơn này</button>
+                            <button class="btn-order-action btn-reorder" onclick="reorderCancelledOrderByIndex(${index}, event)">Đặt lại đơn này</button>
                         </div>
                     </div>
                 `;
@@ -853,9 +861,23 @@
             });
         }
 
+        function toggleCancelledOrderDetailsByIndex(index) {
+            const cards = document.querySelectorAll('.cancelled-order-card');
+            const card = cards[index];
+
+            if (!card) {
+                showAccountToast('Không tìm thấy chi tiết đơn hủy');
+                return;
+            }
+
+            card.classList.toggle('expanded');
+        }
+
+        // Giữ lại hàm cũ để không lỗi code cũ, nhưng ưu tiên index để tránh trùng orderId.
         function toggleCancelledOrderDetails(orderId) {
-            const selector = `.cancelled-order-card[data-cancelled-order-id="${CSS.escape(orderId)}"]`;
-            const card = document.querySelector(selector);
+            const cards = Array.from(document.querySelectorAll('.cancelled-order-card'));
+            const card = cards.find(item => item.getAttribute('data-cancelled-order-id') === orderId);
+
             if (card) card.classList.toggle('expanded');
         }
 
@@ -931,9 +953,34 @@
             }).filter(item => item.key || item.name);
         }
 
+        function reorderCancelledOrderByIndex(index, event) {
+            if (event) event.stopPropagation();
+
+            const order = cachedCancelledOrders[index];
+
+            if (!order) {
+                showAccountToast('Không tìm thấy đơn hàng');
+                return;
+            }
+
+            const reorderItems = normalizeReorderItems(order);
+            if (reorderItems.length === 0) {
+                showAccountToast('Đơn này không có sản phẩm để đặt lại');
+                return;
+            }
+
+            localStorage.setItem('stylehub_reorder_cart', JSON.stringify(reorderItems));
+            showAccountToast('Đang thêm lại sản phẩm vào BAG');
+
+            const firstProductKey = reorderItems[0].key || 'tops-1';
+            setTimeout(() => {
+                window.location.href = `product-detail.html?id=${encodeURIComponent(firstProductKey)}&reorder=1`;
+            }, 350);
+        }
+
         function reorderCancelledOrder(orderId, event) {
             if (event) event.stopPropagation();
-            const order = cachedAccountOrders.find(item => item && item.orderId === orderId);
+            const order = cachedCancelledOrders.find(item => item && item.orderId === orderId) || cachedAccountOrders.find(item => item && item.orderId === orderId);
             if (!order) {
                 showAccountToast('Không tìm thấy đơn hàng');
                 return;
