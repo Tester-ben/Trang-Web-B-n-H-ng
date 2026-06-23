@@ -156,6 +156,26 @@ function initFooterSupportContactBlock() {
                 text-decoration: underline;
             }
 
+
+            .footer-support-contact-block {
+                width: max-content;
+                max-width: none !important;
+            }
+
+            .footer-support-contact-line,
+            .footer-support-contact-line strong,
+            .footer-support-contact-line a,
+            .footer-support-contact-line span {
+                display: inline !important;
+                white-space: nowrap !important;
+            }
+
+            .footer-support-contact-line {
+                display: block !important;
+                width: max-content;
+                max-width: none !important;
+            }
+
             @media (max-width: 768px) {
                 .footer-support-contact-block {
                     margin-top: 24px;
@@ -178,9 +198,9 @@ function initFooterSupportContactBlock() {
         block.className = "footer-support-contact-block";
         block.innerHTML = `
             <h4 class="footer-support-contact-title">Liên Hệ Hỗ Trợ</h4>
-            <p class="footer-support-contact-line"><strong>Gọi mua:</strong>&nbsp;<a href="tel:02796096060">02796096060</a>&nbsp;(8:00 - 21:30)</p>
-            <p class="footer-support-contact-line"><strong>Khiếu nại:</strong>&nbsp;<a href="tel:02873066060">02873066060</a>&nbsp;(8:00 - 21:30)</p>
-            <p class="footer-support-contact-line"><strong>Bảo hành:</strong>&nbsp;<a href="tel:02873066060">02873066060</a>&nbsp;(8:00 - 21:00)</p>
+            <p class="footer-support-contact-line"><span><strong>Gọi mua:</strong>&nbsp;<a href="tel:02796096060">02796096060</a>&nbsp;(8:00 - 21:30)</span></p>
+            <p class="footer-support-contact-line"><span><strong>Khiếu nại:</strong>&nbsp;<a href="tel:02873066060">02873066060</a>&nbsp;(8:00 - 21:30)</span></p>
+            <p class="footer-support-contact-line"><span><strong>Bảo hành:</strong>&nbsp;<a href="tel:02873066060">02873066060</a>&nbsp;(8:00 - 21:00)</span></p>
         `;
 
         const socialLinks = brandCol.querySelector(".social-links, .footer-social-links");
