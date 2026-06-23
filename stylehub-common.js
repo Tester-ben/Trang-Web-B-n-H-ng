@@ -81,7 +81,11 @@ function bindSearchBox() {
     }
 
     if (searchInput) {
+        searchInput.addEventListener("input", searchProducts);
         searchInput.addEventListener("keyup", searchProducts);
+        searchInput.addEventListener("paste", function () {
+            setTimeout(searchProducts, 0);
+        });
     }
 
     document.addEventListener("click", function (event) {
@@ -99,49 +103,149 @@ function bindSearchBox() {
     });
 }
 
+function normalizeSearchText(value) {
+    return String(value || "")
+        .toLowerCase()
+        .normalize("NFD")
+        .replace(/[\u0300-\u036f]/g, "")
+        .replace(/đ/g, "d")
+        .replace(/[^a-z0-9\s-]/g, " ")
+        .replace(/\s+/g, " ")
+        .trim();
+}
+
+function escapeHtml(value) {
+    return String(value || "")
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#039;");
+}
+
+function getProductSearchText(item, id) {
+    return normalizeSearchText([
+        id,
+        item.key,
+        item.name,
+        item.brand,
+        item.price,
+        item.category,
+        item.gender,
+        item.type,
+        item.color
+    ].filter(Boolean).join(" "));
+}
+
+function scoreSearchResult(item, id, keyword, terms) {
+    const name = normalizeSearchText(item.name || "");
+    const brand = normalizeSearchText(item.brand || "");
+    const productId = normalizeSearchText(id || "");
+    const fullText = getProductSearchText(item, id);
+
+    if (!terms.every(term => fullText.includes(term))) return -1;
+
+    let score = 0;
+
+    if (name === keyword) score += 100;
+    if (name.startsWith(keyword)) score += 70;
+    if (brand.startsWith(keyword)) score += 35;
+    if (productId.startsWith(keyword)) score += 25;
+    if (name.includes(keyword)) score += 20;
+
+    terms.forEach(term => {
+        if (name.includes(term)) score += 10;
+        if (brand.includes(term)) score += 5;
+        if (productId.includes(term)) score += 3;
+    });
+
+    return score;
+}
+
+function renderSearchResultRow(id, item) {
+    const row = document.createElement("div");
+    row.className = "search-result-item";
+    row.setAttribute("role", "button");
+    row.setAttribute("tabindex", "0");
+
+    const imgSrc = item.mainImg || (item.images && item.images[0]) || "";
+    const name = escapeHtml(item.name || "");
+    const brand = escapeHtml(item.brand || "THE STYLE HUB");
+    const price = escapeHtml(item.price || "");
+
+    row.innerHTML = `
+        <div class="search-result-thumb">
+            <img src="${escapeHtml(imgSrc)}" alt="${name}">
+        </div>
+        <div class="search-result-info">
+            <strong>${name}</strong>
+            <small>${brand}</small>
+            <span>${price}</span>
+        </div>
+    `;
+
+    function goToProduct() {
+        window.location.href = "product-detail.html?id=" + encodeURIComponent(id);
+    }
+
+    row.addEventListener("click", goToProduct);
+    row.addEventListener("keydown", function(event) {
+        if (event.key === "Enter" || event.key === " ") {
+            event.preventDefault();
+            goToProduct();
+        }
+    });
+
+    return row;
+}
+
 function searchProducts() {
     const searchInput = document.getElementById("searchInput");
     const resultsBox = document.getElementById("searchResults");
     if (!searchInput || !resultsBox) return;
 
-    const keyword = searchInput.value.trim().toLowerCase();
+    const rawKeyword = searchInput.value || "";
+    const keyword = normalizeSearchText(rawKeyword);
     resultsBox.innerHTML = "";
-    if (!keyword) return;
 
-    if (typeof database === "undefined") {
+    if (!keyword) {
+        resultsBox.innerHTML = `<p class="search-empty">Type a product name, category, color, or brand...</p>`;
+        return;
+    }
+
+    if (typeof database === "undefined" || !database) {
         resultsBox.innerHTML = `<p class="search-empty">Product data is not loaded.</p>`;
         return;
     }
 
-    const results = Object.keys(database).filter(function (id) {
-        const item = database[id];
-        if (!item) return false;
-        const text = `${item.name || ""} ${item.brand || ""} ${item.price || ""}`.toLowerCase();
-        return text.includes(keyword);
-    });
+    const terms = keyword.split(" ").filter(Boolean);
+
+    const results = Object.keys(database)
+        .map(function (id) {
+            const item = database[id] || {};
+            return {
+                id: id,
+                item: item,
+                score: scoreSearchResult(item, id, keyword, terms)
+            };
+        })
+        .filter(result => result.score >= 0)
+        .sort(function (a, b) {
+            return b.score - a.score || String(a.item.name || "").localeCompare(String(b.item.name || ""));
+        })
+        .slice(0, 18);
 
     if (results.length === 0) {
-        resultsBox.innerHTML = `<p class="search-empty">No products found.</p>`;
+        resultsBox.innerHTML = `<p class="search-empty">No products found for "${escapeHtml(rawKeyword.trim())}".</p>`;
         return;
     }
 
-    results.slice(0, 10).forEach(function (id) {
-        const item = database[id];
-        const row = document.createElement("div");
-        row.className = "search-result-item";
-        row.innerHTML = `
-            <div class="search-result-thumb">
-                <img src="${item.mainImg || (item.images && item.images[0]) || ""}" alt="${item.name || ""}">
-            </div>
-            <div class="search-result-info">
-                <strong>${item.name || ""}</strong>
-                <small>${item.brand || ""}</small>
-                <span>${item.price || ""}</span>
-            </div>
-        `;
-        row.addEventListener("click", function () {
-            window.location.href = "product-detail.html?id=" + id;
-        });
-        resultsBox.appendChild(row);
+    const countText = document.createElement("p");
+    countText.className = "search-count";
+    countText.textContent = `${results.length} product${results.length > 1 ? "s" : ""} found`;
+    resultsBox.appendChild(countText);
+
+    results.forEach(function (result) {
+        resultsBox.appendChild(renderSearchResultRow(result.id, result.item));
     });
 }
