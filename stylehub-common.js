@@ -1096,11 +1096,22 @@ function searchProducts() {
     function initRecentlyViewed() {
         const id = getCurrentProductId();
         if (!id) return;
+
         saveRecentlyViewed();
+
+        // Chặn lỗi bị lặp Recently Viewed khi runAll chạy nhiều lần.
+        document.querySelectorAll(".stylehub-recent-section").forEach(function(section, index) {
+            if (index > 0) section.remove();
+        });
+
+        const existingSection = document.querySelector(".stylehub-recent-section");
+        if (existingSection) return;
+
         const key = RECENT_KEY_PREFIX + getAccountKey();
         let ids = [];
         try { ids = JSON.parse(localStorage.getItem(key) || "[]"); } catch (e) { ids = []; }
-        ids = ids.filter(x => x !== id);
+        ids = Array.from(new Set(ids)).filter(x => x !== id);
+
         const section = renderMiniProducts("Recently Viewed", ids, "stylehub-recent-section");
         if (section) {
             const related = document.querySelector("#relatedProductsSection");
@@ -1111,7 +1122,14 @@ function searchProducts() {
 
     function initWishlistSectionOnAccount() {
         const profileTab = document.querySelector("#profile-tab");
-        if (!profileTab || document.querySelector(".stylehub-wishlist-section")) return;
+        if (!profileTab) return;
+
+        document.querySelectorAll(".stylehub-wishlist-section").forEach(function(section, index) {
+            if (index > 0) section.remove();
+        });
+
+        if (document.querySelector(".stylehub-wishlist-section")) return;
+
         const ids = getWishlist();
         const section = renderMiniProducts("My Wishlist", ids, "stylehub-wishlist-section");
         if (section) profileTab.appendChild(section);
@@ -1294,3 +1312,90 @@ function searchProducts() {
         });
     });
 })();
+
+
+
+/* ===== FOOTER SOCIAL ICON CLEANUP: remove white box for YouTube/Shopee ===== */
+function initFooterSocialIconCleanup() {
+    if (!document.getElementById("stylehub-footer-icon-cleanup-style")) {
+        const style = document.createElement("style");
+        style.id = "stylehub-footer-icon-cleanup-style";
+        style.textContent = `
+            .site-footer .footer-social-icon,
+            .site-footer .social-links a,
+            .site-footer .footer-social-links a {
+                background: transparent !important;
+                border: none !important;
+                box-shadow: none !important;
+                outline: none !important;
+                overflow: visible !important;
+            }
+
+            .site-footer .footer-social-icon img,
+            .site-footer .social-links img,
+            .site-footer .footer-social-links img {
+                background: transparent !important;
+                border: none !important;
+                box-shadow: none !important;
+                outline: none !important;
+                object-fit: contain !important;
+                display: block !important;
+            }
+
+            .site-footer img[data-stylehub-clean-social="youtube"],
+            .site-footer img[data-stylehub-clean-social="shopee"] {
+                width: 42px !important;
+                height: 42px !important;
+                max-width: 42px !important;
+                max-height: 42px !important;
+                min-width: 42px !important;
+                min-height: 42px !important;
+                padding: 0 !important;
+                margin: 0 !important;
+                background: transparent !important;
+                border-radius: 50% !important;
+                object-fit: contain !important;
+                vertical-align: middle !important;
+            }
+
+            @media (max-width: 768px) {
+                .site-footer img[data-stylehub-clean-social="youtube"],
+                .site-footer img[data-stylehub-clean-social="shopee"] {
+                    width: 38px !important;
+                    height: 38px !important;
+                    max-width: 38px !important;
+                    max-height: 38px !important;
+                    min-width: 38px !important;
+                    min-height: 38px !important;
+                }
+            }
+        `;
+        document.head.appendChild(style);
+    }
+
+    const youtubeSvg = "data:image/svg+xml;charset=UTF-8,%3Csvg%20xmlns%3D%27http%3A//www.w3.org/2000/svg%27%20viewBox%3D%270%200%2048%2048%27%3E%3Ccircle%20cx%3D%2724%27%20cy%3D%2724%27%20r%3D%2722%27%20fill%3D%27%23ff0000%27/%3E%3Cpath%20d%3D%27M20%2016.5v15l13-7.5-13-7.5z%27%20fill%3D%27%23fff%27/%3E%3C/svg%3E";
+    const shopeeSvg = "data:image/svg+xml;charset=UTF-8,%3Csvg%20xmlns%3D%27http%3A//www.w3.org/2000/svg%27%20viewBox%3D%270%200%2048%2048%27%3E%3Ccircle%20cx%3D%2724%27%20cy%3D%2724%27%20r%3D%2722%27%20fill%3D%27%23ee4d2d%27/%3E%3Cpath%20d%3D%27M15%2018h18l-1.5%2018h-15L15%2018z%27%20fill%3D%27none%27%20stroke%3D%27%23fff%27%20stroke-width%3D%272.3%27%20stroke-linejoin%3D%27round%27/%3E%3Cpath%20d%3D%27M18.5%2018c0-4.2%202.2-7%205.5-7s5.5%202.8%205.5%207%27%20fill%3D%27none%27%20stroke%3D%27%23fff%27%20stroke-width%3D%272.3%27%20stroke-linecap%3D%27round%27/%3E%3Ctext%20x%3D%2724%27%20y%3D%2731%27%20font-family%3D%27Arial%2C%20Helvetica%2C%20sans-serif%27%20font-size%3D%2713%27%20font-weight%3D%27700%27%20text-anchor%3D%27middle%27%20fill%3D%27%23fff%27%3ES%3C/text%3E%3C/svg%3E";
+
+    document.querySelectorAll(".site-footer img").forEach(function(img) {
+        const src = (img.getAttribute("src") || "").toLowerCase();
+        const alt = (img.getAttribute("alt") || "").toLowerCase();
+        const label = src + " " + alt;
+
+        if (label.includes("ytb") || label.includes("youtube") || label.includes("you tube")) {
+            img.setAttribute("src", youtubeSvg);
+            img.setAttribute("alt", "YouTube");
+            img.setAttribute("data-stylehub-clean-social", "youtube");
+            img.closest("a")?.classList.add("footer-social-icon", "footer-youtube-icon");
+        }
+
+        if (label.includes("shoppe") || label.includes("shopee")) {
+            img.setAttribute("src", shopeeSvg);
+            img.setAttribute("alt", "Shopee");
+            img.setAttribute("data-stylehub-clean-social", "shopee");
+            img.closest("a")?.classList.add("footer-social-icon", "footer-shopee-icon");
+        }
+    });
+}
+
+
+document.addEventListener("DOMContentLoaded", initFooterSocialIconCleanup);
