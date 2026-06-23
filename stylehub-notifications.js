@@ -797,6 +797,14 @@
         function finishDrag(e) {
             if (!dragging) return;
 
+            // Lấy đúng vị trí ĐANG NHÌN THẤY trên màn hình trước khi bỏ transform.
+            // Cách này chặn lỗi thả chuột xong chuông bị nhảy/dịch sang chỗ khác.
+            const visualRect = root.getBoundingClientRect();
+            const rawNext = {
+                right: window.innerWidth - visualRect.right,
+                bottom: window.innerHeight - visualRect.bottom
+            };
+
             dragging = false;
             root.classList.remove("dragging");
             root.style.transition = "";
@@ -806,13 +814,9 @@
                 animationFrame = null;
             }
 
-            const rawNext = {
-                right: startRight - lastDx,
-                bottom: startBottom - lastDy
-            };
+            root.style.transform = "translate3d(0, 0, 0)";
 
             const next = clampBellPosition(root, rawNext);
-            root.style.transform = "translate3d(0, 0, 0)";
             root.style.right = next.right + "px";
             root.style.bottom = next.bottom + "px";
             root.style.left = "auto";
