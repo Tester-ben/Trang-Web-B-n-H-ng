@@ -1032,36 +1032,59 @@ document.addEventListener("DOMContentLoaded", function () {
 (function () {
     const COLLECTION_PAGE = 'womens.html';
 
+    function getCardProductId(card) {
+        try {
+            const productUrl = new URL(card.getAttribute('href') || '', window.location.href);
+            return productUrl.searchParams.get('id') || '';
+        } catch (error) {
+            return '';
+        }
+    }
+
     function getActiveCategory() {
+        const activeTag = document.querySelector('.filter-tag.active');
+        const onclickText = activeTag ? (activeTag.getAttribute('onclick') || '') : '';
+        const matched = onclickText.match(/filterCategory\(['"]([^'"]+)['"]/);
+
+        if (matched && matched[1]) return matched[1];
+
         const params = new URLSearchParams(window.location.search);
         const urlCat = params.get('cat');
         if (urlCat) return urlCat;
 
-        if (window.currentWomensCategory) return window.currentWomensCategory;
-
-        const activeTag = document.querySelector('.filter-tag.active');
-        if (!activeTag) return 'all';
-
-        const onclickText = activeTag.getAttribute('onclick') || '';
-        const matched = onclickText.match(/filterCategory\(['"]([^'"]+)['"]/);
-        if (matched && matched[1]) return matched[1];
-
-        const label = activeTag.textContent.trim().toLowerCase();
-        if (label.includes('top')) return 'tops';
-        if (label.includes('jacket') || label.includes('outerwear')) return 'jackets';
-        if (label.includes('bottom')) return 'bottoms';
         return 'all';
     }
 
-    function getActivePage(category) {
-        if (category === 'bottoms' && typeof currentWomensBottomsPage === 'number') return currentWomensBottomsPage;
-        if (typeof currentWomensTopsPage === 'number') return currentWomensTopsPage;
-        const params = new URLSearchParams(window.location.search);
-        return Math.min(2, Math.max(1, Number(params.get('page') || '1')));
+    function getCardCategory(card) {
+        return card.getAttribute('data-cat') || 'all';
     }
 
-    function buildWomensReturnUrl() {
-        const category = getActiveCategory();
+    function getCardPage(card) {
+        return Math.min(2, Math.max(1, Number(card.getAttribute('data-page') || '1')));
+    }
+
+    function getActivePage(category, card) {
+        if (category === 'bottoms') {
+            if (typeof currentWomensBottomsPage === 'number') return currentWomensBottomsPage;
+            return getCardPage(card);
+        }
+
+        if (category === 'tops') {
+            if (typeof currentWomensTopsPage === 'number') return currentWomensTopsPage;
+            return getCardPage(card);
+        }
+
+        return getCardPage(card);
+    }
+
+    function buildWomensReturnUrl(card) {
+        let category = getActiveCategory();
+
+        /*
+          Nếu đang ở ALL nhưng sản phẩm thuộc page 2 của Tops/Bottoms,
+          vẫn giữ ALL để quay lại đúng layout ban đầu.
+          Nếu đang filter Tops/Bottoms/Jackets thì lưu đúng filter + page.
+        */
         const url = new URL(COLLECTION_PAGE, window.location.href);
         url.search = '';
 
@@ -1070,7 +1093,12 @@ document.addEventListener("DOMContentLoaded", function () {
         }
 
         if (category === 'tops' || category === 'bottoms') {
-            url.searchParams.set('page', String(getActivePage(category)));
+            url.searchParams.set('page', String(getActivePage(category, card)));
+        }
+
+        const productId = getCardProductId(card);
+        if (productId) {
+            url.searchParams.set('returnProduct', productId);
         }
 
         return url.pathname.split('/').pop() + url.search;
@@ -1079,12 +1107,15 @@ document.addEventListener("DOMContentLoaded", function () {
     function rememberWomensReturnPosition(card) {
         const productUrl = new URL(card.getAttribute('href') || '', window.location.href);
         const productId = productUrl.searchParams.get('id') || '';
-        const returnUrl = buildWomensReturnUrl();
+        const returnUrl = buildWomensReturnUrl(card);
 
         sessionStorage.setItem('stylehub_collection_return', JSON.stringify({
             url: returnUrl,
             scrollY: window.scrollY || window.pageYOffset || 0,
             productId: productId,
+            category: getActiveCategory(),
+            cardCategory: getCardCategory(card),
+            cardPage: getCardPage(card),
             savedAt: Date.now()
         }));
 
@@ -1101,14 +1132,21 @@ document.addEventListener("DOMContentLoaded", function () {
                 if (event.defaultPrevented || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey || event.button !== 0) return;
                 event.preventDefault();
                 window.location.href = rememberWomensReturnPosition(this);
-            });
+            }, true);
         });
     }
 
-    function applyFilterFromSavedUrl(savedUrl) {
-        if (!savedUrl) return;
+    function setActiveFilterTag(cat) {
+        document.querySelectorAll('.filter-tag').forEach(tag => tag.classList.remove('active'));
 
-        const url = new URL(savedUrl, window.location.href);
+        const target = document.querySelector(`.filter-tag[onclick*="'${cat}'"], .filter-tag[onclick*='"${cat}"']`);
+        if (target) {
+            target.classList.add('active');
+        }
+    }
+
+    function applyFilterFromSavedUrl(savedUrl) {
+        const url = new URL(savedUrl || window.location.href, window.location.href);
         const cat = url.searchParams.get('cat') || 'all';
         const page = Math.min(2, Math.max(1, Number(url.searchParams.get('page') || '1')));
 
@@ -1126,14 +1164,36 @@ document.addEventListener("DOMContentLoaded", function () {
             return;
         }
 
-        const target = document.querySelector(`.filter-tag[onclick*="'${cat}'"], .filter-tag[onclick*='"${cat}"']`);
-        if (target && typeof filterCategory === 'function') {
-            filterCategory(cat, target);
+        currentWomensCategory = cat;
+        setActiveFilterTag(cat);
+
+        if (typeof applyWomensFilter === 'function') {
+            applyWomensFilter();
         }
     }
 
+    function findProductCard(productId) {
+        if (!productId) return null;
+
+        const cards = Array.from(document.querySelectorAll('a.mens-card[href*="product-detail.html"], a.product-card[href*="product-detail.html"]'));
+        return cards.find(function(card) {
+            try {
+                const cardUrl = new URL(card.getAttribute('href') || '', window.location.href);
+                return cardUrl.searchParams.get('id') === productId;
+            } catch (error) {
+                return false;
+            }
+        }) || null;
+    }
+
     function restoreWomensReturnPosition() {
-        if (sessionStorage.getItem('stylehub_collection_restore') !== '1') return;
+        const params = new URLSearchParams(window.location.search);
+        const productFromUrl = params.get('returnProduct') || '';
+
+        let shouldRestore = sessionStorage.getItem('stylehub_collection_restore') === '1';
+        if (productFromUrl) shouldRestore = true;
+
+        if (!shouldRestore) return;
         sessionStorage.removeItem('stylehub_collection_restore');
 
         let saved = null;
@@ -1143,26 +1203,28 @@ document.addEventListener("DOMContentLoaded", function () {
             saved = null;
         }
 
-        if (!saved) return;
+        const productId = productFromUrl || (saved && saved.productId) || '';
+        const savedUrl = (saved && saved.url) || window.location.href;
 
-        applyFilterFromSavedUrl(saved.url);
+        applyFilterFromSavedUrl(savedUrl);
 
-        function scrollToSavedSpot() {
-            if (typeof saved.scrollY === 'number') {
-                window.scrollTo(0, saved.scrollY);
+        function scrollToSavedProduct() {
+            const targetCard = findProductCard(productId);
+
+            if (targetCard) {
+                targetCard.scrollIntoView({ block: 'center', inline: 'nearest' });
                 return;
             }
 
-            if (saved.productId) {
-                const safeId = window.CSS && CSS.escape ? CSS.escape(saved.productId) : saved.productId.replace(/"/g, '\\"');
-                const targetCard = document.querySelector(`a[href*="id=${safeId}"]`);
-                if (targetCard) targetCard.scrollIntoView({ block: 'center' });
+            if (saved && typeof saved.scrollY === 'number') {
+                window.scrollTo(0, saved.scrollY);
             }
         }
 
-        setTimeout(scrollToSavedSpot, 80);
-        setTimeout(scrollToSavedSpot, 350);
-        setTimeout(scrollToSavedSpot, 800);
+        setTimeout(scrollToSavedProduct, 80);
+        setTimeout(scrollToSavedProduct, 350);
+        setTimeout(scrollToSavedProduct, 800);
+        window.addEventListener('load', scrollToSavedProduct, { once: true });
     }
 
     document.addEventListener('DOMContentLoaded', function () {

@@ -582,7 +582,7 @@
     </div>
 
     <!-- DATA KHO HÀNG TỔNG HỢP -->
-    <script src="product-data.js?v=kids-page-2-20260623"></script>
+    <script src="product-data.js?v=kids-one-page-sizes-20260623"></script>
     <script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-database-compat.js"></script>
     <script src="stylehub-orders-api.js"></script>
@@ -720,6 +720,11 @@
             return String(productId || "").toLowerCase().startsWith("shoe");
         }
 
+        function isKidsProductId(productId) {
+            const id = String(productId || "").toLowerCase();
+            return id.startsWith("kids");
+        }
+
         function renderProductSizeSelector(productId) {
             const group = document.getElementById("size-buttons-target") || document.querySelector(".size-buttons-group");
             if (!group) return;
@@ -750,6 +755,20 @@
 
                 const first = group.querySelector(".shoe-number-size");
                 if (first) changeSize(first);
+                return;
+            }
+
+            if (isKidsProductId(productId)) {
+                group.setAttribute("data-size-type", "kids-clothing");
+                group.innerHTML = `
+                    <button type="button" class="size-button" onclick="changeSize(this)">XS</button>
+                    <button type="button" class="size-button" onclick="changeSize(this)">S</button>
+                    <button type="button" class="size-button selected" onclick="changeSize(this)">M</button>
+                    <button type="button" class="size-button" onclick="changeSize(this)">L</button>
+                `;
+                selectedSizeText = "M";
+                window.selectedSizeText = "M";
+                window.selectedSize = "M";
                 return;
             }
 
