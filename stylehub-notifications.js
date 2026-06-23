@@ -81,6 +81,8 @@
                 z-index: 99989 !important;
                 user-select: none;
                 touch-action: none;
+                will-change: transform, right, bottom;
+                transform: translate3d(0, 0, 0);
             }
 
             .stylehub-bell-btn {
@@ -115,10 +117,18 @@
                 box-shadow: 0 8px 22px rgba(0,0,0,.12);
             }
 
+            .stylehub-notification-root.dragging {
+                transition: none !important;
+            }
+
             .stylehub-notification-root.dragging .stylehub-bell-btn {
                 cursor: grabbing;
-                transform: scale(1.04);
+                transform: none !important;
                 box-shadow: 0 12px 30px rgba(0,0,0,.20);
+            }
+
+            .stylehub-notification-root.dragging .stylehub-notification-panel {
+                display: none !important;
             }
 
             .main-header .stylehub-bell-btn:hover {
@@ -690,8 +700,7 @@
         return { right: 82, bottom: 100 };
     }
 
-    function applyBellPosition(root, position) {
-        if (!root) return;
+    function clampBellPosition(root, position) {
         const rect = root.getBoundingClientRect();
         const width = rect.width || 42;
         const height = rect.height || 42;
@@ -702,10 +711,19 @@
         right = Math.max(16, Math.min(window.innerWidth - width - 16, right));
         bottom = Math.max(16, Math.min(window.innerHeight - height - 16, bottom));
 
-        root.style.right = right + "px";
-        root.style.bottom = bottom + "px";
+        return { right: right, bottom: bottom };
+    }
+
+    function applyBellPosition(root, position) {
+        if (!root) return;
+
+        const next = clampBellPosition(root, position);
+
+        root.style.right = next.right + "px";
+        root.style.bottom = next.bottom + "px";
         root.style.left = "auto";
         root.style.top = "auto";
+        root.style.transform = "translate3d(0, 0, 0)";
     }
 
     function saveBellPosition(root) {
@@ -727,6 +745,19 @@
         let startY = 0;
         let startRight = 0;
         let startBottom = 0;
+        let lastDx = 0;
+        let lastDy = 0;
+        let animationFrame = null;
+
+        function applyDragTransform() {
+            animationFrame = null;
+            root.style.transform = "translate3d(" + lastDx + "px, " + lastDy + "px, 0)";
+        }
+
+        function requestDragPaint() {
+            if (animationFrame) return;
+            animationFrame = requestAnimationFrame(applyDragTransform);
+        }
 
         btn.addEventListener("pointerdown", function (e) {
             if (e.button !== undefined && e.button !== 0) return;
@@ -737,57 +768,74 @@
             startY = e.clientY;
             startRight = parseFloat(getComputedStyle(root).right) || 82;
             startBottom = parseFloat(getComputedStyle(root).bottom) || 100;
+            lastDx = 0;
+            lastDy = 0;
 
             root.classList.add("dragging");
             root.classList.remove("open");
+            root.style.transition = "none";
 
             if (btn.setPointerCapture) btn.setPointerCapture(e.pointerId);
+            e.preventDefault();
+            e.stopPropagation();
         });
 
         btn.addEventListener("pointermove", function (e) {
             if (!dragging) return;
 
-            const dx = startX - e.clientX;
-            const dy = startY - e.clientY;
+            lastDx = e.clientX - startX;
+            lastDy = e.clientY - startY;
 
-            if (Math.abs(dx) > 4 || Math.abs(dy) > 4) moved = true;
+            if (Math.abs(lastDx) > 3 || Math.abs(lastDy) > 3) moved = true;
 
-            let right = startRight + dx;
-            let bottom = startBottom + dy;
-
-            const rect = root.getBoundingClientRect();
-            right = Math.max(16, Math.min(window.innerWidth - (rect.width || 42) - 16, right));
-            bottom = Math.max(16, Math.min(window.innerHeight - (rect.height || 42) - 16, bottom));
-
-            root.style.right = right + "px";
-            root.style.bottom = bottom + "px";
-            root.style.left = "auto";
-            root.style.top = "auto";
+            requestDragPaint();
 
             e.preventDefault();
+            e.stopPropagation();
         });
 
-        btn.addEventListener("pointerup", function (e) {
+        function finishDrag(e) {
             if (!dragging) return;
 
             dragging = false;
             root.classList.remove("dragging");
-            saveBellPosition(root);
+            root.style.transition = "";
+
+            if (animationFrame) {
+                cancelAnimationFrame(animationFrame);
+                animationFrame = null;
+            }
+
+            const rawNext = {
+                right: startRight - lastDx,
+                bottom: startBottom - lastDy
+            };
+
+            const next = clampBellPosition(root, rawNext);
+            root.style.transform = "translate3d(0, 0, 0)";
+            root.style.right = next.right + "px";
+            root.style.bottom = next.bottom + "px";
+            root.style.left = "auto";
+            root.style.top = "auto";
+
+            localStorage.setItem(BELL_POS_KEY, JSON.stringify(next));
 
             if (moved) {
                 root.dataset.stylehubBellMoved = "1";
                 setTimeout(function () {
                     root.dataset.stylehubBellMoved = "";
-                }, 180);
+                }, 220);
             }
-        });
 
-        btn.addEventListener("pointercancel", function () {
-            if (!dragging) return;
-            dragging = false;
-            root.classList.remove("dragging");
-            saveBellPosition(root);
-        });
+            if (e) {
+                e.preventDefault();
+                e.stopPropagation();
+            }
+        }
+
+        btn.addEventListener("pointerup", finishDrag);
+        btn.addEventListener("pointercancel", finishDrag);
+        btn.addEventListener("lostpointercapture", finishDrag);
 
         window.addEventListener("resize", function () {
             applyBellPosition(root, getSavedBellPosition());
@@ -823,6 +871,8 @@
             event.stopPropagation();
 
             if (root.dataset.stylehubBellMoved === "1") {
+                event.preventDefault();
+                event.stopPropagation();
                 return;
             }
 
