@@ -7,7 +7,6 @@
     const STYLE_ID = "stylehub-notification-style";
     const ROOT_SELECTOR = "[data-stylehub-notification-bell]";
     const STORAGE_PREFIX = "stylehub_notifications_";
-    const BELL_POS_KEY = "stylehub_notification_bell_position_like_ai";
 
     function normalizeKey(value) {
         return String(value || "guest").trim().toLowerCase().replace(/\s+/g, "_");
@@ -72,17 +71,11 @@
         style.id = STYLE_ID;
         style.textContent = `
             .stylehub-notification-root {
-                position: fixed !important;
-                right: 82px;
-                bottom: calc(24px + 76px);
+                position: relative;
                 display: inline-flex;
                 align-items: center;
                 justify-content: center;
-                z-index: 99989 !important;
-                user-select: none;
-                touch-action: none;
-                will-change: transform, right, bottom;
-                transform: translate3d(0, 0, 0);
+                z-index: 1005;
             }
 
             .stylehub-bell-btn {
@@ -92,7 +85,7 @@
                 border: 1px solid rgba(17,17,17,.18);
                 background: #ffffff;
                 color: #111111;
-                cursor: grab;
+                cursor: pointer;
                 display: inline-flex;
                 align-items: center;
                 justify-content: center;
@@ -115,20 +108,6 @@
                 transform: translateY(-1px);
                 border-color: #111111;
                 box-shadow: 0 8px 22px rgba(0,0,0,.12);
-            }
-
-            .stylehub-notification-root.dragging {
-                transition: none !important;
-            }
-
-            .stylehub-notification-root.dragging .stylehub-bell-btn {
-                cursor: grabbing;
-                transform: none !important;
-                box-shadow: 0 12px 30px rgba(0,0,0,.20);
-            }
-
-            .stylehub-notification-root.dragging .stylehub-notification-panel {
-                display: none !important;
             }
 
             .main-header .stylehub-bell-btn:hover {
@@ -160,7 +139,7 @@
 
             .stylehub-notification-panel {
                 position: absolute;
-                bottom: calc(100% + 12px);
+                top: calc(100% + 12px);
                 right: 0;
                 width: 360px;
                 max-height: 460px;
@@ -181,7 +160,7 @@
             .stylehub-notification-panel::before {
                 content: "";
                 position: absolute;
-                bottom: -8px;
+                top: -8px;
                 right: 14px;
                 width: 14px;
                 height: 14px;
@@ -689,165 +668,6 @@
         `;
     }
 
-
-    function getSavedBellPosition() {
-        try {
-            const saved = JSON.parse(localStorage.getItem(BELL_POS_KEY) || "null");
-            if (saved && typeof saved.right === "number" && typeof saved.bottom === "number") {
-                return saved;
-            }
-        } catch (error) {}
-        return { right: 82, bottom: 100 };
-    }
-
-    function clampBellPosition(root, position) {
-        const rect = root.getBoundingClientRect();
-        const width = rect.width || 42;
-        const height = rect.height || 42;
-
-        let right = Number(position.right);
-        let bottom = Number(position.bottom);
-
-        right = Math.max(16, Math.min(window.innerWidth - width - 16, right));
-        bottom = Math.max(16, Math.min(window.innerHeight - height - 16, bottom));
-
-        return { right: right, bottom: bottom };
-    }
-
-    function applyBellPosition(root, position) {
-        if (!root) return;
-
-        const next = clampBellPosition(root, position);
-
-        root.style.right = next.right + "px";
-        root.style.bottom = next.bottom + "px";
-        root.style.left = "auto";
-        root.style.top = "auto";
-        root.style.transform = "translate3d(0, 0, 0)";
-    }
-
-    function saveBellPosition(root) {
-        if (!root) return;
-        const right = parseFloat(getComputedStyle(root).right) || 82;
-        const bottom = parseFloat(getComputedStyle(root).bottom) || 100;
-        localStorage.setItem(BELL_POS_KEY, JSON.stringify({ right: right, bottom: bottom }));
-    }
-
-    function bindBellDragLikeAI(root, btn) {
-        if (!root || !btn || root.dataset.stylehubAiLikeDragBound === "1") return;
-        root.dataset.stylehubAiLikeDragBound = "1";
-
-        applyBellPosition(root, getSavedBellPosition());
-
-        let dragging = false;
-        let moved = false;
-        let startX = 0;
-        let startY = 0;
-        let startRight = 0;
-        let startBottom = 0;
-        let lastDx = 0;
-        let lastDy = 0;
-        let animationFrame = null;
-
-        function applyDragTransform() {
-            animationFrame = null;
-            root.style.transform = "translate3d(" + lastDx + "px, " + lastDy + "px, 0)";
-        }
-
-        function requestDragPaint() {
-            if (animationFrame) return;
-            animationFrame = requestAnimationFrame(applyDragTransform);
-        }
-
-        btn.addEventListener("pointerdown", function (e) {
-            if (e.button !== undefined && e.button !== 0) return;
-
-            dragging = true;
-            moved = false;
-            startX = e.clientX;
-            startY = e.clientY;
-            startRight = parseFloat(getComputedStyle(root).right) || 82;
-            startBottom = parseFloat(getComputedStyle(root).bottom) || 100;
-            lastDx = 0;
-            lastDy = 0;
-
-            root.classList.add("dragging");
-            root.classList.remove("open");
-            root.style.transition = "none";
-
-            if (btn.setPointerCapture) btn.setPointerCapture(e.pointerId);
-            e.preventDefault();
-            e.stopPropagation();
-        });
-
-        btn.addEventListener("pointermove", function (e) {
-            if (!dragging) return;
-
-            lastDx = e.clientX - startX;
-            lastDy = e.clientY - startY;
-
-            if (Math.abs(lastDx) > 3 || Math.abs(lastDy) > 3) moved = true;
-
-            requestDragPaint();
-
-            e.preventDefault();
-            e.stopPropagation();
-        });
-
-        function finishDrag(e) {
-            if (!dragging) return;
-
-            // Lấy đúng vị trí ĐANG NHÌN THẤY trên màn hình trước khi bỏ transform.
-            // Cách này chặn lỗi thả chuột xong chuông bị nhảy/dịch sang chỗ khác.
-            const visualRect = root.getBoundingClientRect();
-            const rawNext = {
-                right: window.innerWidth - visualRect.right,
-                bottom: window.innerHeight - visualRect.bottom
-            };
-
-            dragging = false;
-            root.classList.remove("dragging");
-            root.style.transition = "";
-
-            if (animationFrame) {
-                cancelAnimationFrame(animationFrame);
-                animationFrame = null;
-            }
-
-            root.style.transform = "translate3d(0, 0, 0)";
-
-            const next = clampBellPosition(root, rawNext);
-            root.style.right = next.right + "px";
-            root.style.bottom = next.bottom + "px";
-            root.style.left = "auto";
-            root.style.top = "auto";
-
-            localStorage.setItem(BELL_POS_KEY, JSON.stringify(next));
-
-            if (moved) {
-                root.dataset.stylehubBellMoved = "1";
-                setTimeout(function () {
-                    root.dataset.stylehubBellMoved = "";
-                }, 220);
-            }
-
-            if (e) {
-                e.preventDefault();
-                e.stopPropagation();
-            }
-        }
-
-        btn.addEventListener("pointerup", finishDrag);
-        btn.addEventListener("pointercancel", finishDrag);
-        btn.addEventListener("lostpointercapture", finishDrag);
-
-        window.addEventListener("resize", function () {
-            applyBellPosition(root, getSavedBellPosition());
-            saveBellPosition(root);
-        });
-    }
-
-
     function renderRoot(root) {
         if (!root) return;
         root.classList.add("stylehub-notification-root");
@@ -868,17 +688,9 @@
         const btn = root.querySelector(".stylehub-bell-btn");
         const panel = root.querySelector(".stylehub-notification-panel");
 
-        bindBellDragLikeAI(root, btn);
-
         btn.addEventListener("click", function (event) {
             event.preventDefault();
             event.stopPropagation();
-
-            if (root.dataset.stylehubBellMoved === "1") {
-                event.preventDefault();
-                event.stopPropagation();
-                return;
-            }
 
             document.querySelectorAll(".stylehub-notification-root.open").forEach(function (item) {
                 if (item !== root) item.classList.remove("open");
