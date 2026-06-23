@@ -499,3 +499,798 @@ function searchProducts() {
         resultsBox.appendChild(renderSearchResultRow(result.id, result.item));
     });
 }
+
+
+
+/* ===== THE STYLE HUB - COMPLETE SHOP ENHANCEMENTS 20260623 ===== */
+(function () {
+    const STYLE_ID = "stylehub-complete-enhancements-style";
+    const WISHLIST_KEY_PREFIX = "stylehub_wishlist_";
+    const RECENT_KEY_PREFIX = "stylehub_recently_viewed_";
+    const VOUCHER_KEY = "stylehub_active_voucher";
+
+    function ready(fn) {
+        if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", fn);
+        else fn();
+    }
+
+    function getAccountKey() {
+        return String(
+            localStorage.getItem("hub_current_user_key") ||
+            localStorage.getItem("hub_email") ||
+            localStorage.getItem("userEmail") ||
+            "guest"
+        ).trim().toLowerCase().replace(/\s+/g, "_") || "guest";
+    }
+
+    function parseMoney(text) {
+        const n = String(text || "").replace(/[^\d]/g, "");
+        return Number(n || 0);
+    }
+
+    function formatMoney(num) {
+        return (Number(num || 0)).toLocaleString("vi-VN") + " ₫";
+    }
+
+    function productIdFromHref(href) {
+        try {
+            return new URL(href || "", window.location.href).searchParams.get("id") || "";
+        } catch (e) {
+            return "";
+        }
+    }
+
+    function getCurrentProductId() {
+        try {
+            return new URLSearchParams(window.location.search).get("id") || "";
+        } catch (e) {
+            return "";
+        }
+    }
+
+    function getProductData(id) {
+        if (typeof database !== "undefined" && database && database[id]) return database[id];
+        return null;
+    }
+
+    function stableHash(value) {
+        let hash = 0;
+        String(value || "").split("").forEach(ch => {
+            hash = ((hash << 5) - hash) + ch.charCodeAt(0);
+            hash |= 0;
+        });
+        return Math.abs(hash);
+    }
+
+    function getStockInfo(productId) {
+        const hash = stableHash(productId);
+        const stock = hash % 11;
+        if (stock === 0) return { status: "out", label: "Out of Stock", vn: "Hết hàng", qty: 0 };
+        if (stock <= 2) return { status: "low", label: "Low Stock", vn: "Sắp hết hàng", qty: stock + 1 };
+        return { status: "in", label: "In Stock", vn: "Còn hàng", qty: stock + 6 };
+    }
+
+    function getProductSizes(productId, productName) {
+        const id = String(productId || "").toLowerCase();
+        const name = String(productName || "").toLowerCase();
+        if (id.startsWith("shoe") || name.includes("sneaker") || name.includes("shoe")) return ["37","38","39","40","41","42","43","44"];
+        if (id.startsWith("kids")) return ["XS","S","M","L"];
+        return ["S","M","L","XL"];
+    }
+
+    function inferColorText(text) {
+        const t = String(text || "").toLowerCase();
+        const colors = [
+            ["black", "Black"], ["white", "White"], ["grey", "Grey"], ["gray", "Grey"],
+            ["brown", "Brown"], ["seal", "Seal"], ["heather", "Heather"], ["oatmeal", "Oatmeal"],
+            ["cream", "Cream"], ["blue", "Blue"], ["green", "Green"], ["ginger", "Ginger"],
+            ["coastal", "Coastal"], ["vintage", "Vintage"], ["iron", "Iron Grey"]
+        ];
+        const hit = colors.find(([k]) => t.includes(k));
+        return hit ? hit[1] : "Other";
+    }
+
+    function injectStyles() {
+        if (document.getElementById(STYLE_ID)) return;
+        const style = document.createElement("style");
+        style.id = STYLE_ID;
+        style.textContent = `
+            .stylehub-extra-filter-bar {
+                max-width: 1440px;
+                margin: 0 auto;
+                padding: 14px 40px 0;
+                display: flex;
+                gap: 12px;
+                align-items: center;
+                flex-wrap: wrap;
+            }
+            .stylehub-extra-filter-bar select,
+            .stylehub-extra-filter-bar button,
+            .stylehub-voucher-row input {
+                border: 1px solid #ddd;
+                background: #fff;
+                color: #111;
+                padding: 10px 12px;
+                font-size: 11px;
+                letter-spacing: 1px;
+                text-transform: uppercase;
+                outline: none;
+            }
+            .stylehub-extra-filter-bar button {
+                cursor: pointer;
+            }
+            .enhancement-filter-hidden { display: none !important; }
+            .stylehub-stock-badge {
+                display: inline-flex;
+                align-items: center;
+                width: max-content;
+                margin: 8px 0 4px;
+                padding: 4px 8px;
+                border: 1px solid #ddd;
+                font-size: 10px;
+                letter-spacing: 1px;
+                text-transform: uppercase;
+                color: #111;
+                background: #fff;
+            }
+            .stylehub-stock-badge.low { border-color: #d69700; color: #8b6200; }
+            .stylehub-stock-badge.out { border-color: #c90000; color: #c90000; }
+            .stylehub-out-of-stock {
+                opacity: 0.62;
+            }
+            .stylehub-wishlist-btn {
+                position: absolute;
+                top: 12px;
+                right: 12px;
+                z-index: 20;
+                width: 34px;
+                height: 34px;
+                border: 1px solid rgba(0,0,0,.1);
+                background: rgba(255,255,255,.92);
+                color: #111;
+                border-radius: 50%;
+                cursor: pointer;
+                font-size: 18px;
+                line-height: 1;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+            }
+            .stylehub-wishlist-btn.active {
+                background: #111;
+                color: #fff;
+            }
+            .stylehub-size-guide-btn {
+                margin-top: 14px;
+                border: 0;
+                background: transparent;
+                color: #111;
+                border-bottom: 1px solid #111;
+                font-size: 11px;
+                letter-spacing: 1.5px;
+                text-transform: uppercase;
+                cursor: pointer;
+                padding: 0 0 4px;
+            }
+            .stylehub-modal-overlay {
+                position: fixed;
+                inset: 0;
+                z-index: 9000;
+                background: rgba(0,0,0,.45);
+                display: none;
+                align-items: center;
+                justify-content: center;
+                padding: 20px;
+            }
+            .stylehub-modal-overlay.open { display: flex; }
+            .stylehub-modal-box {
+                width: min(620px, 100%);
+                max-height: 85vh;
+                overflow: auto;
+                background: #fff;
+                color: #111;
+                padding: 28px;
+                position: relative;
+            }
+            .stylehub-modal-close {
+                position: absolute;
+                right: 18px;
+                top: 14px;
+                border: 0;
+                background: transparent;
+                font-size: 24px;
+                cursor: pointer;
+            }
+            .stylehub-size-table {
+                width: 100%;
+                border-collapse: collapse;
+                margin-top: 18px;
+                font-size: 13px;
+            }
+            .stylehub-size-table th,
+            .stylehub-size-table td {
+                border: 1px solid #eee;
+                padding: 10px;
+                text-align: left;
+            }
+            .stylehub-thumb-nav {
+                display: flex;
+                gap: 10px;
+                margin: 0 0 18px;
+                flex-wrap: wrap;
+            }
+            .stylehub-thumb-nav button {
+                width: 64px;
+                height: 82px;
+                border: 1px solid #ddd;
+                background: #f7f7f7;
+                padding: 0;
+                cursor: pointer;
+                overflow: hidden;
+            }
+            .stylehub-thumb-nav img {
+                width: 100%;
+                height: 100%;
+                object-fit: cover;
+                object-position: center top;
+                display: block;
+            }
+            .stylehub-recent-section,
+            .stylehub-wishlist-section {
+                max-width: 1300px;
+                margin: 30px auto 60px;
+                padding: 0 40px;
+            }
+            .stylehub-recent-section h2,
+            .stylehub-wishlist-section h2 {
+                font-size: 16px;
+                letter-spacing: 2px;
+                text-transform: uppercase;
+                margin-bottom: 18px;
+            }
+            .stylehub-mini-grid {
+                display: grid;
+                grid-template-columns: repeat(4, 1fr);
+                gap: 22px;
+            }
+            .stylehub-mini-card {
+                color: inherit;
+                text-decoration: none;
+                display: block;
+            }
+            .stylehub-mini-card img {
+                width: 100%;
+                aspect-ratio: 3/4;
+                object-fit: cover;
+                object-position: center top;
+                background: #f7f7f7;
+                display: block;
+                margin-bottom: 10px;
+            }
+            .stylehub-mini-card strong {
+                display: block;
+                font-size: 12px;
+                line-height: 1.35;
+                font-weight: 400;
+            }
+            .stylehub-mini-card span {
+                display: block;
+                font-size: 12px;
+                margin-top: 4px;
+            }
+            .stylehub-voucher-box {
+                border-top: 1px solid #eee;
+                margin-top: 18px;
+                padding-top: 16px;
+                font-size: 13px;
+            }
+            .stylehub-voucher-row {
+                display: flex;
+                gap: 8px;
+                margin-bottom: 12px;
+            }
+            .stylehub-voucher-row input {
+                flex: 1;
+                text-transform: uppercase;
+            }
+            .stylehub-voucher-row button {
+                border: 1px solid #111;
+                background: #111;
+                color: #fff;
+                padding: 10px 14px;
+                font-size: 11px;
+                letter-spacing: 1.5px;
+                cursor: pointer;
+                text-transform: uppercase;
+            }
+            .stylehub-checkout-line {
+                display: flex;
+                justify-content: space-between;
+                margin: 7px 0;
+                color: #444;
+            }
+            .stylehub-checkout-line.total {
+                color: #111;
+                font-weight: 700;
+                border-top: 1px solid #eee;
+                padding-top: 10px;
+                margin-top: 10px;
+            }
+            .stylehub-status-pill {
+                display: inline-flex;
+                padding: 5px 8px;
+                border: 1px solid #ddd;
+                font-size: 10px;
+                letter-spacing: 1px;
+                text-transform: uppercase;
+                margin-left: 8px;
+            }
+            .stylehub-skeleton {
+                background: linear-gradient(90deg, #f2f2f2 25%, #fafafa 37%, #f2f2f2 63%);
+                background-size: 400% 100%;
+                animation: stylehubSkeleton 1.2s ease infinite;
+            }
+            @keyframes stylehubSkeleton {
+                0% { background-position: 100% 50%; }
+                100% { background-position: 0 50%; }
+            }
+            @media (max-width: 768px) {
+                .stylehub-extra-filter-bar { padding: 12px 20px 0; }
+                .stylehub-extra-filter-bar select,
+                .stylehub-extra-filter-bar button { width: 100%; }
+                .stylehub-mini-grid { grid-template-columns: repeat(2, 1fr); }
+                .stylehub-recent-section,
+                .stylehub-wishlist-section { padding: 0 20px; }
+            }
+        `;
+        document.head.appendChild(style);
+    }
+
+    function getWishlist() {
+        try {
+            const data = JSON.parse(localStorage.getItem(WISHLIST_KEY_PREFIX + getAccountKey()) || "[]");
+            return Array.isArray(data) ? data : [];
+        } catch (e) {
+            return [];
+        }
+    }
+
+    function setWishlist(list) {
+        localStorage.setItem(WISHLIST_KEY_PREFIX + getAccountKey(), JSON.stringify(Array.from(new Set(list))));
+    }
+
+    function toggleWishlist(productId) {
+        if (!productId) return;
+        const list = getWishlist();
+        const exists = list.includes(productId);
+        const next = exists ? list.filter(id => id !== productId) : [productId].concat(list);
+        setWishlist(next);
+        document.dispatchEvent(new CustomEvent("stylehub-wishlist-change"));
+    }
+
+    function initWishlistButtons() {
+        const list = getWishlist();
+        document.querySelectorAll('a[href*="product-detail.html?id="]').forEach(card => {
+            const productId = productIdFromHref(card.getAttribute("href"));
+            if (!productId || card.querySelector(".stylehub-wishlist-btn")) return;
+            const thumb = card.querySelector(".mens-thumb-box, .product-thumb, .product-image, .thumb-box") || card;
+            if (getComputedStyle(thumb).position === "static") thumb.style.position = "relative";
+            const btn = document.createElement("button");
+            btn.type = "button";
+            btn.className = "stylehub-wishlist-btn" + (list.includes(productId) ? " active" : "");
+            btn.innerHTML = list.includes(productId) ? "♥" : "♡";
+            btn.setAttribute("aria-label", "Add to wishlist");
+            btn.addEventListener("click", function (event) {
+                event.preventDefault();
+                event.stopPropagation();
+                toggleWishlist(productId);
+                const active = getWishlist().includes(productId);
+                btn.classList.toggle("active", active);
+                btn.innerHTML = active ? "♥" : "♡";
+            });
+            thumb.appendChild(btn);
+        });
+
+        const productId = getCurrentProductId();
+        const productPanel = document.querySelector(".info-sticky-panel");
+        if (productId && productPanel && !productPanel.querySelector(".stylehub-product-wishlist")) {
+            const btn = document.createElement("button");
+            btn.type = "button";
+            btn.className = "stylehub-size-guide-btn stylehub-product-wishlist";
+            btn.textContent = list.includes(productId) ? "♥ Saved to Wishlist" : "♡ Add to Wishlist";
+            btn.addEventListener("click", function () {
+                toggleWishlist(productId);
+                btn.textContent = getWishlist().includes(productId) ? "♥ Saved to Wishlist" : "♡ Add to Wishlist";
+            });
+            const cta = productPanel.querySelector(".cta-buttons-group");
+            if (cta) cta.insertAdjacentElement("afterend", btn);
+        }
+    }
+
+    function initCollectionFilters() {
+        const grid = document.querySelector(".mens-product-grid, .product-grid, .collection-grid");
+        const subFilter = document.querySelector(".sub-filter-bar");
+        if (!grid || !subFilter || document.querySelector(".stylehub-extra-filter-bar")) return;
+
+        const cards = Array.from(document.querySelectorAll('.mens-card[href*="product-detail.html"], .product-card[href*="product-detail.html"]'));
+        if (!cards.length) return;
+
+        const colors = Array.from(new Set(cards.map(card => inferColorText(card.textContent + " " + card.innerHTML)))).sort();
+
+        const bar = document.createElement("div");
+        bar.className = "stylehub-extra-filter-bar";
+        bar.innerHTML = `
+            <select id="stylehubPriceFilter">
+                <option value="">Filter Price</option>
+                <option value="0-1000000">Dưới 1 triệu</option>
+                <option value="1000000-2000000">1 - 2 triệu</option>
+                <option value="2000000-999999999">Trên 2 triệu</option>
+            </select>
+            <select id="stylehubSizeFilter">
+                <option value="">Filter Size</option>
+                <option>XS</option><option>S</option><option>M</option><option>L</option><option>XL</option>
+                <option>37</option><option>38</option><option>39</option><option>40</option><option>41</option><option>42</option><option>43</option><option>44</option>
+            </select>
+            <select id="stylehubColorFilter">
+                <option value="">Filter Color</option>
+                ${colors.map(c => `<option value="${c}">${c}</option>`).join("")}
+            </select>
+            <button type="button" id="stylehubClearFilters">Clear</button>
+        `;
+        subFilter.insertAdjacentElement("afterend", bar);
+
+        function apply() {
+            const priceVal = document.getElementById("stylehubPriceFilter").value;
+            const sizeVal = document.getElementById("stylehubSizeFilter").value;
+            const colorVal = document.getElementById("stylehubColorFilter").value;
+
+            cards.forEach(card => {
+                const id = productIdFromHref(card.getAttribute("href"));
+                const text = card.textContent + " " + card.innerHTML;
+                const price = parseMoney(card.querySelector(".item-price, .product-price")?.textContent || "");
+                const sizes = getProductSizes(id, text);
+                const color = inferColorText(text);
+                let ok = true;
+
+                if (priceVal) {
+                    const [min, max] = priceVal.split("-").map(Number);
+                    ok = ok && price >= min && price <= max;
+                }
+                if (sizeVal) ok = ok && sizes.includes(sizeVal);
+                if (colorVal) ok = ok && color === colorVal;
+
+                card.classList.toggle("enhancement-filter-hidden", !ok);
+            });
+        }
+
+        bar.querySelectorAll("select").forEach(el => el.addEventListener("change", apply));
+        bar.querySelector("#stylehubClearFilters").addEventListener("click", () => {
+            bar.querySelectorAll("select").forEach(el => el.value = "");
+            apply();
+        });
+    }
+
+    function initStockBadges() {
+        document.querySelectorAll('a[href*="product-detail.html?id="]').forEach(card => {
+            const id = productIdFromHref(card.getAttribute("href"));
+            if (!id || card.querySelector(".stylehub-stock-badge")) return;
+            const stock = getStockInfo(id);
+            const details = card.querySelector(".mens-details, .product-info, .product-details") || card;
+            const badge = document.createElement("span");
+            badge.className = "stylehub-stock-badge " + stock.status;
+            badge.textContent = stock.vn;
+            details.appendChild(badge);
+            if (stock.status === "out") card.classList.add("stylehub-out-of-stock");
+        });
+
+        const id = getCurrentProductId();
+        const panel = document.querySelector(".info-sticky-panel");
+        if (id && panel && !panel.querySelector(".stylehub-detail-stock")) {
+            const stock = getStockInfo(id);
+            const badge = document.createElement("span");
+            badge.className = "stylehub-stock-badge stylehub-detail-stock " + stock.status;
+            badge.textContent = stock.vn + (stock.qty ? ` · ${stock.qty} sản phẩm` : "");
+            const price = panel.querySelector(".product-price");
+            if (price) price.insertAdjacentElement("afterend", badge);
+            if (stock.status === "out") {
+                panel.querySelectorAll(".btn-add-to-bag, .btn-order-now").forEach(btn => {
+                    btn.disabled = true;
+                    btn.style.opacity = ".45";
+                    btn.style.cursor = "not-allowed";
+                    btn.textContent = "Out of Stock";
+                });
+            }
+        }
+    }
+
+    function initSizeGuide() {
+        const sizeSection = document.querySelector(".size-selector-section");
+        if (!sizeSection || sizeSection.querySelector(".stylehub-size-guide-btn")) return;
+
+        const btn = document.createElement("button");
+        btn.type = "button";
+        btn.className = "stylehub-size-guide-btn";
+        btn.textContent = "Size Guide";
+        sizeSection.appendChild(btn);
+
+        const modal = document.createElement("div");
+        modal.className = "stylehub-modal-overlay";
+        modal.innerHTML = `
+            <div class="stylehub-modal-box">
+                <button class="stylehub-modal-close" type="button">×</button>
+                <h3>Size Guide</h3>
+                <table class="stylehub-size-table">
+                    <thead><tr><th>Size</th><th>Gợi ý cân nặng</th><th>Ghi chú</th></tr></thead>
+                    <tbody>
+                        <tr><td>XS</td><td>20 - 30kg</td><td>Kids / dáng nhỏ</td></tr>
+                        <tr><td>S</td><td>30 - 45kg</td><td>Kids lớn / người nhỏ</td></tr>
+                        <tr><td>M</td><td>45 - 58kg</td><td>Regular fit</td></tr>
+                        <tr><td>L</td><td>58 - 72kg</td><td>Relaxed fit</td></tr>
+                        <tr><td>XL</td><td>72 - 88kg</td><td>Oversized fit</td></tr>
+                    </tbody>
+                </table>
+                <p style="margin-top:14px;color:#666;font-size:13px;line-height:1.6;">Bảng size chỉ mang tính tham khảo. Với sản phẩm form rộng, có thể giảm 1 size nếu muốn mặc vừa người.</p>
+            </div>
+        `;
+        document.body.appendChild(modal);
+        btn.addEventListener("click", () => modal.classList.add("open"));
+        modal.querySelector(".stylehub-modal-close").addEventListener("click", () => modal.classList.remove("open"));
+        modal.addEventListener("click", e => { if (e.target === modal) modal.classList.remove("open"); });
+    }
+
+    function initProductThumbnails() {
+        const gallery = document.querySelector("#gallery-target, .image-scroll-gallery");
+        if (!gallery || document.querySelector(".stylehub-thumb-nav")) return;
+
+        function build() {
+            const imgs = Array.from(gallery.querySelectorAll("img")).slice(0, 6);
+            if (imgs.length < 2 || document.querySelector(".stylehub-thumb-nav")) return;
+            const nav = document.createElement("div");
+            nav.className = "stylehub-thumb-nav";
+            imgs.forEach((img, index) => {
+                const btn = document.createElement("button");
+                btn.type = "button";
+                btn.innerHTML = `<img src="${img.src}" alt="Thumbnail ${index + 1}">`;
+                btn.addEventListener("click", () => img.scrollIntoView({ behavior: "smooth", block: "center" }));
+                nav.appendChild(btn);
+            });
+            gallery.insertAdjacentElement("beforebegin", nav);
+        }
+        setTimeout(build, 300);
+        setTimeout(build, 1000);
+    }
+
+    function saveRecentlyViewed() {
+        const id = getCurrentProductId();
+        const item = getProductData(id);
+        if (!id || !item) return;
+
+        const key = RECENT_KEY_PREFIX + getAccountKey();
+        let list = [];
+        try { list = JSON.parse(localStorage.getItem(key) || "[]"); } catch (e) { list = []; }
+        list = list.filter(x => x !== id);
+        list.unshift(id);
+        localStorage.setItem(key, JSON.stringify(list.slice(0, 8)));
+    }
+
+    function renderMiniProducts(sectionTitle, ids, className) {
+        const valid = ids.map(id => [id, getProductData(id)]).filter(pair => pair[1]);
+        if (!valid.length) return null;
+        const section = document.createElement("section");
+        section.className = className;
+        section.innerHTML = `
+            <h2>${sectionTitle}</h2>
+            <div class="stylehub-mini-grid">
+                ${valid.slice(0, 4).map(([id, item]) => `
+                    <a class="stylehub-mini-card" href="product-detail.html?id=${encodeURIComponent(id)}">
+                        <img src="${item.mainImg || (item.images && item.images[0]) || ""}" alt="${item.name || ""}">
+                        <strong>${item.name || ""}</strong>
+                        <span>${item.price || ""}</span>
+                    </a>
+                `).join("")}
+            </div>
+        `;
+        return section;
+    }
+
+    function initRecentlyViewed() {
+        const id = getCurrentProductId();
+        if (!id) return;
+        saveRecentlyViewed();
+        const key = RECENT_KEY_PREFIX + getAccountKey();
+        let ids = [];
+        try { ids = JSON.parse(localStorage.getItem(key) || "[]"); } catch (e) { ids = []; }
+        ids = ids.filter(x => x !== id);
+        const section = renderMiniProducts("Recently Viewed", ids, "stylehub-recent-section");
+        if (section) {
+            const related = document.querySelector("#relatedProductsSection");
+            if (related) related.insertAdjacentElement("afterend", section);
+            else document.body.appendChild(section);
+        }
+    }
+
+    function initWishlistSectionOnAccount() {
+        const profileTab = document.querySelector("#profile-tab");
+        if (!profileTab || document.querySelector(".stylehub-wishlist-section")) return;
+        const ids = getWishlist();
+        const section = renderMiniProducts("My Wishlist", ids, "stylehub-wishlist-section");
+        if (section) profileTab.appendChild(section);
+    }
+
+    function initVoucherAndShipping() {
+        const checkoutBody = document.querySelector("#checkoutOverlay .cart-body, .checkout-side-panel .cart-body");
+        const checkoutFooter = document.querySelector("#checkoutOverlay .cart-footer, .checkout-side-panel .cart-footer");
+        if (!checkoutBody || !checkoutFooter || document.querySelector(".stylehub-voucher-box")) return;
+
+        const box = document.createElement("div");
+        box.className = "stylehub-voucher-box";
+        box.innerHTML = `
+            <div class="stylehub-voucher-row">
+                <input id="stylehubVoucherInput" placeholder="Enter discount code">
+                <button type="button" id="stylehubApplyVoucher">Apply</button>
+            </div>
+            <div id="stylehubCheckoutTotals"></div>
+            <small>Gợi ý: STYLE10 giảm 10%, FREESHIP miễn phí ship.</small>
+        `;
+        checkoutBody.appendChild(box);
+
+        function calcSubtotal() {
+            let cart = [];
+            try { cart = JSON.parse(localStorage.getItem("cart") || "[]"); } catch (e) { cart = []; }
+            if (!cart.length && Array.isArray(window.cartMemoryArray)) cart = window.cartMemoryArray;
+            return cart.reduce((sum, item) => sum + (Number(item.priceNum) || parseMoney(item.price)) * (Number(item.qty || item.quantity) || 1), 0);
+        }
+
+        function renderTotals() {
+            const code = String(localStorage.getItem(VOUCHER_KEY) || "").toUpperCase();
+            const subtotal = calcSubtotal();
+            let shipping = subtotal > 0 ? 30000 : 0;
+            let discount = 0;
+            if (code === "STYLE10") discount = Math.round(subtotal * 0.1);
+            if (code === "FREESHIP") shipping = 0;
+            const total = Math.max(0, subtotal + shipping - discount);
+            const totals = document.getElementById("stylehubCheckoutTotals");
+            if (!totals) return;
+            totals.innerHTML = `
+                <div class="stylehub-checkout-line"><span>Tạm tính</span><strong>${formatMoney(subtotal)}</strong></div>
+                <div class="stylehub-checkout-line"><span>Phí ship</span><strong>${formatMoney(shipping)}</strong></div>
+                <div class="stylehub-checkout-line"><span>Giảm giá</span><strong>-${formatMoney(discount)}</strong></div>
+                <div class="stylehub-checkout-line total"><span>Tổng cộng</span><strong>${formatMoney(total)}</strong></div>
+            `;
+        }
+
+        box.querySelector("#stylehubApplyVoucher").addEventListener("click", () => {
+            const code = box.querySelector("#stylehubVoucherInput").value.trim().toUpperCase();
+            if (["STYLE10", "FREESHIP"].includes(code)) localStorage.setItem(VOUCHER_KEY, code);
+            else localStorage.removeItem(VOUCHER_KEY);
+            renderTotals();
+        });
+        renderTotals();
+        document.addEventListener("click", () => setTimeout(renderTotals, 150));
+    }
+
+    function initFormValidation() {
+        const phone = document.querySelector("#cusPhone, #editPhone");
+        const email = document.querySelector("#cusEmail, #editEmail");
+        const name = document.querySelector("#cusName, #editFullName");
+        if (phone) {
+            phone.setAttribute("pattern", "0[0-9]{9}");
+            phone.setAttribute("title", "Số điện thoại phải gồm 10 số và bắt đầu bằng 0");
+        }
+        if (email) {
+            email.setAttribute("type", "email");
+            email.setAttribute("title", "Email phải đúng định dạng, ví dụ: name@gmail.com");
+        }
+        if (name) {
+            name.setAttribute("minlength", "2");
+            name.setAttribute("title", "Tên phải có ít nhất 2 ký tự");
+        }
+    }
+
+    function initOrderStatusUI() {
+        document.querySelectorAll(".order-history-list, #injectOrdersContainer, #injectCancelledOrdersContainer").forEach(list => {
+            list.querySelectorAll(".order-card, .order-item, .admin-order-card").forEach(card => {
+                if (card.querySelector(".stylehub-status-pill")) return;
+                const text = card.textContent.toLowerCase();
+                let label = "Đang chờ xác nhận";
+                if (text.includes("đang giao") || text.includes("shipping")) label = "Đang giao hàng";
+                if (text.includes("đã giao") || text.includes("delivered")) label = "Đã giao hàng";
+                if (text.includes("hủy") || text.includes("cancel")) label = "Đã hủy";
+                if (text.includes("xác nhận") || text.includes("confirmed")) label = "Đã xác nhận";
+                const pill = document.createElement("span");
+                pill.className = "stylehub-status-pill";
+                pill.textContent = label;
+                const title = card.querySelector("strong, h3, h4") || card;
+                title.appendChild(pill);
+            });
+        });
+    }
+
+    function initAdminStatusControls() {
+        if (!/admin\.html/i.test(location.pathname)) return;
+        document.querySelectorAll(".order-card, .admin-order-card, .order-item").forEach(card => {
+            if (card.querySelector(".stylehub-admin-status-select")) return;
+            const select = document.createElement("select");
+            select.className = "stylehub-admin-status-select";
+            select.innerHTML = `
+                <option>Đang chờ xác nhận</option>
+                <option>Đã xác nhận</option>
+                <option>Đang giao hàng</option>
+                <option>Đã giao hàng</option>
+                <option>Đã hủy</option>
+            `;
+            select.style.marginTop = "10px";
+            select.style.padding = "8px";
+            select.addEventListener("change", () => {
+                localStorage.setItem("stylehub_latest_admin_status_change", JSON.stringify({
+                    status: select.value,
+                    time: Date.now()
+                }));
+                alert("Đã cập nhật trạng thái: " + select.value);
+            });
+            card.appendChild(select);
+        });
+    }
+
+    function initStatusNotifications() {
+        try {
+            const raw = localStorage.getItem("stylehub_latest_admin_status_change");
+            if (!raw) return;
+            const data = JSON.parse(raw);
+            if (!data || !data.time || Date.now() - data.time > 86400000) return;
+            const seen = localStorage.getItem("stylehub_seen_status_change_time");
+            if (seen === String(data.time)) return;
+            localStorage.setItem("stylehub_seen_status_change_time", String(data.time));
+            if (typeof window.StyleHubNotifications !== "undefined" && window.StyleHubNotifications) return;
+            console.log("Order status update:", data.status);
+        } catch (e) {}
+    }
+
+    function initImageSkeletons() {
+        document.querySelectorAll("img").forEach(img => {
+            if (img.complete) return;
+            img.classList.add("stylehub-skeleton");
+            img.addEventListener("load", () => img.classList.remove("stylehub-skeleton"), { once: true });
+            img.addEventListener("error", () => img.classList.remove("stylehub-skeleton"), { once: true });
+        });
+    }
+
+    function initFooterPageLinks() {
+        const footerCategories = document.querySelector(".site-footer .footer-categories");
+        const footerSupport = document.querySelector(".site-footer .footer-support");
+        if (footerCategories && !footerCategories.querySelector('a[href="about.html"]')) {
+            footerCategories.insertAdjacentHTML("beforeend", '<a href="about.html">ABOUT THE STYLE HUB</a>');
+        }
+        if (footerSupport && !footerSupport.querySelector('a[href="contact.html"]')) {
+            footerSupport.insertAdjacentHTML("beforeend", '<a href="contact.html">Liên hệ</a>');
+        }
+    }
+
+    function runAll() {
+        injectStyles();
+        initFooterPageLinks();
+        initCollectionFilters();
+        initStockBadges();
+        initWishlistButtons();
+        initSizeGuide();
+        initProductThumbnails();
+        initRecentlyViewed();
+        initWishlistSectionOnAccount();
+        initVoucherAndShipping();
+        initFormValidation();
+        initOrderStatusUI();
+        initAdminStatusControls();
+        initStatusNotifications();
+        initImageSkeletons();
+    }
+
+    ready(function () {
+        runAll();
+        setTimeout(runAll, 500);
+        setTimeout(runAll, 1500);
+        document.addEventListener("stylehub-wishlist-change", function () {
+            initWishlistButtons();
+            initWishlistSectionOnAccount();
+        });
+    });
+})();
