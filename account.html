@@ -386,9 +386,25 @@
                         <label for="editEmail">Email</label>
                         <input type="email" id="editEmail" placeholder="Email nhận xác nhận đơn hàng">
                     </div>
-                    <div class="account-edit-field full-row">
+                    <div class="account-edit-field full-row vn-address-group vn-address-account-group">
                         <label for="editAddress">Address</label>
-                        <textarea id="editAddress" placeholder="Địa chỉ nhận hàng"></textarea>
+
+                        <select id="editProvince" class="vn-address-select" data-vn-address-role="province">
+                            <option value="">Chọn Tỉnh/Thành phố</option>
+                        </select>
+
+                        <select id="editDistrict" class="vn-address-select" data-vn-address-role="district" disabled>
+                            <option value="">Chọn Quận/Huyện</option>
+                        </select>
+
+                        <select id="editWard" class="vn-address-select" data-vn-address-role="ward" disabled>
+                            <option value="">Chọn Phường/Xã</option>
+                        </select>
+
+                        <input type="text" id="editStreet" class="vn-address-input" data-vn-address-role="street" placeholder="Nhập số nhà, tên đường...">
+
+                        <textarea id="editAddress" rows="3" readonly data-vn-address-role="full" placeholder="Địa chỉ đầy đủ sẽ tự tạo sau khi chọn địa chỉ"></textarea>
+                        <small class="address-hint">Chọn Tỉnh/Thành phố → Quận/Huyện → Phường/Xã, sau đó nhập số nhà và tên đường.</small>
                     </div>
                 </div>
                 <div class="account-edit-actions">
@@ -614,7 +630,12 @@
             document.getElementById('editFullName').value = profile.name || localStorage.getItem('hub_name') || (accountEmail ? accountEmail.split('@')[0] : '');
             document.getElementById('editPhone').value = profile.phone || '';
             document.getElementById('editEmail').value = profile.email || accountEmail || '';
-            document.getElementById('editAddress').value = profile.address || '';
+
+            if (window.StyleHubVNAddress && typeof window.StyleHubVNAddress.setExistingAddress === 'function') {
+                window.StyleHubVNAddress.setExistingAddress('edit', profile.address || '');
+            } else {
+                document.getElementById('editAddress').value = profile.address || '';
+            }
 
             form.classList.add('active');
             form.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
@@ -1285,5 +1306,6 @@
 })();
 </script>
 
+<script src="stylehub-vn-address.js?v=account-edit-address-20260623"></script>
 </body>
 </html>

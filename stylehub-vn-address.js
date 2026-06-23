@@ -1,6 +1,7 @@
 /* ===== THE STYLE HUB - Vietnam Address Selector (No API key) =====
-   Không dùng Google Maps, không cần billing, không cần API key.
-   Dữ liệu lấy từ provinces.open-api.vn miễn phí. Nếu API lỗi, khách vẫn nhập thủ công được.
+   Dùng cho:
+   - Checkout: cusProvince/cusDistrict/cusWard/cusStreet/cusAddress
+   - Account edit: editProvince/editDistrict/editWard/editStreet/editAddress
 */
 (function () {
     const DATA_URL = "https://provinces.open-api.vn/api/?depth=3";
@@ -9,6 +10,26 @@
     const CACHE_MAX_AGE = 7 * 24 * 60 * 60 * 1000;
 
     let provinces = [];
+    const instances = {};
+
+    const configs = [
+        {
+            key: "checkout",
+            provinceId: "cusProvince",
+            districtId: "cusDistrict",
+            wardId: "cusWard",
+            streetId: "cusStreet",
+            fullId: "cusAddress"
+        },
+        {
+            key: "edit",
+            provinceId: "editProvince",
+            districtId: "editDistrict",
+            wardId: "editWard",
+            streetId: "editStreet",
+            fullId: "editAddress"
+        }
+    ];
 
     function ready(fn) {
         if (document.readyState === "loading") {
@@ -45,7 +66,7 @@
 
             .vn-address-select:focus,
             .vn-address-input:focus,
-            #cusAddress:focus {
+            .vn-address-group textarea:focus {
                 border-color: #111111;
                 box-shadow: 0 0 0 1px #111111;
             }
@@ -56,7 +77,7 @@
                 cursor: not-allowed;
             }
 
-            .vn-address-group #cusAddress[readonly] {
+            .vn-address-group textarea[readonly] {
                 background: #f8f8f8;
                 color: #111111;
                 cursor: default;
@@ -87,22 +108,35 @@
                 color: #777777;
                 font-size: 12px;
             }
+
+            .account-edit-field.vn-address-account-group {
+                display: block;
+            }
         `;
         document.head.appendChild(style);
     }
 
-    function getEls() {
+    function byId(id) {
+        return document.getElementById(id);
+    }
+
+    function getEls(config) {
         return {
-            province: document.getElementById("cusProvince"),
-            district: document.getElementById("cusDistrict"),
-            ward: document.getElementById("cusWard"),
-            street: document.getElementById("cusStreet"),
-            full: document.getElementById("cusAddress")
+            province: byId(config.provinceId),
+            district: byId(config.districtId),
+            ward: byId(config.wardId),
+            street: byId(config.streetId),
+            full: byId(config.fullId)
         };
     }
 
-    function createStatusEl(type, message) {
-        const { province } = getEls();
+    function hasElements(config) {
+        const els = getEls(config);
+        return !!(els.province && els.district && els.ward && els.street && els.full);
+    }
+
+    function createStatusEl(config, type, message) {
+        const { province } = getEls(config);
         if (!province || !province.parentNode) return null;
 
         const old = province.parentNode.querySelector(".vn-address-error, .vn-address-loading");
@@ -115,8 +149,8 @@
         return el;
     }
 
-    function removeStatusEl() {
-        const { province } = getEls();
+    function removeStatusEl(config) {
+        const { province } = getEls(config);
         if (!province || !province.parentNode) return;
 
         const old = province.parentNode.querySelector(".vn-address-error, .vn-address-loading");
@@ -151,23 +185,23 @@
         return option ? normalizeName(option.dataset.name || option.textContent) : "";
     }
 
-    function getSelectedProvince() {
-        const { province } = getEls();
+    function getSelectedProvince(config) {
+        const { province } = getEls(config);
         const code = Number(province && province.value);
         return provinces.find(item => Number(item.code) === code) || null;
     }
 
-    function getSelectedDistrict() {
-        const { district } = getEls();
-        const selectedProvince = getSelectedProvince();
+    function getSelectedDistrict(config) {
+        const { district } = getEls(config);
+        const selectedProvince = getSelectedProvince(config);
         if (!selectedProvince || !Array.isArray(selectedProvince.districts)) return null;
 
         const code = Number(district && district.value);
         return selectedProvince.districts.find(item => Number(item.code) === code) || null;
     }
 
-    function updateFullAddress() {
-        const { province, district, ward, street, full } = getEls();
+    function updateFullAddress(config) {
+        const { province, district, ward, street, full } = getEls(config);
         if (!full) return;
 
         const parts = [
@@ -182,12 +216,30 @@
         full.dispatchEvent(new Event("change", { bubbles: true }));
     }
 
-    function bindEvents() {
-        const { province, district, ward, street } = getEls();
+    function clearSelector(config, keepFullAddress) {
+        const { province, district, ward, street, full } = getEls(config);
 
-        if (province) {
+        if (province) province.value = "";
+        resetSelect(district, "Chọn Quận/Huyện", true);
+        resetSelect(ward, "Chọn Phường/Xã", true);
+        if (street) street.value = "";
+        if (full) full.value = keepFullAddress || "";
+    }
+
+    function setExistingAddress(key, address) {
+        const config = configs.find(item => item.key === key);
+        if (!config || !hasElements(config)) return;
+
+        clearSelector(config, address || "");
+    }
+
+    function bindEvents(config) {
+        const { province, district, ward, street } = getEls(config);
+
+        if (province && !province.dataset.vnAddressBound) {
+            province.dataset.vnAddressBound = "1";
             province.addEventListener("change", function () {
-                const selectedProvince = getSelectedProvince();
+                const selectedProvince = getSelectedProvince(config);
 
                 resetSelect(district, "Chọn Quận/Huyện", true);
                 resetSelect(ward, "Chọn Phường/Xã", true);
@@ -196,13 +248,14 @@
                     fillSelect(district, selectedProvince.districts, "Chọn Quận/Huyện");
                 }
 
-                updateFullAddress();
+                updateFullAddress(config);
             });
         }
 
-        if (district) {
+        if (district && !district.dataset.vnAddressBound) {
+            district.dataset.vnAddressBound = "1";
             district.addEventListener("change", function () {
-                const selectedDistrict = getSelectedDistrict();
+                const selectedDistrict = getSelectedDistrict(config);
 
                 resetSelect(ward, "Chọn Phường/Xã", true);
 
@@ -210,22 +263,30 @@
                     fillSelect(ward, selectedDistrict.wards, "Chọn Phường/Xã");
                 }
 
-                updateFullAddress();
+                updateFullAddress(config);
             });
         }
 
-        if (ward) {
-            ward.addEventListener("change", updateFullAddress);
+        if (ward && !ward.dataset.vnAddressBound) {
+            ward.dataset.vnAddressBound = "1";
+            ward.addEventListener("change", function () {
+                updateFullAddress(config);
+            });
         }
 
-        if (street) {
-            street.addEventListener("input", updateFullAddress);
-            street.addEventListener("change", updateFullAddress);
+        if (street && !street.dataset.vnAddressBound) {
+            street.dataset.vnAddressBound = "1";
+            street.addEventListener("input", function () {
+                updateFullAddress(config);
+            });
+            street.addEventListener("change", function () {
+                updateFullAddress(config);
+            });
         }
     }
 
-    function setupManualFallback() {
-        const { province, district, ward, street, full } = getEls();
+    function setupManualFallback(config) {
+        const { province, district, ward, street, full } = getEls(config);
 
         if (province) province.style.display = "none";
         if (district) district.style.display = "none";
@@ -238,7 +299,7 @@
             full.rows = 4;
         }
 
-        createStatusEl("error", "Chưa tải được dữ liệu địa chỉ Việt Nam. Bạn vẫn có thể nhập địa chỉ đầy đủ thủ công.");
+        createStatusEl(config, "error", "Chưa tải được dữ liệu địa chỉ Việt Nam. Bạn vẫn có thể nhập địa chỉ đầy đủ thủ công.");
     }
 
     function getCachedData() {
@@ -264,13 +325,15 @@
         }
     }
 
-    function loadVietnamAddressData() {
+    function loadVietnamAddressData(activeConfigs) {
         const cached = getCachedData();
         if (cached && cached.length) {
             return Promise.resolve(cached);
         }
 
-        createStatusEl("loading", "Đang tải dữ liệu Tỉnh/Thành phố Việt Nam...");
+        activeConfigs.forEach(function(config) {
+            createStatusEl(config, "loading", "Đang tải dữ liệu Tỉnh/Thành phố Việt Nam...");
+        });
 
         return fetch(DATA_URL)
             .then(function (response) {
@@ -287,27 +350,50 @@
             });
     }
 
-    function initVietnamAddressSelector() {
-        const { province, district, ward, street, full } = getEls();
-        if (!province || !district || !ward || !street || !full) return;
+    function initConfig(config) {
+        if (!hasElements(config)) return false;
 
-        injectStyles();
+        instances[config.key] = config;
+
+        const { province, district, ward } = getEls(config);
         resetSelect(province, "Chọn Tỉnh/Thành phố", true);
         resetSelect(district, "Chọn Quận/Huyện", true);
         resetSelect(ward, "Chọn Phường/Xã", true);
 
-        loadVietnamAddressData()
+        return true;
+    }
+
+    function activateConfig(config) {
+        const { province } = getEls(config);
+
+        removeStatusEl(config);
+        fillSelect(province, provinces, "Chọn Tỉnh/Thành phố");
+        bindEvents(config);
+    }
+
+    function initVietnamAddressSelectors() {
+        injectStyles();
+
+        const activeConfigs = configs.filter(initConfig);
+        if (!activeConfigs.length) return;
+
+        loadVietnamAddressData(activeConfigs)
             .then(function (data) {
                 provinces = data;
-                removeStatusEl();
-                fillSelect(province, provinces, "Chọn Tỉnh/Thành phố");
-                bindEvents();
-                updateFullAddress();
+                activeConfigs.forEach(activateConfig);
             })
             .catch(function () {
-                setupManualFallback();
+                activeConfigs.forEach(setupManualFallback);
             });
     }
 
-    ready(initVietnamAddressSelector);
+    window.StyleHubVNAddress = {
+        setExistingAddress: setExistingAddress,
+        updateFullAddress: function (key) {
+            const config = instances[key] || configs.find(item => item.key === key);
+            if (config) updateFullAddress(config);
+        }
+    };
+
+    ready(initVietnamAddressSelectors);
 })();
