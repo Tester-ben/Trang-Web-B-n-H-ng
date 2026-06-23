@@ -1265,6 +1265,9 @@ function searchProducts() {
             if (["STYLE10", "FREESHIP"].includes(code)) localStorage.setItem(VOUCHER_KEY, code);
             else localStorage.removeItem(VOUCHER_KEY);
             renderTotals();
+            if (typeof window.renderCartUI === "function") {
+                setTimeout(window.renderCartUI, 80);
+            }
         });
 
         renderTotals();
@@ -1492,3 +1495,209 @@ function initFooterSocialIconCleanup() {
 
 
 document.addEventListener("DOMContentLoaded", initFooterSocialIconCleanup);
+
+
+
+/* ===== DRAGGABLE NOTIFICATION BELL - ALL PAGES ===== */
+function initDraggableNotificationBell() {
+    const STORAGE_KEY = "stylehub_notification_bell_position_v1";
+    const bellSelectors = [
+        "[data-stylehub-notification-bell]",
+        ".pd-notification-bell",
+        ".notification-bell",
+        "#notificationBell",
+        ".stylehub-notification-bell"
+    ];
+
+    function findBell() {
+        for (const selector of bellSelectors) {
+            const found = document.querySelector(selector);
+            if (found) return found;
+        }
+
+        const possible = Array.from(document.querySelectorAll("button, div, span, a")).find(function(el) {
+            const text = (el.textContent || "").trim();
+            const cls = (el.className || "").toString().toLowerCase();
+            const id = (el.id || "").toLowerCase();
+            return text.includes("🔔") || cls.includes("bell") || id.includes("bell") || cls.includes("notification");
+        });
+
+        return possible || null;
+    }
+
+    function injectStyle() {
+        if (document.getElementById("stylehub-draggable-bell-style")) return;
+
+        const style = document.createElement("style");
+        style.id = "stylehub-draggable-bell-style";
+        style.textContent = `
+            .stylehub-bell-draggable-ready {
+                position: fixed !important;
+                z-index: 9999 !important;
+                cursor: grab !important;
+                touch-action: none !important;
+                user-select: none !important;
+                transition: box-shadow 0.2s ease, transform 0.15s ease !important;
+            }
+
+            .stylehub-bell-draggable-ready.dragging {
+                cursor: grabbing !important;
+                transform: scale(1.04) !important;
+                box-shadow: 0 14px 35px rgba(0, 0, 0, 0.18) !important;
+            }
+        `;
+        document.head.appendChild(style);
+    }
+
+    function clamp(value, min, max) {
+        return Math.max(min, Math.min(max, value));
+    }
+
+    function defaultPosition(bell) {
+        const rect = bell.getBoundingClientRect();
+        const width = rect.width || 46;
+        const height = rect.height || 46;
+
+        return {
+            left: window.innerWidth - width - 82,
+            top: 88
+        };
+    }
+
+    function applyPosition(bell, position) {
+        const rect = bell.getBoundingClientRect();
+        const width = rect.width || 46;
+        const height = rect.height || 46;
+
+        const left = clamp(Number(position.left), 8, window.innerWidth - width - 8);
+        const top = clamp(Number(position.top), 8, window.innerHeight - height - 8);
+
+        bell.style.left = left + "px";
+        bell.style.top = top + "px";
+        bell.style.right = "auto";
+        bell.style.bottom = "auto";
+    }
+
+    function loadPosition(bell) {
+        try {
+            const saved = JSON.parse(localStorage.getItem(STORAGE_KEY) || "null");
+            if (saved && typeof saved.left === "number" && typeof saved.top === "number") {
+                applyPosition(bell, saved);
+                return;
+            }
+        } catch (error) {}
+
+        applyPosition(bell, defaultPosition(bell));
+    }
+
+    function savePosition(bell) {
+        const rect = bell.getBoundingClientRect();
+        localStorage.setItem(STORAGE_KEY, JSON.stringify({
+            left: Math.round(rect.left),
+            top: Math.round(rect.top)
+        }));
+    }
+
+    function bindDrag(bell) {
+        if (!bell || bell.dataset.stylehubBellDragBound === "1") return;
+        bell.dataset.stylehubBellDragBound = "1";
+        bell.classList.add("stylehub-bell-draggable-ready");
+
+        loadPosition(bell);
+
+        let isDragging = false;
+        let pointerId = null;
+        let startX = 0;
+        let startY = 0;
+        let startLeft = 0;
+        let startTop = 0;
+        let moved = false;
+
+        bell.addEventListener("pointerdown", function(event) {
+            if (event.button !== undefined && event.button !== 0) return;
+
+            const rect = bell.getBoundingClientRect();
+            isDragging = true;
+            pointerId = event.pointerId;
+            startX = event.clientX;
+            startY = event.clientY;
+            startLeft = rect.left;
+            startTop = rect.top;
+            moved = false;
+
+            bell.classList.add("dragging");
+            bell.setPointerCapture && bell.setPointerCapture(pointerId);
+        });
+
+        bell.addEventListener("pointermove", function(event) {
+            if (!isDragging || event.pointerId !== pointerId) return;
+
+            const dx = event.clientX - startX;
+            const dy = event.clientY - startY;
+
+            if (Math.abs(dx) > 3 || Math.abs(dy) > 3) moved = true;
+
+            const rect = bell.getBoundingClientRect();
+            const nextLeft = clamp(startLeft + dx, 8, window.innerWidth - rect.width - 8);
+            const nextTop = clamp(startTop + dy, 8, window.innerHeight - rect.height - 8);
+
+            bell.style.left = nextLeft + "px";
+            bell.style.top = nextTop + "px";
+            bell.style.right = "auto";
+            bell.style.bottom = "auto";
+
+            event.preventDefault();
+        });
+
+        function endDrag(event) {
+            if (!isDragging || (event.pointerId !== undefined && event.pointerId !== pointerId)) return;
+
+            isDragging = false;
+            pointerId = null;
+            bell.classList.remove("dragging");
+            savePosition(bell);
+
+            if (moved) {
+                bell.dataset.stylehubJustDragged = "1";
+                setTimeout(function() {
+                    bell.dataset.stylehubJustDragged = "";
+                }, 180);
+            }
+        }
+
+        bell.addEventListener("pointerup", endDrag);
+        bell.addEventListener("pointercancel", endDrag);
+
+        bell.addEventListener("click", function(event) {
+            if (bell.dataset.stylehubJustDragged === "1") {
+                event.preventDefault();
+                event.stopPropagation();
+            }
+        }, true);
+
+        window.addEventListener("resize", function() {
+            const rect = bell.getBoundingClientRect();
+            applyPosition(bell, { left: rect.left, top: rect.top });
+            savePosition(bell);
+        });
+    }
+
+    injectStyle();
+
+    const bell = findBell();
+    if (bell) bindDrag(bell);
+
+    // Nếu chuông được file notification render chậm sau DOMContentLoaded.
+    let attempts = 0;
+    const timer = setInterval(function() {
+        attempts += 1;
+        const lateBell = findBell();
+        if (lateBell) bindDrag(lateBell);
+        if (attempts >= 20 || (lateBell && lateBell.dataset.stylehubBellDragBound === "1")) {
+            clearInterval(timer);
+        }
+    }, 300);
+}
+
+
+document.addEventListener("DOMContentLoaded", initDraggableNotificationBell);

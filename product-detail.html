@@ -89,7 +89,30 @@
         .remove-item-btn:hover { color: #ff0000; text-decoration: underline; }
         
         .cart-footer { border-top: 1px solid #eee; padding-top: 20px; }
-        .cart-total-row { display: flex; justify-content: space-between; font-size: 13px; font-weight: 500; margin-bottom: 20px; text-transform: uppercase; letter-spacing: 1px; }
+        .cart-total-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 13px;
+            font-weight: 500;
+            margin-bottom: 10px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            gap: 18px;
+        }
+        .cart-total-row span:last-child {
+            min-width: 115px;
+            text-align: right;
+            white-space: nowrap;
+        }
+        .cart-total-row.discount-row span:last-child { color: #c00000; }
+        .cart-total-row.grand-total-row {
+            border-top: 1px solid #eee;
+            padding-top: 12px;
+            margin-top: 12px;
+            margin-bottom: 20px;
+            font-weight: 700;
+        }
         .btn-checkout { display: block; width: 100%; background-color: #111; color: #fff; border: 1px solid #111; padding: 15px; font-size: 11px; letter-spacing: 2px; text-transform: uppercase; font-weight: 500; cursor: pointer; text-align: center; }
 
         /* ==================== FORM ĐIỀN ĐỊA CHỈ GIAO HÀNG (CHECKOUT DRAWER) ==================== */
@@ -512,7 +535,10 @@
                 <div id="cartItemsContainer"></div>
             </div>
             <div class="cart-footer">
-                <div class="cart-total-row"><span>Tạm tính:</span><span id="cartTotalTarget">0 ₫</span></div>
+                <div class="cart-total-row"><span>Tạm tính:</span><span id="cartSubtotalTarget">0 ₫</span></div>
+                <div class="cart-total-row"><span>Phí ship:</span><span id="cartShippingTarget">0 ₫</span></div>
+                <div class="cart-total-row discount-row"><span>Giảm giá:</span><span id="cartDiscountTarget">-0 ₫</span></div>
+                <div class="cart-total-row grand-total-row"><span>Tổng cộng:</span><span id="cartTotalTarget">0 ₫</span></div>
                 <button class="btn-checkout" onclick="openCheckoutFromCart()">Đặt Hàng</button>
             </div>
         </div>
@@ -1281,6 +1307,50 @@
             forceStyleHubCartSyncNow();
         }
 
+
+        function getStyleHubActiveVoucherCode() {
+            return String(localStorage.getItem("stylehub_active_voucher") || "").trim().toUpperCase();
+        }
+
+        function calculateStyleHubBagTotals(subtotal) {
+            const code = getStyleHubActiveVoucherCode();
+            let shipping = subtotal > 0 ? 30000 : 0;
+            let discount = 0;
+
+            if (code === "STYLE10") discount = Math.round(subtotal * 0.1);
+            if (code === "FREESHIP") shipping = 0;
+
+            return {
+                subtotal: subtotal,
+                shipping: shipping,
+                discount: discount,
+                total: Math.max(0, subtotal + shipping - discount),
+                code: code
+            };
+        }
+
+        function formatStyleHubMoney(value) {
+            return (Number(value || 0)).toLocaleString('vi-VN') + " ₫";
+        }
+
+        function updateStyleHubBagTotalsUI(subtotal) {
+            const totals = calculateStyleHubBagTotals(subtotal);
+
+            const subtotalEl = document.getElementById('cartSubtotalTarget');
+            const shippingEl = document.getElementById('cartShippingTarget');
+            const discountEl = document.getElementById('cartDiscountTarget');
+            const totalEl = document.getElementById('cartTotalTarget');
+
+            if (subtotalEl) subtotalEl.innerText = formatStyleHubMoney(totals.subtotal);
+            if (shippingEl) shippingEl.innerText = formatStyleHubMoney(totals.shipping);
+            if (discountEl) discountEl.innerText = "-" + formatStyleHubMoney(totals.discount);
+            if (totalEl) totalEl.innerText = formatStyleHubMoney(totals.total);
+
+            if (typeof window.StyleHubRenderCheckoutTotals === "function") {
+                setTimeout(window.StyleHubRenderCheckoutTotals, 80);
+            }
+        }
+
         function renderCartUI() {
             const container = document.getElementById('cartItemsContainer');
             const emptyMsg = document.getElementById('emptyCartMessage');
@@ -1291,7 +1361,7 @@
             if (cartMemoryArray.length === 0) {
                 emptyMsg.classList.remove('hidden');
                 document.getElementById('bag-count').innerText = "0";
-                document.getElementById('cartTotalTarget').innerText = "0 ₫";
+                updateStyleHubBagTotalsUI(0);
                 forceStyleHubCartSyncNow();
                 return;
             }
@@ -1314,9 +1384,11 @@
                 container.appendChild(row);
             });
             document.getElementById('bag-count').innerText = totalItemsCount;
-            document.getElementById('cartTotalTarget').innerText = totalAmountMoney.toLocaleString('vi-VN') + " ₫";
+            updateStyleHubBagTotalsUI(totalAmountMoney);
             forceStyleHubCartSyncNow();
         }
+
+        window.renderCartUI = renderCartUI;
 
         function loadSavedShippingInfo() {
             const accountEmail = getStyleHubCurrentAccountEmail();
