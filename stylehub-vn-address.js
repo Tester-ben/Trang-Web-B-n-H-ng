@@ -320,7 +320,9 @@
         try {
             localStorage.setItem(CACHE_KEY, JSON.stringify(data));
             localStorage.setItem(CACHE_TIME_KEY, String(Date.now()));
-        } catch (error) {}
+        } catch (error) {
+            // Bỏ qua nếu trình duyệt không cho lưu localStorage.
+        }
     }
 
     function loadVietnamAddressData(activeConfigs) {
@@ -379,11 +381,9 @@
             .then(function (data) {
                 provinces = data;
                 activeConfigs.forEach(activateConfig);
-                document.dispatchEvent(new CustomEvent("stylehub-vn-address-ready"));
             })
             .catch(function () {
                 activeConfigs.forEach(setupManualFallback);
-                document.dispatchEvent(new CustomEvent("stylehub-vn-address-ready"));
             });
     }
 

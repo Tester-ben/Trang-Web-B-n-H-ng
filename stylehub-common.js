@@ -1498,56 +1498,71 @@ document.addEventListener("DOMContentLoaded", initFooterSocialIconCleanup);
 
 
 
-
-
-
-
-/* ===== FORCE FOOTER BLACK BACKGROUND ===== */
-function initStyleHubBlackFooter() {
-    if (document.getElementById("stylehub-black-footer-style")) return;
+/* ===== FORCE FOOTER BLACK BACKGROUND - FINAL ===== */
+function initStyleHubBlackFooterFinal() {
+    if (document.getElementById("stylehub-black-footer-final-style")) return;
 
     const style = document.createElement("style");
-    style.id = "stylehub-black-footer-style";
+    style.id = "stylehub-black-footer-final-style";
     style.textContent = `
-        .site-footer,
-        footer.site-footer,
-        .footer,
-        footer {
+        html body .site-footer,
+        html body footer.site-footer,
+        html body .footer,
+        html body footer,
+        html body [class*="footer"] {
             background: #050505 !important;
             background-color: #050505 !important;
+            background-image: none !important;
         }
 
-        .site-footer a,
-        footer.site-footer a,
-        .footer a,
-        footer a {
-            color: rgba(255,255,255,0.82) !important;
+        html body .site-footer::before,
+        html body .site-footer::after,
+        html body footer::before,
+        html body footer::after,
+        html body [class*="footer"]::before,
+        html body [class*="footer"]::after {
+            background: #050505 !important;
+            background-color: #050505 !important;
+            background-image: none !important;
         }
 
-        .site-footer h1,
-        .site-footer h2,
-        .site-footer h3,
-        .site-footer h4,
-        .site-footer strong,
-        footer.site-footer h1,
-        footer.site-footer h2,
-        footer.site-footer h3,
-        footer.site-footer h4,
-        footer.site-footer strong {
+        html body .site-footer a,
+        html body footer.site-footer a,
+        html body .footer a,
+        html body footer a {
+            color: rgba(255,255,255,0.84) !important;
+        }
+
+        html body .site-footer h1,
+        html body .site-footer h2,
+        html body .site-footer h3,
+        html body .site-footer h4,
+        html body .site-footer strong,
+        html body footer.site-footer h1,
+        html body footer.site-footer h2,
+        html body footer.site-footer h3,
+        html body footer.site-footer h4,
+        html body footer.site-footer strong {
             color: #ffffff !important;
         }
 
-        .site-footer p,
-        .site-footer span,
-        .site-footer li,
-        footer.site-footer p,
-        footer.site-footer span,
-        footer.site-footer li {
-            color: rgba(255,255,255,0.82) !important;
+        html body .site-footer p,
+        html body .site-footer span,
+        html body .site-footer li,
+        html body footer.site-footer p,
+        html body footer.site-footer span,
+        html body footer.site-footer li {
+            color: rgba(255,255,255,0.84) !important;
         }
     `;
     document.head.appendChild(style);
+
+    document.querySelectorAll(".site-footer, footer.site-footer, .footer, footer").forEach(function(el) {
+        el.style.setProperty("background", "#050505", "important");
+        el.style.setProperty("background-color", "#050505", "important");
+        el.style.setProperty("background-image", "none", "important");
+    });
 }
 
 
-document.addEventListener("DOMContentLoaded", initStyleHubBlackFooter);
+document.addEventListener("DOMContentLoaded", initStyleHubBlackFooterFinal);
