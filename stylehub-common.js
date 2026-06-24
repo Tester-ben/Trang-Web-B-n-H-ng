@@ -1499,3 +1499,55 @@ document.addEventListener("DOMContentLoaded", initFooterSocialIconCleanup);
 
 
 
+
+
+
+/* ===== FORCE FOOTER BLACK BACKGROUND ===== */
+function initStyleHubBlackFooter() {
+    if (document.getElementById("stylehub-black-footer-style")) return;
+
+    const style = document.createElement("style");
+    style.id = "stylehub-black-footer-style";
+    style.textContent = `
+        .site-footer,
+        footer.site-footer,
+        .footer,
+        footer {
+            background: #050505 !important;
+            background-color: #050505 !important;
+        }
+
+        .site-footer a,
+        footer.site-footer a,
+        .footer a,
+        footer a {
+            color: rgba(255,255,255,0.82) !important;
+        }
+
+        .site-footer h1,
+        .site-footer h2,
+        .site-footer h3,
+        .site-footer h4,
+        .site-footer strong,
+        footer.site-footer h1,
+        footer.site-footer h2,
+        footer.site-footer h3,
+        footer.site-footer h4,
+        footer.site-footer strong {
+            color: #ffffff !important;
+        }
+
+        .site-footer p,
+        .site-footer span,
+        .site-footer li,
+        footer.site-footer p,
+        footer.site-footer span,
+        footer.site-footer li {
+            color: rgba(255,255,255,0.82) !important;
+        }
+    `;
+    document.head.appendChild(style);
+}
+
+
+document.addEventListener("DOMContentLoaded", initStyleHubBlackFooter);
