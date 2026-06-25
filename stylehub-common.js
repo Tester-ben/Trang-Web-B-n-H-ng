@@ -1559,93 +1559,233 @@ document.addEventListener("DOMContentLoaded", initRemoveStyleHubExtraFilterBar);
 
 
 
-/* ===== FIX HEADER DROPDOWN HOVER ON FEATURED / COLLECTION PAGES ===== */
-function initHeaderDropdownHoverFix() {
-    if (document.getElementById("stylehub-header-dropdown-hover-fix-style")) return;
 
-    const style = document.createElement("style");
-    style.id = "stylehub-header-dropdown-hover-fix-style";
-    style.textContent = `
-        .main-header,
-        header.main-header,
-        .site-header,
-        header {
-            z-index: 7000 !important;
-            overflow: visible !important;
-        }
+document.addEventListener("DOMContentLoaded", initHeaderDropdownHoverFix);
 
-        .main-header *,
-        header.main-header *,
-        .site-header *,
-        header * {
-            overflow: visible;
-        }
 
-        .main-nav,
-        .nav-left,
-        .nav-right,
-        .desktop-nav,
-        .header-nav,
-        .nav-menu {
-            overflow: visible !important;
-            z-index: 7100 !important;
-        }
 
-        .nav-item,
-        .nav-link,
-        .menu-item,
-        .menu-item-has-dropdown,
-        .menu-item-has-mega {
-            position: relative;
-            overflow: visible !important;
-        }
+/* ===== HEADER DROPDOWN + LOGO HOME FIX - ALL PAGES ===== */
+function initStyleHubHeaderDropdownAndLogoHome() {
+    if (!document.getElementById("stylehub-header-dropdown-logo-home-style")) {
+        const style = document.createElement("style");
+        style.id = "stylehub-header-dropdown-logo-home-style";
+        style.textContent = `
+            .stylehub-header-dropdown-wrap {
+                position: relative !important;
+                display: inline-flex !important;
+                align-items: center !important;
+                overflow: visible !important;
+            }
 
-        .nav-dropdown,
-        .mega-menu,
-        .mega-menu-dropdown,
-        .dropdown-menu,
-        .submenu,
-        .hover-menu {
-            z-index: 99999 !important;
-            pointer-events: auto !important;
-        }
+            .stylehub-header-dropdown-wrap > a,
+            .stylehub-header-dropdown-wrap > button,
+            .stylehub-header-dropdown-wrap > span {
+                position: relative !important;
+                z-index: 2 !important;
+            }
 
-        .menu-item-has-dropdown:hover .nav-dropdown,
-        .menu-item-has-mega:hover .mega-menu-dropdown,
-        .nav-item:hover .nav-dropdown,
-        .nav-item:hover .mega-menu,
-        .nav-item:hover .dropdown-menu,
-        .menu-item:hover .submenu,
-        .menu-item:hover .hover-menu {
-            display: block !important;
-            opacity: 1 !important;
-            visibility: visible !important;
-            pointer-events: auto !important;
-        }
+            .stylehub-header-dropdown-menu {
+                position: absolute !important;
+                top: calc(100% + 22px) !important;
+                left: 50% !important;
+                transform: translateX(-50%) translateY(8px);
+                min-width: 190px;
+                padding: 16px 0;
+                background: #111111 !important;
+                color: #ffffff !important;
+                border: 1px solid rgba(255,255,255,0.14);
+                box-shadow: 0 18px 45px rgba(0,0,0,0.25);
+                opacity: 0;
+                visibility: hidden;
+                pointer-events: none;
+                transition: opacity 0.18s ease, transform 0.18s ease, visibility 0.18s ease;
+                z-index: 999999 !important;
+                text-align: left;
+            }
 
-        .sub-filter-bar,
-        .stylehub-extra-filter-bar,
-        .collection-tabs,
-        .collection-nav {
-            z-index: 1000 !important;
-        }
+            .stylehub-header-dropdown-menu::before {
+                content: "";
+                position: absolute;
+                left: 0;
+                right: 0;
+                top: -26px;
+                height: 26px;
+                background: transparent;
+            }
 
-        body.stylehub-smart-header .main-header {
-            z-index: 7000 !important;
-            overflow: visible !important;
-            pointer-events: auto !important;
-        }
+            .stylehub-header-dropdown-wrap:hover .stylehub-header-dropdown-menu,
+            .stylehub-header-dropdown-wrap.stylehub-dropdown-open .stylehub-header-dropdown-menu {
+                opacity: 1 !important;
+                visibility: visible !important;
+                pointer-events: auto !important;
+                transform: translateX(-50%) translateY(0);
+            }
 
-        body.stylehub-smart-header.stylehub-header-hidden .main-header {
-            pointer-events: none !important;
-        }
+            .stylehub-header-dropdown-menu a {
+                display: block !important;
+                padding: 10px 22px !important;
+                color: rgba(255,255,255,0.86) !important;
+                text-decoration: none !important;
+                font-size: 11px !important;
+                letter-spacing: 1.8px !important;
+                text-transform: uppercase !important;
+                white-space: nowrap !important;
+                background: transparent !important;
+            }
 
-        body.stylehub-smart-header .sub-filter-bar {
-            z-index: 1000 !important;
-        }
-    `;
-    document.head.appendChild(style);
+            .stylehub-header-dropdown-menu a:hover {
+                color: #ffffff !important;
+                background: rgba(255,255,255,0.08) !important;
+            }
+
+            .main-header,
+            header.main-header,
+            .site-header,
+            header {
+                overflow: visible !important;
+                z-index: 99999 !important;
+            }
+
+            .main-header nav,
+            .main-header .nav-left,
+            .main-header .nav-right,
+            .main-header .desktop-nav,
+            .main-header .header-nav,
+            .main-header .nav-menu,
+            header nav {
+                overflow: visible !important;
+                z-index: 99999 !important;
+            }
+
+            .sub-filter-bar,
+            .collection-tabs,
+            .collection-nav {
+                z-index: 1000 !important;
+            }
+
+            .stylehub-logo-home-link {
+                cursor: pointer !important;
+                text-decoration: none !important;
+                color: inherit !important;
+            }
+        `;
+        document.head.appendChild(style);
+    }
+
+    const dropdownMap = {
+        "MENS": [
+            ["All Products", "mens.html"],
+            ["Tops", "mens.html?cat=tops"],
+            ["Hoodies", "mens.html?cat=hoodies"],
+            ["Dress Shirt", "mens.html?cat=dress-shirt"],
+            ["Bottoms", "mens.html?cat=bottoms"]
+        ],
+        "WOMENS": [
+            ["All Womens", "womens.html"],
+            ["Tops", "womens.html?cat=tops"],
+            ["Bottoms", "womens.html?cat=bottoms"]
+        ],
+        "KIDS": [
+            ["All Kids", "kids.html"],
+            ["Tops", "kids.html?cat=tops"],
+            ["Jackets & Outerwear", "kids.html?cat=jackets"],
+            ["Bottoms", "kids.html?cat=bottoms"]
+        ],
+        "SALE": [
+            ["All Sale", "sale.html"],
+            ["Mens Sale", "sale.html?cat=mens"],
+            ["Womens Sale", "sale.html?cat=womens"],
+            ["Kids Sale", "sale.html?cat=kids"]
+        ],
+        "SHOES": [
+            ["All Shoes", "shoes.html"],
+            ["Sneakers", "shoes.html?cat=sneakers"],
+            ["Athletics", "shoes.html?cat=athletics"]
+        ]
+    };
+
+    function normalizeText(value) {
+        return String(value || "").replace(/\s+/g, " ").trim().toUpperCase();
+    }
+
+    function isHeaderNavLink(el) {
+        if (!el || el.dataset.stylehubDropdownReady === "1") return false;
+        const label = normalizeText(el.textContent);
+        if (!dropdownMap[label]) return false;
+
+        const header = el.closest(".main-header, header.main-header, .site-header, header");
+        if (!header) return false;
+
+        return true;
+    }
+
+    function buildDropdownForLink(link) {
+        const label = normalizeText(link.textContent);
+        const items = dropdownMap[label];
+        if (!items) return;
+
+        link.dataset.stylehubDropdownReady = "1";
+
+        const wrapper = document.createElement("span");
+        wrapper.className = "stylehub-header-dropdown-wrap";
+
+        const parent = link.parentNode;
+        parent.insertBefore(wrapper, link);
+        wrapper.appendChild(link);
+
+        const menu = document.createElement("div");
+        menu.className = "stylehub-header-dropdown-menu";
+        menu.innerHTML = items.map(function(item) {
+            return `<a href="${item[1]}">${item[0]}</a>`;
+        }).join("");
+
+        wrapper.appendChild(menu);
+
+        wrapper.addEventListener("mouseenter", function () {
+            wrapper.classList.add("stylehub-dropdown-open");
+        });
+
+        wrapper.addEventListener("mouseleave", function () {
+            wrapper.classList.remove("stylehub-dropdown-open");
+        });
+    }
+
+    document.querySelectorAll("a, button, span").forEach(function(el) {
+        if (isHeaderNavLink(el)) buildDropdownForLink(el);
+    });
+
+    // THE STYLE HUB logo/title click về home ở tất cả các trang.
+    document.querySelectorAll(".main-header, header.main-header, .site-header, header").forEach(function(header) {
+        const candidates = Array.from(header.querySelectorAll("a, div, h1, h2, span")).filter(function(el) {
+            return normalizeText(el.textContent) === "THE STYLE HUB";
+        });
+
+        candidates.forEach(function(el) {
+            if (el.closest(".stylehub-header-dropdown-menu")) return;
+
+            if (el.tagName.toLowerCase() === "a") {
+                el.href = "index.html";
+                el.classList.add("stylehub-logo-home-link");
+                return;
+            }
+
+            if (el.dataset.stylehubLogoHomeReady === "1") return;
+            el.dataset.stylehubLogoHomeReady = "1";
+
+            const link = document.createElement("a");
+            link.href = "index.html";
+            link.className = (el.className ? el.className + " " : "") + "stylehub-logo-home-link";
+            link.innerHTML = el.innerHTML;
+
+            // Copy inline style nếu có để không vỡ layout.
+            if (el.getAttribute("style")) link.setAttribute("style", el.getAttribute("style"));
+
+            el.replaceWith(link);
+        });
+    });
 }
 
 
-document.addEventListener("DOMContentLoaded", initHeaderDropdownHoverFix);
+document.addEventListener("DOMContentLoaded", initStyleHubHeaderDropdownAndLogoHome);
+setTimeout(initStyleHubHeaderDropdownAndLogoHome, 600);
+setTimeout(initStyleHubHeaderDropdownAndLogoHome, 1500);
