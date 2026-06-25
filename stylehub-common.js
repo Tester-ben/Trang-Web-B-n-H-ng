@@ -291,7 +291,7 @@ function initSmartHeaderScroll() {
                 transform: translateY(0);
                 transition: transform 0.26s ease;
                 will-change: transform;
-                z-index: 5000 !important;
+                z-index: 7000 !important;
                 overflow: visible !important;
                 pointer-events: auto;
             }
@@ -303,7 +303,7 @@ function initSmartHeaderScroll() {
 
             body.stylehub-smart-header .main-header .nav-dropdown,
             body.stylehub-smart-header .main-header .mega-menu-dropdown {
-                z-index: 6000 !important;
+                z-index: 99999 !important;
                 pointer-events: auto !important;
             }
 
@@ -315,7 +315,7 @@ function initSmartHeaderScroll() {
             body.stylehub-smart-header .sub-filter-bar {
                 position: sticky !important;
                 top: 57px;
-                z-index: 950;
+                z-index: 1000;
                 background: #ffffff;
                 padding-top: 15px !important;
                 transition: top 0.26s ease, box-shadow 0.26s ease;
@@ -943,67 +943,10 @@ function searchProducts() {
     }
 
     function initCollectionFilters() {
-        const grid = document.querySelector(".mens-product-grid, .product-grid, .collection-grid");
-        const subFilter = document.querySelector(".sub-filter-bar");
-        if (!grid || !subFilter || document.querySelector(".stylehub-extra-filter-bar")) return;
-
-        const cards = Array.from(document.querySelectorAll('.mens-card[href*="product-detail.html"], .product-card[href*="product-detail.html"]'));
-        if (!cards.length) return;
-
-        const colors = Array.from(new Set(cards.map(card => inferColorText(card.textContent + " " + card.innerHTML)))).sort();
-
-        const bar = document.createElement("div");
-        bar.className = "stylehub-extra-filter-bar";
-        bar.innerHTML = `
-            <select id="stylehubPriceFilter">
-                <option value="">Filter Price</option>
-                <option value="0-1000000">Dưới 1 triệu</option>
-                <option value="1000000-2000000">1 - 2 triệu</option>
-                <option value="2000000-999999999">Trên 2 triệu</option>
-            </select>
-            <select id="stylehubSizeFilter">
-                <option value="">Filter Size</option>
-                <option>XS</option><option>S</option><option>M</option><option>L</option><option>XL</option>
-                <option>37</option><option>38</option><option>39</option><option>40</option><option>41</option><option>42</option><option>43</option><option>44</option>
-            </select>
-            <select id="stylehubColorFilter">
-                <option value="">Filter Color</option>
-                ${colors.map(c => `<option value="${c}">${c}</option>`).join("")}
-            </select>
-            <button type="button" id="stylehubClearFilters">Clear</button>
-        `;
-        subFilter.insertAdjacentElement("afterend", bar);
-
-        function apply() {
-            const priceVal = document.getElementById("stylehubPriceFilter").value;
-            const sizeVal = document.getElementById("stylehubSizeFilter").value;
-            const colorVal = document.getElementById("stylehubColorFilter").value;
-
-            cards.forEach(card => {
-                const id = productIdFromHref(card.getAttribute("href"));
-                const text = card.textContent + " " + card.innerHTML;
-                const price = parseMoney(card.querySelector(".item-price, .product-price")?.textContent || "");
-                const sizes = getProductSizes(id, text);
-                const color = inferColorText(text);
-                let ok = true;
-
-                if (priceVal) {
-                    const [min, max] = priceVal.split("-").map(Number);
-                    ok = ok && price >= min && price <= max;
-                }
-                if (sizeVal) ok = ok && sizes.includes(sizeVal);
-                if (colorVal) ok = ok && color === colorVal;
-
-                card.classList.toggle("enhancement-filter-hidden", !ok);
-            });
-        }
-
-        bar.querySelectorAll("select").forEach(el => el.addEventListener("change", apply));
-        bar.querySelector("#stylehubClearFilters").addEventListener("click", () => {
-            bar.querySelectorAll("select").forEach(el => el.value = "");
-            apply();
-        });
+        // Removed by user request: do not render FILTER PRICE / FILTER SIZE / FILTER COLOR / CLEAR.
+        return;
     }
+
 
     function initStockBadges() {
         document.querySelectorAll('a[href*="product-detail.html?id="]').forEach(card => {
@@ -1566,3 +1509,143 @@ function initStyleHubBlackFooterFinal() {
 
 
 document.addEventListener("DOMContentLoaded", initStyleHubBlackFooterFinal);
+
+
+
+/* ===== REMOVE COLLECTION EXTRA FILTER BAR ===== */
+function removeStyleHubExtraFilterBar() {
+    document.querySelectorAll(
+        ".stylehub-extra-filter-bar, #stylehubPriceFilter, #stylehubSizeFilter, #stylehubColorFilter, #stylehubClearFilters"
+    ).forEach(function (el) {
+        const bar = el.closest(".stylehub-extra-filter-bar");
+        if (bar) {
+            bar.remove();
+        } else {
+            el.remove();
+        }
+    });
+}
+
+function initRemoveStyleHubExtraFilterBar() {
+    if (!document.getElementById("stylehub-remove-extra-filter-style")) {
+        const style = document.createElement("style");
+        style.id = "stylehub-remove-extra-filter-style";
+        style.textContent = `
+            .stylehub-extra-filter-bar,
+            #stylehubPriceFilter,
+            #stylehubSizeFilter,
+            #stylehubColorFilter,
+            #stylehubClearFilters {
+                display: none !important;
+                visibility: hidden !important;
+                height: 0 !important;
+                margin: 0 !important;
+                padding: 0 !important;
+                overflow: hidden !important;
+            }
+        `;
+        document.head.appendChild(style);
+    }
+
+    removeStyleHubExtraFilterBar();
+
+    setTimeout(removeStyleHubExtraFilterBar, 100);
+    setTimeout(removeStyleHubExtraFilterBar, 500);
+    setTimeout(removeStyleHubExtraFilterBar, 1200);
+}
+
+
+document.addEventListener("DOMContentLoaded", initRemoveStyleHubExtraFilterBar);
+
+
+
+/* ===== FIX HEADER DROPDOWN HOVER ON FEATURED / COLLECTION PAGES ===== */
+function initHeaderDropdownHoverFix() {
+    if (document.getElementById("stylehub-header-dropdown-hover-fix-style")) return;
+
+    const style = document.createElement("style");
+    style.id = "stylehub-header-dropdown-hover-fix-style";
+    style.textContent = `
+        .main-header,
+        header.main-header,
+        .site-header,
+        header {
+            z-index: 7000 !important;
+            overflow: visible !important;
+        }
+
+        .main-header *,
+        header.main-header *,
+        .site-header *,
+        header * {
+            overflow: visible;
+        }
+
+        .main-nav,
+        .nav-left,
+        .nav-right,
+        .desktop-nav,
+        .header-nav,
+        .nav-menu {
+            overflow: visible !important;
+            z-index: 7100 !important;
+        }
+
+        .nav-item,
+        .nav-link,
+        .menu-item,
+        .menu-item-has-dropdown,
+        .menu-item-has-mega {
+            position: relative;
+            overflow: visible !important;
+        }
+
+        .nav-dropdown,
+        .mega-menu,
+        .mega-menu-dropdown,
+        .dropdown-menu,
+        .submenu,
+        .hover-menu {
+            z-index: 99999 !important;
+            pointer-events: auto !important;
+        }
+
+        .menu-item-has-dropdown:hover .nav-dropdown,
+        .menu-item-has-mega:hover .mega-menu-dropdown,
+        .nav-item:hover .nav-dropdown,
+        .nav-item:hover .mega-menu,
+        .nav-item:hover .dropdown-menu,
+        .menu-item:hover .submenu,
+        .menu-item:hover .hover-menu {
+            display: block !important;
+            opacity: 1 !important;
+            visibility: visible !important;
+            pointer-events: auto !important;
+        }
+
+        .sub-filter-bar,
+        .stylehub-extra-filter-bar,
+        .collection-tabs,
+        .collection-nav {
+            z-index: 1000 !important;
+        }
+
+        body.stylehub-smart-header .main-header {
+            z-index: 7000 !important;
+            overflow: visible !important;
+            pointer-events: auto !important;
+        }
+
+        body.stylehub-smart-header.stylehub-header-hidden .main-header {
+            pointer-events: none !important;
+        }
+
+        body.stylehub-smart-header .sub-filter-bar {
+            z-index: 1000 !important;
+        }
+    `;
+    document.head.appendChild(style);
+}
+
+
+document.addEventListener("DOMContentLoaded", initHeaderDropdownHoverFix);
