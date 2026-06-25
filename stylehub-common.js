@@ -1560,119 +1560,18 @@ document.addEventListener("DOMContentLoaded", initRemoveStyleHubExtraFilterBar);
 
 
 
-document.addEventListener("DOMContentLoaded", initHeaderDropdownHoverFix);
 
 
 
-/* ===== HEADER DROPDOWN + LOGO HOME FIX - ALL PAGES ===== */
-function initStyleHubHeaderDropdownAndLogoHome() {
-    if (!document.getElementById("stylehub-header-dropdown-logo-home-style")) {
-        const style = document.createElement("style");
-        style.id = "stylehub-header-dropdown-logo-home-style";
-        style.textContent = `
-            .stylehub-header-dropdown-wrap {
-                position: relative !important;
-                display: inline-flex !important;
-                align-items: center !important;
-                overflow: visible !important;
-            }
 
-            .stylehub-header-dropdown-wrap > a,
-            .stylehub-header-dropdown-wrap > button,
-            .stylehub-header-dropdown-wrap > span {
-                position: relative !important;
-                z-index: 2 !important;
-            }
 
-            .stylehub-header-dropdown-menu {
-                position: absolute !important;
-                top: calc(100% + 22px) !important;
-                left: 50% !important;
-                transform: translateX(-50%) translateY(8px);
-                min-width: 190px;
-                padding: 16px 0;
-                background: #111111 !important;
-                color: #ffffff !important;
-                border: 1px solid rgba(255,255,255,0.14);
-                box-shadow: 0 18px 45px rgba(0,0,0,0.25);
-                opacity: 0;
-                visibility: hidden;
-                pointer-events: none;
-                transition: opacity 0.18s ease, transform 0.18s ease, visibility 0.18s ease;
-                z-index: 999999 !important;
-                text-align: left;
-            }
 
-            .stylehub-header-dropdown-menu::before {
-                content: "";
-                position: absolute;
-                left: 0;
-                right: 0;
-                top: -26px;
-                height: 26px;
-                background: transparent;
-            }
+/* ===== ROBUST FLOATING HEADER DROPDOWN FOR FEATURED / COLLECTION PAGES ===== */
+function initStyleHubRobustHeaderDropdown() {
+    if (window.__stylehubRobustHeaderDropdownReady) return;
+    window.__stylehubRobustHeaderDropdownReady = true;
 
-            .stylehub-header-dropdown-wrap:hover .stylehub-header-dropdown-menu,
-            .stylehub-header-dropdown-wrap.stylehub-dropdown-open .stylehub-header-dropdown-menu {
-                opacity: 1 !important;
-                visibility: visible !important;
-                pointer-events: auto !important;
-                transform: translateX(-50%) translateY(0);
-            }
-
-            .stylehub-header-dropdown-menu a {
-                display: block !important;
-                padding: 10px 22px !important;
-                color: rgba(255,255,255,0.86) !important;
-                text-decoration: none !important;
-                font-size: 11px !important;
-                letter-spacing: 1.8px !important;
-                text-transform: uppercase !important;
-                white-space: nowrap !important;
-                background: transparent !important;
-            }
-
-            .stylehub-header-dropdown-menu a:hover {
-                color: #ffffff !important;
-                background: rgba(255,255,255,0.08) !important;
-            }
-
-            .main-header,
-            header.main-header,
-            .site-header,
-            header {
-                overflow: visible !important;
-                z-index: 99999 !important;
-            }
-
-            .main-header nav,
-            .main-header .nav-left,
-            .main-header .nav-right,
-            .main-header .desktop-nav,
-            .main-header .header-nav,
-            .main-header .nav-menu,
-            header nav {
-                overflow: visible !important;
-                z-index: 99999 !important;
-            }
-
-            .sub-filter-bar,
-            .collection-tabs,
-            .collection-nav {
-                z-index: 1000 !important;
-            }
-
-            .stylehub-logo-home-link {
-                cursor: pointer !important;
-                text-decoration: none !important;
-                color: inherit !important;
-            }
-        `;
-        document.head.appendChild(style);
-    }
-
-    const dropdownMap = {
+    const menuData = {
         "MENS": [
             ["All Products", "mens.html"],
             ["Tops", "mens.html?cat=tops"],
@@ -1708,84 +1607,492 @@ function initStyleHubHeaderDropdownAndLogoHome() {
         return String(value || "").replace(/\s+/g, " ").trim().toUpperCase();
     }
 
-    function isHeaderNavLink(el) {
-        if (!el || el.dataset.stylehubDropdownReady === "1") return false;
-        const label = normalizeText(el.textContent);
-        if (!dropdownMap[label]) return false;
+    if (!document.getElementById("stylehub-robust-dropdown-style")) {
+        const style = document.createElement("style");
+        style.id = "stylehub-robust-dropdown-style";
+        style.textContent = `
+            .stylehub-floating-nav-dropdown {
+                position: fixed;
+                min-width: 205px;
+                background: #111111;
+                color: #ffffff;
+                border: 1px solid rgba(255,255,255,0.14);
+                box-shadow: 0 18px 48px rgba(0,0,0,0.28);
+                padding: 14px 0;
+                z-index: 2147483000;
+                opacity: 0;
+                visibility: hidden;
+                pointer-events: none;
+                transform: translateY(8px);
+                transition: opacity .16s ease, transform .16s ease, visibility .16s ease;
+            }
 
-        const header = el.closest(".main-header, header.main-header, .site-header, header");
-        if (!header) return false;
+            .stylehub-floating-nav-dropdown.open {
+                opacity: 1;
+                visibility: visible;
+                pointer-events: auto;
+                transform: translateY(0);
+            }
 
-        return true;
+            .stylehub-floating-nav-dropdown::before {
+                content: "";
+                position: absolute;
+                top: -22px;
+                left: 0;
+                right: 0;
+                height: 22px;
+                background: transparent;
+            }
+
+            .stylehub-floating-nav-dropdown a {
+                display: block;
+                padding: 10px 22px;
+                color: rgba(255,255,255,0.86) !important;
+                text-decoration: none !important;
+                font-size: 11px;
+                line-height: 1.2;
+                letter-spacing: 1.8px;
+                text-transform: uppercase;
+                white-space: nowrap;
+                background: transparent !important;
+            }
+
+            .stylehub-floating-nav-dropdown a:hover {
+                color: #ffffff !important;
+                background: rgba(255,255,255,0.08) !important;
+            }
+
+            .stylehub-logo-home-link {
+                cursor: pointer !important;
+                color: inherit !important;
+                text-decoration: none !important;
+            }
+
+            .main-header,
+            header.main-header,
+            .site-header,
+            header {
+                overflow: visible !important;
+                z-index: 999999 !important;
+            }
+        `;
+        document.head.appendChild(style);
     }
 
-    function buildDropdownForLink(link) {
-        const label = normalizeText(link.textContent);
-        const items = dropdownMap[label];
-        if (!items) return;
+    let dropdown = document.getElementById("stylehubFloatingNavDropdown");
+    if (!dropdown) {
+        dropdown = document.createElement("div");
+        dropdown.id = "stylehubFloatingNavDropdown";
+        dropdown.className = "stylehub-floating-nav-dropdown";
+        document.body.appendChild(dropdown);
+    }
 
-        link.dataset.stylehubDropdownReady = "1";
+    let closeTimer = null;
 
-        const wrapper = document.createElement("span");
-        wrapper.className = "stylehub-header-dropdown-wrap";
+    function openMenu(trigger, label) {
+        const items = menuData[label];
+        if (!trigger || !items) return;
 
-        const parent = link.parentNode;
-        parent.insertBefore(wrapper, link);
-        wrapper.appendChild(link);
+        clearTimeout(closeTimer);
 
-        const menu = document.createElement("div");
-        menu.className = "stylehub-header-dropdown-menu";
-        menu.innerHTML = items.map(function(item) {
+        dropdown.innerHTML = items.map(function(item) {
             return `<a href="${item[1]}">${item[0]}</a>`;
         }).join("");
 
-        wrapper.appendChild(menu);
+        const rect = trigger.getBoundingClientRect();
+        const width = 205;
+        let left = rect.left + rect.width / 2 - width / 2;
+        left = Math.max(12, Math.min(window.innerWidth - width - 12, left));
 
-        wrapper.addEventListener("mouseenter", function () {
-            wrapper.classList.add("stylehub-dropdown-open");
-        });
+        dropdown.style.left = left + "px";
+        dropdown.style.top = (rect.bottom + 18) + "px";
+        dropdown.classList.add("open");
+    }
 
-        wrapper.addEventListener("mouseleave", function () {
-            wrapper.classList.remove("stylehub-dropdown-open");
+    function scheduleClose() {
+        clearTimeout(closeTimer);
+        closeTimer = setTimeout(function() {
+            dropdown.classList.remove("open");
+        }, 220);
+    }
+
+    dropdown.addEventListener("mouseenter", function() {
+        clearTimeout(closeTimer);
+    });
+
+    dropdown.addEventListener("mouseleave", scheduleClose);
+
+    function bindHeaderLinks() {
+        document.querySelectorAll(".main-header a, header.main-header a, .site-header a, header a, .main-header span, header.main-header span, .site-header span, header span").forEach(function(el) {
+            const label = normalizeText(el.textContent);
+
+            if (menuData[label] && el.dataset.stylehubRobustDropdownBound !== "1") {
+                el.dataset.stylehubRobustDropdownBound = "1";
+
+                el.addEventListener("mouseenter", function(event) {
+                    openMenu(el, label);
+                });
+
+                el.addEventListener("focus", function() {
+                    openMenu(el, label);
+                });
+
+                el.addEventListener("mouseleave", scheduleClose);
+            }
+
+            if (label === "THE STYLE HUB") {
+                if (el.tagName.toLowerCase() === "a") {
+                    el.href = "index.html";
+                    el.classList.add("stylehub-logo-home-link");
+                } else if (el.dataset.stylehubLogoWrapped !== "1") {
+                    el.dataset.stylehubLogoWrapped = "1";
+                    const a = document.createElement("a");
+                    a.href = "index.html";
+                    a.className = (el.className ? el.className + " " : "") + "stylehub-logo-home-link";
+                    a.innerHTML = el.innerHTML;
+                    if (el.getAttribute("style")) a.setAttribute("style", el.getAttribute("style"));
+                    el.replaceWith(a);
+                }
+            }
         });
     }
 
-    document.querySelectorAll("a, button, span").forEach(function(el) {
-        if (isHeaderNavLink(el)) buildDropdownForLink(el);
-    });
+    bindHeaderLinks();
+    setTimeout(bindHeaderLinks, 300);
+    setTimeout(bindHeaderLinks, 900);
+    setTimeout(bindHeaderLinks, 1600);
 
-    // THE STYLE HUB logo/title click về home ở tất cả các trang.
-    document.querySelectorAll(".main-header, header.main-header, .site-header, header").forEach(function(header) {
-        const candidates = Array.from(header.querySelectorAll("a, div, h1, h2, span")).filter(function(el) {
-            return normalizeText(el.textContent) === "THE STYLE HUB";
-        });
+    document.addEventListener("scroll", function() {
+        dropdown.classList.remove("open");
+    }, { passive: true });
 
-        candidates.forEach(function(el) {
-            if (el.closest(".stylehub-header-dropdown-menu")) return;
-
-            if (el.tagName.toLowerCase() === "a") {
-                el.href = "index.html";
-                el.classList.add("stylehub-logo-home-link");
-                return;
-            }
-
-            if (el.dataset.stylehubLogoHomeReady === "1") return;
-            el.dataset.stylehubLogoHomeReady = "1";
-
-            const link = document.createElement("a");
-            link.href = "index.html";
-            link.className = (el.className ? el.className + " " : "") + "stylehub-logo-home-link";
-            link.innerHTML = el.innerHTML;
-
-            // Copy inline style nếu có để không vỡ layout.
-            if (el.getAttribute("style")) link.setAttribute("style", el.getAttribute("style"));
-
-            el.replaceWith(link);
-        });
+    window.addEventListener("resize", function() {
+        dropdown.classList.remove("open");
     });
 }
 
 
-document.addEventListener("DOMContentLoaded", initStyleHubHeaderDropdownAndLogoHome);
-setTimeout(initStyleHubHeaderDropdownAndLogoHome, 600);
-setTimeout(initStyleHubHeaderDropdownAndLogoHome, 1500);
+document.addEventListener("DOMContentLoaded", initStyleHubRobustHeaderDropdown);
+
+
+
+/* ===== PRODUCT IMAGE ZOOM LIGHTBOX - ALL PRODUCTS ===== */
+function initStyleHubProductImageLightbox() {
+    if (window.__stylehubProductImageLightboxReady) return;
+    window.__stylehubProductImageLightboxReady = true;
+
+    if (!document.getElementById("stylehub-product-lightbox-style")) {
+        const style = document.createElement("style");
+        style.id = "stylehub-product-lightbox-style";
+        style.textContent = `
+            .stylehub-product-lightbox {
+                position: fixed;
+                inset: 0;
+                z-index: 2147482000;
+                background: #ffffff;
+                display: none;
+                color: #111111;
+            }
+
+            .stylehub-product-lightbox.open {
+                display: block;
+            }
+
+            .stylehub-lightbox-close {
+                position: fixed;
+                top: 36px;
+                right: 42px;
+                z-index: 2147482100;
+                width: 44px;
+                height: 44px;
+                border: none;
+                background: transparent;
+                color: #111111;
+                font-size: 34px;
+                line-height: 1;
+                cursor: pointer;
+                font-weight: 300;
+            }
+
+            .stylehub-lightbox-main {
+                width: 100%;
+                height: 100vh;
+                overflow-y: auto;
+                scroll-behavior: smooth;
+                padding: 90px 145px 90px 80px;
+                box-sizing: border-box;
+            }
+
+            .stylehub-lightbox-image-wrap {
+                min-height: 100vh;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                padding: 40px 0;
+                box-sizing: border-box;
+            }
+
+            .stylehub-lightbox-image-wrap img {
+                width: auto;
+                height: auto;
+                max-width: min(1120px, 86vw);
+                max-height: none;
+                object-fit: contain;
+                display: block;
+                user-select: none;
+            }
+
+            .stylehub-lightbox-thumbs {
+                position: fixed;
+                right: 38px;
+                top: 50%;
+                transform: translateY(-50%);
+                z-index: 2147482050;
+                display: flex;
+                flex-direction: column;
+                gap: 16px;
+                max-height: 76vh;
+                overflow-y: auto;
+                padding: 4px;
+            }
+
+            .stylehub-lightbox-thumb {
+                width: 72px;
+                height: 92px;
+                padding: 0;
+                background: #f7f7f7;
+                border: 1px solid transparent;
+                cursor: pointer;
+                overflow: hidden;
+            }
+
+            .stylehub-lightbox-thumb.active {
+                border-color: #111111;
+            }
+
+            .stylehub-lightbox-thumb img {
+                width: 100%;
+                height: 100%;
+                object-fit: cover;
+                object-position: center top;
+                display: block;
+            }
+
+            .stylehub-lightbox-hint {
+                position: fixed;
+                left: 42px;
+                top: 38px;
+                z-index: 2147482050;
+                color: #777777;
+                font-size: 11px;
+                letter-spacing: 1.6px;
+                text-transform: uppercase;
+            }
+
+            .image-scroll-gallery img,
+            #gallery-target img,
+            .product-gallery img,
+            .product-image-gallery img {
+                cursor: zoom-in;
+            }
+
+            body.stylehub-lightbox-open {
+                overflow: hidden !important;
+            }
+
+            @media (max-width: 768px) {
+                .stylehub-lightbox-main {
+                    padding: 78px 18px 120px;
+                }
+
+                .stylehub-lightbox-image-wrap {
+                    min-height: 78vh;
+                }
+
+                .stylehub-lightbox-image-wrap img {
+                    max-width: 96vw;
+                }
+
+                .stylehub-lightbox-thumbs {
+                    left: 0;
+                    right: 0;
+                    bottom: 18px;
+                    top: auto;
+                    transform: none;
+                    flex-direction: row;
+                    justify-content: center;
+                    max-height: none;
+                    overflow-x: auto;
+                    padding: 0 18px;
+                }
+
+                .stylehub-lightbox-thumb {
+                    width: 58px;
+                    height: 74px;
+                    flex: 0 0 auto;
+                }
+
+                .stylehub-lightbox-close {
+                    top: 22px;
+                    right: 22px;
+                }
+
+                .stylehub-lightbox-hint {
+                    left: 22px;
+                    top: 28px;
+                }
+            }
+        `;
+        document.head.appendChild(style);
+    }
+
+    function getProductImages() {
+        const selectors = [
+            "#gallery-target img",
+            ".image-scroll-gallery img",
+            ".product-gallery img",
+            ".product-image-gallery img",
+            ".product-detail-gallery img"
+        ];
+
+        const found = [];
+        selectors.forEach(function(selector) {
+            document.querySelectorAll(selector).forEach(function(img) {
+                const src = img.currentSrc || img.src || img.getAttribute("src");
+                if (!src) return;
+                if (found.some(item => item.src === src)) return;
+                found.push({
+                    src: src,
+                    alt: img.alt || "Product image",
+                    node: img
+                });
+            });
+        });
+
+        return found;
+    }
+
+    function ensureLightbox() {
+        let box = document.getElementById("stylehubProductLightbox");
+        if (box) return box;
+
+        box = document.createElement("div");
+        box.id = "stylehubProductLightbox";
+        box.className = "stylehub-product-lightbox";
+        box.innerHTML = `
+            <div class="stylehub-lightbox-hint">Click image to zoom · ESC to close</div>
+            <button class="stylehub-lightbox-close" type="button" aria-label="Close image zoom">×</button>
+            <div class="stylehub-lightbox-main" id="stylehubLightboxMain"></div>
+            <div class="stylehub-lightbox-thumbs" id="stylehubLightboxThumbs"></div>
+        `;
+        document.body.appendChild(box);
+
+        box.querySelector(".stylehub-lightbox-close").addEventListener("click", closeLightbox);
+        document.addEventListener("keydown", function(event) {
+            if (event.key === "Escape" && box.classList.contains("open")) {
+                closeLightbox();
+            }
+        });
+
+        return box;
+    }
+
+    function closeLightbox() {
+        const box = document.getElementById("stylehubProductLightbox");
+        if (!box) return;
+        box.classList.remove("open");
+        document.body.classList.remove("stylehub-lightbox-open");
+    }
+
+    function openLightbox(startIndex) {
+        const images = getProductImages();
+        if (!images.length) return;
+
+        const box = ensureLightbox();
+        const main = box.querySelector("#stylehubLightboxMain");
+        const thumbs = box.querySelector("#stylehubLightboxThumbs");
+
+        main.innerHTML = images.map(function(item, index) {
+            return `
+                <section class="stylehub-lightbox-image-wrap" data-lightbox-index="${index}">
+                    <img src="${item.src}" alt="${item.alt.replace(/"/g, "&quot;")}">
+                </section>
+            `;
+        }).join("");
+
+        thumbs.innerHTML = images.map(function(item, index) {
+            return `
+                <button class="stylehub-lightbox-thumb" type="button" data-lightbox-thumb="${index}">
+                    <img src="${item.src}" alt="${item.alt.replace(/"/g, "&quot;")}">
+                </button>
+            `;
+        }).join("");
+
+        const sections = Array.from(main.querySelectorAll(".stylehub-lightbox-image-wrap"));
+        const thumbButtons = Array.from(thumbs.querySelectorAll(".stylehub-lightbox-thumb"));
+
+        function setActive(index) {
+            thumbButtons.forEach(function(btn, i) {
+                btn.classList.toggle("active", i === index);
+            });
+        }
+
+        thumbButtons.forEach(function(btn) {
+            btn.addEventListener("click", function() {
+                const index = Number(btn.dataset.lightboxThumb || 0);
+                if (sections[index]) {
+                    sections[index].scrollIntoView({ behavior: "smooth", block: "start" });
+                    setActive(index);
+                }
+            });
+        });
+
+        main.addEventListener("scroll", function() {
+            let active = 0;
+            const mainRect = main.getBoundingClientRect();
+
+            sections.forEach(function(section, index) {
+                const rect = section.getBoundingClientRect();
+                if (Math.abs(rect.top - mainRect.top) < Math.abs(sections[active].getBoundingClientRect().top - mainRect.top)) {
+                    active = index;
+                }
+            });
+
+            setActive(active);
+        });
+
+        box.classList.add("open");
+        document.body.classList.add("stylehub-lightbox-open");
+
+        const safeIndex = Math.max(0, Math.min(images.length - 1, Number(startIndex || 0)));
+        setTimeout(function() {
+            if (sections[safeIndex]) {
+                sections[safeIndex].scrollIntoView({ behavior: "auto", block: "start" });
+            }
+            setActive(safeIndex);
+        }, 30);
+    }
+
+    function bindGalleryImages() {
+        const images = getProductImages();
+
+        images.forEach(function(item, index) {
+            if (item.node.dataset.stylehubLightboxBound === "1") return;
+            item.node.dataset.stylehubLightboxBound = "1";
+            item.node.addEventListener("click", function(event) {
+                event.preventDefault();
+                event.stopPropagation();
+                openLightbox(index);
+            });
+        });
+    }
+
+    bindGalleryImages();
+
+    // Product images can be rendered after product-data.js loads.
+    setTimeout(bindGalleryImages, 300);
+    setTimeout(bindGalleryImages, 900);
+    setTimeout(bindGalleryImages, 1600);
+}
+
+document.addEventListener("DOMContentLoaded", initStyleHubProductImageLightbox);
