@@ -116,6 +116,92 @@
             background: rgba(15, 23, 42, .65);
             box-shadow: inset 0 1px 0 rgba(255,255,255,.05);
         }
+        .admin-bulk-toolbar {
+            display: none;
+            align-items: center;
+            justify-content: space-between;
+            gap: 16px;
+            margin: -8px 0 22px;
+            padding: 15px 18px;
+            border: 1px solid rgba(148, 163, 184, 0.18);
+            border-radius: 16px;
+            background: rgba(15, 23, 42, .58);
+            box-shadow: inset 0 1px 0 rgba(255,255,255,.04);
+        }
+        .admin-bulk-left,
+        .admin-bulk-actions {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+        .select-all-control,
+        .order-select {
+            display: inline-flex;
+            align-items: center;
+            gap: 9px;
+            color: #dbeafe;
+            font-size: 12px;
+            font-weight: 800;
+            letter-spacing: 1.2px;
+            text-transform: uppercase;
+            cursor: pointer;
+            user-select: none;
+        }
+        .select-all-control input,
+        .order-select input {
+            width: 17px;
+            height: 17px;
+            accent-color: #60a5fa;
+            cursor: pointer;
+        }
+        .selected-count {
+            color: #aab5c5;
+            font-size: 12px;
+        }
+        .bulk-btn {
+            padding: 10px 14px;
+            border-radius: 12px;
+            cursor: pointer;
+            font-weight: 900;
+            letter-spacing: .8px;
+            text-transform: uppercase;
+            border: 1px solid rgba(148, 163, 184, .18);
+            transition: .2s;
+        }
+        .bulk-btn:hover:not(:disabled) { transform: translateY(-1px); opacity: .95; }
+        .bulk-btn:disabled {
+            opacity: .42;
+            cursor: not-allowed;
+        }
+        .bulk-delete-selected {
+            background: rgba(15, 23, 42, .35);
+            color: #fecaca;
+            border-color: rgba(248, 113, 113, .45);
+        }
+        .bulk-delete-all {
+            background: linear-gradient(135deg, #991b1b, #fb7185);
+            color: #fff;
+            border-color: rgba(254, 202, 202, .36);
+            box-shadow: 0 14px 28px rgba(248, 113, 113, .14);
+        }
+        .order-card.is-selected {
+            border-color: rgba(96, 165, 250, .78);
+            box-shadow: 0 22px 55px rgba(0,0,0,0.34), 0 0 0 2px rgba(96, 165, 250, .14), inset 0 1px 0 rgba(255,255,255,.04);
+        }
+        .order-header-main {
+            display: flex;
+            align-items: center;
+            gap: 13px;
+            flex-wrap: wrap;
+        }
+        .order-select {
+            padding: 7px 10px;
+            border: 1px solid rgba(148, 163, 184, .2);
+            border-radius: 999px;
+            background: rgba(3, 7, 18, .28);
+            color: #bfdbfe;
+        }
         .order-card {
             background: linear-gradient(145deg, rgba(17, 24, 39, .94), rgba(15, 23, 42, .86));
             padding: 24px;
@@ -337,21 +423,165 @@
             from { opacity: 0; transform: translateY(-8px) scale(.98); }
             to { opacity: 1; transform: translateY(0) scale(1); }
         }
+
+        .admin-confirm-overlay {
+            position: fixed;
+            inset: 0;
+            z-index: 10050;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            padding: 24px;
+            background: rgba(2, 6, 23, .66);
+            backdrop-filter: blur(14px);
+            animation: confirmFadeIn .18s ease-out;
+        }
+        .admin-confirm-overlay.is-open { display: flex; }
+        .admin-confirm-modal {
+            width: min(460px, 100%);
+            position: relative;
+            overflow: hidden;
+            padding: 28px;
+            border-radius: 24px;
+            color: #f8fafc;
+            background:
+                radial-gradient(circle at 12% 0%, rgba(96, 165, 250, .22), transparent 34%),
+                linear-gradient(145deg, rgba(15, 23, 42, .98), rgba(8, 15, 28, .96));
+            border: 1px solid rgba(148, 163, 184, .22);
+            box-shadow: 0 34px 90px rgba(0,0,0,.55), inset 0 1px 0 rgba(255,255,255,.08);
+            animation: confirmPopIn .2s ease-out;
+        }
+        .admin-confirm-modal::before {
+            content: "";
+            position: absolute;
+            inset: 0 0 auto 0;
+            height: 3px;
+            background: linear-gradient(90deg, #60a5fa, #fb7185, #fbbf24);
+        }
+        .admin-confirm-close {
+            position: absolute;
+            top: 14px;
+            right: 14px;
+            width: 38px;
+            height: 38px;
+            border: 1px solid rgba(148, 163, 184, .2);
+            border-radius: 50%;
+            background: rgba(15, 23, 42, .55);
+            color: #cbd5e1;
+            font-size: 24px;
+            line-height: 1;
+            cursor: pointer;
+            transition: .18s;
+        }
+        .admin-confirm-close:hover { color: #fff; border-color: rgba(248, 113, 113, .55); transform: rotate(90deg); }
+        .admin-confirm-icon {
+            width: 58px;
+            height: 58px;
+            border-radius: 18px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 18px;
+            font-size: 28px;
+            background: linear-gradient(135deg, rgba(248,113,113,.95), rgba(251,191,36,.9));
+            color: #fff;
+            box-shadow: 0 18px 32px rgba(248, 113, 113, .18);
+        }
+        .admin-confirm-kicker {
+            margin-bottom: 8px;
+            color: #93c5fd;
+            font-size: 11px;
+            font-weight: 900;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+        }
+        .admin-confirm-title {
+            margin: 0;
+            padding-right: 42px;
+            font-size: 22px;
+            line-height: 1.3;
+            letter-spacing: .4px;
+            color: #fff;
+        }
+        .admin-confirm-message {
+            margin: 12px 0 0;
+            color: #b7c2d3;
+            font-size: 14px;
+            line-height: 1.65;
+        }
+        .admin-confirm-actions {
+            display: flex;
+            justify-content: flex-end;
+            gap: 12px;
+            margin-top: 26px;
+        }
+        .admin-confirm-actions button {
+            min-width: 118px;
+            padding: 13px 18px;
+            border-radius: 14px;
+            font-weight: 900;
+            letter-spacing: 1.2px;
+            text-transform: uppercase;
+            cursor: pointer;
+            transition: .18s;
+        }
+        .admin-confirm-actions button:hover { transform: translateY(-1px); }
+        .admin-confirm-cancel {
+            background: rgba(15, 23, 42, .48);
+            color: #dbeafe;
+            border: 1px solid rgba(148, 163, 184, .24);
+        }
+        .admin-confirm-danger {
+            background: linear-gradient(135deg, #ef4444, #fb7185);
+            color: #fff;
+            border: 1px solid rgba(254, 202, 202, .35);
+            box-shadow: 0 16px 32px rgba(239, 68, 68, .18);
+        }
+        @keyframes confirmFadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        @keyframes confirmPopIn {
+            from { opacity: 0; transform: translateY(10px) scale(.97); }
+            to { opacity: 1; transform: translateY(0) scale(1); }
+        }
         @media (max-width: 720px) {
             .admin-topbar { padding: 0 18px; }
             .admin-logo { font-size: 14px; letter-spacing: 4px; }
             .admin-title-row { flex-direction: column; align-items: flex-start; }
+            .admin-bulk-toolbar { align-items: stretch; flex-direction: column; }
+            .admin-bulk-left, .admin-bulk-actions { width: 100%; }
+            .admin-bulk-actions .bulk-btn { width: 100%; }
             .customer-grid { grid-template-columns: 1fr; }
             .order-header { align-items: flex-start; flex-direction: column; }
             .btn-group { justify-content: stretch; }
             .btn { width: 100%; }
             .admin-toast-wrap { top: 76px; left: 16px; right: 16px; }
             .admin-toast { min-width: 0; max-width: none; }
+            .admin-confirm-modal { padding: 24px 20px; border-radius: 20px; }
+            .admin-confirm-title { font-size: 19px; }
+            .admin-confirm-actions { flex-direction: column-reverse; }
+            .admin-confirm-actions button { width: 100%; }
         }
     </style>
 </head>
 <body>
 <div class="admin-toast-wrap" id="adminToastWrap"></div>
+
+<div class="admin-confirm-overlay" id="adminConfirmOverlay" aria-hidden="true">
+    <div class="admin-confirm-modal" role="dialog" aria-modal="true" aria-labelledby="adminConfirmTitle" aria-describedby="adminConfirmMessage">
+        <button class="admin-confirm-close" type="button" onclick="resolveAdminConfirm(false)" aria-label="Đóng">×</button>
+        <div class="admin-confirm-icon" id="adminConfirmIcon">!</div>
+        <div class="admin-confirm-kicker" id="adminConfirmKicker">Xác nhận thao tác</div>
+        <h3 class="admin-confirm-title" id="adminConfirmTitle">Bạn chắc chắn muốn xóa?</h3>
+        <p class="admin-confirm-message" id="adminConfirmMessage">Thao tác này sẽ xóa đơn đã chọn khỏi hệ thống quản trị.</p>
+        <div class="admin-confirm-actions">
+            <button class="admin-confirm-cancel" type="button" onclick="resolveAdminConfirm(false)" id="adminConfirmCancel">Hủy</button>
+            <button class="admin-confirm-danger" type="button" onclick="resolveAdminConfirm(true)" id="adminConfirmAccept">Xóa đơn</button>
+        </div>
+    </div>
+</div>
+
 
 <section id="login-screen">
     <div class="login-card">
@@ -380,6 +610,21 @@
             </div>
             <div class="order-count" id="orderCount">0 đơn hàng</div>
         </div>
+
+        <div class="admin-bulk-toolbar" id="adminBulkToolbar">
+            <div class="admin-bulk-left">
+                <label class="select-all-control">
+                    <input type="checkbox" id="selectAllOrders" onchange="toggleSelectAllOrders(this)">
+                    <span>Chọn tất cả</span>
+                </label>
+                <span class="selected-count" id="selectedOrdersCount">Đã chọn 0 đơn</span>
+            </div>
+            <div class="admin-bulk-actions">
+                <button class="bulk-btn bulk-delete-selected" id="deleteSelectedBtn" onclick="deleteSelectedOrders()" disabled>Xóa đơn đã chọn</button>
+                <button class="bulk-btn bulk-delete-all" id="deleteAllBtn" onclick="deleteAllOrders()">Xóa tất cả đơn</button>
+            </div>
+        </div>
+
         <div id="admin-orders"></div>
     </main>
 </section>
@@ -427,6 +672,66 @@
     });
 
     let adminRealtimeStarted = false;
+    let selectedOrderIds = new Set();
+    let latestRenderedOrderIds = [];
+
+    let adminConfirmResolver = null;
+
+    function showAdminConfirm(options) {
+        const config = Object.assign({
+            kicker: 'Xác nhận thao tác',
+            title: 'Bạn chắc chắn muốn xóa?',
+            message: 'Thao tác này sẽ xóa dữ liệu khỏi hệ thống quản trị.',
+            confirmText: 'Xóa đơn',
+            cancelText: 'Hủy',
+            icon: '!'
+        }, options || {});
+
+        const overlay = document.getElementById('adminConfirmOverlay');
+        if (!overlay) return Promise.resolve(window.confirm(config.message || config.title));
+
+        document.getElementById('adminConfirmKicker').textContent = config.kicker;
+        document.getElementById('adminConfirmTitle').textContent = config.title;
+        document.getElementById('adminConfirmMessage').textContent = config.message;
+        document.getElementById('adminConfirmAccept').textContent = config.confirmText;
+        document.getElementById('adminConfirmCancel').textContent = config.cancelText;
+        document.getElementById('adminConfirmIcon').textContent = config.icon;
+
+        overlay.classList.add('is-open');
+        overlay.setAttribute('aria-hidden', 'false');
+        setTimeout(function() {
+            const acceptBtn = document.getElementById('adminConfirmAccept');
+            if (acceptBtn) acceptBtn.focus();
+        }, 30);
+
+        return new Promise(function(resolve) {
+            adminConfirmResolver = resolve;
+        });
+    }
+
+    function resolveAdminConfirm(answer) {
+        const overlay = document.getElementById('adminConfirmOverlay');
+        if (overlay) {
+            overlay.classList.remove('is-open');
+            overlay.setAttribute('aria-hidden', 'true');
+        }
+        if (typeof adminConfirmResolver === 'function') {
+            const resolver = adminConfirmResolver;
+            adminConfirmResolver = null;
+            resolver(!!answer);
+        }
+    }
+
+    document.getElementById('adminConfirmOverlay').addEventListener('click', function(event) {
+        if (event.target === event.currentTarget) resolveAdminConfirm(false);
+    });
+
+    document.addEventListener('keydown', function(event) {
+        const overlay = document.getElementById('adminConfirmOverlay');
+        if (event.key === 'Escape' && overlay && overlay.classList.contains('is-open')) {
+            resolveAdminConfirm(false);
+        }
+    });
 
     function escapeHtml(value) {
         return String(value === undefined || value === null ? '' : value)
@@ -534,33 +839,51 @@
 
     async function renderOrders(preloadedOrders) {
         const orders = Array.isArray(preloadedOrders) ? preloadedOrders : await getAdminOrders();
+        const normalizedOrders = orders.map(function(rawOrder) {
+            return window.StyleHubOrders && StyleHubOrders.normalizeOrder ? StyleHubOrders.normalizeOrder(rawOrder) : rawOrder;
+        });
         const container = document.getElementById('admin-orders');
         const orderCount = document.getElementById('orderCount');
-        orderCount.textContent = orders.length + ' đơn hàng';
+        const toolbar = document.getElementById('adminBulkToolbar');
+        orderCount.textContent = normalizedOrders.length + ' đơn hàng';
+        latestRenderedOrderIds = normalizedOrders.map(function(order) { return String(order.orderId || ''); }).filter(Boolean);
 
-        if (orders.length === 0) {
+        selectedOrderIds.forEach(function(orderId) {
+            if (latestRenderedOrderIds.indexOf(orderId) === -1) selectedOrderIds.delete(orderId);
+        });
+
+        if (toolbar) toolbar.style.display = normalizedOrders.length ? 'flex' : 'none';
+
+        if (normalizedOrders.length === 0) {
             container.innerHTML = '<div class="empty-state">Chưa có đơn hàng nào.</div>';
+            updateBulkToolbarState();
             return;
         }
 
-        container.innerHTML = orders.map(function(rawOrder) {
-            const order = window.StyleHubOrders && StyleHubOrders.normalizeOrder ? StyleHubOrders.normalizeOrder(rawOrder) : rawOrder;
+        container.innerHTML = normalizedOrders.map(function(order) {
             const items = Array.isArray(order.orderedProductsList) ? order.orderedProductsList : [];
             const customer = getCustomerInfo(order);
             const status = order.status || 'Đang chờ xác nhận';
             const statusClass = getStatusClass(status);
             const displayTotal = order.totalPriceFormatted || order.totalPrice || calculateTotal(items);
             const date = order.orderDate || order.date || 'N/A';
-            const orderId = order.orderId || 'N/A';
+            const orderId = String(order.orderId || 'N/A');
+            const isSelected = selectedOrderIds.has(orderId);
             const isShipping = isShippingStatus(status);
             const isDone = isDoneStatus(status);
             const isCancelled = isCancelledStatus(status);
             const isPending = isPendingStatus(status) && !isCancelled;
 
             return `
-                <article class="order-card">
+                <article class="order-card ${isSelected ? 'is-selected' : ''}" data-order-id="${escapeHtml(orderId)}">
                     <div class="order-header">
-                        <strong class="order-id">Mã đơn: ${escapeHtml(orderId)}</strong>
+                        <div class="order-header-main">
+                            <label class="order-select">
+                                <input type="checkbox" class="admin-order-checkbox" data-order-id="${escapeHtml(orderId)}" onchange="toggleOrderSelection(this)" ${isSelected ? 'checked' : ''}>
+                                <span>Chọn</span>
+                            </label>
+                            <strong class="order-id">Mã đơn: ${escapeHtml(orderId)}</strong>
+                        </div>
                         <span class="status-badge ${statusClass}">${escapeHtml(status)}</span>
                     </div>
 
@@ -591,6 +914,116 @@
                 </article>
             `;
         }).join('');
+        updateBulkToolbarState();
+    }
+
+    function updateBulkToolbarState() {
+        const checkboxes = Array.from(document.querySelectorAll('.admin-order-checkbox'));
+        const selectAll = document.getElementById('selectAllOrders');
+        const deleteSelectedBtn = document.getElementById('deleteSelectedBtn');
+        const deleteAllBtn = document.getElementById('deleteAllBtn');
+        const selectedCount = document.getElementById('selectedOrdersCount');
+        const currentIds = checkboxes.map(function(checkbox) { return checkbox.dataset.orderId; });
+
+        selectedOrderIds.forEach(function(orderId) {
+            if (currentIds.indexOf(orderId) === -1) selectedOrderIds.delete(orderId);
+        });
+
+        checkboxes.forEach(function(checkbox) {
+            checkbox.checked = selectedOrderIds.has(checkbox.dataset.orderId);
+            const card = checkbox.closest('.order-card');
+            if (card) card.classList.toggle('is-selected', checkbox.checked);
+        });
+
+        const total = checkboxes.length;
+        const selected = selectedOrderIds.size;
+        if (selectedCount) selectedCount.textContent = 'Đã chọn ' + selected + ' đơn';
+        if (deleteSelectedBtn) deleteSelectedBtn.disabled = selected === 0;
+        if (deleteAllBtn) deleteAllBtn.disabled = total === 0;
+        if (selectAll) {
+            selectAll.checked = total > 0 && selected === total;
+            selectAll.indeterminate = selected > 0 && selected < total;
+            selectAll.disabled = total === 0;
+        }
+    }
+
+    function toggleOrderSelection(checkbox) {
+        const orderId = checkbox && checkbox.dataset ? checkbox.dataset.orderId : '';
+        if (!orderId) return;
+        if (checkbox.checked) selectedOrderIds.add(orderId);
+        else selectedOrderIds.delete(orderId);
+        updateBulkToolbarState();
+    }
+
+    function toggleSelectAllOrders(checkbox) {
+        const checked = !!(checkbox && checkbox.checked);
+        document.querySelectorAll('.admin-order-checkbox').forEach(function(item) {
+            if (checked) selectedOrderIds.add(item.dataset.orderId);
+            else selectedOrderIds.delete(item.dataset.orderId);
+        });
+        updateBulkToolbarState();
+    }
+
+    async function deleteOrderIds(orderIds) {
+        const ids = Array.from(new Set((orderIds || []).filter(function(orderId) {
+            return orderId && orderId !== 'N/A';
+        })));
+        if (!ids.length) return 0;
+
+        for (const orderId of ids) {
+            if (window.StyleHubOrders && typeof StyleHubOrders.deleteOrder === 'function') {
+                await StyleHubOrders.deleteOrder(orderId);
+            }
+        }
+        return ids.length;
+    }
+
+    async function deleteSelectedOrders() {
+        const ids = Array.from(selectedOrderIds);
+        if (!ids.length) return;
+        const agreed = await showAdminConfirm({
+            title: 'Xóa ' + ids.length + ' đơn đã chọn?',
+            message: 'Các đơn được chọn sẽ bị xóa khỏi trang admin. Bạn nên kiểm tra kỹ trước khi xác nhận.',
+            confirmText: 'Xóa ' + ids.length + ' đơn',
+            icon: '🗑️'
+        });
+        if (!agreed) return;
+        try {
+            const deletedCount = await deleteOrderIds(ids);
+            selectedOrderIds.clear();
+            await renderOrders();
+            showAdminToast('Đã xóa ' + deletedCount + ' đơn đã chọn');
+        } catch (error) {
+            showAdminToast('Không xóa được các đơn đã chọn', 'Kiểm tra Firebase/config hoặc mạng internet.');
+            console.error(error);
+        }
+    }
+
+    async function deleteAllOrders() {
+        const orders = await getAdminOrders();
+        const ids = orders.map(function(rawOrder) {
+            const order = window.StyleHubOrders && StyleHubOrders.normalizeOrder ? StyleHubOrders.normalizeOrder(rawOrder) : rawOrder;
+            return String(order.orderId || '');
+        }).filter(Boolean);
+
+        if (!ids.length) return;
+        const agreed = await showAdminConfirm({
+            kicker: 'Xóa toàn bộ đơn hàng',
+            title: 'Xóa tất cả ' + ids.length + ' đơn hàng?',
+            message: 'Thao tác này sẽ xóa toàn bộ đơn hiện có và không thể hoàn tác. Chỉ xác nhận khi bạn chắc chắn đây là đơn test hoặc đơn không cần giữ.',
+            confirmText: 'Xóa tất cả',
+            icon: '⚠️'
+        });
+        if (!agreed) return;
+        try {
+            const deletedCount = await deleteOrderIds(ids);
+            selectedOrderIds.clear();
+            await renderOrders();
+            showAdminToast('Đã xóa tất cả đơn hàng', deletedCount + ' đơn đã được xóa.');
+        } catch (error) {
+            showAdminToast('Không xóa được tất cả đơn', 'Kiểm tra Firebase/config hoặc mạng internet.');
+            console.error(error);
+        }
     }
 
     function startAdminRealtime() {
@@ -657,12 +1090,18 @@
 
     async function removeOrder(orderId) {
         if (!orderId || orderId === 'N/A') return;
-        if (!confirm('Bạn có chắc chắn muốn xóa đơn hàng này không?')) return;
+        const agreed = await showAdminConfirm({
+            title: 'Xóa đơn hàng này?',
+            message: 'Đơn hàng này sẽ bị xóa khỏi danh sách quản trị. Thao tác này không thể hoàn tác.',
+            confirmText: 'Xóa đơn',
+            icon: '🗑️'
+        });
+        if (!agreed) return;
         try {
-            if (window.StyleHubOrders && typeof StyleHubOrders.deleteOrder === 'function') {
-                await StyleHubOrders.deleteOrder(orderId);
-            }
+            await deleteOrderIds([orderId]);
+            selectedOrderIds.delete(orderId);
             await renderOrders();
+            showAdminToast('Đã xóa đơn hàng');
         } catch (error) {
             showAdminToast('Không xóa được đơn');
             console.error(error);

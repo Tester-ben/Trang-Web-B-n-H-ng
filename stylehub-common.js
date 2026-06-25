@@ -1185,11 +1185,12 @@ function searchProducts() {
         function renderTotals() {
             const code = String(localStorage.getItem(VOUCHER_KEY) || "").toUpperCase();
             const subtotal = calcSubtotal();
-            let shipping = subtotal > 0 ? 30000 : 0;
+            const shipping = subtotal > 0 ? 30000 : 0;
             let discount = 0;
 
             if (code === "STYLE10") discount = Math.round(subtotal * 0.1);
-            if (code === "FREESHIP") shipping = 0;
+            // FREESHIP vẫn hiển thị phí ship gốc, rồi trừ ở dòng giảm giá.
+            if (code === "FREESHIP") discount = shipping;
 
             const total = Math.max(0, subtotal + shipping - discount);
             const totals = document.getElementById("stylehubCheckoutTotals");
@@ -1566,214 +1567,6 @@ document.addEventListener("DOMContentLoaded", initRemoveStyleHubExtraFilterBar);
 
 
 
-/* ===== ROBUST FLOATING HEADER DROPDOWN FOR FEATURED / COLLECTION PAGES ===== */
-function initStyleHubRobustHeaderDropdown() {
-    if (window.__stylehubRobustHeaderDropdownReady) return;
-    window.__stylehubRobustHeaderDropdownReady = true;
-
-    const menuData = {
-        "MENS": [
-            ["All Products", "mens.html"],
-            ["Tops", "mens.html?cat=tops"],
-            ["Hoodies", "mens.html?cat=hoodies"],
-            ["Dress Shirt", "mens.html?cat=dress-shirt"],
-            ["Bottoms", "mens.html?cat=bottoms"]
-        ],
-        "WOMENS": [
-            ["All Womens", "womens.html"],
-            ["Tops", "womens.html?cat=tops"],
-            ["Bottoms", "womens.html?cat=bottoms"]
-        ],
-        "KIDS": [
-            ["All Kids", "kids.html"],
-            ["Tops", "kids.html?cat=tops"],
-            ["Jackets & Outerwear", "kids.html?cat=jackets"],
-            ["Bottoms", "kids.html?cat=bottoms"]
-        ],
-        "SALE": [
-            ["All Sale", "sale.html"],
-            ["Mens Sale", "sale.html?cat=mens"],
-            ["Womens Sale", "sale.html?cat=womens"],
-            ["Kids Sale", "sale.html?cat=kids"]
-        ],
-        "SHOES": [
-            ["All Shoes", "shoes.html"],
-            ["Sneakers", "shoes.html?cat=sneakers"],
-            ["Athletics", "shoes.html?cat=athletics"]
-        ]
-    };
-
-    function normalizeText(value) {
-        return String(value || "").replace(/\s+/g, " ").trim().toUpperCase();
-    }
-
-    if (!document.getElementById("stylehub-robust-dropdown-style")) {
-        const style = document.createElement("style");
-        style.id = "stylehub-robust-dropdown-style";
-        style.textContent = `
-            .stylehub-floating-nav-dropdown {
-                position: fixed;
-                min-width: 205px;
-                background: #111111;
-                color: #ffffff;
-                border: 1px solid rgba(255,255,255,0.14);
-                box-shadow: 0 18px 48px rgba(0,0,0,0.28);
-                padding: 14px 0;
-                z-index: 2147483000;
-                opacity: 0;
-                visibility: hidden;
-                pointer-events: none;
-                transform: translateY(8px);
-                transition: opacity .16s ease, transform .16s ease, visibility .16s ease;
-            }
-
-            .stylehub-floating-nav-dropdown.open {
-                opacity: 1;
-                visibility: visible;
-                pointer-events: auto;
-                transform: translateY(0);
-            }
-
-            .stylehub-floating-nav-dropdown::before {
-                content: "";
-                position: absolute;
-                top: -22px;
-                left: 0;
-                right: 0;
-                height: 22px;
-                background: transparent;
-            }
-
-            .stylehub-floating-nav-dropdown a {
-                display: block;
-                padding: 10px 22px;
-                color: rgba(255,255,255,0.86) !important;
-                text-decoration: none !important;
-                font-size: 11px;
-                line-height: 1.2;
-                letter-spacing: 1.8px;
-                text-transform: uppercase;
-                white-space: nowrap;
-                background: transparent !important;
-            }
-
-            .stylehub-floating-nav-dropdown a:hover {
-                color: #ffffff !important;
-                background: rgba(255,255,255,0.08) !important;
-            }
-
-            .stylehub-logo-home-link {
-                cursor: pointer !important;
-                color: inherit !important;
-                text-decoration: none !important;
-            }
-
-            .main-header,
-            header.main-header,
-            .site-header,
-            header {
-                overflow: visible !important;
-                z-index: 999999 !important;
-            }
-        `;
-        document.head.appendChild(style);
-    }
-
-    let dropdown = document.getElementById("stylehubFloatingNavDropdown");
-    if (!dropdown) {
-        dropdown = document.createElement("div");
-        dropdown.id = "stylehubFloatingNavDropdown";
-        dropdown.className = "stylehub-floating-nav-dropdown";
-        document.body.appendChild(dropdown);
-    }
-
-    let closeTimer = null;
-
-    function openMenu(trigger, label) {
-        const items = menuData[label];
-        if (!trigger || !items) return;
-
-        clearTimeout(closeTimer);
-
-        dropdown.innerHTML = items.map(function(item) {
-            return `<a href="${item[1]}">${item[0]}</a>`;
-        }).join("");
-
-        const rect = trigger.getBoundingClientRect();
-        const width = 205;
-        let left = rect.left + rect.width / 2 - width / 2;
-        left = Math.max(12, Math.min(window.innerWidth - width - 12, left));
-
-        dropdown.style.left = left + "px";
-        dropdown.style.top = (rect.bottom + 18) + "px";
-        dropdown.classList.add("open");
-    }
-
-    function scheduleClose() {
-        clearTimeout(closeTimer);
-        closeTimer = setTimeout(function() {
-            dropdown.classList.remove("open");
-        }, 220);
-    }
-
-    dropdown.addEventListener("mouseenter", function() {
-        clearTimeout(closeTimer);
-    });
-
-    dropdown.addEventListener("mouseleave", scheduleClose);
-
-    function bindHeaderLinks() {
-        document.querySelectorAll(".main-header a, header.main-header a, .site-header a, header a, .main-header span, header.main-header span, .site-header span, header span").forEach(function(el) {
-            const label = normalizeText(el.textContent);
-
-            if (menuData[label] && el.dataset.stylehubRobustDropdownBound !== "1") {
-                el.dataset.stylehubRobustDropdownBound = "1";
-
-                el.addEventListener("mouseenter", function(event) {
-                    openMenu(el, label);
-                });
-
-                el.addEventListener("focus", function() {
-                    openMenu(el, label);
-                });
-
-                el.addEventListener("mouseleave", scheduleClose);
-            }
-
-            if (label === "THE STYLE HUB") {
-                if (el.tagName.toLowerCase() === "a") {
-                    el.href = "index.html";
-                    el.classList.add("stylehub-logo-home-link");
-                } else if (el.dataset.stylehubLogoWrapped !== "1") {
-                    el.dataset.stylehubLogoWrapped = "1";
-                    const a = document.createElement("a");
-                    a.href = "index.html";
-                    a.className = (el.className ? el.className + " " : "") + "stylehub-logo-home-link";
-                    a.innerHTML = el.innerHTML;
-                    if (el.getAttribute("style")) a.setAttribute("style", el.getAttribute("style"));
-                    el.replaceWith(a);
-                }
-            }
-        });
-    }
-
-    bindHeaderLinks();
-    setTimeout(bindHeaderLinks, 300);
-    setTimeout(bindHeaderLinks, 900);
-    setTimeout(bindHeaderLinks, 1600);
-
-    document.addEventListener("scroll", function() {
-        dropdown.classList.remove("open");
-    }, { passive: true });
-
-    window.addEventListener("resize", function() {
-        dropdown.classList.remove("open");
-    });
-}
-
-
-document.addEventListener("DOMContentLoaded", initStyleHubRobustHeaderDropdown);
-
 
 
 /* ===== PRODUCT IMAGE ZOOM LIGHTBOX - ALL PRODUCTS ===== */
@@ -2096,3 +1889,66 @@ function initStyleHubProductImageLightbox() {
 }
 
 document.addEventListener("DOMContentLoaded", initStyleHubProductImageLightbox);
+
+
+
+
+
+
+
+/* ===== RESTORE ORIGINAL HEADER MENU CLEANUP ===== */
+function restoreStyleHubOriginalHeaderMenuCleanup() {
+    document.querySelectorAll(
+        "#stylehubFearNavPanel, #stylehubFloatingNavDropdown, .stylehub-fear-nav-panel, .stylehub-floating-nav-dropdown, .stylehub-header-dropdown-menu"
+    ).forEach(function(el) {
+        el.remove();
+    });
+
+    document.querySelectorAll(".stylehub-header-dropdown-wrap").forEach(function(wrapper) {
+        const firstLink = wrapper.querySelector("a, button, span");
+        if (firstLink && wrapper.parentNode) {
+            wrapper.parentNode.insertBefore(firstLink, wrapper);
+            wrapper.remove();
+        }
+    });
+}
+
+document.addEventListener("DOMContentLoaded", restoreStyleHubOriginalHeaderMenuCleanup);
+setTimeout(restoreStyleHubOriginalHeaderMenuCleanup, 300);
+setTimeout(restoreStyleHubOriginalHeaderMenuCleanup, 1000);
+
+
+
+/* ===== LOGO HOME LINK ONLY ===== */
+function initStyleHubLogoHomeOnly() {
+    function normalizeText(value) {
+        return String(value || "").replace(/\s+/g, " ").trim().toUpperCase();
+    }
+
+    document.querySelectorAll(".main-header, header.main-header, .site-header, header").forEach(function(header) {
+        Array.from(header.querySelectorAll("a, div, h1, h2, span")).forEach(function(el) {
+            if (normalizeText(el.textContent) !== "THE STYLE HUB") return;
+            if (el.closest(".stylehub-fear-nav-panel, .stylehub-floating-nav-dropdown")) return;
+
+            if (el.tagName.toLowerCase() === "a") {
+                el.href = "index.html";
+                return;
+            }
+
+            if (el.dataset.stylehubLogoHomeOnly === "1") return;
+            el.dataset.stylehubLogoHomeOnly = "1";
+
+            const a = document.createElement("a");
+            a.href = "index.html";
+            a.className = el.className || "";
+            a.innerHTML = el.innerHTML;
+            if (el.getAttribute("style")) a.setAttribute("style", el.getAttribute("style"));
+            a.style.color = "inherit";
+            a.style.textDecoration = "none";
+            el.replaceWith(a);
+        });
+    });
+}
+
+document.addEventListener("DOMContentLoaded", initStyleHubLogoHomeOnly);
+setTimeout(initStyleHubLogoHomeOnly, 500);

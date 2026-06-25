@@ -89,6 +89,51 @@
         .remove-item-btn:hover { color: #ff0000; text-decoration: underline; }
         
         .cart-footer { border-top: 1px solid #eee; padding-top: 20px; }
+        .cart-side-panel,
+        .checkout-side-panel {
+            box-sizing: border-box;
+        }
+        .cart-drawer-overlay,
+        .checkout-drawer-overlay {
+            overflow: hidden;
+        }
+        .cart-side-panel > .cart-footer {
+            background: #fff !important;
+            color: #111 !important;
+            position: relative;
+            z-index: 3;
+            flex-shrink: 0;
+            padding-top: 18px;
+        }
+        .cart-side-panel > .cart-footer .cart-total-row,
+        .cart-side-panel > .cart-footer .cart-total-row span {
+            color: #111 !important;
+            opacity: 1 !important;
+        }
+        .cart-side-panel > .cart-footer .discount-row span:last-child {
+            color: #c00000 !important;
+        }
+        .cart-side-panel > .cart-footer .btn-checkout {
+            background: #111 !important;
+            color: #fff !important;
+            border-color: #111 !important;
+            position: relative;
+            z-index: 4;
+        }
+        body.stylehub-cart-open .tsh-ai-toggle,
+        body.stylehub-cart-open .tsh-ai-box,
+        body.stylehub-checkout-open .tsh-ai-toggle,
+        body.stylehub-checkout-open .tsh-ai-box,
+        body.stylehub-auth-open .tsh-ai-toggle,
+        body.stylehub-auth-open .tsh-ai-box,
+        body.stylehub-cart-open .pd-notification-bell,
+        body.stylehub-checkout-open .pd-notification-bell,
+        body.stylehub-auth-open .pd-notification-bell {
+            display: none !important;
+            visibility: hidden !important;
+            opacity: 0 !important;
+            pointer-events: none !important;
+        }
         .cart-total-row {
             display: flex;
             justify-content: space-between;
@@ -114,6 +159,21 @@
             font-weight: 700;
         }
         .btn-checkout { display: block; width: 100%; background-color: #111; color: #fff; border: 1px solid #111; padding: 15px; font-size: 11px; letter-spacing: 2px; text-transform: uppercase; font-weight: 500; cursor: pointer; text-align: center; }
+
+        .checkout-side-panel > .cart-footer .btn-checkout {
+            display: flex !important;
+            align-items: center !important;
+            justify-content: center !important;
+            min-height: 56px !important;
+            padding: 0 18px !important;
+            line-height: 1 !important;
+            text-align: center !important;
+            white-space: nowrap !important;
+        }
+        .checkout-side-panel > .cart-footer {
+            background: #fff !important;
+            flex-shrink: 0 !important;
+        }
 
         /* ==================== FORM ĐIỀN ĐỊA CHỈ GIAO HÀNG (CHECKOUT DRAWER) ==================== */
         .checkout-drawer-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100vh; background-color: rgba(0, 0, 0, 0.4); opacity: 0; visibility: hidden; z-index: 2500; transition: all 0.35s ease; }
@@ -960,6 +1020,7 @@
                 loadStyleHubCartIntoMemory();
                 renderCartUI();
             }
+            document.body.classList.toggle('stylehub-cart-open', !!isOpen);
             document.getElementById('cartOverlay').classList.toggle('open', isOpen);
         }
         function toggleCheckoutDrawer(isOpen) {
@@ -971,9 +1032,19 @@
                     setTimeout(window.StyleHubRenderCheckoutTotals, 450);
                 }
             }
+
+            document.body.classList.toggle('stylehub-checkout-open', !!isOpen);
             document.getElementById('checkoutOverlay').classList.toggle('open', isOpen);
+
+            // Nếu khách bấm Order Now rồi đóng form, khôi phục lại BAG cũ.
+            if (!isOpen && typeof restoreStyleHubOrderNowCart === "function" && !styleHubOrderNowSubmitting) {
+                restoreStyleHubOrderNowCart();
+            }
         }
-        function toggleAuthModal(isOpen) { document.getElementById('authModal').classList.toggle('open', isOpen); }
+        function toggleAuthModal(isOpen) {
+            document.body.classList.toggle('stylehub-auth-open', !!isOpen);
+            document.getElementById('authModal').classList.toggle('open', isOpen);
+        }
 
         function toggleAuthView(targetBlock) {
             const loginBlock = document.getElementById('auth-login-block');
@@ -999,6 +1070,9 @@
         /* ==================== BAG PERSISTENCE ACROSS PAGES ==================== */
         const STYLEHUB_CART_STORAGE_KEY = "stylehub_cart_memory_v1";
         const STYLEHUB_CART_COMPAT_KEYS = ["stylehub_cart_memory_v1", "stylehub_cart", "hub_cart", "cartMemoryArray", "the_style_hub_cart"];
+        const STYLEHUB_ORDER_NOW_FLAG_KEY = "stylehub_order_now_active_v1";
+        const STYLEHUB_ORDER_NOW_BACKUP_KEY = "stylehub_order_now_backup_cart_v1";
+        let styleHubOrderNowSubmitting = false;
 
         function normalizeStyleHubCartItem(item) {
             if (!item) return null;
@@ -1039,6 +1113,7 @@
                 localStorage.setItem(STYLEHUB_CART_STORAGE_KEY, JSON.stringify(cleanCart));
                 localStorage.setItem("stylehub_cart", JSON.stringify(cleanCart));
                 localStorage.setItem("hub_cart", JSON.stringify(cleanCart));
+                localStorage.setItem("the_style_hub_cart", JSON.stringify(cleanCart));
 
                 if (window.StyleHubCartSync && typeof window.StyleHubCartSync.update === "function") {
                     window.StyleHubCartSync.update(cleanCart);
@@ -1057,6 +1132,7 @@
             localStorage.setItem(STYLEHUB_CART_STORAGE_KEY, "[]");
             localStorage.setItem("stylehub_cart", "[]");
             localStorage.setItem("hub_cart", "[]");
+            localStorage.setItem("the_style_hub_cart", "[]");
             updateStyleHubCartBadges([]);
         }
 
@@ -1091,6 +1167,7 @@
             localStorage.setItem("stylehub_cart", data);
             localStorage.setItem("hub_cart", data);
             localStorage.setItem("cartMemoryArray", data);
+            localStorage.setItem("the_style_hub_cart", data);
 
             updateStyleHubCartBadges(cleanCart);
 
@@ -1105,6 +1182,74 @@
             window.cartMemoryArray = cartMemoryArray;
             updateStyleHubCartBadges(cartMemoryArray);
             return cartMemoryArray;
+        }
+
+        function isStyleHubOrderNowActive() {
+            return sessionStorage.getItem(STYLEHUB_ORDER_NOW_FLAG_KEY) === "1";
+        }
+
+        function getStyleHubOrderNowBackupCart() {
+            try {
+                const backup = JSON.parse(sessionStorage.getItem(STYLEHUB_ORDER_NOW_BACKUP_KEY) || "[]");
+                return Array.isArray(backup) ? backup.map(normalizeStyleHubCartItem).filter(Boolean) : [];
+            } catch (error) {
+                return [];
+            }
+        }
+
+        function clearStyleHubOrderNowState() {
+            sessionStorage.removeItem(STYLEHUB_ORDER_NOW_FLAG_KEY);
+            sessionStorage.removeItem(STYLEHUB_ORDER_NOW_BACKUP_KEY);
+        }
+
+        function buildStyleHubCurrentProductCartItem() {
+            if (!currentItem) return null;
+
+            if (!selectedSizeText) {
+                const selectedButton = document.querySelector(".size-button.selected");
+                selectedSizeText = selectedButton ? (selectedButton.dataset.size || selectedButton.innerText.trim()) : "M";
+            }
+
+            return normalizeStyleHubCartItem({
+                key: new URLSearchParams(window.location.search).get('id') || currentItem.key || currentItem.id || '',
+                name: currentItem.name,
+                price: currentItem.price,
+                priceNum: Number(currentItem.priceNum) || getStyleHubItemPriceNumber(currentItem),
+                mainImg: currentItem.mainImg || (currentItem.images && currentItem.images[0]) || "",
+                size: selectedSizeText,
+                qty: 1
+            });
+        }
+
+        function startStyleHubOrderNowCheckout() {
+            const backupCart = readStyleHubCartFromStorage();
+            const directItem = buildStyleHubCurrentProductCartItem();
+            if (!directItem) return false;
+
+            sessionStorage.setItem(STYLEHUB_ORDER_NOW_FLAG_KEY, "1");
+            sessionStorage.setItem(STYLEHUB_ORDER_NOW_BACKUP_KEY, JSON.stringify(backupCart));
+
+            cartMemoryArray = [directItem];
+            window.cartMemoryArray = cartMemoryArray;
+            forceStyleHubCartSyncNow();
+            renderCartUI();
+
+            if (typeof window.StyleHubRenderCheckoutTotals === "function") {
+                setTimeout(window.StyleHubRenderCheckoutTotals, 60);
+                setTimeout(window.StyleHubRenderCheckoutTotals, 250);
+            }
+
+            return true;
+        }
+
+        function restoreStyleHubOrderNowCart() {
+            if (!isStyleHubOrderNowActive()) return;
+
+            cartMemoryArray = getStyleHubOrderNowBackupCart();
+            window.cartMemoryArray = cartMemoryArray;
+            forceStyleHubCartSyncNow();
+            renderCartUI();
+            clearStyleHubOrderNowState();
         }
 
 
@@ -1314,11 +1459,12 @@
 
         function calculateStyleHubBagTotals(subtotal) {
             const code = getStyleHubActiveVoucherCode();
-            let shipping = subtotal > 0 ? 30000 : 0;
+            const shipping = subtotal > 0 ? 30000 : 0;
             let discount = 0;
 
             if (code === "STYLE10") discount = Math.round(subtotal * 0.1);
-            if (code === "FREESHIP") shipping = 0;
+            // FREESHIP vẫn giữ dòng phí ship gốc và trừ ở dòng giảm giá.
+            if (code === "FREESHIP") discount = shipping;
 
             return {
                 subtotal: subtotal,
@@ -1434,32 +1580,11 @@
         function openCheckoutDirectly() {
             if (!currentItem) return;
 
-            if (!selectedSizeText) {
-                const selectedButton = document.querySelector(".size-button.selected");
-                selectedSizeText = selectedButton ? (selectedButton.dataset.size || selectedButton.innerText.trim()) : "M";
+            // Order Now chỉ thanh toán riêng sản phẩm đang xem, không cộng các món đã có sẵn trong BAG.
+            if (!startStyleHubOrderNowCheckout()) {
+                showToastNotification("Không tìm thấy sản phẩm để đặt hàng!");
+                return;
             }
-
-            loadStyleHubCartIntoMemory();
-
-            const existingItem = cartMemoryArray.find(function(item) {
-                return item.key === currentItem.key && item.size === selectedSizeText;
-            });
-
-            if (!existingItem) {
-                cartMemoryArray.push({
-                    key: currentItem.key,
-                    name: currentItem.name,
-                    price: currentItem.price,
-                    priceNum: Number(currentItem.priceNum) || getStyleHubItemPriceNumber(currentItem),
-                    mainImg: currentItem.mainImg || (currentItem.images && currentItem.images[0]) || "",
-                    size: selectedSizeText,
-                    qty: 1
-                });
-            }
-
-            forceStyleHubCartSyncNow();
-            renderCartUI();
-            forceStyleHubCartSyncNow();
 
             if(!isUserLoggedIn) {
                 pendingCheckoutAction = true;
@@ -1609,7 +1734,7 @@
             }
             styleHubOrderSubmitLocked = true;
 
-            const submitButton = document.querySelector('.btn-checkout, #checkout-form button[type="submit"], #checkout-form .btn-submit, .checkout-submit-btn, button.btn-submit');
+            const submitButton = document.querySelector('#checkoutOverlay .cart-footer .btn-checkout, #checkout-form button[type="submit"], #checkout-form .btn-submit, .checkout-submit-btn, button.btn-submit');
             const originalButtonText = submitButton ? submitButton.innerText : "";
 
             if (submitButton) {
@@ -1729,11 +1854,20 @@
                 StyleHubNotifications.addOrderSuccessNotification(newCompletedOrderObject);
             }
 
+            const wasOrderNowCheckout = isStyleHubOrderNowActive();
+            styleHubOrderNowSubmitting = true;
             toggleCheckoutDrawer(false);
-            cartMemoryArray = [];
-            clearStyleHubCartStorage();
-            forceStyleHubCartSyncNow();
-            renderCartUI();
+            styleHubOrderNowSubmitting = false;
+
+            if (wasOrderNowCheckout) {
+                restoreStyleHubOrderNowCart();
+            } else {
+                cartMemoryArray = [];
+                clearStyleHubCartStorage();
+                forceStyleHubCartSyncNow();
+                renderCartUI();
+            }
+
             triggerFireworkCelebration();
             showToastNotification("ĐẶT HÀNG THÀNH CÔNG! EMAIL XÁC NHẬN ĐANG ĐƯỢC GỬI.");
 

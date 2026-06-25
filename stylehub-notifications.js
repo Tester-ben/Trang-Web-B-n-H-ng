@@ -634,6 +634,19 @@
                 }
             }
 
+            /* Hide floating bell while drawer/modals are open so it does not bleed over checkout. */
+            body.stylehub-checkout-open .pd-notification-bell,
+            body.stylehub-cart-open .pd-notification-bell,
+            body.stylehub-auth-open .pd-notification-bell,
+            body.stylehub-checkout-open .filter-right-sort[data-stylehub-notification-bell],
+            body.stylehub-cart-open .filter-right-sort[data-stylehub-notification-bell],
+            body.stylehub-auth-open .filter-right-sort[data-stylehub-notification-bell] {
+                display: none !important;
+                visibility: hidden !important;
+                opacity: 0 !important;
+                pointer-events: none !important;
+            }
+
         `;
         document.head.appendChild(style);
     }
