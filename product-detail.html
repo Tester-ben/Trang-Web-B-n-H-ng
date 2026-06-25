@@ -176,10 +176,19 @@
         }
 
         /* ==================== FORM ĐIỀN ĐỊA CHỈ GIAO HÀNG (CHECKOUT DRAWER) ==================== */
-        .checkout-drawer-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100vh; background-color: rgba(0, 0, 0, 0.4); opacity: 0; visibility: hidden; z-index: 2500; transition: all 0.35s ease; }
+        .checkout-drawer-overlay { position: fixed; inset: 0; width: 100%; height: 100vh; background-color: rgba(0, 0, 0, 0.42); opacity: 0; visibility: hidden; z-index: 2147483600; transition: all 0.35s ease; }
         .checkout-drawer-overlay.open { opacity: 1; visibility: visible; }
-        .checkout-side-panel { position: fixed; top: 0; right: -500px; width: 450px; height: 100vh; background-color: #ffffff; z-index: 2501; padding: 40px; display: flex; flex-direction: column; box-shadow: -5px 0 15px rgba(0,0,0,0.1); transition: right 0.35s ease; }
+        .checkout-side-panel { position: fixed; top: 0; right: -400px; width: min(380px, 90vw); max-width: min(380px, 90vw); height: 100vh; max-height: 100vh; background-color: #ffffff; z-index: 2147483601; padding: 30px 28px 24px; display: flex; flex-direction: column; box-sizing: border-box; box-shadow: -14px 0 34px rgba(0,0,0,0.14); transition: right 0.35s ease; overflow: hidden; }
         .checkout-drawer-overlay.open .checkout-side-panel { right: 0; }
+        .checkout-side-panel .cart-header { padding-bottom: 16px; flex-shrink: 0; }
+        .checkout-side-panel .cart-header h2 { font-size: 14px; letter-spacing: 2px; line-height: 1.2; }
+        .checkout-side-panel .cart-body { padding: 18px 0; flex: 1 1 auto; min-height: 0; overflow-y: auto; }
+        .checkout-side-panel .cart-footer { padding-top: 16px; flex-shrink: 0; }
+        .checkout-side-panel .form-group { margin-bottom: 14px; }
+        .checkout-side-panel .form-group input,
+        .checkout-side-panel .form-group textarea { padding: 11px 12px; font-size: 12px; }
+        .checkout-side-panel .form-group textarea { min-height: 70px; }
+        .checkout-side-panel .btn-checkout { min-height: 54px !important; height: 54px !important; line-height: 1 !important; }
         
         .form-group { margin-bottom: 20px; }
         .form-group label { display: block; font-size: 11px; text-transform: uppercase; letter-spacing: 1px; font-weight: 500; color: #333; margin-bottom: 8px; }
@@ -193,6 +202,145 @@
         .toast-notification { position: fixed; bottom: -100px; left: 50%; transform: translateX(-50%); background-color: #111111; color: #ffffff; padding: 14px 30px; font-size: 12px; letter-spacing: 1px; text-transform: uppercase; z-index: 3000; box-shadow: 0 5px 15px rgba(0,0,0,0.15); transition: bottom 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); pointer-events: none; }
         .toast-notification.show { bottom: 40px; }
         #fwCanvas { position: fixed; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 9999; display: none; }
+
+
+        /* ==================== ORDER SUCCESS DRAWER ==================== */
+        .stylehub-order-success-overlay {
+            position: fixed;
+            inset: 0;
+            width: 100%;
+            height: 100vh;
+            background: rgba(0, 0, 0, 0.42);
+            opacity: 0;
+            visibility: hidden;
+            z-index: 2147483605;
+            transition: opacity 0.35s ease, visibility 0.35s ease;
+        }
+        .stylehub-order-success-overlay.open {
+            opacity: 1;
+            visibility: visible;
+        }
+        .stylehub-order-success-panel {
+            position: fixed;
+            top: 0;
+            right: -400px;
+            width: min(380px, 90vw);
+            max-width: min(380px, 90vw);
+            height: 100vh;
+            max-height: 100vh;
+            background: #fff;
+            color: #111;
+            z-index: 2147483606;
+            padding: 30px 28px 24px;
+            box-sizing: border-box;
+            box-shadow: -14px 0 34px rgba(0, 0, 0, 0.14);
+            display: flex;
+            flex-direction: column;
+            transition: right 0.35s ease;
+            overflow: hidden;
+        }
+        .stylehub-order-success-overlay.open .stylehub-order-success-panel {
+            right: 0;
+        }
+        .stylehub-order-success-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid #eee;
+            padding-bottom: 16px;
+            flex-shrink: 0;
+        }
+        .stylehub-order-success-header h2 {
+            margin: 0;
+            font-size: 14px;
+            font-weight: 700;
+            letter-spacing: 3px;
+            line-height: 1.2;
+            text-transform: uppercase;
+        }
+        .stylehub-order-success-close {
+            width: 34px;
+            height: 34px;
+            border: 0;
+            background: transparent;
+            color: #111;
+            cursor: pointer;
+            font-size: 30px;
+            line-height: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .stylehub-order-success-body {
+            flex: 1 1 auto;
+            min-height: 0;
+            overflow-y: auto;
+            padding: 18px 0;
+        }
+        .stylehub-order-success-note {
+            margin: 0 0 18px;
+            font-size: 12px;
+            line-height: 1.65;
+            color: #007a3d;
+        }
+        .stylehub-order-success-summary {
+            border-bottom: 1px solid #eee;
+            padding-bottom: 16px;
+        }
+        .stylehub-order-success-row {
+            display: flex;
+            justify-content: space-between;
+            gap: 18px;
+            margin-bottom: 10px;
+            font-size: 12px;
+            line-height: 1.4;
+        }
+        .stylehub-order-success-row span:first-child {
+            color: #333;
+        }
+        .stylehub-order-success-row span:last-child {
+            color: #111;
+            font-weight: 700;
+            text-align: right;
+            word-break: break-word;
+        }
+        .stylehub-order-success-footer {
+            border-top: 1px solid #eee;
+            padding-top: 16px;
+            flex-shrink: 0;
+            background: #fff;
+        }
+        .stylehub-order-success-done {
+            width: 100%;
+            height: 54px;
+            min-height: 54px;
+            border: 1px solid #111;
+            background: #111;
+            color: #fff;
+            cursor: pointer;
+            font-size: 11px;
+            font-weight: 500;
+            letter-spacing: 3px;
+            text-transform: uppercase;
+            display: flex !important;
+            align-items: center !important;
+            justify-content: center !important;
+            text-align: center !important;
+            line-height: 1 !important;
+            padding: 0 !important;
+            margin: 0 !important;
+            box-sizing: border-box !important;
+            appearance: none;
+            -webkit-appearance: none;
+        }
+        body.stylehub-order-success-open .tsh-ai-toggle,
+        body.stylehub-order-success-open .tsh-ai-box,
+        body.stylehub-order-success-open .pd-notification-bell {
+            display: none !important;
+            visibility: hidden !important;
+            opacity: 0 !important;
+            pointer-events: none !important;
+        }
 
         /* ==================== POPUP MODAL ĐĂNG NHẬP / ĐĂNG KÝ ĐỘNG ==================== */
         .auth-popup-modal { position: fixed; top: 0; left: 0; width: 100%; height: 100vh; background-color: rgba(0, 0, 0, 0.5); display: flex; justify-content: center; align-items: center; z-index: 2800; opacity: 0; visibility: hidden; transition: all 0.3s ease; }
@@ -361,7 +509,8 @@
             .product-detail-container { padding: 80px 20px 40px 20px; }
             .detail-table-layout { border-spacing: 0; }
             .info-sticky-panel { position: static; padding-left: 0; margin-top: 30px; }
-            .cart-side-panel, .checkout-side-panel, .account-side-panel { width: 100%; right: -100%; padding: 25px; }
+            .cart-side-panel, .account-side-panel { width: 100%; right: -100%; padding: 25px; }
+            .checkout-side-panel { width: min(360px, 92vw); max-width: min(360px, 92vw); right: -380px; padding: 28px 22px 22px; }
             .related-products-section { padding: 0 20px; margin-bottom: 50px; }
             .related-products-grid { grid-template-columns: repeat(2, 1fr); gap: 22px; }
             .related-products-header h2 { font-size: 22px; }
@@ -1067,9 +1216,80 @@
 
 
 
+        function escapeStyleHubText(value) {
+            return String(value == null ? '' : value).replace(/[&<>"]|'/g, function(char) {
+                return ({
+                    '&': '&amp;',
+                    '<': '&lt;',
+                    '>': '&gt;',
+                    '"': '&quot;',
+                    "'": '&#39;'
+                })[char];
+            });
+        }
+
+        function ensureStyleHubOrderSuccessDrawer() {
+            let overlay = document.getElementById('stylehubOrderSuccessOverlay');
+            if (overlay) return overlay;
+
+            overlay = document.createElement('div');
+            overlay.id = 'stylehubOrderSuccessOverlay';
+            overlay.className = 'stylehub-order-success-overlay';
+            overlay.addEventListener('click', function(event) {
+                if (event.target === overlay) {
+                    closeStyleHubOrderSuccessDrawer(true);
+                }
+            });
+            document.body.appendChild(overlay);
+            return overlay;
+        }
+
+        function showStyleHubOrderSuccessDrawer(orderObject) {
+            const overlay = ensureStyleHubOrderSuccessDrawer();
+            const safeOrder = orderObject || {};
+            const safeUser = safeOrder.userInfo || {};
+
+            overlay.innerHTML = `
+                <aside class="stylehub-order-success-panel" role="dialog" aria-modal="true" aria-label="Order Success" onclick="event.stopPropagation()">
+                    <div class="stylehub-order-success-header">
+                        <h2>Order Success</h2>
+                        <button type="button" class="stylehub-order-success-close" aria-label="Đóng" onclick="closeStyleHubOrderSuccessDrawer(true)">&times;</button>
+                    </div>
+                    <div class="stylehub-order-success-body">
+                        <p class="stylehub-order-success-note">Đặt hàng thành công. Đơn hàng của bạn đang chờ Admin xác nhận.</p>
+                        <div class="stylehub-order-success-summary">
+                            <div class="stylehub-order-success-row"><span>Mã đơn</span><span>${escapeStyleHubText(safeOrder.orderId || '')}</span></div>
+                            <div class="stylehub-order-success-row"><span>Khách hàng</span><span>${escapeStyleHubText(safeUser.name || '')}</span></div>
+                            <div class="stylehub-order-success-row"><span>Số điện thoại</span><span>${escapeStyleHubText(safeUser.phone || '')}</span></div>
+                            <div class="stylehub-order-success-row"><span>Tổng cộng</span><span>${escapeStyleHubText(safeOrder.totalPriceFormatted || '')}</span></div>
+                        </div>
+                    </div>
+                    <div class="stylehub-order-success-footer">
+                        <button type="button" class="stylehub-order-success-done" onclick="closeStyleHubOrderSuccessDrawer(true)">Đóng</button>
+                    </div>
+                </aside>
+            `;
+
+            document.body.classList.add('stylehub-order-success-open');
+            overlay.classList.add('open');
+        }
+
+        function closeStyleHubOrderSuccessDrawer(withFirework) {
+            const overlay = document.getElementById('stylehubOrderSuccessOverlay');
+            if (overlay) overlay.classList.remove('open');
+            document.body.classList.remove('stylehub-order-success-open');
+
+            if (withFirework && typeof triggerFireworkCelebration === 'function') {
+                setTimeout(function() {
+                    triggerFireworkCelebration();
+                }, 180);
+            }
+        }
+
+
         /* ==================== BAG PERSISTENCE ACROSS PAGES ==================== */
         const STYLEHUB_CART_STORAGE_KEY = "stylehub_cart_memory_v1";
-        const STYLEHUB_CART_COMPAT_KEYS = ["stylehub_cart_memory_v1", "stylehub_cart", "hub_cart", "cartMemoryArray", "the_style_hub_cart"];
+        const STYLEHUB_CART_COMPAT_KEYS = ["stylehub_cart_memory_v1", "stylehub_cart", "hub_cart", "cartMemoryArray", "the_style_hub_cart", "cart"];
         const STYLEHUB_ORDER_NOW_FLAG_KEY = "stylehub_order_now_active_v1";
         const STYLEHUB_ORDER_NOW_BACKUP_KEY = "stylehub_order_now_backup_cart_v1";
         let styleHubOrderNowSubmitting = false;
@@ -1126,15 +1346,24 @@
         }
 
         function clearStyleHubCartStorage() {
+            cartMemoryArray = [];
+            window.cartMemoryArray = cartMemoryArray;
+
             STYLEHUB_CART_COMPAT_KEYS.forEach(function(key) {
                 localStorage.removeItem(key);
+                localStorage.setItem(key, "[]");
             });
-            localStorage.setItem(STYLEHUB_CART_STORAGE_KEY, "[]");
-            localStorage.setItem("stylehub_cart", "[]");
-            localStorage.setItem("hub_cart", "[]");
-            localStorage.setItem("the_style_hub_cart", "[]");
+
+            localStorage.removeItem("stylehub_active_voucher");
             updateStyleHubCartBadges([]);
         }
+
+        window.StyleHubResetProductDetailCartMemory = function() {
+            cartMemoryArray = [];
+            window.cartMemoryArray = cartMemoryArray;
+            clearStyleHubCartStorage();
+            updateStyleHubCartBadges([]);
+        };
 
         function updateStyleHubCartBadges(cartItems) {
             const items = Array.isArray(cartItems) ? cartItems : readStyleHubCartFromStorage();
@@ -1868,7 +2097,7 @@
                 renderCartUI();
             }
 
-            triggerFireworkCelebration();
+            showStyleHubOrderSuccessDrawer(newCompletedOrderObject);
             showToastNotification("ĐẶT HÀNG THÀNH CÔNG! EMAIL XÁC NHẬN ĐANG ĐƯỢC GỬI.");
 
             if (submitButton) {

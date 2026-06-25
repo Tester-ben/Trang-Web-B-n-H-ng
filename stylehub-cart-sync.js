@@ -1,4 +1,4 @@
-/* THE STYLE HUB - CART SYNC + UNIVERSAL BAG DRAWER - ALL PAGES V7 */
+/* THE STYLE HUB - CART SYNC + UNIVERSAL BAG DRAWER + SELECTED CHECKOUT - CLEAR PAID ITEMS V22 */
 (function () {
     const CART_KEYS = [
         "stylehub_cart_memory_v1",
@@ -8,6 +8,10 @@
         "the_style_hub_cart",
         "cart"
     ];
+
+    const BAG_SELECTION_KEY = "stylehub_bag_selected_indexes_v1";
+    let stylehubCheckoutSelectedIndexesSnapshot = [];
+    let stylehubCheckoutSelectedFingerprintsSnapshot = [];
 
     function parseCart(raw) {
         try {
@@ -25,6 +29,84 @@
 
     function formatMoney(value) {
         return (Number(value || 0)).toLocaleString("vi-VN") + " ₫";
+    }
+
+    function triggerStyleHubUniversalFirework() {
+        if (typeof window.triggerFireworkCelebration === "function") {
+            try {
+                window.triggerFireworkCelebration();
+                return;
+            } catch (error) {}
+        }
+
+        const canvas = document.createElement("canvas");
+        canvas.style.position = "fixed";
+        canvas.style.inset = "0";
+        canvas.style.width = "100%";
+        canvas.style.height = "100%";
+        canvas.style.pointerEvents = "none";
+        canvas.style.zIndex = "2147483647";
+        document.body.appendChild(canvas);
+
+        const ctx = canvas.getContext("2d");
+        const particles = [];
+        const colors = ["#ffffff", "#111111", "#666666", "#dddddd", "#999999"];
+
+        function resize() {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+        }
+
+        function burst(x, y) {
+            for (let i = 0; i < 56; i++) {
+                const angle = Math.random() * Math.PI * 2;
+                const speed = Math.random() * 4.5 + 2;
+                particles.push({
+                    x: x,
+                    y: y,
+                    vx: Math.cos(angle) * speed,
+                    vy: Math.sin(angle) * speed,
+                    size: Math.random() * 2.6 + 1.4,
+                    alpha: 1,
+                    color: colors[Math.floor(Math.random() * colors.length)]
+                });
+            }
+        }
+
+        resize();
+        burst(canvas.width * 0.26, canvas.height * 0.42);
+        burst(canvas.width * 0.50, canvas.height * 0.30);
+        burst(canvas.width * 0.74, canvas.height * 0.42);
+
+        let frame = 0;
+        function loop() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            particles.forEach(function (p) {
+                p.x += p.vx;
+                p.y += p.vy;
+                p.vy += 0.12;
+                p.alpha -= 0.013;
+                ctx.save();
+                ctx.globalAlpha = Math.max(p.alpha, 0);
+                ctx.fillStyle = p.color;
+                ctx.beginPath();
+                ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+                ctx.fill();
+                ctx.restore();
+            });
+
+            for (let i = particles.length - 1; i >= 0; i--) {
+                if (particles[i].alpha <= 0) particles.splice(i, 1);
+            }
+
+            frame++;
+            if (particles.length && frame < 190) {
+                requestAnimationFrame(loop);
+            } else {
+                canvas.remove();
+            }
+        }
+        loop();
     }
 
     function getQty(item) {
@@ -50,6 +132,32 @@
         };
     }
 
+    function getCartItemFingerprint(item) {
+        const normalized = normalizeItem(item);
+        if (!normalized) return "";
+        return [
+            normalized.key || "",
+            normalized.name || "",
+            normalized.size || "",
+            Number(normalized.priceNum || 0),
+            getQty(normalized),
+            normalized.mainImg || ""
+        ].join("||");
+    }
+
+    function writeCartStorageOnly(cart) {
+        const safeCart = (Array.isArray(cart) ? cart : []).map(normalizeItem).filter(Boolean);
+        const data = JSON.stringify(safeCart);
+
+        CART_KEYS.forEach(function (key) {
+            localStorage.removeItem(key);
+            localStorage.setItem(key, data);
+        });
+
+        window.cartMemoryArray = safeCart;
+        return safeCart;
+    }
+
     function readCart() {
         for (const key of CART_KEYS) {
             const cart = parseCart(localStorage.getItem(key)).map(normalizeItem).filter(Boolean);
@@ -59,39 +167,13 @@
     }
 
     function save(cart) {
-        const safeCart = (Array.isArray(cart) ? cart : []).map(normalizeItem).filter(Boolean);
-        const data = JSON.stringify(safeCart);
-
-        localStorage.setItem("stylehub_cart_memory_v1", data);
-        localStorage.setItem("stylehub_cart", data);
-        localStorage.setItem("hub_cart", data);
-        localStorage.setItem("cartMemoryArray", data);
-        localStorage.setItem("the_style_hub_cart", data);
-        localStorage.setItem("cart", data);
-
-        if (Array.isArray(window.cartMemoryArray)) {
-            window.cartMemoryArray = safeCart;
-        }
-
+        const safeCart = writeCartStorageOnly(cart);
         update(safeCart);
         renderBagModal(safeCart);
     }
 
     function clear() {
-        CART_KEYS.forEach(function (key) {
-            localStorage.removeItem(key);
-        });
-        localStorage.setItem("stylehub_cart_memory_v1", "[]");
-        localStorage.setItem("stylehub_cart", "[]");
-        localStorage.setItem("hub_cart", "[]");
-        localStorage.setItem("cartMemoryArray", "[]");
-        localStorage.setItem("the_style_hub_cart", "[]");
-        localStorage.setItem("cart", "[]");
-
-        if (Array.isArray(window.cartMemoryArray)) {
-            window.cartMemoryArray = [];
-        }
-
+        writeCartStorageOnly([]);
         update([]);
         renderBagModal([]);
     }
@@ -132,7 +214,7 @@
                 width: 100vw !important;
                 height: 100vh !important;
                 background: rgba(0, 0, 0, 0.42) !important;
-                z-index: 99998 !important;
+                z-index: 2147483646 !important;
                 opacity: 0;
                 visibility: hidden;
                 pointer-events: none;
@@ -154,13 +236,13 @@
                 right: 0 !important;
                 left: auto !important;
                 bottom: auto !important;
-                width: min(460px, 100vw) !important;
-                max-width: min(460px, 100vw) !important;
+                width: min(380px, 90vw) !important;
+                max-width: min(380px, 90vw) !important;
                 height: 100vh !important;
                 max-height: 100vh !important;
                 background: #ffffff !important;
                 color: #111111 !important;
-                padding: 42px 42px 34px !important;
+                padding: 30px 26px 24px !important;
                 box-shadow: -18px 0 40px rgba(0,0,0,.12) !important;
                 display: flex !important;
                 flex-direction: column !important;
@@ -174,7 +256,7 @@
                 display: flex !important;
                 align-items: center !important;
                 justify-content: space-between !important;
-                padding: 0 0 22px 0 !important;
+                padding: 0 0 16px 0 !important;
                 margin: 0 !important;
                 border-bottom: 1px solid #eeeeee !important;
                 flex-shrink: 0 !important;
@@ -188,7 +270,7 @@
                 padding: 0 !important;
                 font-size: 17px !important;
                 line-height: 1 !important;
-                letter-spacing: 6px !important;
+                letter-spacing: 5.5px !important;
                 font-weight: 700 !important;
                 text-transform: uppercase !important;
                 color: #111111 !important;
@@ -212,7 +294,7 @@
             #bag-modal .stylehub-universal-bag-body {
                 flex: 1 1 auto !important;
                 overflow-y: auto !important;
-                padding: 26px 0 22px !important;
+                padding: 18px 0 18px !important;
                 min-height: 0 !important;
                 background: #ffffff !important;
                 color: #111111 !important;
@@ -227,10 +309,52 @@
                 margin: 42px 0 !important;
             }
 
+            #bag-modal .stylehub-bag-select-row {
+                display: flex !important;
+                align-items: center !important;
+                justify-content: space-between !important;
+                gap: 14px !important;
+                margin: 0 0 18px 0 !important;
+                padding: 0 0 14px 0 !important;
+                border-bottom: 1px solid #eeeeee !important;
+                background: #ffffff !important;
+                color: #111111 !important;
+                font-size: 11px !important;
+                line-height: 1.35 !important;
+                letter-spacing: 1.8px !important;
+                text-transform: uppercase !important;
+            }
+
+            #bag-modal .stylehub-bag-select-label {
+                display: inline-flex !important;
+                align-items: center !important;
+                gap: 9px !important;
+                cursor: pointer !important;
+                color: #111111 !important;
+                font-weight: 600 !important;
+            }
+
+            #bag-modal .stylehub-bag-select-label input,
+            #bag-modal .stylehub-bag-select-checkbox {
+                width: 15px !important;
+                height: 15px !important;
+                margin: 0 !important;
+                accent-color: #111111 !important;
+                cursor: pointer !important;
+            }
+
+            #bag-modal .stylehub-bag-selected-count {
+                color: #777777 !important;
+                font-size: 10px !important;
+                font-weight: 500 !important;
+                letter-spacing: 1.6px !important;
+                white-space: nowrap !important;
+            }
+
             #bag-modal .stylehub-bag-item {
                 display: grid !important;
-                grid-template-columns: 104px 1fr auto !important;
-                gap: 18px !important;
+                grid-template-columns: 18px 84px minmax(0, 1fr) auto !important;
+                gap: 12px !important;
                 padding: 0 0 22px !important;
                 margin: 0 0 22px !important;
                 border-bottom: 1px solid #f1f1f1 !important;
@@ -241,8 +365,8 @@
 
             #bag-modal .stylehub-bag-item img,
             #bag-modal .stylehub-bag-img-placeholder {
-                width: 104px !important;
-                height: 132px !important;
+                width: 84px !important;
+                height: 106px !important;
                 object-fit: cover !important;
                 background: #f7f7f7 !important;
                 display: block !important;
@@ -305,7 +429,7 @@
                 background: #ffffff !important;
                 color: #111111 !important;
                 border-top: 1px solid #eeeeee !important;
-                padding: 20px 0 0 0 !important;
+                padding: 16px 0 0 0 !important;
                 margin: 0 !important;
                 position: relative !important;
                 z-index: 2 !important;
@@ -340,7 +464,7 @@
 
             #bag-modal .stylehub-bag-discount-form {
                 display: grid !important;
-                grid-template-columns: 1fr 96px !important;
+                grid-template-columns: 1fr 90px !important;
                 gap: 10px !important;
                 margin: 0 0 16px 0 !important;
                 padding: 0 !important;
@@ -468,17 +592,21 @@
 
             #bag-modal.stylehub-bag-managed .checkout-btn,
             #bag-modal .stylehub-universal-checkout {
-                display: block !important;
+                display: flex !important;
+                align-items: center !important;
+                justify-content: center !important;
                 width: 100% !important;
-                min-height: 58px !important;
-                height: 58px !important;
+                min-height: 54px !important;
+                height: 54px !important;
                 padding: 0 16px !important;
+                margin: 0 !important;
+                box-sizing: border-box !important;
                 border: 1px solid #111111 !important;
                 background: #080808 !important;
                 color: #ffffff !important;
                 cursor: pointer !important;
                 font-size: 13px !important;
-                line-height: 58px !important;
+                line-height: 1 !important;
                 font-weight: 500 !important;
                 letter-spacing: 4px !important;
                 text-align: center !important;
@@ -486,6 +614,8 @@
                 position: static !important;
                 opacity: 1 !important;
                 box-shadow: none !important;
+                appearance: none !important;
+                -webkit-appearance: none !important;
             }
 
             #bag-modal.stylehub-bag-managed .checkout-btn:disabled,
@@ -518,12 +648,166 @@
                 pointer-events: none !important;
             }
 
+
+            #bag-modal .stylehub-checkout-back {
+                border: 0 !important;
+                background: transparent !important;
+                color: #777777 !important;
+                cursor: pointer !important;
+                font-size: 11px !important;
+                letter-spacing: 2px !important;
+                text-transform: uppercase !important;
+                padding: 0 !important;
+                margin: 0 0 18px 0 !important;
+                text-align: left !important;
+                box-shadow: none !important;
+            }
+
+            #bag-modal .stylehub-checkout-products {
+                display: flex !important;
+                flex-direction: column !important;
+                gap: 14px !important;
+                margin: 0 0 22px 0 !important;
+                padding: 0 0 16px 0 !important;
+                border-bottom: 1px solid #eeeeee !important;
+                background: #ffffff !important;
+                color: #111111 !important;
+            }
+
+            #bag-modal .stylehub-checkout-product {
+                display: grid !important;
+                grid-template-columns: 62px minmax(0, 1fr) auto !important;
+                gap: 12px !important;
+                align-items: center !important;
+                background: #ffffff !important;
+                color: #111111 !important;
+            }
+
+            #bag-modal .stylehub-checkout-product img,
+            #bag-modal .stylehub-checkout-product-placeholder {
+                width: 62px !important;
+                height: 78px !important;
+                object-fit: cover !important;
+                background: #f7f7f7 !important;
+            }
+
+            #bag-modal .stylehub-checkout-product-name {
+                margin: 0 0 6px 0 !important;
+                color: #111111 !important;
+                font-size: 12px !important;
+                line-height: 1.35 !important;
+                font-weight: 600 !important;
+                letter-spacing: 0 !important;
+                text-transform: none !important;
+            }
+
+            #bag-modal .stylehub-checkout-product-meta {
+                margin: 0 !important;
+                color: #666666 !important;
+                font-size: 11px !important;
+                line-height: 1.35 !important;
+                letter-spacing: 0 !important;
+                text-transform: none !important;
+            }
+
+            #bag-modal .stylehub-checkout-product-price {
+                margin: 0 !important;
+                color: #111111 !important;
+                font-size: 12px !important;
+                font-weight: 600 !important;
+                white-space: nowrap !important;
+                letter-spacing: 0 !important;
+                text-transform: none !important;
+            }
+
+            #bag-modal .stylehub-checkout-form {
+                display: flex !important;
+                flex-direction: column !important;
+                gap: 14px !important;
+                margin: 0 !important;
+                padding: 0 !important;
+                background: #ffffff !important;
+                color: #111111 !important;
+            }
+
+            #bag-modal .stylehub-checkout-field label {
+                display: block !important;
+                margin: 0 0 7px 0 !important;
+                color: #222222 !important;
+                font-size: 10px !important;
+                font-weight: 600 !important;
+                letter-spacing: 2px !important;
+                text-transform: uppercase !important;
+            }
+
+            #bag-modal .stylehub-checkout-field input,
+            #bag-modal .stylehub-checkout-field textarea {
+                width: 100% !important;
+                border: 1px solid #dddddd !important;
+                background: #ffffff !important;
+                color: #111111 !important;
+                padding: 12px 13px !important;
+                margin: 0 !important;
+                box-sizing: border-box !important;
+                border-radius: 0 !important;
+                outline: none !important;
+                box-shadow: none !important;
+                font-family: inherit !important;
+                font-size: 13px !important;
+                line-height: 1.35 !important;
+                letter-spacing: 0 !important;
+                text-transform: none !important;
+            }
+
+            #bag-modal .stylehub-checkout-field textarea {
+                min-height: 84px !important;
+                resize: vertical !important;
+            }
+
+            #bag-modal .stylehub-checkout-message {
+                min-height: 18px !important;
+                margin: 2px 0 0 0 !important;
+                color: #c00000 !important;
+                font-size: 11px !important;
+                line-height: 1.35 !important;
+                letter-spacing: 0 !important;
+                text-transform: none !important;
+            }
+
+            #bag-modal .stylehub-checkout-success-note {
+                margin: 0 0 14px 0 !important;
+                color: #18794e !important;
+                font-size: 12px !important;
+                line-height: 1.45 !important;
+                letter-spacing: 0 !important;
+                text-transform: none !important;
+            }
+
+
+
+            #bag-modal .stylehub-universal-checkout-panel {
+                width: min(380px, 90vw) !important;
+                max-width: min(380px, 90vw) !important;
+                padding: 28px 26px 24px !important;
+                z-index: 2147483647 !important;
+            }
+
+            #bag-modal .stylehub-universal-checkout-panel .stylehub-universal-bag-header h3 {
+                font-size: 14px !important;
+                letter-spacing: 2.8px !important;
+                line-height: 1.25 !important;
+            }
+
+            #bag-modal .stylehub-universal-checkout-body {
+                padding-top: 16px !important;
+            }
+
             @media (max-width: 640px) {
                 #bag-modal.stylehub-bag-managed .bag-sidebar,
                 #bag-modal .stylehub-universal-bag-panel {
-                    width: 100vw !important;
-                    max-width: 100vw !important;
-                    padding: 32px 24px 28px !important;
+                    width: min(360px, 94vw) !important;
+                    max-width: min(360px, 94vw) !important;
+                    padding: 26px 20px 22px !important;
                 }
 
                 #bag-modal.stylehub-bag-managed .bag-header h3,
@@ -533,8 +817,8 @@
                 }
 
                 #bag-modal .stylehub-bag-item {
-                    grid-template-columns: 86px 1fr auto !important;
-                    gap: 14px !important;
+                    grid-template-columns: 18px 86px 1fr auto !important;
+                    gap: 10px !important;
                 }
 
                 #bag-modal .stylehub-bag-item img,
@@ -571,7 +855,7 @@
         modal.style.display = modal.classList.contains("stylehub-bag-open") ? "block" : "none";
 
         const managedVersion = modal.getAttribute("data-stylehub-bag-managed-version");
-        if (managedVersion !== "7") {
+        if (managedVersion !== "10" || !modal.querySelector("#cart-items-container")) {
             modal.innerHTML = `
                 <aside class="stylehub-universal-bag-panel bag-sidebar" role="dialog" aria-modal="true" aria-label="Shopping Bag">
                     <div class="stylehub-universal-bag-header bag-header">
@@ -599,7 +883,7 @@
                     </div>
                 </aside>
             `;
-            modal.setAttribute("data-stylehub-bag-managed-version", "7");
+            modal.setAttribute("data-stylehub-bag-managed-version", "10");
         }
 
         return modal;
@@ -637,6 +921,74 @@
         }
     }
 
+    function getBagSelectionHash(cart) {
+        return (Array.isArray(cart) ? cart : []).map(function (item, index) {
+            const normalized = normalizeItem(item) || {};
+            return [
+                index,
+                normalized.key || "",
+                normalized.name || "",
+                normalized.size || "",
+                normalized.qty || 1,
+                normalized.priceNum || 0,
+                normalized.mainImg || ""
+            ].join("::");
+        }).join("||");
+    }
+
+    function setSelectedIndexes(selectedIndexes, cart) {
+        const safeCart = Array.isArray(cart) ? cart : readCart();
+        const selectedSet = new Set((Array.isArray(selectedIndexes) ? selectedIndexes : [])
+            .map(function (index) { return Number(index); })
+            .filter(function (index) { return Number.isInteger(index) && index >= 0 && index < safeCart.length; }));
+
+        localStorage.setItem(BAG_SELECTION_KEY, JSON.stringify({
+            hash: getBagSelectionHash(safeCart),
+            selected: Array.from(selectedSet)
+        }));
+    }
+
+    function resetSelectedIndexes(cart) {
+        const safeCart = Array.isArray(cart) ? cart : readCart();
+        const allIndexes = safeCart.map(function (_, index) { return index; });
+        setSelectedIndexes(allIndexes, safeCart);
+        return allIndexes;
+    }
+
+    function getSelectedIndexes(cart) {
+        const safeCart = Array.isArray(cart) ? cart : readCart();
+        if (!safeCart.length) {
+            localStorage.removeItem(BAG_SELECTION_KEY);
+            return [];
+        }
+
+        let stored = null;
+        try {
+            stored = JSON.parse(localStorage.getItem(BAG_SELECTION_KEY) || "null");
+        } catch (error) {
+            stored = null;
+        }
+
+        if (!stored || stored.hash !== getBagSelectionHash(safeCart) || !Array.isArray(stored.selected)) {
+            return resetSelectedIndexes(safeCart);
+        }
+
+        const selected = stored.selected
+            .map(function (index) { return Number(index); })
+            .filter(function (index, position, arr) {
+                return Number.isInteger(index) && index >= 0 && index < safeCart.length && arr.indexOf(index) === position;
+            });
+
+        setSelectedIndexes(selected, safeCart);
+        return selected;
+    }
+
+    function getSelectedCart(cart) {
+        const safeCart = Array.isArray(cart) ? cart : readCart();
+        const selectedIndexes = getSelectedIndexes(safeCart);
+        return selectedIndexes.map(function (index) { return safeCart[index]; }).filter(Boolean);
+    }
+
     function renderBagModal(cartArg) {
         const modal = document.getElementById("bag-modal");
         if (!modal) return;
@@ -653,6 +1005,8 @@
         if (!container) return;
 
         let subtotal = 0;
+        const selectedIndexes = getSelectedIndexes(cart);
+        const selectedSet = new Set(selectedIndexes);
 
         if (voucherInput && document.activeElement !== voucherInput) {
             voucherInput.value = getActiveVoucherCode();
@@ -674,18 +1028,20 @@
             return;
         }
 
-        container.innerHTML = cart.map(function (item, index) {
+        const itemsHtml = cart.map(function (item, index) {
             const qty = getQty(item);
             const price = Number(item.priceNum) || parseMoney(item.price);
-            subtotal += price * qty;
+            if (selectedSet.has(index)) subtotal += price * qty;
 
             const imgHtml = item.mainImg
                 ? '<img src="' + escapeHTML(item.mainImg) + '" alt="' + escapeHTML(item.name) + '">'
                 : '<div class="stylehub-bag-img-placeholder"></div>';
             const displayPrice = price ? formatMoney(price) : (item.price || '0 ₫');
+            const checkedAttr = selectedSet.has(index) ? ' checked' : '';
 
             return `
                 <div class="stylehub-bag-item">
+                    <input type="checkbox" class="stylehub-bag-select-checkbox" data-stylehub-select-index="${index}" aria-label="Chọn ${escapeHTML(item.name)} để thanh toán"${checkedAttr}>
                     ${imgHtml}
                     <div>
                         <p class="stylehub-bag-name">${escapeHTML(item.name)}</p>
@@ -697,6 +1053,17 @@
             `;
         }).join("");
 
+        container.innerHTML = `
+            <div class="stylehub-bag-select-row">
+                <label class="stylehub-bag-select-label">
+                    <input type="checkbox" id="stylehubBagSelectAll"${selectedIndexes.length === cart.length ? ' checked' : ''}>
+                    <span>Chọn tất cả</span>
+                </label>
+                <span class="stylehub-bag-selected-count">${selectedIndexes.length}/${cart.length} sản phẩm</span>
+            </div>
+            ${itemsHtml}
+        `;
+
         const totals = calculateBagTotals(subtotal);
         if (subtotalEl) subtotalEl.textContent = formatMoney(totals.subtotal);
         if (shippingEl) shippingEl.textContent = formatMoney(totals.shipping);
@@ -705,7 +1072,7 @@
         if (voucherMessage && !voucherMessage.textContent) {
             voucherMessage.className = "stylehub-bag-voucher-message";
         }
-        if (checkoutBtn) checkoutBtn.disabled = false;
+        if (checkoutBtn) checkoutBtn.disabled = selectedIndexes.length === 0;
         updateProductDetailTotalsIfAvailable(subtotal);
     }
 
@@ -808,6 +1175,16 @@
         }, 260);
     }
 
+    function hardCloseBag() {
+        const modal = document.getElementById("bag-modal");
+        if (!modal) return;
+
+        modal.classList.remove("stylehub-bag-open");
+        modal.style.display = "none";
+        document.body.classList.remove("stylehub-bag-active");
+        document.documentElement.classList.remove("stylehub-bag-active");
+    }
+
     function isBagTrigger(node) {
         if (!node) return false;
         if (node.matches && node.matches("#bag-trigger, .pd-bag-link")) return true;
@@ -815,39 +1192,386 @@
         return node.tagName && node.tagName.toLowerCase() === "a" && text.startsWith("BAG");
     }
 
-    function goToCheckout() {
-        const cart = readCart();
-        if (!cart.length) return;
+    function getStyleHubAccountEmailForCheckout(fallbackEmail) {
+        return String(
+            localStorage.getItem("hub_current_user_key") ||
+            localStorage.getItem("hub_email") ||
+            fallbackEmail ||
+            ""
+        ).trim().toLowerCase();
+    }
 
-        const firstItem = cart[0] || {};
-        const firstKey = firstItem.key || "";
+    function getStyleHubShippingProfileForCheckout(email) {
+        const accountEmail = getStyleHubAccountEmailForCheckout(email);
+        if (!accountEmail) return {};
+        try {
+            const profile = JSON.parse(localStorage.getItem("stylehub_shipping_profile_" + accountEmail) || "{}");
+            return profile && typeof profile === "object" ? profile : {};
+        } catch (error) {
+            return {};
+        }
+    }
 
-        localStorage.setItem("stylehub_open_bag_after_load", "1");
-        localStorage.setItem("stylehub_open_checkout_after_load", "1");
+    function saveStyleHubShippingProfileForCheckout(profileData) {
+        const email = getStyleHubAccountEmailForCheckout(profileData && profileData.email);
+        if (!email) return;
 
-        if (/product-detail\.html/i.test(window.location.pathname)) {
-            closeBag();
+        const oldProfile = getStyleHubShippingProfileForCheckout(email);
+        const nextProfile = Object.assign({}, oldProfile, profileData || {}, {
+            accountEmail: email,
+            updatedAt: Date.now()
+        });
 
-            // Dùng luồng checkout gốc của product-detail để vẫn giữ đăng nhập, form giao hàng, tổng tiền.
-            if (typeof window.loadStyleHubCartIntoMemory === "function") {
-                try { window.loadStyleHubCartIntoMemory(); } catch (error) {}
-            }
-            if (typeof window.renderCartUI === "function") {
-                try { window.renderCartUI(); } catch (error) {}
-            }
-            if (typeof window.openCheckoutFromCart === "function") {
-                window.openCheckoutFromCart();
-            } else if (typeof window.toggleCheckoutDrawer === "function") {
-                window.toggleCheckoutDrawer(true);
-            } else if (typeof window.proceedToCheckout === "function") {
-                window.proceedToCheckout();
+        localStorage.setItem("stylehub_shipping_profile_" + email, JSON.stringify(nextProfile));
+        localStorage.setItem("stylehub_last_shipping_profile_key", "stylehub_shipping_profile_" + email);
+        if (nextProfile.name) localStorage.setItem("hub_name", nextProfile.name);
+        if (nextProfile.email) localStorage.setItem("hub_email", nextProfile.email);
+    }
+
+    function getCheckoutPrefillInfo() {
+        const accountEmail = getStyleHubAccountEmailForCheckout();
+        const profile = getStyleHubShippingProfileForCheckout(accountEmail);
+        return {
+            name: profile.name || localStorage.getItem("hub_name") || "",
+            phone: profile.phone || "",
+            email: profile.email || accountEmail || "",
+            address: profile.address || ""
+        };
+    }
+
+    function calculateCartSubtotal(cart) {
+        return (Array.isArray(cart) ? cart : []).reduce(function (sum, item) {
+            const normalized = normalizeItem(item);
+            if (!normalized) return sum;
+            const qty = getQty(normalized);
+            const price = Number(normalized.priceNum) || parseMoney(normalized.price);
+            return sum + price * qty;
+        }, 0);
+    }
+
+    function renderCheckoutPanel() {
+        const modal = ensureBagModal();
+        const fullCart = readCart();
+        const selectedIndexesForCheckout = getSelectedIndexes(fullCart);
+        const cart = selectedIndexesForCheckout.map(function (index) { return fullCart[index]; }).filter(Boolean);
+        stylehubCheckoutSelectedIndexesSnapshot = selectedIndexesForCheckout.slice();
+        stylehubCheckoutSelectedFingerprintsSnapshot = cart.map(getCartItemFingerprint);
+        if (!cart.length) {
+            openBag();
+            const message = modal.querySelector("#stylehubBagVoucherMessage");
+            if (message) {
+                message.textContent = "Vui lòng chọn ít nhất 1 sản phẩm để thanh toán.";
+                message.className = "stylehub-bag-voucher-message is-error";
             }
             return;
         }
+        const prefill = getCheckoutPrefillInfo();
+        const subtotal = calculateCartSubtotal(cart);
+        const totals = calculateBagTotals(subtotal);
 
-        window.location.href = firstKey
-            ? "product-detail.html?id=" + encodeURIComponent(firstKey) + "#checkout"
-            : "product-detail.html#checkout";
+        const productsHtml = cart.map(function (item) {
+            const qty = getQty(item);
+            const price = Number(item.priceNum) || parseMoney(item.price);
+            const lineTotal = price * qty;
+            const imgHtml = item.mainImg
+                ? '<img src="' + escapeHTML(item.mainImg) + '" alt="' + escapeHTML(item.name) + '">'
+                : '<div class="stylehub-checkout-product-placeholder"></div>';
+
+            return `
+                <div class="stylehub-checkout-product">
+                    ${imgHtml}
+                    <div>
+                        <p class="stylehub-checkout-product-name">${escapeHTML(item.name)}</p>
+                        <p class="stylehub-checkout-product-meta">Size: ${escapeHTML(item.size)} / SL: ${qty}</p>
+                    </div>
+                    <p class="stylehub-checkout-product-price">${formatMoney(lineTotal)}</p>
+                </div>
+            `;
+        }).join("");
+
+        modal.innerHTML = `
+            <aside class="stylehub-universal-bag-panel stylehub-universal-checkout-panel bag-sidebar" role="dialog" aria-modal="true" aria-label="Shipping Information">
+                <div class="stylehub-universal-bag-header bag-header">
+                    <h3>Shipping Information</h3>
+                    <button type="button" class="stylehub-universal-bag-close close-modal" aria-label="Close checkout">×</button>
+                </div>
+                <div class="stylehub-universal-bag-body stylehub-universal-checkout-body">
+                    <button type="button" class="stylehub-checkout-back">← Quay lại Bag</button>
+                    <div class="stylehub-checkout-products">${productsHtml}</div>
+                    <form id="stylehubUniversalCheckoutForm" class="stylehub-checkout-form">
+                        <div class="stylehub-checkout-field">
+                            <label for="stylehubCheckoutName">Họ và tên người nhận</label>
+                            <input id="stylehubCheckoutName" type="text" value="${escapeHTML(prefill.name)}" placeholder="Nhập họ tên" required>
+                        </div>
+                        <div class="stylehub-checkout-field">
+                            <label for="stylehubCheckoutPhone">Số điện thoại</label>
+                            <input id="stylehubCheckoutPhone" type="tel" value="${escapeHTML(prefill.phone)}" placeholder="Nhập số điện thoại" required>
+                        </div>
+                        <div class="stylehub-checkout-field">
+                            <label for="stylehubCheckoutAddress">Địa chỉ nhận hàng</label>
+                            <textarea id="stylehubCheckoutAddress" placeholder="Nhập địa chỉ nhận hàng đầy đủ" required>${escapeHTML(prefill.address)}</textarea>
+                        </div>
+                        <div class="stylehub-checkout-field">
+                            <label for="stylehubCheckoutEmail">Email</label>
+                            <input id="stylehubCheckoutEmail" type="email" value="${escapeHTML(prefill.email)}" placeholder="Ví dụ: abc@gmail.com" required>
+                        </div>
+                        <p id="stylehubCheckoutMessage" class="stylehub-checkout-message"></p>
+                    </form>
+                </div>
+                <div class="stylehub-universal-bag-footer bag-footer">
+                    <div class="stylehub-bag-summary">
+                        <div class="stylehub-bag-summary-row"><span>Tạm tính</span><span>${formatMoney(totals.subtotal)}</span></div>
+                        <div class="stylehub-bag-summary-row"><span>Phí ship</span><span>${formatMoney(totals.shipping)}</span></div>
+                        <div class="stylehub-bag-summary-row stylehub-bag-discount-line"><span>Giảm giá</span><span>-${formatMoney(totals.discount)}</span></div>
+                    </div>
+                    <div class="stylehub-bag-total-row stylehub-bag-grand-row total-row">
+                        <span>Tổng cộng</span>
+                        <span class="stylehub-bag-total-amount">${formatMoney(totals.total)}</span>
+                    </div>
+                    <button type="button" class="stylehub-universal-checkout stylehub-checkout-submit">Xác nhận đặt hàng</button>
+                </div>
+            </aside>
+        `;
+        modal.setAttribute("data-stylehub-bag-managed-version", "checkout-v1");
+        modal.style.display = "block";
+        requestAnimationFrame(function () {
+            modal.classList.add("stylehub-bag-open");
+            document.body.classList.add("stylehub-bag-active");
+            document.documentElement.classList.add("stylehub-bag-active");
+        });
+    }
+
+    function goToCheckout() {
+        const cart = readCart();
+        if (!cart.length) return;
+        if (!getSelectedCart(cart).length) {
+            const modal = ensureBagModal();
+            renderBagModal(cart);
+            const message = modal.querySelector("#stylehubBagVoucherMessage");
+            if (message) {
+                message.textContent = "Vui lòng chọn ít nhất 1 sản phẩm để thanh toán.";
+                message.className = "stylehub-bag-voucher-message is-error";
+            }
+            forceBagStayOpen();
+            return;
+        }
+        renderCheckoutPanel();
+    }
+
+    function showUniversalCheckoutMessage(text, isSuccess) {
+        const message = document.getElementById("stylehubCheckoutMessage");
+        if (message) {
+            message.textContent = text || "";
+            message.style.color = isSuccess ? "#18794e" : "#c00000";
+        }
+
+        if (!message && typeof window.showToastNotification === "function") {
+            try { window.showToastNotification(text); } catch (error) {}
+        } else if (!message && text) {
+            alert(text);
+        }
+    }
+
+    function saveLocalUniversalOrder(order) {
+        const email = String(order.userEmail || order.customerEmail || order.shippingEmail || "guest").trim().toLowerCase() || "guest";
+        const key = email === "guest" ? "hub_orders_guest" : "hub_orders_" + email;
+        let orders = [];
+        try {
+            orders = JSON.parse(localStorage.getItem(key) || "[]");
+            if (!Array.isArray(orders)) orders = [];
+        } catch (error) {
+            orders = [];
+        }
+        orders.unshift(order);
+        localStorage.setItem(key, JSON.stringify(orders));
+        return order;
+    }
+
+    async function saveUniversalOrder(order) {
+        if (window.StyleHubOrders && typeof window.StyleHubOrders.saveOrder === "function") {
+            return window.StyleHubOrders.saveOrder(order);
+        }
+        return saveLocalUniversalOrder(order);
+    }
+
+    function clearCartAfterCheckout(selectedIndexes, selectedFingerprints) {
+        window.__stylehubCartWasCheckedOutAt = Date.now();
+
+        const currentCart = readCart();
+        const selectedSet = new Set((Array.isArray(selectedIndexes) ? selectedIndexes : [])
+            .map(function (index) { return Number(index); })
+            .filter(function (index) { return Number.isInteger(index) && index >= 0 && index < currentCart.length; }));
+        const fingerprintSet = new Set((Array.isArray(selectedFingerprints) ? selectedFingerprints : [])
+            .map(function (value) { return String(value || ""); })
+            .filter(Boolean));
+
+        const remainingCart = currentCart.filter(function (item, index) {
+            if (selectedSet.has(index)) return false;
+            if (fingerprintSet.has(getCartItemFingerprint(item))) return false;
+            return true;
+        });
+
+        localStorage.removeItem("stylehub_active_voucher");
+        localStorage.removeItem(BAG_SELECTION_KEY);
+
+        // Ghi trực tiếp vào toàn bộ key giỏ hàng để sản phẩm đã thanh toán không bị script cũ ghi ngược lại.
+        const safeRemainingCart = writeCartStorageOnly(remainingCart);
+
+        if (typeof window.StyleHubResetProductDetailCartMemory === "function" && !safeRemainingCart.length) {
+            try { window.StyleHubResetProductDetailCartMemory(); } catch (error) {}
+            writeCartStorageOnly([]);
+        }
+
+        if (typeof window.clearStyleHubCartStorage === "function" && !safeRemainingCart.length) {
+            try { window.clearStyleHubCartStorage(); } catch (error) {}
+            writeCartStorageOnly([]);
+        }
+
+        window.cartMemoryArray = safeRemainingCart;
+        update(safeRemainingCart);
+
+        if (safeRemainingCart.length) {
+            resetSelectedIndexes(safeRemainingCart);
+        }
+
+        if (typeof window.renderCartUI === "function") {
+            try { window.renderCartUI(); } catch (error) {}
+            // Sau renderCartUI cũ, chốt lại storage lần nữa để không hiện lại món đã thanh toán.
+            setTimeout(function () {
+                writeCartStorageOnly(safeRemainingCart);
+                update(safeRemainingCart);
+            }, 80);
+        }
+    }
+
+    async function submitUniversalCheckout() {
+        const fullCart = readCart();
+        let selectedIndexes = Array.isArray(stylehubCheckoutSelectedIndexesSnapshot) && stylehubCheckoutSelectedIndexesSnapshot.length
+            ? stylehubCheckoutSelectedIndexesSnapshot.slice()
+            : getSelectedIndexes(fullCart);
+        selectedIndexes = selectedIndexes.filter(function (index) { return Number.isInteger(Number(index)) && Number(index) >= 0 && Number(index) < fullCart.length; }).map(Number);
+        const cart = selectedIndexes.map(function (index) { return fullCart[index]; }).filter(Boolean);
+        const selectedFingerprints = Array.isArray(stylehubCheckoutSelectedFingerprintsSnapshot) && stylehubCheckoutSelectedFingerprintsSnapshot.length
+            ? stylehubCheckoutSelectedFingerprintsSnapshot.slice()
+            : cart.map(getCartItemFingerprint);
+        if (!fullCart.length) {
+            showUniversalCheckoutMessage("Giỏ hàng của bạn đang trống.");
+            return;
+        }
+
+        if (!cart.length) {
+            showUniversalCheckoutMessage("Vui lòng chọn ít nhất 1 sản phẩm để thanh toán.");
+            return;
+        }
+
+        const button = document.querySelector("#bag-modal .stylehub-checkout-submit");
+        const name = String(document.getElementById("stylehubCheckoutName") && document.getElementById("stylehubCheckoutName").value || "").trim();
+        const phone = String(document.getElementById("stylehubCheckoutPhone") && document.getElementById("stylehubCheckoutPhone").value || "").trim();
+        const address = String(document.getElementById("stylehubCheckoutAddress") && document.getElementById("stylehubCheckoutAddress").value || "").trim();
+        const email = String(document.getElementById("stylehubCheckoutEmail") && document.getElementById("stylehubCheckoutEmail").value || "").trim().toLowerCase();
+
+        if (!name || !phone || !address || !email) {
+            showUniversalCheckoutMessage("Vui lòng điền đầy đủ thông tin giao hàng.");
+            return;
+        }
+
+        if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+            showUniversalCheckoutMessage("Email chưa đúng định dạng.");
+            return;
+        }
+
+        const accountEmail = getStyleHubAccountEmailForCheckout(email) || email;
+        const subtotal = calculateCartSubtotal(cart);
+        const totals = calculateBagTotals(subtotal);
+        const createdAt = Date.now();
+        const orderId = "STH" + createdAt.toString().slice(-6) + Math.floor(10 + Math.random() * 90);
+        const orderDate = new Date(createdAt).toLocaleString("vi-VN");
+
+        const order = {
+            orderId: orderId,
+            userEmail: accountEmail,
+            customerEmail: accountEmail,
+            shippingEmail: email,
+            orderDate: orderDate,
+            date: orderDate,
+            createdAt: createdAt,
+            updatedAt: createdAt,
+            clientOrderUid: orderId,
+            status: "Đang chờ xác nhận",
+            userInfo: {
+                name: name,
+                phone: phone,
+                email: email,
+                accountEmail: accountEmail,
+                address: address
+            },
+            orderedProductsList: cart,
+            subtotalFormatted: formatMoney(totals.subtotal),
+            shippingFeeFormatted: formatMoney(totals.shipping),
+            discountFormatted: "-" + formatMoney(totals.discount),
+            voucherCode: totals.code || "",
+            totalPriceFormatted: formatMoney(totals.total)
+        };
+
+        try {
+            if (button) {
+                button.disabled = true;
+                button.textContent = "Đang xử lý...";
+            }
+
+            saveStyleHubShippingProfileForCheckout({
+                name: name,
+                phone: phone,
+                address: address,
+                email: email
+            });
+
+            const savedOrder = await saveUniversalOrder(order);
+            if (window.StyleHubNotifications && typeof window.StyleHubNotifications.addOrderSuccessNotification === "function") {
+                try { window.StyleHubNotifications.addOrderSuccessNotification(savedOrder || order); } catch (error) {}
+            }
+
+            clearCartAfterCheckout(selectedIndexes, selectedFingerprints);
+            renderCheckoutSuccess(order);
+        } catch (error) {
+            console.error("Không thể lưu đơn hàng:", error);
+            showUniversalCheckoutMessage("Có lỗi khi đặt hàng. Vui lòng thử lại.");
+            if (button) {
+                button.disabled = false;
+                button.textContent = "Xác nhận đặt hàng";
+            }
+        }
+    }
+
+    function renderCheckoutSuccess(order) {
+        const modal = document.getElementById("bag-modal");
+        if (!modal) return;
+
+        modal.innerHTML = `
+            <aside class="stylehub-universal-bag-panel stylehub-universal-checkout-panel bag-sidebar" role="dialog" aria-modal="true" aria-label="Order Success">
+                <div class="stylehub-universal-bag-header bag-header">
+                    <h3>Order Success</h3>
+                    <button type="button" class="stylehub-universal-bag-close close-modal" aria-label="Close">×</button>
+                </div>
+                <div class="stylehub-universal-bag-body stylehub-universal-checkout-body">
+                    <p class="stylehub-checkout-success-note">Đặt hàng thành công. Đơn hàng của bạn đang chờ Admin xác nhận.</p>
+                    <div class="stylehub-bag-summary">
+                        <div class="stylehub-bag-summary-row"><span>Mã đơn</span><span>${escapeHTML(order.orderId)}</span></div>
+                        <div class="stylehub-bag-summary-row"><span>Khách hàng</span><span>${escapeHTML(order.userInfo.name)}</span></div>
+                        <div class="stylehub-bag-summary-row"><span>Số điện thoại</span><span>${escapeHTML(order.userInfo.phone)}</span></div>
+                        <div class="stylehub-bag-summary-row"><span>Tổng cộng</span><span>${escapeHTML(order.totalPriceFormatted)}</span></div>
+                    </div>
+                </div>
+                <div class="stylehub-universal-bag-footer bag-footer">
+                    <button type="button" class="stylehub-universal-checkout stylehub-checkout-done">Đóng</button>
+                </div>
+            </aside>
+        `;
+        modal.setAttribute("data-stylehub-bag-managed-version", "checkout-success-v1");
+        update(readCart());
+        if (typeof window.showToastNotification === "function") {
+            try { window.showToastNotification("Đặt hàng thành công!"); } catch (error) {}
+        }
     }
 
     function bindBagEvents() {
@@ -885,8 +1609,16 @@
             const index = Number(removeBtn.getAttribute("data-stylehub-remove-index"));
             const cart = readCart();
             if (Number.isInteger(index) && index >= 0) {
+                const selectedBefore = new Set(getSelectedIndexes(cart));
                 cart.splice(index, 1);
+                const selectedAfter = [];
+                selectedBefore.forEach(function (selectedIndex) {
+                    if (selectedIndex < index) selectedAfter.push(selectedIndex);
+                    if (selectedIndex > index) selectedAfter.push(selectedIndex - 1);
+                });
                 save(cart);
+                setSelectedIndexes(selectedAfter, cart);
+                renderBagModal(cart);
                 if (typeof window.renderCartUI === "function") setTimeout(window.renderCartUI, 80);
             }
             return;
@@ -896,7 +1628,9 @@
         if (closeBtn) {
             event.preventDefault();
             event.stopPropagation();
+            const isCheckoutSuccess = modal && modal.getAttribute("data-stylehub-bag-managed-version") === "checkout-success-v1";
             closeBag();
+            if (isCheckoutSuccess) setTimeout(triggerStyleHubUniversalFirework, 180);
             return;
         }
 
@@ -907,6 +1641,33 @@
             if (typeof event.stopImmediatePropagation === "function") event.stopImmediatePropagation();
             applyBagVoucher();
             return false;
+        }
+
+        const backCheckoutBtn = event.target.closest("#bag-modal .stylehub-checkout-back");
+        if (backCheckoutBtn) {
+            event.preventDefault();
+            event.stopPropagation();
+            const modal = document.getElementById("bag-modal");
+            if (modal) modal.setAttribute("data-stylehub-bag-managed-version", "");
+            openBag();
+            return;
+        }
+
+        const submitCheckoutBtn = event.target.closest("#bag-modal .stylehub-checkout-submit");
+        if (submitCheckoutBtn) {
+            event.preventDefault();
+            event.stopPropagation();
+            if (!submitCheckoutBtn.disabled) submitUniversalCheckout();
+            return;
+        }
+
+        const doneCheckoutBtn = event.target.closest("#bag-modal .stylehub-checkout-done");
+        if (doneCheckoutBtn) {
+            event.preventDefault();
+            event.stopPropagation();
+            closeBag();
+            setTimeout(triggerStyleHubUniversalFirework, 180);
+            return;
         }
 
         const checkoutBtn = event.target.closest("#bag-modal .checkout-btn, #bag-modal .stylehub-universal-checkout");
@@ -932,6 +1693,43 @@
         openBag();
     }, true);
 
+    document.addEventListener("change", function (event) {
+        const selectAll = event.target && event.target.closest && event.target.closest("#bag-modal #stylehubBagSelectAll");
+        if (selectAll) {
+            event.preventDefault();
+            event.stopPropagation();
+            const cart = readCart();
+            setSelectedIndexes(selectAll.checked ? cart.map(function (_, index) { return index; }) : [], cart);
+            renderBagModal(cart);
+            forceBagStayOpen();
+            return;
+        }
+
+        const itemCheckbox = event.target && event.target.closest && event.target.closest("#bag-modal [data-stylehub-select-index]");
+        if (itemCheckbox) {
+            event.stopPropagation();
+            const cart = readCart();
+            const index = Number(itemCheckbox.getAttribute("data-stylehub-select-index"));
+            const selectedSet = new Set(getSelectedIndexes(cart));
+            if (itemCheckbox.checked) {
+                selectedSet.add(index);
+            } else {
+                selectedSet.delete(index);
+            }
+            setSelectedIndexes(Array.from(selectedSet), cart);
+            renderBagModal(cart);
+            forceBagStayOpen();
+        }
+    }, true);
+
+    document.addEventListener("submit", function (event) {
+        if (event.target && event.target.matches && event.target.matches("#stylehubUniversalCheckoutForm")) {
+            event.preventDefault();
+            event.stopPropagation();
+            submitUniversalCheckout();
+        }
+    }, true);
+
     document.addEventListener("keydown", function (event) {
         if (event.key === "Escape") closeBag();
         if (event.key === "Enter" && event.target && event.target.matches && event.target.matches("#bag-modal #stylehubBagVoucherInput")) {
@@ -949,9 +1747,15 @@
         update: update,
         openBag: openBag,
         closeBag: closeBag,
+        hardCloseBag: hardCloseBag,
         renderBagModal: renderBagModal,
         applyVoucher: applyBagVoucher,
-        calculateTotals: calculateBagTotals
+        calculateTotals: calculateBagTotals,
+        openCheckout: goToCheckout,
+        submitCheckout: submitUniversalCheckout,
+        getSelectedIndexes: getSelectedIndexes,
+        setSelectedIndexes: setSelectedIndexes,
+        getSelectedCart: getSelectedCart
     };
 
     window.openStyleHubBag = openBag;
@@ -970,40 +1774,10 @@
     };
     window.toggleStyleHubUnifiedBag = window.toggleCartDrawer;
 
-    function openCheckoutAfterRedirectIfNeeded() {
-        const isProductDetail = /product-detail\.html/i.test(window.location.pathname);
-        const shouldOpenCheckout = isProductDetail && (
-            window.location.hash === "#checkout" ||
-            localStorage.getItem("stylehub_open_checkout_after_load") === "1"
-        );
-
-        if (!shouldOpenCheckout) return;
-
-        localStorage.removeItem("stylehub_open_bag_after_load");
-        localStorage.removeItem("stylehub_open_checkout_after_load");
-
-        setTimeout(function () {
-            if (!readCart().length) return;
-
-            if (typeof window.loadStyleHubCartIntoMemory === "function") {
-                try { window.loadStyleHubCartIntoMemory(); } catch (error) {}
-            }
-            if (typeof window.renderCartUI === "function") {
-                try { window.renderCartUI(); } catch (error) {}
-            }
-            if (typeof window.openCheckoutFromCart === "function") {
-                window.openCheckoutFromCart();
-            } else if (typeof window.toggleCheckoutDrawer === "function") {
-                window.toggleCheckoutDrawer(true);
-            }
-        }, 350);
-    }
-
     document.addEventListener("DOMContentLoaded", function () {
         bindBagEvents();
         setTimeout(bindBagEvents, 300);
         setTimeout(bindBagEvents, 1000);
-        openCheckoutAfterRedirectIfNeeded();
     });
 
     window.addEventListener("storage", function (event) {
