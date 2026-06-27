@@ -598,11 +598,28 @@ function searchProducts() {
     }
 
     function getStockInfo(productId) {
-        const hash = stableHash(productId);
-        const stock = hash % 11;
-        if (stock === 0) return { status: "out", label: "Out of Stock", vn: "Hết hàng", qty: 0 };
-        if (stock <= 2) return { status: "low", label: "Low Stock", vn: "Sắp hết hàng", qty: stock + 1 };
-        return { status: "in", label: "In Stock", vn: "Còn hàng", qty: stock + 6 };
+        if (window.StyleHubProductAdmin && typeof window.StyleHubProductAdmin.applyAdminProductsToDatabase === "function") {
+            window.StyleHubProductAdmin.applyAdminProductsToDatabase();
+        }
+        if (window.StyleHubProductAdmin && typeof window.StyleHubProductAdmin.getAdminStockInfo === "function") {
+            return window.StyleHubProductAdmin.getAdminStockInfo(productId);
+        }
+
+        let inventory = {};
+        try {
+            inventory = JSON.parse(localStorage.getItem("stylehub_inventory_v1") || "{}");
+        } catch (error) {
+            inventory = {};
+        }
+
+        const product = getProductData(productId) || {};
+        const inv = inventory[productId];
+        const stock = inv ? Math.max(0, Number(inv.stock || 0)) : Math.max(0, Number(product.stock === undefined ? 20 : product.stock));
+        const outOfStock = inv ? (!!inv.outOfStock || stock <= 0) : (!!product.outOfStock || stock <= 0);
+
+        if (outOfStock) return { status: "out", label: "Out of Stock", vn: "Hết hàng", qty: 0 };
+        if (stock <= 3) return { status: "low", label: "Low Stock", vn: "Sắp hết hàng", qty: stock };
+        return { status: "in", label: "In Stock", vn: "Còn hàng", qty: stock };
     }
 
     function getProductSizes(productId, productName) {
@@ -947,6 +964,117 @@ function searchProducts() {
         return;
     }
 
+
+    function readAdminCustomProducts() {
+        try {
+            const data = JSON.parse(localStorage.getItem("stylehub_admin_products_v1") || "{}");
+            return data && typeof data === "object" ? data : {};
+        } catch (error) {
+            return {};
+        }
+    }
+
+    function inferAdminDepartment(productId, item) {
+        if (window.StyleHubProductAdmin && typeof window.StyleHubProductAdmin.inferDepartment === "function") {
+            return window.StyleHubProductAdmin.inferDepartment(productId, item || {});
+        }
+        const id = String(productId || "").toLowerCase();
+        const dept = String((item && (item.adminDepartment || item.department || item.gender)) || "").toLowerCase();
+        if (dept.includes("women")) return "womens";
+        if (dept.includes("kid")) return "kids";
+        if (dept.includes("shoe")) return "shoes";
+        if (dept.includes("sale")) return "sale";
+        if (id.startsWith("womens")) return "womens";
+        if (id.startsWith("kids")) return "kids";
+        if (id.startsWith("shoe")) return "shoes";
+        if (id.startsWith("sale")) return "sale";
+        return "mens";
+    }
+
+    function getCurrentDepartmentFromPage() {
+        const page = String(window.location.pathname.split("/").pop() || "").toLowerCase();
+        if (page === "womens.html") return "womens";
+        if (page === "kids.html") return "kids";
+        if (page === "shoes.html") return "shoes";
+        if (page === "sale.html") return "sale";
+        if (page === "mens.html") return "mens";
+        return "";
+    }
+
+    function getCurrentCategoryFromUrl() {
+        try {
+            return new URLSearchParams(window.location.search).get("cat") || "all";
+        } catch (error) {
+            return "all";
+        }
+    }
+
+    function createAdminCustomCard(productId, item, currentDept) {
+        const mainImg = item.mainImg || (item.images && item.images[0]) || "";
+        const hoverImg = (item.images && item.images[1]) || mainImg;
+        const category = item.category || item.type || (currentDept === "shoes" ? "shoes" : "tops");
+        const price = item.price || formatMoney(item.priceNum || 0);
+
+        const link = document.createElement("a");
+        link.href = "product-detail.html?id=" + encodeURIComponent(productId);
+        link.dataset.productId = productId;
+        link.dataset.cat = category;
+        link.dataset.stylehubAdminCustom = "1";
+
+        if (currentDept === "shoes") {
+            link.className = "product-card stylehub-admin-custom-card";
+            link.innerHTML = `
+                <div class="product-thumb hover-img">
+                    <img class="img-main" src="${escapeHtml(mainImg)}" alt="${escapeHtml(item.name || "")}">
+                    <img class="img-hover" src="${escapeHtml(hoverImg)}" alt="${escapeHtml(item.name || "")}">
+                </div>
+                <div class="product-info">
+                    <p class="brand">${escapeHtml(item.brand || "THE STYLE HUB")}</p>
+                    <p class="name">${escapeHtml(item.name || "Sản phẩm")}</p>
+                    <p class="price">${escapeHtml(price)}</p>
+                </div>`;
+        } else {
+            link.className = "mens-card stylehub-admin-custom-card";
+            link.innerHTML = `
+                <div class="mens-thumb-box">
+                    <img class="img-front" src="${escapeHtml(mainImg)}" alt="${escapeHtml(item.name || "")}">
+                    <img class="img-back" src="${escapeHtml(hoverImg)}" alt="${escapeHtml(item.name || "")}">
+                </div>
+                <div class="mens-details">
+                    <p class="tag-brand">${escapeHtml(item.brand || "THE STYLE HUB")}</p>
+                    <h4 class="item-name">${escapeHtml(item.name || "Sản phẩm")}</h4>
+                    <p class="item-price">${escapeHtml(price)}</p>
+                </div>`;
+        }
+        return link;
+    }
+
+    function initAdminCustomProductCards() {
+        const currentDept = getCurrentDepartmentFromPage();
+        if (!currentDept) return;
+        const grid = document.querySelector(".mens-product-grid");
+        if (!grid) return;
+
+        if (window.StyleHubProductAdmin && typeof window.StyleHubProductAdmin.applyAdminProductsToDatabase === "function") {
+            window.StyleHubProductAdmin.applyAdminProductsToDatabase();
+        }
+
+        const customProducts = readAdminCustomProducts();
+        Object.keys(customProducts).forEach(function(productId) {
+            const item = customProducts[productId] || {};
+            if (inferAdminDepartment(productId, item) !== currentDept) return;
+            const safeProductId = window.CSS && window.CSS.escape ? CSS.escape(productId) : String(productId).replace(/"/g, '\"');
+            const hrefProductId = String(productId).replace(/"/g, '');
+            if (grid.querySelector('[data-product-id="' + safeProductId + '"]') || grid.querySelector('a[href*="id=' + hrefProductId + '"]')) return;
+            grid.appendChild(createAdminCustomCard(productId, item, currentDept));
+        });
+
+        const activeCategory = getCurrentCategoryFromUrl();
+        if (activeCategory !== "all" && typeof window.filterCategory === "function") {
+            const tag = document.querySelector(`.filter-tag[onclick*="${activeCategory}"]`);
+            window.filterCategory(activeCategory, tag || null);
+        }
+    }
 
     function initStockBadges() {
         document.querySelectorAll('a[href*="product-detail.html?id="]').forEach(card => {
@@ -1328,6 +1456,7 @@ function searchProducts() {
         injectStyles();
         initFooterPageLinks();
         initCollectionFilters();
+        initAdminCustomProductCards();
         initStockBadges();
         initWishlistButtons();
         initSizeGuide();

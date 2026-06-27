@@ -21,6 +21,9 @@
     };
 
     const DB_ROOT = "stylehub_orders/orders";
+    const INVENTORY_KEY = "stylehub_inventory_v1";
+    const STOCK_DEDUCTED_ORDERS_KEY = "stylehub_stock_deducted_orders_v1";
+    const STOCK_FEATURE_START_AT = 1782539550000; // Chỉ tự động trừ kho cho đơn mới từ bản cập nhật này trở đi.
     let firebaseReady = false;
     let firebaseDatabase = null;
     let realtimeAttached = false;
@@ -59,61 +62,373 @@
         return text || fallback || "";
     }
 
+    function isRealText(value) {
+        const text = String(value === undefined || value === null ? "" : value).trim();
+        const normalized = text.toLowerCase();
+        return !!text && normalized !== "n/a" && normalized !== "na" && normalized !== "undefined" && normalized !== "null" && normalized !== "chưa cập nhật địa chỉ";
+    }
+
+    function firstText(values, fallback) {
+        for (let i = 0; i < values.length; i++) {
+            const text = cleanText(values[i], "");
+            if (isRealText(text)) return text;
+        }
+        return fallback || "";
+    }
+
+    function mergeInfoObjects(order) {
+        const safeOrder = order || {};
+        return Object.assign({},
+            safeOrder.customer || {},
+            safeOrder.customerInfo || {},
+            safeOrder.shippingInfo || {},
+            safeOrder.deliveryInfo || {},
+            safeOrder.receiver || {},
+            safeOrder.recipient || {},
+            safeOrder.userInfo || {}
+        );
+    }
+
+    function buildAddress(order, info) {
+        const safeOrder = order || {};
+        const directAddress = firstText([
+            info.address, info.fullAddress, info.customerAddress, info.shippingAddress, info.deliveryAddress, info.receiverAddress, info.recipientAddress,
+            safeOrder.customerAddress, safeOrder.shippingAddress, safeOrder.deliveryAddress, safeOrder.receiverAddress, safeOrder.recipientAddress, safeOrder.address, safeOrder.fullAddress
+        ], "");
+        if (directAddress) return directAddress;
+
+        const parts = [
+            info.street, info.addressLine, info.ward, info.district, info.city, info.province,
+            safeOrder.street, safeOrder.addressLine, safeOrder.ward, safeOrder.district, safeOrder.city, safeOrder.province
+        ].map(function(value) { return cleanText(value, ""); }).filter(isRealText);
+        return parts.length ? parts.join(", ") : "Chưa cập nhật địa chỉ";
+    }
+
     function getCustomerInfo(order) {
-        const info = order && order.userInfo ? order.userInfo : {};
+        const safeOrder = order || {};
+        const info = mergeInfoObjects(safeOrder);
+        const name = firstText([
+            info.name, info.fullName, info.customerName, info.receiverName, info.recipientName, info.contactName,
+            safeOrder.customerName, safeOrder.name, safeOrder.fullName, safeOrder.receiverName, safeOrder.recipientName, safeOrder.shippingName, safeOrder.customer_name
+        ], "N/A");
+        const phone = firstText([
+            info.phone, info.phoneNumber, info.mobile, info.tel, info.customerPhone, info.receiverPhone, info.recipientPhone,
+            safeOrder.customerPhone, safeOrder.phone, safeOrder.phoneNumber, safeOrder.mobile, safeOrder.tel, safeOrder.receiverPhone, safeOrder.recipientPhone, safeOrder.customer_phone
+        ], "N/A");
+        const email = firstText([
+            info.email, info.shippingEmail, info.customerEmail, info.accountEmail,
+            safeOrder.shippingEmail, safeOrder.customerEmail, safeOrder.userEmail, safeOrder.email, safeOrder.customer_email
+        ], "N/A");
         return {
-            name: cleanText(info.name || order.customerName || order.name, "N/A"),
-            phone: cleanText(info.phone || order.customerPhone || order.phone, "N/A"),
-            email: cleanText(info.email || order.userEmail || order.customerEmail || order.shippingEmail || order.email, "N/A").toLowerCase(),
-            address: cleanText(info.address || order.customerAddress || order.address, "Chưa cập nhật địa chỉ")
+            name: name,
+            phone: phone,
+            email: email.toLowerCase(),
+            address: buildAddress(safeOrder, info)
         };
     }
 
     function normalizeProducts(items) {
         if (!Array.isArray(items)) return [];
         return items.map(function (item) {
+            const safeItem = item || {};
             return {
-                key: cleanText(item.key || item.id, ""),
-                name: cleanText(item.name, "Sản phẩm"),
-                size: cleanText(item.size, "-"),
-                qty: Number(item.qty || item.quantity || 1),
-                price: cleanText(item.price || item.priceFormatted, ""),
-                priceNum: Number(item.priceNum || String(item.price || "0").replace(/[^\d]/g, "") || 0),
-                mainImg: cleanText(item.mainImg || item.image || item.img, "")
+                key: cleanText(safeItem.key || safeItem.id || safeItem.productId || safeItem.sku, ""),
+                name: cleanText(safeItem.name || safeItem.productName || safeItem.title, "Sản phẩm"),
+                size: cleanText(safeItem.size || safeItem.selectedSize, "-"),
+                qty: Number(safeItem.qty || safeItem.quantity || safeItem.count || 1),
+                price: cleanText(safeItem.price || safeItem.priceFormatted || safeItem.unitPriceFormatted, ""),
+                priceNum: Number(safeItem.priceNum || safeItem.unitPrice || safeItem.priceValue || String(safeItem.price || "0").replace(/[^\d]/g, "") || 0),
+                mainImg: cleanText(safeItem.mainImg || safeItem.image || safeItem.img || safeItem.thumbnail, "")
             };
         });
     }
 
-    function calculateTotal(items) {
+    function calculateTotalNumber(items) {
         let total = 0;
         normalizeProducts(items).forEach(function (item) {
             total += (Number(item.priceNum) || 0) * (Number(item.qty) || 1);
         });
-        return total.toLocaleString("vi-VN") + " ₫";
+        return total;
+    }
+
+    function calculateTotal(items) {
+        return calculateTotalNumber(items).toLocaleString("vi-VN") + " ₫";
+    }
+
+    function parseDateToMs(value) {
+        if (typeof value === "number" && Number.isFinite(value)) return value;
+        const text = cleanText(value, "");
+        if (!text) return 0;
+
+        let match = text.match(/(\d{1,2}):(\d{2})(?::(\d{2}))?\s+(\d{1,2})\/(\d{1,2})\/(\d{4})/);
+        if (match) {
+            return new Date(Number(match[6]), Number(match[5]) - 1, Number(match[4]), Number(match[1]), Number(match[2]), Number(match[3] || 0)).getTime();
+        }
+
+        match = text.match(/(\d{1,2})\/(\d{1,2})\/(\d{4})(?:,?\s+(\d{1,2}):(\d{2})(?::(\d{2}))?)?/);
+        if (match) {
+            return new Date(Number(match[3]), Number(match[2]) - 1, Number(match[1]), Number(match[4] || 0), Number(match[5] || 0), Number(match[6] || 0)).getTime();
+        }
+
+        const parsed = Date.parse(text);
+        return Number.isFinite(parsed) ? parsed : 0;
+    }
+
+    function getOrderCreatedAt(safeOrder) {
+        const explicit = Number(safeOrder.createdAt || safeOrder.timestamp || safeOrder.orderTimestamp || safeOrder.created_at || 0);
+        if (explicit > 0) return explicit;
+        return parseDateToMs(safeOrder.orderDate || safeOrder.date || safeOrder.createdDate || safeOrder.created_at);
+    }
+
+    function getOrderItems(safeOrder) {
+        return safeOrder.orderedProductsList || safeOrder.items || safeOrder.products || safeOrder.cart || safeOrder.cartItems || safeOrder.orderItems || [];
+    }
+
+    function parseMoney(value) {
+        return Number(String(value || "0").replace(/[^\d]/g, "")) || 0;
+    }
+
+
+    function readJsonObject(key) {
+        try {
+            const data = JSON.parse(localStorage.getItem(key) || "{}");
+            return data && typeof data === "object" && !Array.isArray(data) ? data : {};
+        } catch (error) {
+            return {};
+        }
+    }
+
+    function saveJsonObject(key, value) {
+        try {
+            localStorage.setItem(key, JSON.stringify(value || {}));
+        } catch (error) {
+            console.warn("Không thể lưu dữ liệu tồn kho:", error);
+        }
+    }
+
+    function getProductDatabaseItem(productId) {
+        try {
+            if (typeof database !== "undefined" && database && database[productId]) return database[productId];
+        } catch (error) {}
+        return {};
+    }
+
+    function resolveProductId(item) {
+        const direct = cleanText(item && (item.key || item.productId || item.id || item.sku || item.productKey), "");
+        if (direct) return direct;
+
+        const name = cleanText(item && (item.name || item.productName || item.title), "").toLowerCase();
+        if (!name) return "";
+
+        try {
+            if (typeof database !== "undefined" && database) {
+                const found = Object.keys(database).find(function(id) {
+                    const productName = cleanText(database[id] && database[id].name, "").toLowerCase();
+                    return productName && productName === name;
+                });
+                if (found) return found;
+            }
+        } catch (error) {}
+
+        const customProducts = readJsonObject("stylehub_admin_products_v1");
+        return Object.keys(customProducts).find(function(id) {
+            const productName = cleanText(customProducts[id] && customProducts[id].name, "").toLowerCase();
+            return productName && productName === name;
+        }) || "";
+    }
+
+    function normalizeStockItems(items) {
+        const grouped = {};
+        normalizeProducts(items).forEach(function(item) {
+            const productId = resolveProductId(item);
+            const qty = Math.max(1, Number(item.qty || item.quantity || 1) || 1);
+            if (!productId) return;
+            grouped[productId] = (grouped[productId] || 0) + qty;
+        });
+        return Object.keys(grouped).map(function(productId) {
+            return { key: productId, qty: grouped[productId] };
+        });
+    }
+
+    function isCancelledStockStatus(status) {
+        const text = String(status || "").toLowerCase();
+        return text.includes("hủy") || text.includes("huỷ") || text.includes("cancel");
+    }
+
+    function shouldAutoTrackStock(order, force) {
+        if (force) return true;
+        const createdAt = Number(order && order.createdAt) || getOrderCreatedAt(order || {});
+        return createdAt >= STOCK_FEATURE_START_AT;
+    }
+
+    function notifyInventoryChanged() {
+        try {
+            if (window.StyleHubProductAdmin && typeof window.StyleHubProductAdmin.applyAdminProductsToDatabase === "function") {
+                window.StyleHubProductAdmin.applyAdminProductsToDatabase();
+            }
+            localStorage.setItem("stylehub_inventory_updated_at", String(Date.now()));
+            window.dispatchEvent(new CustomEvent("stylehub-inventory-change"));
+            window.dispatchEvent(new StorageEvent("storage", { key: INVENTORY_KEY }));
+        } catch (error) {}
+    }
+
+    function deductStockForOrder(order, options) {
+        const normalized = normalizeOrder(order || {});
+        const orderId = cleanText(normalized.orderId, "");
+        if (!orderId || isCancelledStockStatus(normalized.status)) return;
+        if (!shouldAutoTrackStock(normalized, options && options.force)) return;
+
+        const items = normalizeStockItems(normalized.orderedProductsList || []);
+        if (!items.length) return;
+
+        const ledger = readJsonObject(STOCK_DEDUCTED_ORDERS_KEY);
+        if (ledger[orderId] && !ledger[orderId].restored) return;
+
+        const inventory = readJsonObject(INVENTORY_KEY);
+        const appliedItems = [];
+        items.forEach(function(item) {
+            const productId = item.key;
+            const qty = Math.max(1, Number(item.qty || 1) || 1);
+            const currentRecord = inventory[productId] || {};
+            const product = getProductDatabaseItem(productId);
+            const currentStock = Math.max(0, Number(
+                currentRecord.stock !== undefined ? currentRecord.stock :
+                product.stock !== undefined ? product.stock : 20
+            ) || 0);
+            const nextStock = Math.max(0, currentStock - qty);
+            inventory[productId] = Object.assign({}, currentRecord, {
+                stock: nextStock,
+                outOfStock: nextStock <= 0,
+                updatedAt: Date.now(),
+                lastOrderId: orderId
+            });
+            appliedItems.push({ key: productId, qty: qty });
+        });
+
+        if (!appliedItems.length) return;
+        ledger[orderId] = {
+            orderId: orderId,
+            createdAt: Number(normalized.createdAt) || Date.now(),
+            deductedAt: Date.now(),
+            restored: false,
+            items: appliedItems
+        };
+        saveJsonObject(INVENTORY_KEY, inventory);
+        saveJsonObject(STOCK_DEDUCTED_ORDERS_KEY, ledger);
+        notifyInventoryChanged();
+    }
+
+    function restoreStockForOrder(orderId) {
+        const id = cleanText(orderId, "");
+        if (!id) return;
+        const ledger = readJsonObject(STOCK_DEDUCTED_ORDERS_KEY);
+        const record = ledger[id];
+        if (!record || record.restored || !Array.isArray(record.items) || !record.items.length) return;
+
+        const inventory = readJsonObject(INVENTORY_KEY);
+        record.items.forEach(function(item) {
+            const productId = cleanText(item && item.key, "");
+            const qty = Math.max(1, Number(item && item.qty || 1) || 1);
+            if (!productId) return;
+            const currentRecord = inventory[productId] || {};
+            const product = getProductDatabaseItem(productId);
+            const currentStock = Math.max(0, Number(
+                currentRecord.stock !== undefined ? currentRecord.stock :
+                product.stock !== undefined ? product.stock : 20
+            ) || 0);
+            const nextStock = currentStock + qty;
+            inventory[productId] = Object.assign({}, currentRecord, {
+                stock: nextStock,
+                outOfStock: nextStock <= 0,
+                updatedAt: Date.now(),
+                restoredFromOrderId: id
+            });
+        });
+
+        record.restored = true;
+        record.restoredAt = Date.now();
+        saveJsonObject(INVENTORY_KEY, inventory);
+        saveJsonObject(STOCK_DEDUCTED_ORDERS_KEY, ledger);
+        notifyInventoryChanged();
+    }
+
+    function syncStockDeductionsFromOrders(orders) {
+        uniqueAndSort(orders || []).forEach(function(order) {
+            const normalized = normalizeOrder(order || {});
+            if (isCancelledStockStatus(normalized.status)) {
+                restoreStockForOrder(normalized.orderId);
+            } else {
+                deductStockForOrder(normalized, { force: false });
+            }
+        });
+    }
+
+    function hasMeaningfulOrderData(order) {
+        const safeOrder = order || {};
+        const customer = getCustomerInfo(safeOrder);
+        const products = normalizeProducts(getOrderItems(safeOrder));
+        const total = parseMoney(safeOrder.totalPriceFormatted || safeOrder.totalPrice || safeOrder.grandTotal || safeOrder.total) || calculateTotalNumber(products);
+        return isRealText(customer.name) || isRealText(customer.phone) || isRealText(customer.email) || isRealText(customer.address) || products.length > 0 || total > 0;
     }
 
     function normalizeOrder(order) {
         const safeOrder = order || {};
         const customer = getCustomerInfo(safeOrder);
-        const orderId = cleanText(safeOrder.orderId, "STH" + Math.floor(100000 + Math.random() * 900000));
-        const products = normalizeProducts(safeOrder.orderedProductsList || safeOrder.items || []);
-        const createdAt = Number(safeOrder.createdAt || safeOrder.timestamp || Date.now());
-        const dateText = cleanText(safeOrder.orderDate || safeOrder.date, new Date(createdAt).toLocaleString("vi-VN"));
+        const orderId = cleanText(safeOrder.orderId || safeOrder.id || safeOrder.clientOrderUid, "STH" + Math.floor(100000 + Math.random() * 900000));
+        const products = normalizeProducts(getOrderItems(safeOrder));
+        const createdAt = getOrderCreatedAt(safeOrder);
+        const updatedAt = Number(safeOrder.updatedAt || safeOrder.updated_at || createdAt || 0);
+        const dateText = cleanText(safeOrder.orderDate || safeOrder.date || safeOrder.createdDate, createdAt ? new Date(createdAt).toLocaleString("vi-VN") : "");
+        const totalText = cleanText(safeOrder.totalPriceFormatted || safeOrder.totalPrice || safeOrder.grandTotalFormatted || safeOrder.totalFormatted, calculateTotal(products));
 
         return {
             orderId: orderId,
             createdAt: createdAt,
-            updatedAt: Number(safeOrder.updatedAt || createdAt),
+            updatedAt: updatedAt,
             orderDate: dateText,
             date: dateText,
-            status: cleanText(safeOrder.status, "Đang chờ xác nhận"),
+            status: cleanText(safeOrder.status || safeOrder.orderStatus, "Đang chờ xác nhận"),
             userEmail: customer.email,
             customerEmail: customer.email,
-            shippingEmail: cleanText(safeOrder.shippingEmail || customer.email, customer.email).toLowerCase(),
+            shippingEmail: firstText([safeOrder.shippingEmail, safeOrder.customerEmail, safeOrder.userEmail, customer.email], customer.email).toLowerCase(),
             userInfo: customer,
             orderedProductsList: products,
-            totalPriceFormatted: cleanText(safeOrder.totalPriceFormatted || safeOrder.totalPrice, calculateTotal(products))
+            totalPriceFormatted: totalText
         };
+    }
+
+    function shouldKeepOrder(order) {
+        const normalized = normalizeOrder(order);
+        if (!normalized.orderId) return false;
+        return hasMeaningfulOrderData(normalized);
+    }
+
+    function scoreOrder(order) {
+        const normalized = normalizeOrder(order);
+        let score = 0;
+        if (isRealText(normalized.userInfo.name)) score += 4;
+        if (isRealText(normalized.userInfo.phone)) score += 4;
+        if (isRealText(normalized.userInfo.email)) score += 3;
+        if (isRealText(normalized.userInfo.address)) score += 3;
+        score += normalized.orderedProductsList.length * 5;
+        if (parseMoney(normalized.totalPriceFormatted) > 0) score += 4;
+        if (Number(normalized.createdAt) > 0) score += 2;
+        return score;
+    }
+
+    function mergeOrderData(current, incoming) {
+        const a = normalizeOrder(current);
+        const b = normalizeOrder(incoming);
+        if (!a || !a.orderId) return b;
+        if (!b || !b.orderId) return a;
+
+        const richer = scoreOrder(b) >= scoreOrder(a) ? b : a;
+        const latest = Number(b.updatedAt || b.createdAt || 0) >= Number(a.updatedAt || a.createdAt || 0) ? b : a;
+        return normalizeOrder(Object.assign({}, richer, latest, {
+            userInfo: scoreOrder(b) >= scoreOrder(a) ? b.userInfo : a.userInfo,
+            orderedProductsList: (richer.orderedProductsList && richer.orderedProductsList.length) ? richer.orderedProductsList : latest.orderedProductsList,
+            totalPriceFormatted: parseMoney(richer.totalPriceFormatted) > 0 ? richer.totalPriceFormatted : latest.totalPriceFormatted
+        }));
     }
 
     function safeParse(key) {
@@ -179,9 +494,13 @@
     function uniqueAndSort(orders) {
         const map = new Map();
         (orders || []).forEach(function (order) {
-            if (!order) return;
+            if (!order || !shouldKeepOrder(order)) return;
             const normalized = normalizeOrder(order);
-            map.set(normalized.orderId, normalized);
+            if (map.has(normalized.orderId)) {
+                map.set(normalized.orderId, mergeOrderData(map.get(normalized.orderId), normalized));
+            } else {
+                map.set(normalized.orderId, normalized);
+            }
         });
         return Array.from(map.values()).sort(function (a, b) {
             return (Number(b.createdAt) || 0) - (Number(a.createdAt) || 0);
@@ -190,21 +509,29 @@
 
     async function saveOrder(order) {
         const normalized = saveLocalOrder(order);
+        deductStockForOrder(normalized, { force: true });
         if (initFirebase()) {
             await firebaseDatabase.ref(DB_ROOT + "/" + normalized.orderId).set(normalized);
         }
         return normalized;
     }
 
+    function getAllLocalOrders() {
+        let all = [];
+        getLocalOrderKeys().forEach(function (key) { all = all.concat(safeParse(key)); });
+        return all;
+    }
+
     async function getAllOrders() {
+        let all = getAllLocalOrders();
         if (initFirebase()) {
             const snapshot = await firebaseDatabase.ref(DB_ROOT).once("value");
             const value = snapshot.val() || {};
-            return uniqueAndSort(Object.keys(value).map(function (key) { return value[key]; }));
+            all = Object.keys(value).map(function (key) { return value[key]; }).concat(all);
         }
-        let all = [];
-        getLocalOrderKeys().forEach(function (key) { all = all.concat(safeParse(key)); });
-        return uniqueAndSort(all);
+        const orders = uniqueAndSort(all);
+        syncStockDeductionsFromOrders(orders);
+        return orders;
     }
 
     function getOwnerEmail(order) {
@@ -223,7 +550,10 @@
         const patch = { status: status, updatedAt: Date.now() };
         if (status === "Đang giao") patch.confirmedAt = new Date().toLocaleString("vi-VN");
         if (status === "Đã nhận hàng") patch.completedAt = new Date().toLocaleString("vi-VN");
-        if (String(status || "").toLowerCase().includes("hủy")) patch.cancelledAt = new Date().toLocaleString("vi-VN");
+        if (isCancelledStockStatus(status)) {
+            patch.cancelledAt = new Date().toLocaleString("vi-VN");
+            restoreStockForOrder(orderId);
+        }
         updateLocalOrder(orderId, patch);
         if (initFirebase()) {
             await firebaseDatabase.ref(DB_ROOT + "/" + orderId).update(patch);
@@ -243,7 +573,9 @@
             realtimeAttached = true;
             firebaseDatabase.ref(DB_ROOT).on("value", function (snapshot) {
                 const value = snapshot.val() || {};
-                callback(uniqueAndSort(Object.keys(value).map(function (key) { return value[key]; })));
+                const orders = uniqueAndSort(Object.keys(value).map(function (key) { return value[key]; }));
+                syncStockDeductionsFromOrders(orders);
+                callback(orders);
             });
         } else {
             window.addEventListener("storage", function (event) {
@@ -262,6 +594,8 @@
         updateOrderStatus: updateOrderStatus,
         deleteOrder: deleteOrder,
         onOrdersChanged: onOrdersChanged,
-        normalizeOrder: normalizeOrder
+        normalizeOrder: normalizeOrder,
+        deductStockForOrder: deductStockForOrder,
+        restoreStockForOrder: restoreStockForOrder
     };
 })();

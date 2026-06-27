@@ -639,7 +639,103 @@ document.addEventListener("DOMContentLoaded", function () {
         }
     }
 });
-</script><script src="product-data.js?v=property-la-visible-final-20260618"></script>
+</script>
+
+<script>
+/* SALE RETURN POSITION FIX START */
+(function () {
+    function getActiveSaleCategory() {
+        const active = document.querySelector('.filter-tag.active');
+        if (!active) return 'all';
+        const text = (active.textContent || '').trim().toLowerCase();
+        if (text.includes('tops')) return 'tops';
+        if (text.includes('jacket') || text.includes('outerwear')) return 'jackets';
+        return 'all';
+    }
+
+    function buildSaleReturnUrl() {
+        const category = getActiveSaleCategory();
+        const url = new URL('sale.html', window.location.href);
+        url.search = '';
+        if (category !== 'all') {
+            url.searchParams.set('cat', category);
+        }
+        return url.pathname.split('/').pop() + url.search;
+    }
+
+    function rememberSaleReturnPosition(card) {
+        const productUrl = new URL(card.getAttribute('href') || '', window.location.href);
+        const productId = productUrl.searchParams.get('id') || '';
+        const returnUrl = buildSaleReturnUrl();
+
+        sessionStorage.setItem('stylehub_collection_return', JSON.stringify({
+            url: returnUrl,
+            scrollY: window.scrollY || window.pageYOffset || 0,
+            productId: productId,
+            fromPage: 'sale',
+            savedAt: Date.now()
+        }));
+
+        productUrl.searchParams.set('from', returnUrl);
+        return productUrl.pathname.split('/').pop() + productUrl.search;
+    }
+
+    function bindSaleProductReturnLinks() {
+        document.querySelectorAll('a.mens-card[href*="product-detail.html?id=sale-"]').forEach(function (card) {
+            if (card.dataset.saleReturnBound === '1') return;
+            card.dataset.saleReturnBound = '1';
+
+            card.addEventListener('click', function (event) {
+                if (event.defaultPrevented || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey || event.button !== 0) return;
+                event.preventDefault();
+                window.location.href = rememberSaleReturnPosition(this);
+            });
+        });
+    }
+
+    function restoreSaleReturnPosition() {
+        if (sessionStorage.getItem('stylehub_collection_restore') !== '1') return;
+
+        let saved = null;
+        try {
+            saved = JSON.parse(sessionStorage.getItem('stylehub_collection_return') || 'null');
+        } catch (error) {
+            saved = null;
+        }
+
+        if (!saved || !saved.url || !saved.url.includes('sale.html')) return;
+        sessionStorage.removeItem('stylehub_collection_restore');
+
+        function scrollToSavedSaleSpot() {
+            if (typeof saved.scrollY === 'number') {
+                window.scrollTo(0, saved.scrollY);
+            }
+
+            if (saved.productId) {
+                const selectorId = window.CSS && CSS.escape ? CSS.escape(saved.productId) : String(saved.productId).replace(/"/g, '\\"');
+                const targetCard = document.querySelector(`a.mens-card[href*="id=${selectorId}"]`);
+                if (targetCard) {
+                    targetCard.scrollIntoView({ block: 'center' });
+                }
+            }
+        }
+
+        setTimeout(scrollToSavedSaleSpot, 80);
+        setTimeout(scrollToSavedSaleSpot, 400);
+        setTimeout(scrollToSavedSaleSpot, 900);
+        window.addEventListener('load', function () {
+            setTimeout(scrollToSavedSaleSpot, 80);
+        }, { once: true });
+    }
+
+    document.addEventListener('DOMContentLoaded', function () {
+        bindSaleProductReturnLinks();
+        restoreSaleReturnPosition();
+    });
+})();
+/* SALE RETURN POSITION FIX END */
+</script>
+<script src="product-data.js?v=property-la-visible-final-20260618"></script>
 
 
 <script>

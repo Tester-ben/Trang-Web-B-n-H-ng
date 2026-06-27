@@ -312,19 +312,19 @@
         }
         .stylehub-order-success-done {
             width: 100%;
-            height: 54px;
-            min-height: 54px;
+            height: 56px;
+            min-height: 56px;
             border: 1px solid #111;
             background: #111;
             color: #fff;
             cursor: pointer;
+            font-family: inherit;
             font-size: 11px;
             font-weight: 500;
             letter-spacing: 3px;
             text-transform: uppercase;
-            display: flex !important;
-            align-items: center !important;
-            justify-content: center !important;
+            display: grid !important;
+            place-items: center !important;
             text-align: center !important;
             line-height: 1 !important;
             padding: 0 !important;
@@ -332,6 +332,22 @@
             box-sizing: border-box !important;
             appearance: none;
             -webkit-appearance: none;
+            overflow: hidden;
+        }
+        .stylehub-order-success-done span {
+            display: block !important;
+            width: 100% !important;
+            margin: 0 !important;
+            padding: 0 !important;
+            line-height: 1 !important;
+            text-align: center !important;
+            white-space: nowrap !important;
+            transform: none !important;
+            pointer-events: none;
+        }
+        .stylehub-order-success-done:hover {
+            background: #1c1c1c;
+            border-color: #1c1c1c;
         }
         body.stylehub-order-success-open .tsh-ai-toggle,
         body.stylehub-order-success-open .tsh-ai-box,
@@ -1256,16 +1272,18 @@
                         <button type="button" class="stylehub-order-success-close" aria-label="Đóng" onclick="closeStyleHubOrderSuccessDrawer(true)">&times;</button>
                     </div>
                     <div class="stylehub-order-success-body">
-                        <p class="stylehub-order-success-note">Đặt hàng thành công. Đơn hàng của bạn đang chờ Admin xác nhận.</p>
+                        <p class="stylehub-order-success-note">Đặt hàng thành công. Đơn hàng của bạn đang chờ xác nhận.</p>
                         <div class="stylehub-order-success-summary">
                             <div class="stylehub-order-success-row"><span>Mã đơn</span><span>${escapeStyleHubText(safeOrder.orderId || '')}</span></div>
                             <div class="stylehub-order-success-row"><span>Khách hàng</span><span>${escapeStyleHubText(safeUser.name || '')}</span></div>
                             <div class="stylehub-order-success-row"><span>Số điện thoại</span><span>${escapeStyleHubText(safeUser.phone || '')}</span></div>
+                            <div class="stylehub-order-success-row"><span>Email</span><span>${escapeStyleHubText(safeUser.email || safeOrder.shippingEmail || safeOrder.customerEmail || safeOrder.userEmail || '')}</span></div>
+                            <div class="stylehub-order-success-row"><span>Địa chỉ</span><span>${escapeStyleHubText(safeUser.address || safeOrder.shippingAddress || '')}</span></div>
                             <div class="stylehub-order-success-row"><span>Tổng cộng</span><span>${escapeStyleHubText(safeOrder.totalPriceFormatted || '')}</span></div>
                         </div>
                     </div>
                     <div class="stylehub-order-success-footer">
-                        <button type="button" class="stylehub-order-success-done" onclick="closeStyleHubOrderSuccessDrawer(true)">Đóng</button>
+                        <button type="button" class="stylehub-order-success-done" onclick="closeStyleHubOrderSuccessDrawer(true)"><span>Đóng</span></button>
                     </div>
                 </aside>
             `;

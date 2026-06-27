@@ -553,6 +553,17 @@
                 color: #c00000 !important;
             }
 
+            #bag-modal .stylehub-bag-summary-row.stylehub-summary-multiline {
+                align-items: flex-start !important;
+            }
+
+            #bag-modal .stylehub-bag-summary-row.stylehub-summary-multiline span:last-child {
+                white-space: normal !important;
+                text-align: right !important;
+                word-break: break-word !important;
+                max-width: 62% !important;
+            }
+
             #bag-modal .stylehub-bag-total-row.stylehub-bag-grand-row {
                 margin: 0 0 14px 0 !important;
                 padding: 0 !important;
@@ -592,9 +603,8 @@
 
             #bag-modal.stylehub-bag-managed .checkout-btn,
             #bag-modal .stylehub-universal-checkout {
-                display: flex !important;
-                align-items: center !important;
-                justify-content: center !important;
+                display: grid !important;
+                place-items: center !important;
                 width: 100% !important;
                 min-height: 54px !important;
                 height: 54px !important;
@@ -609,13 +619,26 @@
                 line-height: 1 !important;
                 font-weight: 500 !important;
                 letter-spacing: 4px !important;
+                text-indent: 0 !important;
                 text-align: center !important;
                 text-transform: uppercase !important;
+                vertical-align: middle !important;
                 position: static !important;
                 opacity: 1 !important;
                 box-shadow: none !important;
                 appearance: none !important;
                 -webkit-appearance: none !important;
+            }
+
+            #bag-modal .stylehub-universal-checkout > span {
+                display: flex !important;
+                width: 100% !important;
+                height: 100% !important;
+                align-items: center !important;
+                justify-content: center !important;
+                line-height: 1 !important;
+                transform: translate(2px, 1px) !important;
+                pointer-events: none !important;
             }
 
             #bag-modal.stylehub-bag-managed .checkout-btn:disabled,
@@ -1372,6 +1395,99 @@
         }
     }
 
+
+    const STYLEHUB_INVENTORY_KEY = "stylehub_inventory_v1";
+    const STYLEHUB_STOCK_DEDUCTED_ORDERS_KEY = "stylehub_stock_deducted_orders_v1";
+
+    function readStyleHubJsonObject(key) {
+        try {
+            const data = JSON.parse(localStorage.getItem(key) || "{}");
+            return data && typeof data === "object" && !Array.isArray(data) ? data : {};
+        } catch (error) {
+            return {};
+        }
+    }
+
+    function saveStyleHubJsonObject(key, value) {
+        try { localStorage.setItem(key, JSON.stringify(value || {})); } catch (error) {}
+    }
+
+    function getStyleHubOrderItemsForStock(order) {
+        const items = (order && (order.orderedProductsList || order.items || order.products || order.cart || order.cartItems)) || [];
+        return Array.isArray(items) ? items : [];
+    }
+
+    function getStyleHubItemProductId(item) {
+        const direct = String(item && (item.key || item.productId || item.id || item.sku || item.productKey) || "").trim();
+        if (direct) return direct;
+        const name = String(item && (item.name || item.productName || item.title) || "").trim().toLowerCase();
+        if (!name) return "";
+        try {
+            if (typeof database !== "undefined" && database) {
+                const found = Object.keys(database).find(function(id) {
+                    return String(database[id] && database[id].name || "").trim().toLowerCase() === name;
+                });
+                if (found) return found;
+            }
+        } catch (error) {}
+        return "";
+    }
+
+    function deductStyleHubStockFallback(order) {
+        const orderId = String(order && (order.orderId || order.id || order.clientOrderUid) || "").trim();
+        if (!orderId) return;
+        const status = String(order && (order.status || order.orderStatus) || "").toLowerCase();
+        if (status.includes("hủy") || status.includes("huỷ") || status.includes("cancel")) return;
+
+        const ledger = readStyleHubJsonObject(STYLEHUB_STOCK_DEDUCTED_ORDERS_KEY);
+        if (ledger[orderId] && !ledger[orderId].restored) return;
+
+        const grouped = {};
+        getStyleHubOrderItemsForStock(order).forEach(function(item) {
+            const productId = getStyleHubItemProductId(item);
+            if (!productId) return;
+            const qty = Math.max(1, Number(item.qty || item.quantity || item.count || 1) || 1);
+            grouped[productId] = (grouped[productId] || 0) + qty;
+        });
+
+        const ids = Object.keys(grouped);
+        if (!ids.length) return;
+
+        const inventory = readStyleHubJsonObject(STYLEHUB_INVENTORY_KEY);
+        const appliedItems = [];
+        ids.forEach(function(productId) {
+            const currentRecord = inventory[productId] || {};
+            const product = (typeof database !== "undefined" && database && database[productId]) ? database[productId] : {};
+            const currentStock = Math.max(0, Number(
+                currentRecord.stock !== undefined ? currentRecord.stock :
+                product.stock !== undefined ? product.stock : 20
+            ) || 0);
+            const qty = grouped[productId];
+            const nextStock = Math.max(0, currentStock - qty);
+            inventory[productId] = Object.assign({}, currentRecord, {
+                stock: nextStock,
+                outOfStock: nextStock <= 0,
+                updatedAt: Date.now(),
+                lastOrderId: orderId
+            });
+            appliedItems.push({ key: productId, qty: qty });
+        });
+
+        ledger[orderId] = {
+            orderId: orderId,
+            createdAt: Number(order && order.createdAt) || Date.now(),
+            deductedAt: Date.now(),
+            restored: false,
+            items: appliedItems
+        };
+        saveStyleHubJsonObject(STYLEHUB_INVENTORY_KEY, inventory);
+        saveStyleHubJsonObject(STYLEHUB_STOCK_DEDUCTED_ORDERS_KEY, ledger);
+        try {
+            localStorage.setItem("stylehub_inventory_updated_at", String(Date.now()));
+            window.dispatchEvent(new CustomEvent("stylehub-inventory-change"));
+        } catch (error) {}
+    }
+
     function saveLocalUniversalOrder(order) {
         const email = String(order.userEmail || order.customerEmail || order.shippingEmail || "guest").trim().toLowerCase() || "guest";
         const key = email === "guest" ? "hub_orders_guest" : "hub_orders_" + email;
@@ -1384,6 +1500,7 @@
         }
         orders.unshift(order);
         localStorage.setItem(key, JSON.stringify(orders));
+        deductStyleHubStockFallback(order);
         return order;
     }
 
@@ -1554,16 +1671,18 @@
                     <button type="button" class="stylehub-universal-bag-close close-modal" aria-label="Close">×</button>
                 </div>
                 <div class="stylehub-universal-bag-body stylehub-universal-checkout-body">
-                    <p class="stylehub-checkout-success-note">Đặt hàng thành công. Đơn hàng của bạn đang chờ Admin xác nhận.</p>
+                    <p class="stylehub-checkout-success-note">Đặt hàng thành công. Đơn hàng của bạn đang chờ xác nhận.</p>
                     <div class="stylehub-bag-summary">
                         <div class="stylehub-bag-summary-row"><span>Mã đơn</span><span>${escapeHTML(order.orderId)}</span></div>
                         <div class="stylehub-bag-summary-row"><span>Khách hàng</span><span>${escapeHTML(order.userInfo.name)}</span></div>
                         <div class="stylehub-bag-summary-row"><span>Số điện thoại</span><span>${escapeHTML(order.userInfo.phone)}</span></div>
+                        <div class="stylehub-bag-summary-row stylehub-summary-multiline"><span>Email</span><span>${escapeHTML(order.userInfo.email || order.shippingEmail || order.customerEmail || order.userEmail || '')}</span></div>
+                        <div class="stylehub-bag-summary-row stylehub-summary-multiline"><span>Địa chỉ</span><span>${escapeHTML(order.userInfo.address || order.shippingAddress || '')}</span></div>
                         <div class="stylehub-bag-summary-row"><span>Tổng cộng</span><span>${escapeHTML(order.totalPriceFormatted)}</span></div>
                     </div>
                 </div>
                 <div class="stylehub-universal-bag-footer bag-footer">
-                    <button type="button" class="stylehub-universal-checkout stylehub-checkout-done">Đóng</button>
+                    <button type="button" class="stylehub-universal-checkout stylehub-checkout-done"><span>Đóng</span></button>
                 </div>
             </aside>
         `;

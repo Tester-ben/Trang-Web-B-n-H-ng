@@ -784,3 +784,86 @@ const database = {
     "kids-bottoms-2": { key: "kids-bottoms-2", brand: "Essentials", name: "Kids Signature Classic Short - Faded Coastal", priceNum: 1250000, price: "1.250.000 ₫", mainImg: "https://fearofgod.com/cdn/shop/files/785SP264013K_KIDS_SIGNATURE_CLASSIC_SHORT-FADED_COASTAL_1.jpg?v=1772487802&width=1600", images: ["https://fearofgod.com/cdn/shop/files/785SP264013K_KIDS_SIGNATURE_CLASSIC_SHORT-FADED_COASTAL_1.jpg?v=1772487802&width=1600", "https://fearofgod.com/cdn/shop/files/785SP264013K_KIDS_SIGNATURE_CLASSIC_SHORT-FADED_COASTAL_2.jpg?v=1772487802&width=1600", "https://fearofgod.com/cdn/shop/files/785SP264013K_KIDS_SIGNATURE_CLASSIC_SHORT-FADED_COASTAL_3.jpg?v=1772487802&width=1600"] },
     "kids-bottoms-3": { key: "kids-bottoms-3", brand: "Essentials", name: "Kids Classic Sweatpant - Vintage Black", priceNum: 1550000, price: "1.550.000 ₫", mainImg: "https://fearofgod.com/cdn/shop/files/785SP263002K_KIDS_CLASSIC_SWEATPANT-VINTAGE_BLACK_1.jpg?v=1772215079&width=1600", images: ["https://fearofgod.com/cdn/shop/files/785SP263002K_KIDS_CLASSIC_SWEATPANT-VINTAGE_BLACK_1.jpg?v=1772215079&width=1600", "https://fearofgod.com/cdn/shop/files/785SP263002K_KIDS_CLASSIC_SWEATPANT-VINTAGE_BLACK_2.jpg?v=1772215079&width=1600"] }
 };
+
+/* ===== ADMIN PRODUCT / INVENTORY SYNC 20260627 ===== */
+(function () {
+    const CUSTOM_PRODUCTS_KEY = "stylehub_admin_products_v1";
+    const INVENTORY_KEY = "stylehub_inventory_v1";
+
+    function readJson(key, fallback) {
+        try {
+            const data = JSON.parse(localStorage.getItem(key) || "null");
+            return data && typeof data === "object" ? data : fallback;
+        } catch (error) {
+            return fallback;
+        }
+    }
+
+    function inferDepartment(productId, item) {
+        const id = String(productId || "").toLowerCase();
+        const dept = String((item && (item.adminDepartment || item.department || item.gender)) || "").toLowerCase();
+        if (dept.includes("women")) return "womens";
+        if (dept.includes("kid")) return "kids";
+        if (dept.includes("shoe")) return "shoes";
+        if (dept.includes("sale")) return "sale";
+        if (id.startsWith("womens")) return "womens";
+        if (id.startsWith("kids")) return "kids";
+        if (id.startsWith("shoe")) return "shoes";
+        if (id.startsWith("sale")) return "sale";
+        return "mens";
+    }
+
+    function applyAdminProductsToDatabase() {
+        if (typeof database === "undefined" || !database) return;
+
+        const customProducts = readJson(CUSTOM_PRODUCTS_KEY, {});
+        Object.keys(customProducts).forEach(function (id) {
+            const product = customProducts[id] || {};
+            database[id] = Object.assign({}, database[id] || {}, product, {
+                key: id,
+                adminDepartment: product.adminDepartment || product.department || inferDepartment(id, product),
+                department: product.department || product.adminDepartment || inferDepartment(id, product),
+                createdByAdmin: product.createdByAdmin === undefined ? true : product.createdByAdmin
+            });
+        });
+
+        const inventory = readJson(INVENTORY_KEY, {});
+        Object.keys(database).forEach(function (id) {
+            const product = database[id] || {};
+            product.adminDepartment = product.adminDepartment || product.department || inferDepartment(id, product);
+            product.department = product.department || product.adminDepartment;
+
+            if (inventory[id]) {
+                const stock = Math.max(0, Number(inventory[id].stock || 0));
+                product.stock = stock;
+                product.outOfStock = !!inventory[id].outOfStock || stock <= 0;
+                product.adminStockUpdatedAt = inventory[id].updatedAt || null;
+            } else if (product.stock === undefined) {
+                product.stock = 20;
+                product.outOfStock = false;
+            }
+        });
+    }
+
+    function getAdminStockInfo(productId) {
+        if (typeof database === "undefined" || !database || !database[productId]) {
+            return { status: "in", label: "Còn hàng", vn: "Còn hàng", qty: 20 };
+        }
+        const product = database[productId];
+        const stock = Math.max(0, Number(product.stock === undefined ? 20 : product.stock));
+        const outOfStock = !!product.outOfStock || stock <= 0;
+        if (outOfStock) return { status: "out", label: "Out of Stock", vn: "Hết hàng", qty: 0 };
+        if (stock <= 3) return { status: "low", label: "Low Stock", vn: "Sắp hết hàng", qty: stock };
+        return { status: "in", label: "In Stock", vn: "Còn hàng", qty: stock };
+    }
+
+    applyAdminProductsToDatabase();
+
+    window.StyleHubProductAdmin = {
+        customProductsKey: CUSTOM_PRODUCTS_KEY,
+        inventoryKey: INVENTORY_KEY,
+        applyAdminProductsToDatabase: applyAdminProductsToDatabase,
+        getAdminStockInfo: getAdminStockInfo,
+        inferDepartment: inferDepartment
+    };
+})();
