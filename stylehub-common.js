@@ -543,6 +543,7 @@ function searchProducts() {
     const WISHLIST_KEY_PREFIX = "stylehub_wishlist_";
     const RECENT_KEY_PREFIX = "stylehub_recently_viewed_";
     const VOUCHER_KEY = "stylehub_active_voucher";
+    let wishlistClickGuardBound = false;
 
     function ready(fn) {
         if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", fn);
@@ -918,6 +919,34 @@ function searchProducts() {
         const next = exists ? list.filter(id => id !== productId) : [productId].concat(list);
         setWishlist(next);
         document.dispatchEvent(new CustomEvent("stylehub-wishlist-change"));
+    }
+
+    function initWishlistClickGuard() {
+        if (wishlistClickGuardBound) return;
+        wishlistClickGuardBound = true;
+
+        document.addEventListener("click", function (event) {
+            const target = event.target instanceof Element ? event.target : null;
+            const btn = target ? target.closest(".stylehub-wishlist-btn") : null;
+            if (!btn) return;
+
+            const card = btn.closest('a[href*="product-detail.html?id="]');
+            if (!card) return;
+
+            event.preventDefault();
+            event.stopPropagation();
+            if (typeof event.stopImmediatePropagation === "function") {
+                event.stopImmediatePropagation();
+            }
+
+            const productId = productIdFromHref(card.getAttribute("href"));
+            if (!productId) return;
+
+            toggleWishlist(productId);
+            const active = getWishlist().includes(productId);
+            btn.classList.toggle("active", active);
+            btn.innerHTML = active ? "♥" : "♡";
+        }, true);
     }
 
     function initWishlistButtons() {
@@ -1458,6 +1487,7 @@ function searchProducts() {
         initCollectionFilters();
         initAdminCustomProductCards();
         initStockBadges();
+        initWishlistClickGuard();
         initWishlistButtons();
         initSizeGuide();
         initProductThumbnails();
@@ -2081,3 +2111,227 @@ function initStyleHubLogoHomeOnly() {
 
 document.addEventListener("DOMContentLoaded", initStyleHubLogoHomeOnly);
 setTimeout(initStyleHubLogoHomeOnly, 500);
+
+
+/* ===== FOOTER SOCIAL YOUTUBE + SHOPEE FIX ===== */
+function initStyleHubFooterSocialFullSet() {
+    const footerSocialStyleId = "stylehub-footer-social-full-set-style";
+
+    if (!document.getElementById(footerSocialStyleId)) {
+        const style = document.createElement("style");
+        style.id = footerSocialStyleId;
+        style.textContent = `
+            .site-footer .social-links,
+            .site-footer .footer-social-links {
+                display: flex !important;
+                align-items: center !important;
+                justify-content: flex-start !important;
+                gap: 18px !important;
+                max-width: 360px !important;
+                width: 100% !important;
+                flex-wrap: nowrap !important;
+            }
+
+            .site-footer .footer-social-icon {
+                width: 42px !important;
+                height: 42px !important;
+                min-width: 42px !important;
+                min-height: 42px !important;
+                max-width: 42px !important;
+                max-height: 42px !important;
+                display: inline-flex !important;
+                align-items: center !important;
+                justify-content: center !important;
+                background: transparent !important;
+                border: 0 !important;
+                border-radius: 0 !important;
+                box-shadow: none !important;
+                padding: 0 !important;
+                margin: 0 !important;
+                text-decoration: none !important;
+                overflow: visible !important;
+            }
+
+            .site-footer .footer-social-icon img {
+                display: block !important;
+                object-fit: contain !important;
+                object-position: center !important;
+                border: 0 !important;
+                outline: none !important;
+                border-radius: 0 !important;
+                background: transparent !important;
+                box-shadow: none !important;
+                margin: 0 !important;
+                padding: 0 !important;
+            }
+
+            .site-footer .footer-fb-icon img,
+            .site-footer .footer-zalo-icon img,
+            .site-footer .footer-instagram-icon img {
+                width: 38px !important;
+                height: 38px !important;
+                max-width: 38px !important;
+                max-height: 38px !important;
+            }
+
+            .site-footer .footer-youtube-icon img {
+                width: 39px !important;
+                height: 39px !important;
+                max-width: 39px !important;
+                max-height: 39px !important;
+            }
+
+            .site-footer .footer-shopee-icon img {
+                width: 39px !important;
+                height: 39px !important;
+                max-width: 39px !important;
+                max-height: 39px !important;
+            }
+
+            .site-footer .footer-youtube-icon,
+            .site-footer .footer-shopee-icon {
+                border-radius: 50% !important;
+                background: transparent !important;
+                overflow: hidden !important;
+            }
+
+            .site-footer .footer-youtube-icon img,
+            .site-footer .footer-shopee-icon img,
+            .site-footer img[data-stylehub-clean-social="youtube"],
+            .site-footer img[data-stylehub-clean-social="shopee"] {
+                border-radius: 50% !important;
+                background: transparent !important;
+                object-fit: cover !important;
+                display: block !important;
+            }
+
+            @media (max-width: 768px) {
+                .site-footer .social-links,
+                .site-footer .footer-social-links {
+                    gap: 14px !important;
+                    max-width: 300px !important;
+                    flex-wrap: nowrap !important;
+                }
+
+                .site-footer .footer-social-icon {
+                    width: 36px !important;
+                    height: 36px !important;
+                    min-width: 36px !important;
+                    min-height: 36px !important;
+                    max-width: 36px !important;
+                    max-height: 36px !important;
+                }
+
+                .site-footer .footer-fb-icon img,
+                .site-footer .footer-zalo-icon img,
+                .site-footer .footer-instagram-icon img,
+                .site-footer .footer-youtube-icon img,
+                .site-footer .footer-shopee-icon img {
+                    width: 32px !important;
+                    height: 32px !important;
+                    max-width: 32px !important;
+                    max-height: 32px !important;
+                }
+            }
+        `;
+        document.head.appendChild(style);
+    }
+
+    const youtubeCleanSvg = "data:image/svg+xml;charset=UTF-8,%3Csvg%20xmlns%3D%27http%3A//www.w3.org/2000/svg%27%20viewBox%3D%270%200%2048%2048%27%3E%3Ccircle%20cx%3D%2724%27%20cy%3D%2724%27%20r%3D%2722%27%20fill%3D%27%23ff0000%27/%3E%3Cpath%20d%3D%27M20%2016.5v15l13-7.5-13-7.5z%27%20fill%3D%27%23fff%27/%3E%3C/svg%3E";
+    const shopeeCleanSvg = "data:image/svg+xml;charset=UTF-8,%3Csvg%20xmlns%3D%27http%3A//www.w3.org/2000/svg%27%20viewBox%3D%270%200%2048%2048%27%3E%3Ccircle%20cx%3D%2724%27%20cy%3D%2724%27%20r%3D%2722%27%20fill%3D%27%23ee4d2d%27/%3E%3Cpath%20d%3D%27M15%2018h18l-1.5%2018h-15L15%2018z%27%20fill%3D%27none%27%20stroke%3D%27%23fff%27%20stroke-width%3D%272.3%27%20stroke-linejoin%3D%27round%27/%3E%3Cpath%20d%3D%27M18.5%2018c0-4.2%202.2-7%205.5-7s5.5%202.8%205.5%207%27%20fill%3D%27none%27%20stroke%3D%27%23fff%27%20stroke-width%3D%272.3%27%20stroke-linecap%3D%27round%27/%3E%3Ctext%20x%3D%2724%27%20y%3D%2731%27%20font-family%3D%27Arial%2C%20Helvetica%2C%20sans-serif%27%20font-size%3D%2713%27%20font-weight%3D%27700%27%20text-anchor%3D%27middle%27%20fill%3D%27%23fff%27%3ES%3C/text%3E%3C/svg%3E";
+
+    function createIcon(className, imageSrc, label, cleanType) {
+        const link = document.createElement("a");
+        link.className = "footer-social-icon " + className;
+        link.href = "#";
+        link.setAttribute("aria-label", label);
+
+        const img = document.createElement("img");
+        img.src = imageSrc;
+        img.alt = label;
+        if (cleanType) img.setAttribute("data-stylehub-clean-social", cleanType);
+
+        link.appendChild(img);
+        return link;
+    }
+
+    document.querySelectorAll(".site-footer .footer-social-links, .site-footer .social-links").forEach(function(group) {
+        if (!group.closest(".site-footer")) return;
+
+        if (!group.querySelector(".footer-youtube-icon, img[data-stylehub-clean-social='youtube'], img[src*='ytb.png']")) {
+            group.appendChild(createIcon("footer-youtube-icon", youtubeCleanSvg, "YouTube", "youtube"));
+        }
+
+        if (!group.querySelector(".footer-shopee-icon, img[data-stylehub-clean-social='shopee'], img[src*='shoppe.png'], img[src*='shopee.png']")) {
+            group.appendChild(createIcon("footer-shopee-icon", shopeeCleanSvg, "Shopee", "shopee"));
+        }
+    });
+
+    if (typeof initFooterSocialIconCleanup === "function") {
+        initFooterSocialIconCleanup();
+    }
+}
+
+document.addEventListener("DOMContentLoaded", initStyleHubFooterSocialFullSet);
+setTimeout(initStyleHubFooterSocialFullSet, 300);
+setTimeout(initStyleHubFooterSocialFullSet, 1000);
+/* ===== END FOOTER SOCIAL YOUTUBE + SHOPEE FIX ===== */
+
+
+/* ===== FEATURED MENU CLEANUP: REMOVE EXTRA COLLECTION LINKS ===== */
+(function () {
+    const removeTexts = new Set([
+        "MLB SPRING 2026",
+        "COLLECTION NINE WOMENSWEAR",
+        "ESSENTIALS CLASSIC STYLES",
+        "ATHLETICS & TEAM APPAREL",
+        "ESSENTIALS",
+        "FEAR OF GOD",
+        "SALE"
+    ]);
+
+    function normalizeText(value) {
+        return (value || "")
+            .replace(/\s+/g, " ")
+            .trim()
+            .toUpperCase();
+    }
+
+    function cleanDesktopFeaturedMenu() {
+        document.querySelectorAll(".main-header .menu-item-has-mega").forEach(function (menu) {
+            const trigger = menu.querySelector(":scope > a");
+            if (normalizeText(trigger && trigger.textContent) !== "FEATURED") return;
+
+            menu.querySelectorAll(".mega-links-col > a").forEach(function (link) {
+                if (removeTexts.has(normalizeText(link.textContent))) {
+                    link.remove();
+                }
+            });
+        });
+    }
+
+    function cleanMobileFeaturedMenu() {
+        document.querySelectorAll(".mobile-menu-group").forEach(function (group) {
+            const title = group.querySelector(".mobile-menu-title");
+            if (normalizeText(title && title.textContent) !== "FEATURED") return;
+
+            group.querySelectorAll("a").forEach(function (link) {
+                if (removeTexts.has(normalizeText(link.textContent))) {
+                    link.remove();
+                }
+            });
+        });
+    }
+
+    function cleanFeaturedMenu() {
+        cleanDesktopFeaturedMenu();
+        cleanMobileFeaturedMenu();
+    }
+
+    cleanFeaturedMenu();
+    document.addEventListener("DOMContentLoaded", cleanFeaturedMenu);
+    window.addEventListener("load", cleanFeaturedMenu);
+    setTimeout(cleanFeaturedMenu, 250);
+    setTimeout(cleanFeaturedMenu, 800);
+})();
+/* ===== END FEATURED MENU CLEANUP ===== */

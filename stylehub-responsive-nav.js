@@ -9,7 +9,7 @@
     const MOBILE_ID = "stylehub-mobile-menu";
 
     const menuGroups = [
-        { title: "FEATURED", href: "index.html", links: [["Home", "index.html"], ["New Arrivals", "collections.html"], ["MLB Spring 2026", "mens.html"], ["Essentials", "mens.html"], ["Sale", "sale.html"]], mega: true },
+        { title: "FEATURED", href: "index.html", links: [["New Arrivals", "collections.html"]], mega: true },
         { title: "MENS", href: "mens.html", links: [["All Products", "mens.html"], ["Tops", "mens.html?cat=tops"], ["Hoodies", "mens.html?cat=hoodies"], ["Dress Shirt", "mens.html?cat=dress-shirt"], ["Bottoms", "mens.html?cat=bottoms"]] },
         { title: "WOMENS", href: "womens.html", links: [["All Products", "womens.html"], ["Tops", "womens.html?cat=tops"], ["Jackets & Outerwear", "womens.html?cat=jackets"], ["Bottoms", "womens.html?cat=bottoms"]] },
         { title: "KIDS", href: "kids.html", links: [["All Kids", "kids.html"], ["Tops", "kids.html?cat=tops"], ["Jackets & Outerwear", "kids.html?cat=jackets"], ["Bottoms", "kids.html?cat=bottoms"]] },
