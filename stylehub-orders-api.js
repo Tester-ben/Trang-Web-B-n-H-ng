@@ -21,12 +21,17 @@
     };
 
     const DB_ROOT = "stylehub_orders/orders";
+    const INVENTORY_DB_ROOT = "stylehub_orders/inventory";
+    const CUSTOM_PRODUCTS_DB_ROOT = "stylehub_orders/admin_products";
     const INVENTORY_KEY = "stylehub_inventory_v1";
+    const CUSTOM_PRODUCTS_KEY = "stylehub_admin_products_v1";
     const STOCK_DEDUCTED_ORDERS_KEY = "stylehub_stock_deducted_orders_v1";
     const STOCK_FEATURE_START_AT = 1782539550000; // Chỉ tự động trừ kho cho đơn mới từ bản cập nhật này trở đi.
     let firebaseReady = false;
     let firebaseDatabase = null;
     let realtimeAttached = false;
+    let inventoryRealtimeAttached = false;
+    let customProductsRealtimeAttached = false;
 
     function hasValue(value) {
         return typeof value === "string" && value.trim() !== "" && !value.includes("PASTE_");
@@ -206,6 +211,109 @@
         }
     }
 
+    function isPlainObject(value) {
+        return !!value && typeof value === "object" && !Array.isArray(value);
+    }
+
+    function objectHasData(value) {
+        return isPlainObject(value) && Object.keys(value).length > 0;
+    }
+
+    function writeSharedMapToLocal(key, map, eventName) {
+        saveJsonObject(key, map || {});
+        try {
+            localStorage.setItem(key + "_updated_at", String(Date.now()));
+            window.dispatchEvent(new CustomEvent(eventName, { detail: { key: key, data: map || {} } }));
+            window.dispatchEvent(new StorageEvent("storage", { key: key, newValue: JSON.stringify(map || {}) }));
+        } catch (error) {}
+    }
+
+    async function saveSharedMapToCloud(dbRoot, key, map, eventName) {
+        const safeMap = isPlainObject(map) ? map : {};
+        writeSharedMapToLocal(key, safeMap, eventName);
+        if (initFirebase()) {
+            await firebaseDatabase.ref(dbRoot).set(safeMap);
+        }
+        return safeMap;
+    }
+
+    async function startSharedMapRealtime(options) {
+        if (!options || !options.dbRoot || !options.key || !options.eventName) return;
+        if (!initFirebase()) {
+            writeSharedMapToLocal(options.key, readJsonObject(options.key), options.eventName);
+            return;
+        }
+
+        firebaseDatabase.ref(options.dbRoot).on("value", function(snapshot) {
+            const remote = snapshot.val() || {};
+            const local = readJsonObject(options.key);
+
+            if (!objectHasData(remote) && objectHasData(local)) {
+                firebaseDatabase.ref(options.dbRoot).set(local).catch(function(error) {
+                    console.warn("Không thể đưa dữ liệu local lên Firebase:", error);
+                });
+                return;
+            }
+
+            writeSharedMapToLocal(options.key, isPlainObject(remote) ? remote : {}, options.eventName);
+
+            if (options.applyProducts && window.StyleHubProductAdmin && typeof window.StyleHubProductAdmin.applyAdminProductsToDatabase === "function") {
+                window.StyleHubProductAdmin.applyAdminProductsToDatabase();
+            }
+        });
+    }
+
+    function startInventoryRealtime() {
+        if (inventoryRealtimeAttached) return;
+        inventoryRealtimeAttached = true;
+        startSharedMapRealtime({
+            dbRoot: INVENTORY_DB_ROOT,
+            key: INVENTORY_KEY,
+            eventName: "stylehub-inventory-change",
+            applyProducts: true
+        });
+    }
+
+    function startCustomProductsRealtime() {
+        if (customProductsRealtimeAttached) return;
+        customProductsRealtimeAttached = true;
+        startSharedMapRealtime({
+            dbRoot: CUSTOM_PRODUCTS_DB_ROOT,
+            key: CUSTOM_PRODUCTS_KEY,
+            eventName: "stylehub-products-change",
+            applyProducts: true
+        });
+    }
+
+    async function saveInventoryMap(map) {
+        return saveSharedMapToCloud(INVENTORY_DB_ROOT, INVENTORY_KEY, map || {}, "stylehub-inventory-change");
+    }
+
+    async function saveCustomProductsMap(map) {
+        return saveSharedMapToCloud(CUSTOM_PRODUCTS_DB_ROOT, CUSTOM_PRODUCTS_KEY, map || {}, "stylehub-products-change");
+    }
+
+    async function setProductStock(productId, record) {
+        const id = cleanText(productId, "");
+        if (!id) return readJsonObject(INVENTORY_KEY);
+        const inventory = readJsonObject(INVENTORY_KEY);
+        const stock = Math.max(0, Number(record && record.stock || 0));
+        inventory[id] = Object.assign({}, inventory[id] || {}, record || {}, {
+            stock: stock,
+            outOfStock: !!(record && record.outOfStock) || stock <= 0,
+            updatedAt: Date.now()
+        });
+        return saveInventoryMap(inventory);
+    }
+
+    function getInventoryMap() {
+        return readJsonObject(INVENTORY_KEY);
+    }
+
+    function getCustomProductsMap() {
+        return readJsonObject(CUSTOM_PRODUCTS_KEY);
+    }
+
     function getProductDatabaseItem(productId) {
         try {
             if (typeof database !== "undefined" && database && database[productId]) return database[productId];
@@ -315,6 +423,7 @@
         };
         saveJsonObject(INVENTORY_KEY, inventory);
         saveJsonObject(STOCK_DEDUCTED_ORDERS_KEY, ledger);
+        saveInventoryMap(inventory).catch(function(error) { console.warn("Không thể đồng bộ tồn kho lên Firebase:", error); });
         notifyInventoryChanged();
     }
 
@@ -349,6 +458,7 @@
         record.restoredAt = Date.now();
         saveJsonObject(INVENTORY_KEY, inventory);
         saveJsonObject(STOCK_DEDUCTED_ORDERS_KEY, ledger);
+        saveInventoryMap(inventory).catch(function(error) { console.warn("Không thể đồng bộ tồn kho lên Firebase:", error); });
         notifyInventoryChanged();
     }
 
@@ -596,6 +706,16 @@
         onOrdersChanged: onOrdersChanged,
         normalizeOrder: normalizeOrder,
         deductStockForOrder: deductStockForOrder,
-        restoreStockForOrder: restoreStockForOrder
+        restoreStockForOrder: restoreStockForOrder,
+        getInventoryMap: getInventoryMap,
+        saveInventoryMap: saveInventoryMap,
+        setProductStock: setProductStock,
+        startInventoryRealtime: startInventoryRealtime,
+        getCustomProductsMap: getCustomProductsMap,
+        saveCustomProductsMap: saveCustomProductsMap,
+        startCustomProductsRealtime: startCustomProductsRealtime
     };
+
+    startInventoryRealtime();
+    startCustomProductsRealtime();
 })();

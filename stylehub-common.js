@@ -1105,36 +1105,62 @@ function searchProducts() {
         }
     }
 
+    function setStockBadgeState(badge, stock, showQty) {
+        if (!badge || !stock) return;
+        badge.className = badge.className
+            .replace(/\b(in|low|out)\b/g, "")
+            .replace(/\s+/g, " ")
+            .trim();
+        badge.classList.add(stock.status);
+        badge.textContent = stock.vn + (showQty && stock.status !== "out" ? ` · ${stock.qty} sản phẩm` : "");
+    }
+
     function initStockBadges() {
         document.querySelectorAll('a[href*="product-detail.html?id="]').forEach(card => {
             const id = productIdFromHref(card.getAttribute("href"));
-            if (!id || card.querySelector(".stylehub-stock-badge")) return;
+            if (!id) return;
             const stock = getStockInfo(id);
             const details = card.querySelector(".mens-details, .product-info, .product-details") || card;
-            const badge = document.createElement("span");
-            badge.className = "stylehub-stock-badge " + stock.status;
-            badge.textContent = stock.vn;
-            details.appendChild(badge);
-            if (stock.status === "out") card.classList.add("stylehub-out-of-stock");
+            let badge = card.querySelector(".stylehub-stock-badge");
+            if (!badge) {
+                badge = document.createElement("span");
+                badge.className = "stylehub-stock-badge";
+                details.appendChild(badge);
+            }
+            setStockBadgeState(badge, stock, false);
+            card.classList.toggle("stylehub-out-of-stock", stock.status === "out");
         });
 
         const id = getCurrentProductId();
         const panel = document.querySelector(".info-sticky-panel");
-        if (id && panel && !panel.querySelector(".stylehub-detail-stock")) {
+        if (id && panel) {
             const stock = getStockInfo(id);
-            const badge = document.createElement("span");
-            badge.className = "stylehub-stock-badge stylehub-detail-stock " + stock.status;
-            badge.textContent = stock.vn + (stock.qty ? ` · ${stock.qty} sản phẩm` : "");
-            const price = panel.querySelector(".product-price");
-            if (price) price.insertAdjacentElement("afterend", badge);
-            if (stock.status === "out") {
-                panel.querySelectorAll(".btn-add-to-bag, .btn-order-now").forEach(btn => {
-                    btn.disabled = true;
-                    btn.style.opacity = ".45";
-                    btn.style.cursor = "not-allowed";
-                    btn.textContent = "Out of Stock";
-                });
+            let badge = panel.querySelector(".stylehub-detail-stock");
+            if (!badge) {
+                badge = document.createElement("span");
+                badge.className = "stylehub-stock-badge stylehub-detail-stock";
+                const price = panel.querySelector(".product-price");
+                if (price) price.insertAdjacentElement("afterend", badge);
             }
+            setStockBadgeState(badge, stock, true);
+
+            const buttonMap = new Map([
+                ["btn-add-to-bag", "Add to Bag"],
+                ["btn-order-now", "Order Now"]
+            ]);
+            panel.querySelectorAll(".btn-add-to-bag, .btn-order-now").forEach(btn => {
+                const isOut = stock.status === "out";
+                btn.disabled = isOut;
+                btn.style.opacity = isOut ? ".45" : "";
+                btn.style.cursor = isOut ? "not-allowed" : "";
+                if (isOut) {
+                    btn.textContent = "Out of Stock";
+                } else {
+                    buttonMap.forEach(function(text, className) {
+                        if (btn.classList.contains(className)) btn.textContent = text;
+                    });
+                }
+            });
         }
     }
 
@@ -1508,6 +1534,19 @@ function searchProducts() {
         document.addEventListener("stylehub-wishlist-change", function () {
             initWishlistButtons();
             initWishlistSectionOnAccount();
+        });
+        window.addEventListener("stylehub-inventory-change", function () {
+            if (window.StyleHubProductAdmin && typeof window.StyleHubProductAdmin.applyAdminProductsToDatabase === "function") {
+                window.StyleHubProductAdmin.applyAdminProductsToDatabase();
+            }
+            initStockBadges();
+        });
+        window.addEventListener("stylehub-products-change", function () {
+            if (window.StyleHubProductAdmin && typeof window.StyleHubProductAdmin.applyAdminProductsToDatabase === "function") {
+                window.StyleHubProductAdmin.applyAdminProductsToDatabase();
+            }
+            initAdminCustomProductCards();
+            initStockBadges();
         });
     });
 })();
