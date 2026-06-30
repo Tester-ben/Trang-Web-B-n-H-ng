@@ -23,7 +23,10 @@ pre { background:#111; color:#0f0; padding:14px; white-space:pre-wrap; margin-to
 </div>
 
 <script>
-emailjs.init("MB1m-Q2_ueI82N8Xo");
+const STYLEHUB_EMAILJS_PUBLIC_KEY = "MB1m-Q2_ueI82N8Xo";
+const STYLEHUB_EMAILJS_SERVICE_ID = "service_xjsmniq";
+const STYLEHUB_EMAILJS_TEMPLATE_IDS = ["template_f4bnal4", "template_1v0d3yr"];
+emailjs.init(STYLEHUB_EMAILJS_PUBLIC_KEY);
 
 function log(msg) {
     document.getElementById("log").textContent += "\n" + msg;
@@ -33,24 +36,47 @@ async function sendTest() {
     const toEmail = document.getElementById("toEmail").value.trim();
     document.getElementById("log").textContent = "Đang gửi...";
     try {
+        const orderId = "TEST" + Math.floor(Math.random() * 999999);
         const params = {
             to_email: toEmail,
             customer_name: "Khách test",
-            orderId: "TEST" + Math.floor(Math.random() * 999999),
+            orderId: orderId,
             order_date: new Date().toLocaleString("vi-VN"),
             customer_phone: "0900000000",
             customer_address: "Test address",
             product_details: "1. Sản phẩm test x 1 - Giá: 1.000.000 ₫",
-            total_price: "1.000.000 ₫"
+            total_price: "1.000.000 ₫",
+            email: toEmail,
+            user_email: toEmail,
+            reply_to: toEmail,
+            to_name: "Khách test",
+            from_name: "The Style Hub",
+            order_id: orderId,
+            order_number: orderId,
+            phone: "0900000000",
+            address: "Test address",
+            message: "1. Sản phẩm test x 1 - Giá: 1.000.000 ₫",
+            total: "1.000.000 ₫"
         };
 
-        log("Service ID: service_xjsmniq");
-        log("Template ID: template_1v0d3yr");
+        log("Service ID: " + STYLEHUB_EMAILJS_SERVICE_ID);
+        log("Template IDs: " + STYLEHUB_EMAILJS_TEMPLATE_IDS.join(", "));
         log("Params: " + JSON.stringify(params, null, 2));
 
-        const res = await emailjs.send("service_xjsmniq", "template_1v0d3yr", params);
-        log("THÀNH CÔNG: " + JSON.stringify(res));
-        alert("Gửi test thành công. Kiểm tra EmailJS History và hộp thư.");
+        let lastError = null;
+        for (const templateId of STYLEHUB_EMAILJS_TEMPLATE_IDS) {
+            try {
+                log("Đang thử template: " + templateId);
+                const res = await emailjs.send(STYLEHUB_EMAILJS_SERVICE_ID, templateId, params, STYLEHUB_EMAILJS_PUBLIC_KEY);
+                log("THÀNH CÔNG với " + templateId + ": " + JSON.stringify(res));
+                alert("Gửi test thành công. Kiểm tra EmailJS History và hộp thư.");
+                return;
+            } catch (err) {
+                lastError = err;
+                log("Lỗi với " + templateId + ": " + JSON.stringify(err, Object.getOwnPropertyNames(err), 2));
+            }
+        }
+        throw lastError;
     } catch (err) {
         log("LỖI: " + JSON.stringify(err, Object.getOwnPropertyNames(err), 2));
         console.error(err);

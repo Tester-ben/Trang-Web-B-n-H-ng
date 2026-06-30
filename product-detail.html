@@ -12,7 +12,10 @@
     <script type="text/javascript">
         window.STYLEHUB_EMAILJS_PUBLIC_KEY = "MB1m-Q2_ueI82N8Xo";
         window.STYLEHUB_EMAILJS_SERVICE_ID = "service_xjsmniq";
-        window.STYLEHUB_EMAILJS_TEMPLATE_ID = "template_1v0d3yr";
+        // Template cũ của trang thanh toán đang hoạt động là template_f4bnal4.
+        // Giữ thêm template_1v0d3yr làm dự phòng để không bị mất email nếu ID template thay đổi.
+        window.STYLEHUB_EMAILJS_TEMPLATE_ID = "template_f4bnal4";
+        window.STYLEHUB_EMAILJS_FALLBACK_TEMPLATE_IDS = ["template_1v0d3yr"];
 
         (function () {
             if (window.emailjs && typeof window.emailjs.init === "function") {
@@ -1376,6 +1379,8 @@
             updateStyleHubCartBadges([]);
         }
 
+        window.clearStyleHubCartStorage = clearStyleHubCartStorage;
+
         window.StyleHubResetProductDetailCartMemory = function() {
             cartMemoryArray = [];
             window.cartMemoryArray = cartMemoryArray;
@@ -1744,6 +1749,8 @@
             }
         }
 
+        window.updateStyleHubBagTotalsUI = updateStyleHubBagTotalsUI;
+
         function renderCartUI() {
             const container = document.getElementById('cartItemsContainer');
             const emptyMsg = document.getElementById('emptyCartMessage');
@@ -1886,43 +1893,103 @@
             });
         }
 
+        function normalizeStyleHubEmail(value) {
+            return String(value || "").trim().toLowerCase();
+        }
+
+        function isValidStyleHubEmail(value) {
+            return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(normalizeStyleHubEmail(value));
+        }
+
+        function getStyleHubEmailTemplateIds() {
+            const ids = [];
+            if (window.STYLEHUB_EMAILJS_TEMPLATE_ID) ids.push(window.STYLEHUB_EMAILJS_TEMPLATE_ID);
+            if (Array.isArray(window.STYLEHUB_EMAILJS_FALLBACK_TEMPLATE_IDS)) {
+                window.STYLEHUB_EMAILJS_FALLBACK_TEMPLATE_IDS.forEach(function(id) { if (id) ids.push(id); });
+            }
+            return Array.from(new Set(ids));
+        }
+
         async function sendStyleHubOrderEmail(orderObject) {
             await waitForStyleHubEmailJS();
 
             const userInfo = orderObject.userInfo || {};
-            const toEmail = (
+            const toEmail = normalizeStyleHubEmail(
                 orderObject.shippingEmail ||
+                userInfo.email ||
                 orderObject.customerEmail ||
                 orderObject.userEmail ||
-                userInfo.email ||
+                localStorage.getItem("hub_shipping_email") ||
+                localStorage.getItem("hub_email") ||
                 ""
-            ).trim().toLowerCase();
+            );
 
-            if (!toEmail) {
-                throw new Error("Thiếu email người nhận.");
+            if (!isValidStyleHubEmail(toEmail)) {
+                throw new Error("Email người nhận không hợp lệ hoặc đang bị trống: " + (toEmail || "N/A"));
             }
 
+            const customerName = userInfo.name || localStorage.getItem("hub_name") || "Khách hàng";
+            const orderId = orderObject.orderId || "";
+            const orderDate = orderObject.orderDate || orderObject.date || new Date().toLocaleString("vi-VN");
+            const customerPhone = userInfo.phone || localStorage.getItem("hub_phone") || "";
+            const customerAddress = userInfo.address || localStorage.getItem("hub_address") || "";
+            const productDetails = buildStyleHubProductDetails(orderObject);
+            const totalPrice = orderObject.totalPriceFormatted || formatStyleHubVND(calculateStyleHubOrderTotal(orderObject.orderedProductsList)) || "0 ₫";
+
             const templateParams = {
+                // Các biến chính đang dùng trong EmailJS template
                 to_email: toEmail,
-                customer_name: userInfo.name || localStorage.getItem("hub_name") || "Khách hàng",
-                orderId: orderObject.orderId || "",
-                order_date: orderObject.orderDate || orderObject.date || new Date().toLocaleString("vi-VN"),
-                customer_phone: userInfo.phone || localStorage.getItem("hub_phone") || "",
-                customer_address: userInfo.address || localStorage.getItem("hub_address") || "",
-                product_details: buildStyleHubProductDetails(orderObject),
-                total_price: orderObject.totalPriceFormatted || formatStyleHubVND(calculateStyleHubOrderTotal(orderObject.orderedProductsList)) || "0 ₫"
+                customer_name: customerName,
+                orderId: orderId,
+                order_date: orderDate,
+                customer_phone: customerPhone,
+                customer_address: customerAddress,
+                product_details: productDetails,
+                total_price: totalPrice,
+
+                // Biến dự phòng để template cũ/mới đều nhận được dữ liệu
+                email: toEmail,
+                user_email: toEmail,
+                reply_to: toEmail,
+                to_name: customerName,
+                from_name: "The Style Hub",
+                order_id: orderId,
+                order_number: orderId,
+                phone: customerPhone,
+                address: customerAddress,
+                message: productDetails,
+                total: totalPrice
             };
 
             console.log("Đang gửi EmailJS với dữ liệu:", templateParams);
             console.log("EmailJS Service ID:", window.STYLEHUB_EMAILJS_SERVICE_ID);
-            console.log("EmailJS Template ID:", window.STYLEHUB_EMAILJS_TEMPLATE_ID);
 
-            return window.emailjs.send(
-                window.STYLEHUB_EMAILJS_SERVICE_ID,
-                window.STYLEHUB_EMAILJS_TEMPLATE_ID,
-                templateParams
-            );
+            const templateIds = getStyleHubEmailTemplateIds();
+            if (templateIds.length === 0) {
+                throw new Error("Chưa cấu hình EmailJS Template ID.");
+            }
+
+            let lastError = null;
+            for (const templateId of templateIds) {
+                try {
+                    console.log("EmailJS Template ID đang thử:", templateId);
+                    return await window.emailjs.send(
+                        window.STYLEHUB_EMAILJS_SERVICE_ID,
+                        templateId,
+                        templateParams,
+                        window.STYLEHUB_EMAILJS_PUBLIC_KEY
+                    );
+                } catch (error) {
+                    lastError = error;
+                    console.error("Gửi EmailJS thất bại với template " + templateId + ":", error);
+                }
+            }
+
+            throw lastError || new Error("Gửi EmailJS thất bại.");
         }
+
+        // Cho stylehub-cart-sync.js dùng lại hàm này khi khách đặt hàng từ BAG nhiều sản phẩm.
+        window.sendStyleHubOrderEmail = sendStyleHubOrderEmail;
 
 
 

@@ -1074,7 +1074,7 @@
                     <button type="button" class="stylehub-bag-remove" data-stylehub-remove-index="${index}">Xóa</button>
                 </div>
             `;
-        }).join("");
+        }).join("\n");
 
         container.innerHTML = `
             <div class="stylehub-bag-select-row">
@@ -1310,7 +1310,7 @@
                     <p class="stylehub-checkout-product-price">${formatMoney(lineTotal)}</p>
                 </div>
             `;
-        }).join("");
+        }).join("\n");
 
         modal.innerHTML = `
             <aside class="stylehub-universal-bag-panel stylehub-universal-checkout-panel bag-sidebar" role="dialog" aria-modal="true" aria-label="Shipping Information">
@@ -1394,6 +1394,166 @@
             alert(text);
         }
     }
+
+
+    /* ==================== EMAILJS FOR UNIVERSAL BAG CHECKOUT ==================== */
+    const STYLEHUB_UNIVERSAL_EMAILJS_PUBLIC_KEY = window.STYLEHUB_EMAILJS_PUBLIC_KEY || "MB1m-Q2_ueI82N8Xo";
+    const STYLEHUB_UNIVERSAL_EMAILJS_SERVICE_ID = window.STYLEHUB_EMAILJS_SERVICE_ID || "service_xjsmniq";
+    const STYLEHUB_UNIVERSAL_EMAILJS_TEMPLATE_IDS = Array.from(new Set([
+        window.STYLEHUB_EMAILJS_TEMPLATE_ID || "template_f4bnal4",
+        ...(Array.isArray(window.STYLEHUB_EMAILJS_FALLBACK_TEMPLATE_IDS) ? window.STYLEHUB_EMAILJS_FALLBACK_TEMPLATE_IDS : []),
+        "template_1v0d3yr"
+    ].filter(Boolean)));
+
+    window.STYLEHUB_EMAILJS_PUBLIC_KEY = STYLEHUB_UNIVERSAL_EMAILJS_PUBLIC_KEY;
+    window.STYLEHUB_EMAILJS_SERVICE_ID = STYLEHUB_UNIVERSAL_EMAILJS_SERVICE_ID;
+    window.STYLEHUB_EMAILJS_TEMPLATE_ID = window.STYLEHUB_EMAILJS_TEMPLATE_ID || STYLEHUB_UNIVERSAL_EMAILJS_TEMPLATE_IDS[0];
+    window.STYLEHUB_EMAILJS_FALLBACK_TEMPLATE_IDS = window.STYLEHUB_EMAILJS_FALLBACK_TEMPLATE_IDS || STYLEHUB_UNIVERSAL_EMAILJS_TEMPLATE_IDS.slice(1);
+
+    function loadStyleHubEmailJSSDK(timeoutMs) {
+        timeoutMs = timeoutMs || 7000;
+        return new Promise(function(resolve, reject) {
+            const startedAt = Date.now();
+
+            function finishIfReady() {
+                if (window.emailjs && typeof window.emailjs.send === "function") {
+                    if (typeof window.emailjs.init === "function") {
+                        window.emailjs.init(STYLEHUB_UNIVERSAL_EMAILJS_PUBLIC_KEY);
+                    }
+                    resolve();
+                    return true;
+                }
+                return false;
+            }
+
+            if (finishIfReady()) return;
+
+            let sdkScript = document.querySelector('script[data-stylehub-emailjs-sdk="1"], script[src*="@emailjs/browser"]');
+            if (!sdkScript) {
+                sdkScript = document.createElement("script");
+                sdkScript.src = "https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js";
+                sdkScript.async = true;
+                sdkScript.setAttribute("data-stylehub-emailjs-sdk", "1");
+                document.head.appendChild(sdkScript);
+            }
+
+            sdkScript.addEventListener("load", function() { finishIfReady(); }, { once: true });
+            sdkScript.addEventListener("error", function() {
+                reject(new Error("EmailJS SDK không tải được. Kiểm tra mạng hoặc CDN @emailjs/browser."));
+            }, { once: true });
+
+            (function poll() {
+                if (finishIfReady()) return;
+                if (Date.now() - startedAt > timeoutMs) {
+                    reject(new Error("EmailJS SDK chưa sẵn sàng sau " + timeoutMs + "ms."));
+                    return;
+                }
+                setTimeout(poll, 120);
+            })();
+        });
+    }
+
+    function normalizeStyleHubUniversalEmail(value) {
+        return String(value || "").trim().toLowerCase();
+    }
+
+    function isValidStyleHubUniversalEmail(value) {
+        return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(normalizeStyleHubUniversalEmail(value));
+    }
+
+    function buildStyleHubUniversalProductDetails(order) {
+        const items = Array.isArray(order && order.orderedProductsList) ? order.orderedProductsList : [];
+        if (!items.length) return "Không có sản phẩm";
+
+        return items.map(function(item, index) {
+            const normalized = normalizeItem(item) || {};
+            const name = normalized.name || "Sản phẩm";
+            const size = normalized.size || "N/A";
+            const qty = getQty(normalized);
+            const price = normalized.price || (normalized.priceNum ? formatMoney(normalized.priceNum) : "");
+            return (index + 1) + ". " + name + " (Size: " + size + ") x " + qty + " - Giá: " + price;
+        }).join("\n");
+    }
+
+    async function sendStyleHubUniversalOrderEmail(order) {
+        // Khi đang ở product-detail.html, ưu tiên dùng hàm gửi mail chính của trang.
+        if (typeof window.sendStyleHubOrderEmail === "function") {
+            return window.sendStyleHubOrderEmail(order);
+        }
+
+        await loadStyleHubEmailJSSDK();
+
+        const userInfo = order.userInfo || {};
+        const toEmail = normalizeStyleHubUniversalEmail(
+            order.shippingEmail ||
+            userInfo.email ||
+            order.customerEmail ||
+            order.userEmail ||
+            localStorage.getItem("hub_shipping_email") ||
+            localStorage.getItem("hub_email") ||
+            ""
+        );
+
+        if (!isValidStyleHubUniversalEmail(toEmail)) {
+            throw new Error("Email người nhận không hợp lệ hoặc đang bị trống: " + (toEmail || "N/A"));
+        }
+
+        const customerName = userInfo.name || localStorage.getItem("hub_name") || "Khách hàng";
+        const orderId = order.orderId || order.clientOrderUid || "";
+        const orderDate = order.orderDate || order.date || new Date().toLocaleString("vi-VN");
+        const customerPhone = userInfo.phone || localStorage.getItem("hub_phone") || "";
+        const customerAddress = userInfo.address || order.shippingAddress || localStorage.getItem("hub_address") || "";
+        const productDetails = buildStyleHubUniversalProductDetails(order);
+        const totalPrice = order.totalPriceFormatted || formatMoney(calculateCartSubtotal(order.orderedProductsList || []));
+
+        const templateParams = {
+            to_email: toEmail,
+            customer_name: customerName,
+            orderId: orderId,
+            order_date: orderDate,
+            customer_phone: customerPhone,
+            customer_address: customerAddress,
+            product_details: productDetails,
+            total_price: totalPrice,
+            subtotal_price: order.subtotalFormatted || "",
+            shipping_fee: order.shippingFeeFormatted || "",
+            discount_price: order.discountFormatted || "",
+            voucher_code: order.voucherCode || "",
+
+            // Biến dự phòng cho template cũ/mới
+            email: toEmail,
+            user_email: toEmail,
+            reply_to: toEmail,
+            to_name: customerName,
+            from_name: "The Style Hub",
+            order_id: orderId,
+            order_number: orderId,
+            phone: customerPhone,
+            address: customerAddress,
+            message: productDetails,
+            total: totalPrice
+        };
+
+        let lastError = null;
+        for (const templateId of STYLEHUB_UNIVERSAL_EMAILJS_TEMPLATE_IDS) {
+            try {
+                console.log("Universal BAG đang gửi EmailJS:", templateId, templateParams);
+                return await window.emailjs.send(
+                    STYLEHUB_UNIVERSAL_EMAILJS_SERVICE_ID,
+                    templateId,
+                    templateParams,
+                    STYLEHUB_UNIVERSAL_EMAILJS_PUBLIC_KEY
+                );
+            } catch (error) {
+                lastError = error;
+                console.error("Universal BAG gửi EmailJS thất bại với template " + templateId + ":", error);
+            }
+        }
+
+        throw lastError || new Error("Universal BAG gửi EmailJS thất bại.");
+    }
+
+    window.sendStyleHubUniversalOrderEmail = sendStyleHubUniversalOrderEmail;
 
 
     const STYLEHUB_INVENTORY_KEY = "stylehub_inventory_v1";
@@ -1644,9 +1804,23 @@
             });
 
             const savedOrder = await saveUniversalOrder(order);
+            const orderForEmail = JSON.parse(JSON.stringify(savedOrder || order));
             if (window.StyleHubNotifications && typeof window.StyleHubNotifications.addOrderSuccessNotification === "function") {
                 try { window.StyleHubNotifications.addOrderSuccessNotification(savedOrder || order); } catch (error) {}
             }
+
+            // BAG checkout dùng drawer riêng trong stylehub-cart-sync.js, nên phải gửi EmailJS tại đây.
+            // Không await để đơn hàng vẫn hiện thành công nhanh; dữ liệu đơn đã được snapshot trước khi clear giỏ.
+            sendStyleHubUniversalOrderEmail(orderForEmail)
+                .then(function() {
+                    console.log("Email xác nhận đơn hàng BAG đã gửi thành công.");
+                })
+                .catch(function(emailError) {
+                    console.error("Email xác nhận đơn hàng BAG gửi thất bại:", emailError);
+                    if (typeof window.showToastNotification === "function") {
+                        try { window.showToastNotification("Đơn đã đặt thành công, nhưng email xác nhận chưa gửi được. Kiểm tra EmailJS/Gmail."); } catch (error) {}
+                    }
+                });
 
             clearCartAfterCheckout(selectedIndexes, selectedFingerprints);
             renderCheckoutSuccess(order);

@@ -5,9 +5,12 @@
     <title>Thanh Toán - The Style Hub</title>
     <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
     <script type="text/javascript">
+       window.STYLEHUB_EMAILJS_PUBLIC_KEY = "MB1m-Q2_ueI82N8Xo";
+       window.STYLEHUB_EMAILJS_SERVICE_ID = "service_xjsmniq";
+       window.STYLEHUB_EMAILJS_TEMPLATE_ID = "template_f4bnal4";
+       window.STYLEHUB_EMAILJS_FALLBACK_TEMPLATE_IDS = ["template_1v0d3yr"];
        (function(){
-          // TODO: THAY BẰNG PUBLIC KEY CỦA ÔNG (Lấy ở mục Account trong EmailJS)
-          emailjs.init("MB1m-Q2_ueI82N8Xo"); 
+          emailjs.init(window.STYLEHUB_EMAILJS_PUBLIC_KEY); 
        })();
     </script>
     <style>
@@ -158,29 +161,66 @@
         }
 
         // 2. Kích hoạt gửi Email tự động qua EmailJS
+        const toEmail = email.trim().toLowerCase();
         const templateParams = {
-            to_email: email,             // Khớp với {{to_email}} trên EmailJS
-            customer_name: name,         // Khớp với {{customer_name}}
-            orderId: orderId,            // Khớp với {{orderId}}
-            order_date: orderDate,       // Khớp với {{order_date}}
-            customer_phone: phone,       // Khớp với {{customer_phone}}
-            customer_address: address,   // Khớp với {{customer_address}}
-            product_details: productDetailsText, // Khớp với {{product_details}}
-            total_price: totalPriceFormatted     // Khớp với {{total_price}}
+            // Các biến chính đang dùng trong EmailJS template
+            to_email: toEmail,
+            customer_name: name,
+            orderId: orderId,
+            order_date: orderDate,
+            customer_phone: phone,
+            customer_address: address,
+            product_details: productDetailsText,
+            total_price: totalPriceFormatted,
+
+            // Biến dự phòng để template cũ/mới đều nhận được dữ liệu
+            email: toEmail,
+            user_email: toEmail,
+            reply_to: toEmail,
+            to_name: name,
+            from_name: "The Style Hub",
+            order_id: orderId,
+            order_number: orderId,
+            phone: phone,
+            address: address,
+            message: productDetailsText,
+            total: totalPriceFormatted
         };
 
-        // Tiến hành gửi lên hệ thống EmailJS
-        // TODO: THAY "YOUR_SERVICE_ID" và "YOUR_TEMPLATE_ID" bằng mã thực tế 
-        emailjs.send('service_xjsmniq', 'template_f4bnal4', templateParams)
+        async function sendCheckoutEmailWithFallback() {
+            const templateIds = [
+                window.STYLEHUB_EMAILJS_TEMPLATE_ID,
+                ...(window.STYLEHUB_EMAILJS_FALLBACK_TEMPLATE_IDS || [])
+            ].filter(Boolean).filter(function(id, index, arr) { return arr.indexOf(id) === index; });
+
+            let lastError = null;
+            for (const templateId of templateIds) {
+                try {
+                    console.log('Đang gửi EmailJS với template:', templateId, templateParams);
+                    return await emailjs.send(
+                        window.STYLEHUB_EMAILJS_SERVICE_ID,
+                        templateId,
+                        templateParams,
+                        window.STYLEHUB_EMAILJS_PUBLIC_KEY
+                    );
+                } catch (error) {
+                    lastError = error;
+                    console.error('Gửi email thất bại với template ' + templateId, error);
+                }
+            }
+            throw lastError || new Error('Gửi email thất bại.');
+        }
+
+        sendCheckoutEmailWithFallback()
             .then(function(response) {
                console.log('Email gửi thành công!', response.status, response.text);
-               // Xóa giỏ hàng sau khi đặt thành công
                localStorage.removeItem('cart');
                alert("Đặt hàng thành công! Một email xác nhận chi tiết đã được gửi đến bạn.");
-               window.location.href = "account.html"; // Chuyển về tài khoản để khách xem trạng thái đơn
-            }, function(error) {
+               window.location.href = "account.html";
+            })
+            .catch(function(error) {
                console.error('Gửi email thất bại...', error);
-               alert("Có lỗi xảy ra trong quá trình gửi mail xác nhận, nhưng đơn hàng của bạn đã được hệ thống ghi nhận.");
+               alert("Đơn hàng đã được ghi nhận nhưng EmailJS đang báo lỗi gửi mail. Vui lòng kiểm tra lại EmailJS Service/Template trong dashboard.");
             });
     }
 </script>
