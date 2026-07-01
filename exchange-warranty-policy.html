@@ -121,6 +121,380 @@
 /* ===== END FOOTER SOCIAL 3 ICONS LEFT ALIGN FINAL ===== */
 </style>
 
+
+<style>
+/* ===== THE STYLE HUB POLICY PAGES - SUBTLE TONE EFFECTS ===== */
+:root {
+    --tsh-ink: #151515;
+    --tsh-muted: #696969;
+    --tsh-line: #e9e2d8;
+    --tsh-cream: #faf7f1;
+    --tsh-cream-2: #f3eadf;
+    --tsh-gold: #b79867;
+    --tsh-gold-dark: #8b6a3e;
+}
+
+body {
+    background:
+        radial-gradient(circle at 12% 8%, rgba(183, 152, 103, 0.13), transparent 28%),
+        linear-gradient(180deg, #fff 0%, #fbf8f2 38%, #fff 100%);
+}
+
+.policy-page-wrapper.policy-upgraded {
+    max-width: 1320px;
+    margin: 0 auto;
+    padding: 92px 48px 110px;
+    color: var(--tsh-ink);
+}
+
+.policy-hero {
+    position: relative;
+    display: grid;
+    grid-template-columns: minmax(0, 1.05fr) minmax(320px, 0.65fr);
+    gap: 48px;
+    align-items: stretch;
+    padding: 54px 56px;
+    border: 1px solid var(--tsh-line);
+    background:
+        linear-gradient(135deg, rgba(255,255,255,.98), rgba(250,247,241,.92)),
+        repeating-linear-gradient(90deg, rgba(21,21,21,.035) 0 1px, transparent 1px 46px),
+        repeating-linear-gradient(0deg, rgba(21,21,21,.03) 0 1px, transparent 1px 46px);
+    box-shadow: 0 28px 80px rgba(21,21,21,.08);
+    overflow: hidden;
+}
+
+.policy-hero::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 8px;
+    height: 100%;
+    background: linear-gradient(180deg, var(--tsh-gold), var(--tsh-ink));
+}
+
+.policy-eyebrow {
+    display: inline-flex;
+    align-items: center;
+    gap: 14px;
+    margin-bottom: 22px;
+    color: var(--tsh-gold-dark);
+    font-size: 13px;
+    font-weight: 800;
+    letter-spacing: 7px;
+    text-transform: uppercase;
+}
+
+.policy-eyebrow::before {
+    content: "";
+    display: block;
+    width: 62px;
+    height: 1px;
+    background: var(--tsh-gold);
+}
+
+.policy-hero h1 {
+    margin: 0;
+    font-size: clamp(42px, 5.6vw, 78px);
+    line-height: .98;
+    letter-spacing: 11px;
+    text-transform: uppercase;
+    font-weight: 800;
+}
+
+.policy-hero p {
+    margin: 24px 0 0;
+    max-width: 760px;
+    color: var(--tsh-muted);
+    font-size: 18px;
+    line-height: 1.9;
+}
+
+.policy-hero-card {
+    border: 1px solid rgba(183, 152, 103, .42);
+    background: rgba(255,255,255,.78);
+    padding: 34px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    box-shadow: 0 18px 50px rgba(21,21,21,.06);
+}
+
+.policy-hero-card strong {
+    font-size: 15px;
+    letter-spacing: 4px;
+    text-transform: uppercase;
+    margin-bottom: 16px;
+}
+
+.policy-hero-card span {
+    color: var(--tsh-muted);
+    line-height: 1.8;
+    font-size: 16px;
+}
+
+.policy-quick-row {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 18px;
+    margin: 26px 0 70px;
+}
+
+.policy-mini-card {
+    border: 1px solid var(--tsh-line);
+    background: rgba(255,255,255,.84);
+    padding: 24px 26px;
+    transition: transform .28s ease, box-shadow .28s ease, border-color .28s ease;
+}
+
+.policy-mini-card:hover,
+.policy-card:hover,
+.policy-section:hover,
+.policy-step:hover {
+    transform: translateY(-6px);
+    border-color: rgba(183,152,103,.78);
+    box-shadow: 0 22px 58px rgba(21,21,21,.09);
+}
+
+.policy-mini-card b {
+    display: block;
+    margin-bottom: 8px;
+    font-size: 30px;
+    letter-spacing: 4px;
+}
+
+.policy-mini-card span {
+    color: var(--tsh-muted);
+    line-height: 1.7;
+}
+
+.policy-section-title {
+    display: flex;
+    align-items: center;
+    gap: 18px;
+    margin: 58px 0 24px;
+}
+
+.policy-section-title .policy-number {
+    display: inline-flex;
+    width: 46px;
+    height: 46px;
+    border: 1px solid var(--tsh-gold);
+    color: var(--tsh-gold-dark);
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    font-weight: 800;
+    letter-spacing: 1px;
+    background: #fff;
+}
+
+.policy-section-title h2,
+.policy-title h1 {
+    margin: 0;
+    font-size: clamp(25px, 2.8vw, 42px);
+    letter-spacing: 7px;
+    text-transform: uppercase;
+    font-weight: 800;
+}
+
+.policy-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 26px;
+}
+
+.policy-grid.three {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.policy-card,
+.policy-section {
+    position: relative;
+    border: 1px solid var(--tsh-line);
+    background: rgba(255,255,255,.88);
+    padding: 34px 36px;
+    box-shadow: 0 12px 36px rgba(21,21,21,.04);
+    transition: transform .28s ease, box-shadow .28s ease, border-color .28s ease;
+}
+
+.policy-card::before,
+.policy-section::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 4px;
+    background: linear-gradient(90deg, var(--tsh-gold), rgba(183,152,103,0));
+    opacity: .85;
+}
+
+.policy-card h3,
+.policy-section h2 {
+    margin: 0 0 18px;
+    font-size: 20px;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    font-weight: 800;
+}
+
+.policy-card p,
+.policy-section p,
+.policy-section li,
+.policy-card li {
+    color: var(--tsh-muted);
+    font-size: 16px;
+    line-height: 1.88;
+}
+
+.policy-section ul,
+.policy-card ul {
+    margin: 0;
+    padding-left: 20px;
+}
+
+.policy-section li,
+.policy-card li {
+    margin-bottom: 12px;
+}
+
+.policy-note {
+    border-left: 4px solid var(--tsh-gold);
+    background: linear-gradient(90deg, rgba(183,152,103,.12), rgba(255,255,255,.6));
+    padding: 16px 18px;
+    margin-top: 18px;
+    font-style: italic;
+}
+
+.policy-table-wrap {
+    overflow-x: auto;
+    border: 1px solid var(--tsh-line);
+    background: #fff;
+    box-shadow: 0 18px 46px rgba(21,21,21,.05);
+}
+
+.policy-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 0;
+}
+
+.policy-table th {
+    background: var(--tsh-cream);
+    color: var(--tsh-ink);
+    letter-spacing: 2.5px;
+    text-transform: uppercase;
+    font-size: 13px;
+    text-align: left;
+    padding: 22px;
+    border-bottom: 1px solid var(--tsh-line);
+}
+
+.policy-table td {
+    padding: 22px;
+    color: var(--tsh-muted);
+    border-bottom: 1px solid #eee8df;
+    line-height: 1.7;
+}
+
+.policy-table tr:hover td {
+    background: #fffaf2;
+}
+
+.policy-steps {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 18px;
+}
+
+.policy-step {
+    border: 1px solid var(--tsh-line);
+    background: rgba(255,255,255,.88);
+    padding: 28px;
+    transition: transform .28s ease, box-shadow .28s ease, border-color .28s ease;
+}
+
+.policy-step .step-index {
+    width: 42px;
+    height: 42px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    background: var(--tsh-ink);
+    color: #fff;
+    font-weight: 800;
+    margin-bottom: 18px;
+}
+
+.policy-step h3 {
+    margin: 0 0 12px;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+}
+
+.policy-step p {
+    color: var(--tsh-muted);
+    line-height: 1.75;
+}
+
+.policy-cta {
+    display: flex;
+    gap: 14px;
+    flex-wrap: wrap;
+    margin-top: 40px;
+}
+
+.policy-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 190px;
+    padding: 18px 28px;
+    border: 1px solid var(--tsh-ink);
+    text-decoration: none;
+    color: var(--tsh-ink);
+    font-weight: 800;
+    letter-spacing: 4px;
+    text-transform: uppercase;
+    transition: all .25s ease;
+}
+
+.policy-btn.primary {
+    background: var(--tsh-ink);
+    color: #fff;
+}
+
+.policy-btn:hover {
+    transform: translateY(-3px);
+    background: var(--tsh-gold);
+    border-color: var(--tsh-gold);
+    color: #fff;
+}
+
+.policy-fade {
+    animation: policyFadeUp .65s ease both;
+}
+
+.policy-fade.delay-1 { animation-delay: .08s; }
+.policy-fade.delay-2 { animation-delay: .16s; }
+.policy-fade.delay-3 { animation-delay: .24s; }
+
+@keyframes policyFadeUp {
+    from { opacity: 0; transform: translateY(18px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+@media (max-width: 980px) {
+    .policy-page-wrapper.policy-upgraded { padding: 72px 22px 86px; }
+    .policy-hero { grid-template-columns: 1fr; padding: 42px 30px; }
+    .policy-quick-row, .policy-grid, .policy-grid.three, .policy-steps { grid-template-columns: 1fr; }
+    .policy-hero h1 { letter-spacing: 6px; }
+}
+/* ===== END POLICY PAGES ===== */
+</style>
+
 </head>
 <body>
 
@@ -219,22 +593,53 @@
 </div>
 </header>
 <div class="home-notification-bell" data-stylehub-notification-bell></div>
-<main class="policy-page-wrapper">
-    <div class="policy-title"><div class="policy-number">1</div><h1>Chính sách đổi hàng<br>và bảo hành</h1></div>
-    <section class="policy-grid">
-        <div class="policy-section"><h2>Chính sách áp dụng</h2><ul><li>Áp dụng 1 lần đổi cho mỗi đơn hàng.</li><li>Có thể đổi sang sản phẩm bất kỳ hoặc đổi 1 sản phẩm sang nhiều sản phẩm khác. Nếu có chênh lệch giá, hệ thống sẽ tính bù trừ.</li><li>Sản phẩm mua trong chương trình khuyến mãi cần đổi trong thời gian chương trình để được áp dụng ưu đãi. Khi chương trình kết thúc, chính sách đổi áp dụng theo giá niêm yết.</li></ul></div>
-        <div class="policy-section"><h2>Điều kiện đổi hàng</h2><ul><li>Sản phẩm còn hóa đơn mua hàng, còn nguyên nhãn mác.</li><li>Sản phẩm không bị bẩn, hư hỏng bởi tác nhân bên ngoài sau khi mua.</li><li>Sản phẩm đổi trong vòng 15 ngày kể từ ngày mua tại cửa hàng hoặc ngày nhận hàng đối với đơn online.</li></ul></div>
+<main class="policy-page-wrapper policy-upgraded">
+    <section class="policy-hero policy-fade">
+        <div>
+            <div class="policy-eyebrow">Customer Care</div>
+            <h1>Đổi hàng<br>& bảo hành</h1>
+            <p>Chính sách được thiết kế rõ ràng để khách hàng yên tâm khi mua sắm tại The Style Hub: dễ kiểm tra điều kiện, dễ gửi yêu cầu và dễ theo dõi quá trình xử lý.</p>
+            <div class="policy-cta">
+                <a class="policy-btn primary" href="contact.html">Liên hệ hỗ trợ</a>
+                <a class="policy-btn" href="account.html">Theo dõi đơn</a>
+            </div>
+        </div>
+        <aside class="policy-hero-card">
+            <strong>Quick Summary</strong>
+            <span>Đổi hàng trong thời gian quy định, bảo hành lỗi kỹ thuật theo từng nhóm sản phẩm và hỗ trợ nhanh với đơn online nếu sản phẩm lỗi từ nhà sản xuất hoặc giao nhầm.</span>
+        </aside>
     </section>
-    <section class="policy-section"><h2>Lưu ý</h2><ul><li>Đối với cửa hàng: không áp dụng đổi cho sản phẩm giảm giá từ 30% trở lên.</li><li>Đối với đơn hàng mua trên sàn TMĐT: không áp dụng đổi sản phẩm giảm giá từ 50% trở lên, chỉ áp dụng đổi sản phẩm chung mẫu, không áp dụng đổi khác sản phẩm.</li><li>Không áp dụng đổi với đồ lót, vớ.</li><li>Khách hàng đặt tại website, fanpage hoặc instagram được áp dụng đổi cho tất cả sản phẩm trong thời gian quy định.</li></ul></section>
-    <div class="policy-title"><div class="policy-number">2</div><h1>Chính sách bảo hành</h1></div>
-    <table class="policy-table"><thead><tr><th>Sản phẩm</th><th>Điều kiện bảo hành</th><th>Thời gian bảo hành</th></tr></thead><tbody><tr><td>Quần, áo, nón</td><td>Đường chỉ, dây kéo, khuy</td><td>30 ngày</td></tr><tr><td>Thắt lưng</td><td>Gãy ốc, nổ da tự nhiên</td><td>30 ngày</td></tr><tr><td>Balo, ví, túi xách</td><td>Đường chỉ, quai túi, keo, khóa</td><td>30 ngày</td></tr><tr><td>Giày dép</td><td>Keo trong 15 ngày đổi mới, sau 15 ngày hỗ trợ bảo hành keo</td><td>Trọn đời</td></tr><tr><td>Nút, khóa kéo dòng TechUrban</td><td>Bảo hành lỗi kỹ thuật</td><td>Trọn đời</td></tr></tbody></table>
-    <section class="policy-section"><h2>Các trường hợp không được bảo hành</h2><ul><li>Giặt tẩy sản phẩm không đúng quy cách.</li><li>Sản phẩm bị rách, trầy xước, biến dạng do tiếp xúc nhiệt độ cao, ẩm ướt lâu ngày hoặc tác động bởi vật cứng/sắc nhọn.</li><li>Sản phẩm bị tác động bởi tai nạn, thiên tai.</li><li>Sản phẩm là đồ lót, vớ.</li><li>Sản phẩm bị ảnh hưởng bởi hóa chất, ảnh hưởng đến màu sắc, form dáng, hình dạng.</li></ul></section>
-    <div class="policy-title"><div class="policy-number">3</div><h1>Chính sách đổi do lỗi kỹ thuật<br>& hoàn tiền</h1></div>
-    <section class="policy-grid"><div class="policy-section"><h2>Điều kiện áp dụng</h2><ul><li>Sản phẩm lỗi kỹ thuật ở màu sắc, chất liệu, kiểu dáng, bung keo.</li><li>Sản phẩm không giống mô tả hoặc không giống hình.</li></ul></div><div class="policy-section"><h2>Thời gian phản hồi</h2><ul><li>Trong vòng 15 ngày kể từ ngày mua hàng tại cửa hàng.</li><li>Trong vòng 15 ngày kể từ ngày nhận hàng đối với khách mua online.</li></ul><h2>Cách thức hoàn tiền</h2><p>Số tiền hoàn của sản phẩm được tính sau khi đã trừ các chi phí khuyến mãi và voucher.</p></div></section>
-    <div class="policy-title"><div class="policy-number">4</div><h1>Chi phí đổi hàng</h1></div>
-    <section class="policy-grid"><div class="policy-section"><p>Miễn phí đổi hàng cho khách hàng mua sắm tại THE STYLE HUB trong trường hợp bị lỗi từ nhà sản xuất, giao nhầm hàng hoặc hư hỏng trong quá trình vận chuyển.</p></div><div class="policy-section"><p>Trong trường hợp không vừa size, màu, không thích mẫu, khách hàng chịu phí ship một chiều về kho. THE STYLE HUB chịu phí ship sản phẩm mới cho Quý khách.</p><p class="policy-note">Lưu ý: trường hợp này chỉ áp dụng cho các đơn hàng mua online.</p></div></section>
-    <div class="policy-title"><div class="policy-number">5</div><h1>2 bước đổi hàng nhanh chóng</h1></div>
-    <section class="policy-grid"><div class="policy-section"><h2>Bước 1</h2><p>Thông báo cho THE STYLE HUB qua fanpage, hotline hoặc kênh mua hàng online.</p></div><div class="policy-section"><h2>Bước 2</h2><p>Sau khi nhận thông tin, shipper sẽ giao sản phẩm mới và đổi lại sản phẩm cũ trực tiếp với Quý khách.</p></div></section>
+
+    <div class="policy-section-title policy-fade"><span class="policy-number">01</span><h2>Điều kiện đổi hàng</h2></div>
+    <section class="policy-grid policy-fade delay-1">
+        <div class="policy-card"><h3>Chính sách áp dụng</h3><ul><li>Áp dụng 1 lần đổi cho mỗi đơn hàng.</li><li>Có thể đổi sang sản phẩm bất kỳ hoặc đổi 1 sản phẩm sang nhiều sản phẩm khác. Nếu có chênh lệch giá, hệ thống sẽ tính bù trừ.</li><li>Sản phẩm mua trong chương trình khuyến mãi cần đổi trong thời gian chương trình để được áp dụng ưu đãi. Khi chương trình kết thúc, chính sách đổi áp dụng theo giá niêm yết.</li></ul></div>
+        <div class="policy-card"><h3>Điều kiện sản phẩm</h3><ul><li>Sản phẩm còn hóa đơn mua hàng, còn nguyên nhãn mác.</li><li>Sản phẩm không bị bẩn, hư hỏng bởi tác nhân bên ngoài sau khi mua.</li><li>Sản phẩm đổi trong vòng 15 ngày kể từ ngày mua tại cửa hàng hoặc ngày nhận hàng đối với đơn online.</li></ul></div>
+    </section>
+
+    <section class="policy-section policy-fade delay-2"><h2>Lưu ý khi đổi hàng</h2><ul><li>Đối với cửa hàng: không áp dụng đổi cho sản phẩm giảm giá từ 30% trở lên.</li><li>Đối với đơn hàng mua trên sàn TMĐT: không áp dụng đổi sản phẩm giảm giá từ 50% trở lên, chỉ áp dụng đổi sản phẩm chung mẫu, không áp dụng đổi khác sản phẩm.</li><li>Không áp dụng đổi với đồ lót, vớ.</li><li>Khách hàng đặt tại website, fanpage hoặc instagram được áp dụng đổi cho tất cả sản phẩm trong thời gian quy định.</li></ul></section>
+
+    <div class="policy-section-title policy-fade"><span class="policy-number">02</span><h2>Chính sách bảo hành</h2></div>
+    <div class="policy-table-wrap policy-fade delay-1">
+        <table class="policy-table"><thead><tr><th>Sản phẩm</th><th>Điều kiện bảo hành</th><th>Thời gian</th></tr></thead><tbody><tr><td>Quần, áo, nón</td><td>Đường chỉ, dây kéo, khuy</td><td>30 ngày</td></tr><tr><td>Thắt lưng</td><td>Gãy ốc, nổ da tự nhiên</td><td>30 ngày</td></tr><tr><td>Balo, ví, túi xách</td><td>Đường chỉ, quai túi, keo, khóa</td><td>30 ngày</td></tr><tr><td>Giày dép</td><td>Keo trong 15 ngày đổi mới, sau 15 ngày hỗ trợ bảo hành keo</td><td>Trọn đời</td></tr><tr><td>Nút, khóa kéo dòng TechUrban</td><td>Bảo hành lỗi kỹ thuật</td><td>Trọn đời</td></tr></tbody></table>
+    </div>
+
+    <section class="policy-grid policy-fade delay-2">
+        <div class="policy-card"><h3>Không được bảo hành</h3><ul><li>Giặt tẩy sản phẩm không đúng quy cách.</li><li>Sản phẩm bị rách, trầy xước, biến dạng do nhiệt độ cao, ẩm ướt lâu ngày hoặc vật cứng/sắc nhọn.</li><li>Sản phẩm bị tác động bởi tai nạn, thiên tai.</li><li>Sản phẩm là đồ lót, vớ.</li><li>Sản phẩm bị ảnh hưởng bởi hóa chất, màu sắc, form dáng hoặc hình dạng.</li></ul></div>
+        <div class="policy-card"><h3>Lỗi kỹ thuật & hoàn tiền</h3><ul><li>Sản phẩm lỗi kỹ thuật ở màu sắc, chất liệu, kiểu dáng, bung keo.</li><li>Sản phẩm không giống mô tả hoặc không giống hình.</li><li>Phản hồi trong vòng 15 ngày kể từ ngày mua hoặc ngày nhận hàng.</li></ul><p class="policy-note">Số tiền hoàn được tính sau khi đã trừ các chi phí khuyến mãi và voucher.</p></div>
+    </section>
+
+    <div class="policy-section-title policy-fade"><span class="policy-number">03</span><h2>Quy trình đổi hàng</h2></div>
+    <section class="policy-steps policy-fade delay-1">
+        <div class="policy-step"><span class="step-index">1</span><h3>Gửi yêu cầu</h3><p>Liên hệ The Style Hub qua hotline, fanpage hoặc trang Contact.</p></div>
+        <div class="policy-step"><span class="step-index">2</span><h3>Xác nhận</h3><p>Cung cấp mã đơn, hình ảnh sản phẩm và lý do cần đổi/bảo hành.</p></div>
+        <div class="policy-step"><span class="step-index">3</span><h3>Đối soát</h3><p>Bộ phận hỗ trợ kiểm tra điều kiện, phí vận chuyển và phương án xử lý.</p></div>
+        <div class="policy-step"><span class="step-index">4</span><h3>Hoàn tất</h3><p>Giao sản phẩm mới hoặc hỗ trợ bảo hành theo chính sách.</p></div>
+    </section>
+
+    <section class="policy-grid policy-fade delay-2">
+        <div class="policy-card"><h3>Chi phí đổi hàng</h3><p>Miễn phí đổi hàng trong trường hợp lỗi từ nhà sản xuất, giao nhầm hàng hoặc hư hỏng trong quá trình vận chuyển.</p></div>
+        <div class="policy-card"><h3>Trường hợp đổi theo nhu cầu</h3><p>Với trường hợp không vừa size, màu hoặc không thích mẫu, khách hàng chịu phí ship một chiều về kho. The Style Hub chịu phí ship sản phẩm mới.</p><p class="policy-note">Chỉ áp dụng cho đơn hàng mua online.</p></div>
+    </section>
 </main>
 
 <script src="product-data.js?v=property-la-visible-final-20260618"></script>

@@ -189,7 +189,7 @@
 
     function syncHeader() {
         const user = getCurrentUser();
-        const accountLinks = document.querySelectorAll("#account-trigger, #headerAccountLink");
+        const accountLinks = document.querySelectorAll("#account-trigger, #headerAccountLink, #footer-account-link, .footer-account-link");
         accountLinks.forEach(function (link) {
             if (user) {
                 link.textContent = String(user.name || user.email.split("@")[0]).toUpperCase();
@@ -229,7 +229,7 @@ function syncHeaderAccountName() {
         return;
     }
 
-    const accountLinks = document.querySelectorAll("#account-trigger, #headerAccountLink");
+    const accountLinks = document.querySelectorAll("#account-trigger, #headerAccountLink, #footer-account-link, .footer-account-link");
     accountLinks.forEach(function (link) {
         link.textContent = "ACCOUNT";
         link.href = "account.html";

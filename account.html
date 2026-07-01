@@ -48,7 +48,16 @@
         .order-status-shipping { color: #2563eb; }
         .order-status-done { color: #15803d; }
         .order-status-cancelled { color: #dc2626; }
-        .order-product-row { display: flex; justify-content: space-between; font-size: 13px; color: #444; margin-bottom: 6px; }
+        .order-products-body { display: flex; flex-direction: column; gap: 10px; margin-top: 12px; }
+        .order-product-row { display: flex; justify-content: space-between; align-items: center; gap: 16px; font-size: 13px; color: #444; padding: 12px 14px; margin-bottom: 0; background: #fafafa; border: 1px solid #eeeeee; border-radius: 14px; transition: border-color .2s ease, box-shadow .2s ease, transform .2s ease; }
+        .order-product-row:hover { border-color: #111111; box-shadow: 0 10px 24px rgba(0,0,0,.06); transform: translateY(-1px); }
+        .order-product-main { display: flex; align-items: center; gap: 14px; min-width: 0; flex: 1; }
+        .order-product-thumb { width: 66px; height: 66px; min-width: 66px; border: 1px solid #e9e9e9; border-radius: 12px; background: #ffffff; object-fit: cover; object-position: center; display: block; box-shadow: 0 4px 12px rgba(0,0,0,.04); }
+        .order-product-thumb-empty { display: inline-flex; align-items: center; justify-content: center; font-size: 10px; font-weight: 800; letter-spacing: 1px; color: #999; }
+        .order-product-text { min-width: 0; display: flex; flex-direction: column; gap: 7px; }
+        .order-product-name { line-height: 1.35; word-break: break-word; font-size: 14px; font-weight: 800; color: #111111; letter-spacing: .1px; }
+        .order-product-size { width: fit-content; display: inline-flex; align-items: center; padding: 4px 9px; border-radius: 999px; background: #111111; color: #ffffff; font-size: 10px; font-weight: 800; letter-spacing: 1.1px; text-transform: uppercase; }
+        .order-product-qty { min-width: 42px; text-align: center; background: #111111; color: #ffffff; border-radius: 999px; padding: 7px 11px; font-size: 12px; font-weight: 900; box-shadow: 0 4px 12px rgba(0,0,0,.12); }
         .order-card-bottom { display: flex; justify-content: space-between; align-items: center; border-top: 1px solid #f5f5f5; padding-top: 12px; margin-top: 12px; font-size: 13px; font-weight: 600; }
         .order-actions-row { display: flex; justify-content: flex-end; gap: 10px; margin-top: 16px; }
         .order-mini-note { font-size: 11px; color: #888; margin-top: 10px; letter-spacing: .3px; }
@@ -63,7 +72,7 @@
         .cancelled-order-card.expanded .cancelled-detail-body { display: block; }
         .cancel-modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,.42); display: none; align-items: center; justify-content: center; z-index: 5000; padding: 20px; }
         .cancel-modal-overlay.open { display: flex; }
-        .cancel-modal-box { width: min(440px, 100%); background: #fff; border-radius: 18px; padding: 28px; box-shadow: 0 24px 70px rgba(0,0,0,.22); animation: modalPop .18s ease; }
+        .cancel-modal-box { width: min(560px, 100%); max-height: 88vh; overflow-y: auto; background: #fff; border-radius: 18px; padding: 28px; box-shadow: 0 24px 70px rgba(0,0,0,.22); animation: modalPop .18s ease; }
         @keyframes modalPop { from { transform: translateY(12px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
         .cancel-modal-icon { width: 42px; height: 42px; border-radius: 50%; background: #fff1f2; color: #d71920; display: flex; align-items: center; justify-content: center; font-weight: 900; font-size: 22px; margin-bottom: 14px; }
         .cancel-modal-box h3 { font-size: 18px; margin-bottom: 8px; letter-spacing: .4px; }
@@ -71,6 +80,42 @@
         .cancel-modal-actions { display: flex; justify-content: flex-end; gap: 10px; }
         .btn-modal-light, .btn-modal-danger { padding: 11px 18px; border-radius: 999px; border: 1px solid #ddd; background: #fff; font-size: 12px; font-weight: 700; cursor: pointer; }
         .btn-modal-danger { background: #d71920; border-color: #d71920; color: #fff; }
+        .cancel-reason-title { font-size: 12px; font-weight: 800; letter-spacing: 1.2px; text-transform: uppercase; color: #111; margin: 16px 0 10px; }
+        .cancel-reason-list { display: flex; flex-direction: column; gap: 9px; margin-bottom: 12px; }
+        .cancel-reason-option { display: flex; align-items: center; gap: 12px; padding: 12px 13px; border: 1px solid #e8e8e8; border-radius: 10px; cursor: pointer; transition: all .18s ease; user-select: none; }
+        .cancel-reason-option:hover { border-color: #111; background: #fafafa; }
+        .cancel-reason-option input { position: absolute; opacity: 0; pointer-events: none; }
+        .cancel-reason-check { width: 20px; height: 20px; min-width: 20px; border: 1.5px solid #cfcfcf; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; transition: all .18s ease; }
+        .cancel-reason-check::after { content: ''; width: 8px; height: 8px; border-radius: 50%; background: transparent; transition: all .18s ease; }
+        .cancel-reason-option input:checked + .cancel-reason-check { border-color: #111; background: #111; }
+        .cancel-reason-option input:checked + .cancel-reason-check::after { background: #fff; }
+        .cancel-reason-text { font-size: 13px; color: #333; line-height: 1.35; }
+        .cancel-reason-other { display: none; width: 100%; min-height: 78px; resize: vertical; border: 1px solid #e0e0e0; border-radius: 10px; padding: 12px 13px; font-family: inherit; font-size: 13px; line-height: 1.45; outline: none; margin: 4px 0 12px; }
+        .cancel-reason-other.show { display: block; }
+        .cancel-reason-other:focus { border-color: #111; }
+        .cancel-reason-error { display: none; color: #d71920; font-size: 12px; font-weight: 700; margin: 6px 0 12px; }
+        .cancel-reason-error.show { display: block; }
+        .order-customer-box { margin: 12px 0; padding: 12px 14px; background: #fafafa; border: 1px solid #eeeeee; font-size: 12px; line-height: 1.65; color: #444; }
+        .order-customer-box strong { color: #111; }
+        .order-customer-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 6px 18px; }
+        .order-customer-address { grid-column: 1 / -1; }
+        .btn-edit-address { background: #fff; color: #111; border-color: #111; }
+        .btn-edit-address:hover { background: #111; color: #fff; }
+        .order-address-modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,.42); display: none; align-items: center; justify-content: center; z-index: 5100; padding: 20px; }
+        .order-address-modal-overlay.open { display: flex; }
+        .order-address-modal-box { width: min(620px, 100%); max-height: 88vh; overflow-y: auto; background: #fff; border-radius: 18px; padding: 28px; box-shadow: 0 24px 70px rgba(0,0,0,.22); animation: modalPop .18s ease; }
+        .order-address-modal-box h3 { font-size: 18px; margin-bottom: 8px; letter-spacing: .4px; }
+        .order-address-modal-box p { font-size: 13px; color: #555; line-height: 1.6; margin-bottom: 18px; }
+        .order-address-form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+        .order-address-field.full-row { grid-column: 1 / -1; }
+        .order-address-field label { display: block; font-size: 11px; font-weight: 800; letter-spacing: 1.3px; text-transform: uppercase; color: #777; margin-bottom: 7px; }
+        .order-address-field input, .order-address-field textarea { width: 100%; border: 1px solid #dddddd; border-radius: 10px; padding: 12px 13px; font-family: inherit; font-size: 13px; outline: none; }
+        .order-address-field input:focus, .order-address-field textarea:focus { border-color: #111; }
+        .order-address-field textarea { min-height: 92px; resize: vertical; line-height: 1.5; }
+        .order-address-actions { display: flex; justify-content: flex-end; gap: 10px; margin-top: 18px; }
+        @media (max-width: 700px) { .order-customer-grid, .order-address-form-grid { grid-template-columns: 1fr; } .order-customer-address, .order-address-field.full-row { grid-column: auto; } .order-address-actions { flex-direction: column-reverse; } .order-address-actions button { width: 100%; } }
+        @media (max-width: 700px) { .order-product-row { align-items: flex-start; padding: 11px; gap: 10px; } .order-product-thumb { width: 58px; height: 58px; min-width: 58px; border-radius: 10px; } .order-product-name { font-size: 13px; } .order-product-qty { min-width: 38px; padding: 6px 9px; } }
+        @media (max-width: 600px) { .cancel-modal-box { padding: 22px; border-radius: 16px; } .cancel-modal-actions { flex-direction: column-reverse; } .btn-modal-light, .btn-modal-danger { width: 100%; } }
         .account-toast { position: fixed; top: 78px; right: 28px; z-index: 6000; background: #111; color: #fff; padding: 14px 18px; border-radius: 999px; font-size: 13px; font-weight: 700; letter-spacing: .3px; box-shadow: 0 16px 40px rgba(0,0,0,.24); opacity: 0; transform: translateY(-10px); pointer-events: none; transition: all .25s ease; }
         .account-toast.show { opacity: 1; transform: translateY(0); }
 
@@ -348,6 +393,7 @@
         <div class="account-tabs-nav">
             <button class="tab-btn active" onclick="switchAccountTab('profile-tab', this)">Profile</button>
             <button class="tab-btn" onclick="switchAccountTab('orders-tab', this)">Orders History</button>
+            <button class="tab-btn" onclick="switchAccountTab('shipping-orders-tab', this)">Shipping Orders</button>
             <button class="tab-btn" onclick="switchAccountTab('cancelled-orders-tab', this)">Cancelled Orders</button>
         </div>
 
@@ -418,6 +464,10 @@
             <div class="order-history-list" id="injectOrdersContainer"></div>
         </div>
 
+        <div id="shipping-orders-tab" class="tab-content-panel">
+            <div class="order-history-list" id="injectShippingOrdersContainer"></div>
+        </div>
+
         <div id="cancelled-orders-tab" class="tab-content-panel">
             <div class="order-history-list" id="injectCancelledOrdersContainer"></div>
         </div>
@@ -431,11 +481,88 @@
     <div class="cancel-modal-overlay" id="cancelOrderModal">
         <div class="cancel-modal-box">
             <div class="cancel-modal-icon">!</div>
-            <h3>Bạn có chắc chắn muốn hủy đơn không?</h3>
-            <p id="cancelOrderMessage">Đơn hàng sau khi hủy sẽ chuyển sang mục Cancelled Orders. Bạn vẫn có thể đặt lại đơn này sau.</p>
+            <h3>Vì sao bạn muốn hủy đơn?</h3>
+            <p id="cancelOrderMessage">Vui lòng chọn một lý do hủy đơn. Đơn sau khi hủy sẽ chuyển sang mục Cancelled Orders và bạn có thể đặt lại sau.</p>
+
+            <div class="cancel-reason-title">Chọn lý do hủy</div>
+            <div class="cancel-reason-list" id="cancelReasonList">
+                <label class="cancel-reason-option">
+                    <input type="radio" name="cancelReason" value="Tôi muốn đổi địa chỉ giao hàng">
+                    <span class="cancel-reason-check"></span>
+                    <span class="cancel-reason-text">Tôi muốn đổi địa chỉ giao hàng</span>
+                </label>
+                <label class="cancel-reason-option">
+                    <input type="radio" name="cancelReason" value="Tôi tìm thấy giá rẻ hơn ở nơi khác">
+                    <span class="cancel-reason-check"></span>
+                    <span class="cancel-reason-text">Tôi tìm thấy giá rẻ hơn ở nơi khác</span>
+                </label>
+                <label class="cancel-reason-option">
+                    <input type="radio" name="cancelReason" value="Tôi không muốn đặt sản phẩm này nữa">
+                    <span class="cancel-reason-check"></span>
+                    <span class="cancel-reason-text">Tôi không muốn đặt sản phẩm này nữa</span>
+                </label>
+                <label class="cancel-reason-option">
+                    <input type="radio" name="cancelReason" value="Tôi đặt nhầm sản phẩm, màu hoặc size">
+                    <span class="cancel-reason-check"></span>
+                    <span class="cancel-reason-text">Tôi đặt nhầm sản phẩm, màu hoặc size</span>
+                </label>
+                <label class="cancel-reason-option">
+                    <input type="radio" name="cancelReason" value="Tôi muốn thay đổi sản phẩm trong đơn hàng">
+                    <span class="cancel-reason-check"></span>
+                    <span class="cancel-reason-text">Tôi muốn thay đổi sản phẩm trong đơn hàng</span>
+                </label>
+                <label class="cancel-reason-option">
+                    <input type="radio" name="cancelReason" value="Thời gian giao hàng dự kiến quá lâu">
+                    <span class="cancel-reason-check"></span>
+                    <span class="cancel-reason-text">Thời gian giao hàng dự kiến quá lâu</span>
+                </label>
+                <label class="cancel-reason-option">
+                    <input type="radio" name="cancelReason" value="Phí vận chuyển cao">
+                    <span class="cancel-reason-check"></span>
+                    <span class="cancel-reason-text">Phí vận chuyển cao</span>
+                </label>
+                <label class="cancel-reason-option">
+                    <input type="radio" name="cancelReason" value="Lý do khác">
+                    <span class="cancel-reason-check"></span>
+                    <span class="cancel-reason-text">Lý do khác</span>
+                </label>
+            </div>
+
+            <textarea id="cancelReasonOther" class="cancel-reason-other" placeholder="Nhập lý do khác nếu bạn muốn ghi chú thêm..."></textarea>
+            <div id="cancelReasonError" class="cancel-reason-error">Vui lòng chọn lý do hủy đơn trước khi xác nhận.</div>
+
             <div class="cancel-modal-actions">
-                <button class="btn-modal-light" onclick="closeCancelOrderModal()">Không</button>
-                <button class="btn-modal-danger" onclick="confirmCancelOrder()">Đồng ý hủy</button>
+                <button class="btn-modal-light" onclick="closeCancelOrderModal()">Không hủy nữa</button>
+                <button class="btn-modal-danger" onclick="confirmCancelOrder()">Xác nhận hủy đơn</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="order-address-modal-overlay" id="orderAddressModal">
+        <div class="order-address-modal-box">
+            <h3>Thay đổi địa chỉ đặt hàng</h3>
+            <p id="orderAddressModalMessage">Cập nhật thông tin giao hàng cho đơn đang chọn.</p>
+            <div class="order-address-form-grid">
+                <div class="order-address-field">
+                    <label for="orderEditName">Người nhận</label>
+                    <input type="text" id="orderEditName" placeholder="Tên người nhận">
+                </div>
+                <div class="order-address-field">
+                    <label for="orderEditPhone">Số điện thoại</label>
+                    <input type="text" id="orderEditPhone" placeholder="Số điện thoại">
+                </div>
+                <div class="order-address-field full-row">
+                    <label>Email nhận thông báo</label>
+                    <input type="email" id="orderEditEmail" readonly placeholder="Email của đơn hàng">
+                </div>
+                <div class="order-address-field full-row">
+                    <label for="orderEditAddress">Địa chỉ giao hàng mới</label>
+                    <textarea id="orderEditAddress" placeholder="Nhập địa chỉ giao hàng mới"></textarea>
+                </div>
+            </div>
+            <div class="order-address-actions">
+                <button class="btn-modal-light" type="button" onclick="closeOrderAddressModal()">Đóng</button>
+                <button class="btn-modal-danger" type="button" onclick="saveOrderAddressChange()">Lưu địa chỉ</button>
             </div>
         </div>
     </div>
@@ -471,6 +598,7 @@
             }
         }
         let pendingCancelOrderId = '';
+        let pendingEditAddressOrderId = '';
         let cachedAccountOrders = [];
         let cachedCancelledOrders = [];
         // Chặn lỗi hiển thị trùng đơn khi renderOrdersData bị gọi nhiều lần gần như cùng lúc
@@ -537,6 +665,7 @@
         }
 
         recoverCurrentUserEmail();
+        bindCancelReasonEvents();
         syncHeaderUsername();
         renderProfileData();
         renderOrdersData();
@@ -746,12 +875,72 @@
             ].join('@@');
         }
 
+        function normalizeAccountOrderForDisplay(order) {
+            return window.StyleHubOrders && StyleHubOrders.normalizeOrder ? StyleHubOrders.normalizeOrder(order) : (order || {});
+        }
+
+        function accountMoneyNumber(value) {
+            return Number(String(value || '0').replace(/[^\d]/g, '')) || 0;
+        }
+
+        function getAccountOrderProducts(order) {
+            const safeOrder = order || {};
+            const raw = safeOrder.orderedProductsList || safeOrder.items || safeOrder.products || safeOrder.cart || safeOrder.cartItems || safeOrder.orderItems || [];
+            if (!Array.isArray(raw)) return [];
+            return raw.filter(Boolean);
+        }
+
+        function getAccountOrderRichScore(order) {
+            const normalized = normalizeAccountOrderForDisplay(order);
+            const customer = (normalized && normalized.userInfo) || {};
+            let score = 0;
+            score += getAccountOrderProducts(normalized).length * 10;
+            if (accountMoneyNumber(normalized.totalPriceFormatted || normalized.totalPrice) > 0) score += 8;
+            if (String(normalized.orderDate || normalized.date || '').trim()) score += 4;
+            if (String(customer.name || normalized.customerName || '').trim()) score += 2;
+            if (String(customer.phone || normalized.customerPhone || '').trim()) score += 2;
+            if (String(customer.email || normalized.customerEmail || normalized.userEmail || '').trim()) score += 2;
+            if (String(customer.address || normalized.customerAddress || normalized.shippingAddress || '').trim()) score += 2;
+            return score;
+        }
+
+        function mergeAccountOrderRecords(oldOrder, newOrder) {
+            const a = normalizeAccountOrderForDisplay(oldOrder);
+            const b = normalizeAccountOrderForDisplay(newOrder);
+            const richer = getAccountOrderRichScore(b) >= getAccountOrderRichScore(a) ? b : a;
+            const latest = Number(b.updatedAt || b.createdAt || 0) >= Number(a.updatedAt || a.createdAt || 0) ? b : a;
+            const productsA = getAccountOrderProducts(a);
+            const productsB = getAccountOrderProducts(b);
+            const bestProducts = productsB.length >= productsA.length ? productsB : productsA;
+            const customerA = (a && a.userInfo) || {};
+            const customerB = (b && b.userInfo) || {};
+            const mergedCustomer = Object.assign({}, customerA, customerB);
+            const totalA = a.totalPriceFormatted || a.totalPrice || '';
+            const totalB = b.totalPriceFormatted || b.totalPrice || '';
+            const bestTotal = accountMoneyNumber(totalB) > 0 ? totalB : totalA;
+            const bestDate = String(latest.orderDate || latest.date || '').trim()
+                ? (latest.orderDate || latest.date)
+                : (richer.orderDate || richer.date || a.orderDate || a.date || b.orderDate || b.date || '');
+
+            return normalizeAccountOrderForDisplay(Object.assign({}, richer, latest, {
+                orderId: latest.orderId || richer.orderId || a.orderId || b.orderId,
+                orderDate: bestDate,
+                date: bestDate,
+                userInfo: mergedCustomer,
+                userEmail: latest.userEmail || richer.userEmail || mergedCustomer.accountEmail || mergedCustomer.email || a.userEmail || b.userEmail,
+                customerEmail: latest.customerEmail || richer.customerEmail || mergedCustomer.email || a.customerEmail || b.customerEmail,
+                shippingEmail: latest.shippingEmail || richer.shippingEmail || mergedCustomer.email || a.shippingEmail || b.shippingEmail,
+                orderedProductsList: bestProducts,
+                totalPriceFormatted: bestTotal || richer.totalPriceFormatted || latest.totalPriceFormatted || '0 ₫'
+            }));
+        }
+
         function dedupeAccountOrders(orders) {
             const map = new Map();
 
             (orders || []).forEach(function(order) {
                 if (!order) return;
-                const normalized = window.StyleHubOrders && StyleHubOrders.normalizeOrder ? StyleHubOrders.normalizeOrder(order) : order;
+                const normalized = normalizeAccountOrderForDisplay(order);
                 const key = getOrderDedupeKey(normalized) || JSON.stringify(normalized);
 
                 if (!map.has(key)) {
@@ -759,17 +948,9 @@
                     return;
                 }
 
-                const oldOrder = map.get(key);
-
-                // Ưu tiên bản có status mới hơn / có dữ liệu đầy đủ hơn.
-                const oldTime = Number(oldOrder.updatedAt || oldOrder.createdAt || 0);
-                const newTime = Number(normalized.updatedAt || normalized.createdAt || 0);
-                const oldProducts = ((oldOrder.orderedProductsList || []).length);
-                const newProducts = ((normalized.orderedProductsList || []).length);
-
-                if (newTime > oldTime || newProducts > oldProducts) {
-                    map.set(key, normalized);
-                }
+                // Không được chọn bản Firebase mới hơn nhưng thiếu sản phẩm.
+                // Phải merge để giữ sản phẩm/tổng tiền/ngày từ local và giữ status/địa chỉ mới nhất từ cloud.
+                map.set(key, mergeAccountOrderRecords(map.get(key), normalized));
             });
 
             return Array.from(map.values()).sort(function(a, b) {
@@ -805,6 +986,9 @@
             const email = getCurrentUserEmail();
             const currentName = String(localStorage.getItem('hub_name') || '').trim().toLowerCase();
             let cloudOrders = [];
+            let matchedCloudByEmail = [];
+            let matchedCloudByName = [];
+            let matchedDirectEmail = [];
 
             try {
                 if (window.StyleHubOrders && typeof StyleHubOrders.getAllOrders === 'function') {
@@ -815,26 +999,13 @@
             }
 
             if (email && cloudOrders.length > 0) {
-                const matchedByEmail = cloudOrders.filter(order => getOrderOwnerEmail(order) === email);
-                matchedByEmail.forEach(order => {
-                    const normalized = window.StyleHubOrders && StyleHubOrders.normalizeOrder ? StyleHubOrders.normalizeOrder(order) : order;
-                    if (normalized && normalized.orderId) {
-                        const key = `hub_orders_${email}`;
-                        const existing = safeParseOrders(key);
-                        const idx = existing.findIndex(item => item && item.orderId === normalized.orderId);
-                        if (idx >= 0) existing[idx] = normalized;
-                        else existing.unshift(normalized);
-                        localStorage.setItem(key, JSON.stringify(existing));
-                    }
-                });
-                if (matchedByEmail.length > 0) return dedupeAccountOrders(matchedByEmail);
+                matchedCloudByEmail = cloudOrders.filter(order => getOrderOwnerEmail(order) === email);
             }
 
             if (email) {
                 try {
                     if (window.StyleHubOrders && typeof StyleHubOrders.getOrdersByEmail === 'function') {
-                        const matched = await StyleHubOrders.getOrdersByEmail(email);
-                        if (matched.length > 0) return dedupeAccountOrders(matched);
+                        matchedDirectEmail = await StyleHubOrders.getOrdersByEmail(email);
                     }
                 } catch (error) {
                     console.error('Không lấy được đơn hàng cloud theo email, dùng dữ liệu trên máy:', error);
@@ -843,37 +1014,49 @@
 
             // Nếu email bị mất sau khi đăng xuất/đăng nhập lại, dò đơn theo tên khách.
             if (currentName && cloudOrders.length > 0) {
-                const matchedByName = cloudOrders.filter(order => getOrderCustomerName(order) === currentName);
-                const firstEmail = matchedByName.map(getOrderOwnerEmail).find(Boolean);
+                matchedCloudByName = cloudOrders.filter(order => getOrderCustomerName(order) === currentName);
+                const firstEmail = matchedCloudByName.map(getOrderOwnerEmail).find(Boolean);
                 if (firstEmail && !email) {
                     localStorage.setItem('hub_email', firstEmail);
                     localStorage.setItem('hub_current_user_key', firstEmail);
                     rememberAccountEmailForName(localStorage.getItem('hub_name'), firstEmail);
                 }
-                if (matchedByName.length > 0) return dedupeAccountOrders(matchedByName);
             }
 
+            const resolvedEmail = email || String(localStorage.getItem('hub_current_user_key') || localStorage.getItem('hub_email') || '').trim().toLowerCase();
             const userNameKey = `hub_orders_${normalizeAccountKey(localStorage.getItem('hub_name') || '')}`;
-            const perUserKey = email ? `hub_orders_${email}` : '';
+            const perUserKey = resolvedEmail ? `hub_orders_${resolvedEmail}` : '';
             const perUserOrders = perUserKey ? safeParseOrders(perUserKey) : [];
             const nameKeyOrders = safeParseOrders(userNameKey);
             const globalOrders = safeParseOrders('hub_orders').filter(order => {
-                if (email && getOrderOwnerEmail(order) === email) return true;
+                if (resolvedEmail && getOrderOwnerEmail(order) === resolvedEmail) return true;
                 if (currentName && getOrderCustomerName(order) === currentName) return true;
                 return false;
             });
 
-            const merged = [...perUserOrders, ...nameKeyOrders, ...globalOrders];
-            const orderMap = new Map();
+            // Quan trọng: luôn merge cloud + local. Không được return cloud sớm,
+            // vì cloud có thể chỉ là bản patch đổi địa chỉ/status và thiếu sản phẩm/tổng tiền.
+            const merged = [
+                ...perUserOrders,
+                ...nameKeyOrders,
+                ...globalOrders,
+                ...matchedCloudByEmail,
+                ...matchedDirectEmail,
+                ...matchedCloudByName
+            ];
 
-            merged.forEach(order => {
-                if (!order) return;
-                const normalized = window.StyleHubOrders && StyleHubOrders.normalizeOrder ? StyleHubOrders.normalizeOrder(order) : order;
-                const key = normalized.orderId || JSON.stringify(normalized);
-                orderMap.set(key, normalized);
-            });
+            const cleaned = dedupeAccountOrders(merged);
 
-            return dedupeAccountOrders(Array.from(orderMap.values()));
+            // Lưu lại bản đã merge đủ dữ liệu vào local để lần sau không còn card trống.
+            if (resolvedEmail && cleaned.length) {
+                try {
+                    localStorage.setItem(`hub_orders_${resolvedEmail}`, JSON.stringify(cleaned));
+                } catch (error) {
+                    console.warn('Không thể lưu lại đơn đã merge:', error);
+                }
+            }
+
+            return cleaned;
         }
 
         function normalizeStatusText(status) {
@@ -888,6 +1071,7 @@
         function canCancelOrder(order) {
             const status = normalizeStatusText(order && order.status);
             if (isCancelledStatus(status)) return false;
+            if (isShippingOrder(order)) return false;
             if (status.includes('đã nhận') || status.includes('hoàn thành') || status.includes('đã giao xong')) return false;
             return true;
         }
@@ -895,8 +1079,8 @@
         function getAccountStatusClass(status) {
             const normalizedStatus = normalizeStatusText(status);
             if (isCancelledStatus(normalizedStatus)) return 'order-status-cancelled';
-            if (normalizedStatus.includes('giao')) return 'order-status-shipping';
-            if (normalizedStatus.includes('nhận') || normalizedStatus.includes('hoàn')) return 'order-status-done';
+            if (isCompletedStatus(normalizedStatus)) return 'order-status-done';
+            if (isShippingStatus(normalizedStatus)) return 'order-status-shipping';
             return 'order-status-pending';
         }
 
@@ -922,8 +1106,9 @@
             accountOrdersRenderBusy = true;
 
             const activeContainer = document.getElementById('injectOrdersContainer');
+            const shippingContainer = document.getElementById('injectShippingOrdersContainer');
             const cancelledContainer = document.getElementById('injectCancelledOrdersContainer');
-            if (!activeContainer || !cancelledContainer) return;
+            if (!activeContainer || !shippingContainer || !cancelledContainer) return;
 
             cleanDuplicateOrdersInLocalStorageForCurrentUser();
 
@@ -934,33 +1119,145 @@
             if (renderToken !== accountOrdersRenderToken) return;
 
             cachedAccountOrders = dedupeAccountOrders(Array.isArray(ordersList) ? ordersList : []);
-            const activeOrders = dedupeAccountOrders(cachedAccountOrders.filter(order => !isCancelledStatus(order.status)));
+            const notCancelledOrders = dedupeAccountOrders(cachedAccountOrders.filter(order => !isCancelledStatus(order.status)));
+            const shippingOrders = dedupeAccountOrders(notCancelledOrders.filter(order => isShippingOrder(order)));
+            const activeOrders = dedupeAccountOrders(notCancelledOrders.filter(order => !isShippingOrder(order)));
             const cancelledOrders = dedupeAccountOrders(cachedAccountOrders.filter(order => isCancelledStatus(order.status)));
             cachedCancelledOrders = cancelledOrders;
 
             activeContainer.innerHTML = '';
+            shippingContainer.innerHTML = '';
             cancelledContainer.innerHTML = '';
-            renderActiveOrders(activeContainer, activeOrders);
+            renderActiveOrders(activeContainer, activeOrders, 'history');
+            renderActiveOrders(shippingContainer, shippingOrders, 'shipping');
             renderCancelledOrders(cancelledContainer, cancelledOrders);
             accountOrdersRenderBusy = false;
         }
 
+        function getOrderProductImageUrl(item) {
+            const safeItem = item || {};
+            const directImage = safeItem.mainImg || safeItem.image || safeItem.img || safeItem.imageUrl || safeItem.productImage || safeItem.thumbnail || safeItem.thumb;
+            if (directImage) return String(directImage);
+
+            const productKey = String(safeItem.key || safeItem.id || safeItem.productKey || safeItem.productId || '').trim();
+            if (productKey && window.database && window.database[productKey]) {
+                const product = window.database[productKey];
+                return String(product.mainImg || (Array.isArray(product.images) && product.images[0]) || '');
+            }
+
+            const itemName = String(safeItem.name || safeItem.productName || safeItem.title || '').trim().toLowerCase();
+            if (itemName && window.database) {
+                const matchedProduct = Object.values(window.database).find(function(product) {
+                    return String(product && product.name || '').trim().toLowerCase() === itemName;
+                });
+                if (matchedProduct) {
+                    return String(matchedProduct.mainImg || (Array.isArray(matchedProduct.images) && matchedProduct.images[0]) || '');
+                }
+            }
+
+            return '';
+        }
+
         function buildProductsHTML(order) {
             let productsHTML = '';
-            (order.orderedProductsList || []).forEach(item => {
+            const normalized = normalizeAccountOrderForDisplay(order || {});
+            const products = getAccountOrderProducts(normalized);
+            products.forEach(item => {
+                const productName = item.name || item.productName || item.title || 'Sản phẩm';
+                const productSize = item.size || item.selectedSize || '-';
+                const productQty = item.qty || item.quantity || item.count || 1;
+                const productImage = getOrderProductImageUrl(item);
+                const imageHTML = productImage
+                    ? `<img class="order-product-thumb" src="${escapeAccountHtml(productImage)}" alt="${escapeAccountHtml(productName)}" onerror="this.outerHTML='<span class=&quot;order-product-thumb order-product-thumb-empty&quot;>TSH</span>'">`
+                    : `<span class="order-product-thumb order-product-thumb-empty">TSH</span>`;
+
                 productsHTML += `
                     <div class="order-product-row">
-                        <span>• ${escapeAccountHtml(item.name || 'Sản phẩm')} (Size: ${escapeAccountHtml(item.size || '-')})</span>
-                        <strong>x${escapeAccountHtml(item.qty || item.quantity || 1)}</strong>
+                        <div class="order-product-main">
+                            ${imageHTML}
+                            <div class="order-product-text">
+                                <span class="order-product-name">${escapeAccountHtml(productName)}</span>
+                                <span class="order-product-size">Size ${escapeAccountHtml(productSize)}</span>
+                            </div>
+                        </div>
+                        <strong class="order-product-qty">x${escapeAccountHtml(productQty)}</strong>
                     </div>
                 `;
             });
             return productsHTML || '<p style="font-size:13px;color:#888;">Không có dữ liệu sản phẩm.</p>';
         }
 
-        function renderActiveOrders(container, ordersList) {
+
+        function buildCancelReasonHTML(order) {
+            const reason = order && (order.cancelReason || order.cancellationReason || order.cancel_reason || '');
+            const note = order && (order.cancelReasonNote || order.cancellationNote || order.cancel_note || '');
+            if (!reason && !note) return '';
+            return `
+                <div style="font-size: 12px; color: #555; background: #fafafa; border: 1px solid #eeeeee; padding: 10px 12px; margin: 10px 0 12px; line-height: 1.5;">
+                    <strong style="color:#111;">Lý do hủy:</strong> ${escapeAccountHtml(reason || 'Không ghi rõ')}
+                    ${note ? `<br><strong style="color:#111;">Ghi chú:</strong> ${escapeAccountHtml(note)}` : ''}
+                </div>
+            `;
+        }
+
+        function getOrderCustomerInfoDisplay(order) {
+            const info = (order && order.userInfo) || {};
+            return {
+                name: String(info.name || order.customerName || order.name || 'Chưa cập nhật').trim(),
+                phone: String(info.phone || order.customerPhone || order.phone || 'Chưa cập nhật').trim(),
+                email: String(info.email || order.shippingEmail || order.customerEmail || order.userEmail || order.email || 'Chưa cập nhật').trim(),
+                address: String(info.address || order.customerAddress || order.shippingAddress || order.address || 'Chưa cập nhật địa chỉ').trim()
+            };
+        }
+
+        function buildCustomerInfoHTML(order) {
+            const customer = getOrderCustomerInfoDisplay(order || {});
+            return `
+                <div class="order-customer-box">
+                    <div class="order-customer-grid">
+                        <div><strong>Người đặt:</strong> ${escapeAccountHtml(customer.name)}</div>
+                        <div><strong>SĐT:</strong> ${escapeAccountHtml(customer.phone)}</div>
+                        <div><strong>Email:</strong> ${escapeAccountHtml(customer.email)}</div>
+                        <div class="order-customer-address"><strong>Địa chỉ:</strong> ${escapeAccountHtml(customer.address)}</div>
+                    </div>
+                </div>
+            `;
+        }
+
+        function isCompletedStatus(status) {
+            const normalizedStatus = normalizeStatusText(status);
+            return normalizedStatus.includes('đã nhận') || normalizedStatus.includes('hoàn thành') || normalizedStatus.includes('đã giao') || normalizedStatus.includes('giao xong');
+        }
+
+        function isShippingStatus(status) {
+            const normalizedStatus = normalizeStatusText(status);
+            if (isCancelledStatus(normalizedStatus) || isCompletedStatus(normalizedStatus)) return false;
+            return normalizedStatus.includes('đang giao') ||
+                   normalizedStatus.includes('dang giao') ||
+                   normalizedStatus.includes('shipping') ||
+                   normalizedStatus.includes('in transit') ||
+                   normalizedStatus.includes('delivering');
+        }
+
+        function isShippingOrder(order) {
+            const statusKey = String(order && (order.statusKey || order.status_key || order.orderStatusKey) || '').trim().toLowerCase();
+            if (statusKey === 'shipping') return true;
+            return isShippingStatus(order && (order.status || order.orderStatus));
+        }
+
+        function canEditOrderAddress(order) {
+            const status = normalizeStatusText(order && order.status);
+            if (isCancelledStatus(status) || isCompletedStatus(status)) return false;
+            if (isShippingOrder(order)) return false;
+            return true;
+        }
+
+        function renderActiveOrders(container, ordersList, listType) {
             if(ordersList.length === 0) {
-                container.innerHTML = `<p style="font-size: 13px; color: #888; text-align: center; padding: 40px 0;">You haven't placed any active orders yet.</p>`;
+                const emptyText = listType === 'shipping'
+                    ? 'You do not have any shipping orders yet.'
+                    : 'You haven\'t placed any active orders yet.';
+                container.innerHTML = `<p style="font-size: 13px; color: #888; text-align: center; padding: 40px 0;">${emptyText}</p>`;
                 return;
             }
 
@@ -977,8 +1274,15 @@
                 const statusClass = getAccountStatusClass(status);
                 const orderDate = order.orderDate || order.date || '';
                 const orderId = order.orderId || 'N/A';
-                const cancelButton = canCancelOrder(order)
+                const isShippingList = listType === 'shipping' || isShippingOrder(order);
+                const cancelButton = (!isShippingList && canCancelOrder(order))
                     ? `<button class="btn-order-action btn-cancel-order" onclick="requestCancelOrder('${escapeAccountHtml(orderId)}')">Hủy đơn</button>`
+                    : '';
+                const addressButton = (!isShippingList && canEditOrderAddress(order))
+                    ? `<button class="btn-order-action btn-edit-address" onclick="openOrderAddressModal('${escapeAccountHtml(orderId)}')">Đổi địa chỉ</button>`
+                    : '';
+                const shippingLockedNote = isShippingList
+                    ? `<div style="font-size:12px;color:#777;text-align:right;margin-top:12px;letter-spacing:.4px;">Đơn đang giao nên không thể đổi địa chỉ hoặc hủy đơn.</div>`
                     : '';
 
                 card.innerHTML = `
@@ -987,12 +1291,13 @@
                         <span class="order-status-badge ${statusClass}">${escapeAccountHtml(status)}</span>
                     </div>
                     <div style="font-size: 12px; color: #888; margin-bottom: 12px;">Date: ${escapeAccountHtml(orderDate)}</div>
+                    ${buildCustomerInfoHTML(order)}
                     <div class="order-products-body">${buildProductsHTML(order)}</div>
                     <div class="order-card-bottom">
                         <span>Total Price:</span>
                         <span>${escapeAccountHtml(order.totalPriceFormatted || order.totalPrice || '')}</span>
                     </div>
-                    ${cancelButton ? `<div class="order-actions-row">${cancelButton}</div>` : ''}
+                    ${(addressButton || cancelButton) ? `<div class="order-actions-row">${addressButton}${cancelButton}</div>` : shippingLockedNote}
                 `;
                 container.appendChild(card);
             });
@@ -1035,6 +1340,8 @@
                     <div class="order-mini-note">Click vào đơn để xem chi tiết và đặt lại.</div>
                     <div class="cancelled-detail-body">
                         <div style="font-size: 12px; color: #888; margin: 12px 0;">Date: ${escapeAccountHtml(orderDate)}</div>
+                        ${buildCustomerInfoHTML(order)}
+                        ${buildCancelReasonHTML(order)}
                         <div class="order-products-body">${buildProductsHTML(order)}</div>
                         <div class="order-card-bottom">
                             <span>Total Price:</span>
@@ -1069,29 +1376,201 @@
             if (card) card.classList.toggle('expanded');
         }
 
+        function findCachedOrderById(orderId) {
+            return cachedAccountOrders.find(item => String(item && item.orderId || '') === String(orderId || '')) || null;
+        }
+
+        function openOrderAddressModal(orderId) {
+            const order = findCachedOrderById(orderId);
+            if (!order) {
+                showAccountToast('Không tìm thấy đơn hàng');
+                return;
+            }
+            if (!canEditOrderAddress(order)) {
+                showAccountToast('Đơn này không thể đổi địa chỉ nữa');
+                return;
+            }
+            const customer = getOrderCustomerInfoDisplay(order);
+            pendingEditAddressOrderId = orderId;
+            const message = document.getElementById('orderAddressModalMessage');
+            if (message) message.innerText = `Cập nhật địa chỉ giao hàng cho đơn ${orderId}.`;
+            document.getElementById('orderEditName').value = customer.name === 'Chưa cập nhật' ? '' : customer.name;
+            document.getElementById('orderEditPhone').value = customer.phone === 'Chưa cập nhật' ? '' : customer.phone;
+            document.getElementById('orderEditEmail').value = customer.email === 'Chưa cập nhật' ? '' : customer.email;
+            document.getElementById('orderEditAddress').value = customer.address === 'Chưa cập nhật địa chỉ' ? '' : customer.address;
+            document.getElementById('orderAddressModal').classList.add('open');
+        }
+
+        function closeOrderAddressModal() {
+            pendingEditAddressOrderId = '';
+            const modal = document.getElementById('orderAddressModal');
+            if (modal) modal.classList.remove('open');
+        }
+
+        function updateLocalOrderAddress(orderId, patch) {
+            Object.keys(localStorage).forEach(key => {
+                if (key !== 'hub_orders' && key.indexOf('hub_orders_') !== 0) return;
+                const orders = safeParseOrders(key);
+                let changed = false;
+                const updated = orders.map(order => {
+                    if (order && order.orderId === orderId) {
+                        changed = true;
+                        const currentInfo = (order.userInfo && typeof order.userInfo === 'object') ? order.userInfo : {};
+                        const nextInfo = Object.assign({}, currentInfo, patch.userInfo || {});
+                        return Object.assign({}, order, patch, { userInfo: nextInfo, updatedAt: Date.now() });
+                    }
+                    return order;
+                });
+                if (changed) localStorage.setItem(key, JSON.stringify(updated));
+            });
+        }
+
+        async function saveOrderAddressChange() {
+            if (!pendingEditAddressOrderId) return;
+            const order = findCachedOrderById(pendingEditAddressOrderId);
+            if (!order) {
+                showAccountToast('Không tìm thấy đơn hàng');
+                return;
+            }
+            if (!canEditOrderAddress(order)) {
+                closeOrderAddressModal();
+                showAccountToast('Đơn đang giao nên không thể đổi địa chỉ');
+                renderOrdersData();
+                return;
+            }
+
+            const name = document.getElementById('orderEditName').value.trim();
+            const phone = document.getElementById('orderEditPhone').value.trim();
+            const email = document.getElementById('orderEditEmail').value.trim();
+            const address = document.getElementById('orderEditAddress').value.trim();
+
+            if (!name || !phone || !address) {
+                showAccountToast('Vui lòng nhập đầy đủ người nhận, số điện thoại và địa chỉ.');
+                return;
+            }
+
+            const oldCustomer = getOrderCustomerInfoDisplay(order);
+            const nextUserInfo = {
+                name: name,
+                phone: phone,
+                email: email || oldCustomer.email || getCurrentUserEmail(),
+                address: address
+            };
+            const patch = {
+                userInfo: nextUserInfo,
+                customerName: name,
+                customerPhone: phone,
+                customerAddress: address,
+                shippingAddress: address,
+                addressUpdatedAt: new Date().toLocaleString('vi-VN'),
+                addressUpdatedBy: 'customer'
+            };
+
+            try {
+                if (window.StyleHubOrders && typeof StyleHubOrders.updateOrderDetails === 'function') {
+                    await StyleHubOrders.updateOrderDetails(pendingEditAddressOrderId, patch);
+                } else if (window.StyleHubOrders && typeof StyleHubOrders.updateOrderStatus === 'function') {
+                    await StyleHubOrders.updateOrderStatus(pendingEditAddressOrderId, order.status || 'Đang chờ xác nhận', patch);
+                }
+                updateLocalOrderAddress(pendingEditAddressOrderId, patch);
+                closeOrderAddressModal();
+                showAccountToast('Đã cập nhật địa chỉ đơn hàng');
+                renderOrdersData();
+            } catch (error) {
+                console.error('Không thể cập nhật địa chỉ đơn hàng:', error);
+                showAccountToast('Không thể cập nhật địa chỉ, vui lòng thử lại');
+            }
+        }
+
+        function resetCancelReasonForm() {
+            document.querySelectorAll('input[name="cancelReason"]').forEach(input => { input.checked = false; });
+            const otherBox = document.getElementById('cancelReasonOther');
+            const errorBox = document.getElementById('cancelReasonError');
+            if (otherBox) {
+                otherBox.value = '';
+                otherBox.classList.remove('show');
+            }
+            if (errorBox) errorBox.classList.remove('show');
+        }
+
+        function bindCancelReasonEvents() {
+            document.querySelectorAll('input[name="cancelReason"]').forEach(input => {
+                input.addEventListener('change', function() {
+                    const otherBox = document.getElementById('cancelReasonOther');
+                    const errorBox = document.getElementById('cancelReasonError');
+                    if (errorBox) errorBox.classList.remove('show');
+                    if (!otherBox) return;
+                    if (this.value === 'Lý do khác') {
+                        otherBox.classList.add('show');
+                        setTimeout(() => otherBox.focus(), 50);
+                    } else {
+                        otherBox.classList.remove('show');
+                        otherBox.value = '';
+                    }
+                });
+            });
+        }
+
+        function getSelectedCancelReasonData() {
+            const selected = document.querySelector('input[name="cancelReason"]:checked');
+            const note = String((document.getElementById('cancelReasonOther') || {}).value || '').trim();
+            if (!selected) return null;
+            return {
+                cancelReason: selected.value,
+                cancelReasonNote: selected.value === 'Lý do khác' ? note : '',
+                cancelledBy: 'customer',
+                cancelledAt: new Date().toLocaleString('vi-VN')
+            };
+        }
+
         function requestCancelOrder(orderId) {
+            const order = findCachedOrderById(orderId);
+            if (!order) {
+                showAccountToast('Không tìm thấy đơn hàng');
+                return;
+            }
+            if (!canCancelOrder(order)) {
+                showAccountToast('Đơn đang giao nên không thể hủy đơn');
+                return;
+            }
             pendingCancelOrderId = orderId;
+            resetCancelReasonForm();
             const message = document.getElementById('cancelOrderMessage');
             if (message) {
-                message.innerText = `Bạn có chắc chắn muốn hủy đơn ${orderId}? Đơn sau khi hủy sẽ chuyển sang mục Cancelled Orders và bạn có thể đặt lại sau.`;
+                message.innerText = `Đơn ${orderId} sẽ được chuyển sang mục Cancelled Orders sau khi bạn xác nhận. Vui lòng chọn lý do hủy đơn.`;
             }
             document.getElementById('cancelOrderModal').classList.add('open');
         }
 
         function closeCancelOrderModal() {
             pendingCancelOrderId = '';
+            resetCancelReasonForm();
             document.getElementById('cancelOrderModal').classList.remove('open');
         }
 
         async function confirmCancelOrder() {
             if (!pendingCancelOrderId) return;
             const orderId = pendingCancelOrderId;
+            const order = findCachedOrderById(orderId);
+            if (!order || !canCancelOrder(order)) {
+                closeCancelOrderModal();
+                showAccountToast('Đơn đang giao nên không thể hủy đơn');
+                renderOrdersData();
+                return;
+            }
+            const cancelData = getSelectedCancelReasonData();
+            const errorBox = document.getElementById('cancelReasonError');
+
+            if (!cancelData) {
+                if (errorBox) errorBox.classList.add('show');
+                return;
+            }
+
             try {
                 if (window.StyleHubOrders && typeof StyleHubOrders.updateOrderStatus === 'function') {
-                    await StyleHubOrders.updateOrderStatus(orderId, 'Đã hủy');
-                } else {
-                    updateLocalOrderStatus(orderId, 'Đã hủy');
+                    await StyleHubOrders.updateOrderStatus(orderId, 'Đã hủy', cancelData);
                 }
+                updateLocalOrderStatus(orderId, 'Đã hủy', cancelData);
                 closeCancelOrderModal();
                 showAccountToast('Đã hủy đơn hàng');
                 renderOrdersData();
@@ -1101,7 +1580,7 @@
             }
         }
 
-        function updateLocalOrderStatus(orderId, status) {
+        function updateLocalOrderStatus(orderId, status, extraData) {
             Object.keys(localStorage).forEach(key => {
                 if (key !== 'hub_orders' && key.indexOf('hub_orders_') !== 0) return;
                 const orders = safeParseOrders(key);
@@ -1109,7 +1588,7 @@
                 const updated = orders.map(order => {
                     if (order && order.orderId === orderId) {
                         changed = true;
-                        return Object.assign({}, order, { status: status, cancelledAt: new Date().toLocaleString('vi-VN'), updatedAt: Date.now() });
+                        return Object.assign({}, order, extraData || {}, { status: status, cancelledAt: (extraData && extraData.cancelledAt) || new Date().toLocaleString('vi-VN'), updatedAt: Date.now() });
                     }
                     return order;
                 });

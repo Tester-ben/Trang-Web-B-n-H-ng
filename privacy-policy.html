@@ -121,6 +121,380 @@
 /* ===== END FOOTER SOCIAL 3 ICONS LEFT ALIGN FINAL ===== */
 </style>
 
+
+<style>
+/* ===== THE STYLE HUB POLICY PAGES - SUBTLE TONE EFFECTS ===== */
+:root {
+    --tsh-ink: #151515;
+    --tsh-muted: #696969;
+    --tsh-line: #e9e2d8;
+    --tsh-cream: #faf7f1;
+    --tsh-cream-2: #f3eadf;
+    --tsh-gold: #b79867;
+    --tsh-gold-dark: #8b6a3e;
+}
+
+body {
+    background:
+        radial-gradient(circle at 12% 8%, rgba(183, 152, 103, 0.13), transparent 28%),
+        linear-gradient(180deg, #fff 0%, #fbf8f2 38%, #fff 100%);
+}
+
+.policy-page-wrapper.policy-upgraded {
+    max-width: 1320px;
+    margin: 0 auto;
+    padding: 92px 48px 110px;
+    color: var(--tsh-ink);
+}
+
+.policy-hero {
+    position: relative;
+    display: grid;
+    grid-template-columns: minmax(0, 1.05fr) minmax(320px, 0.65fr);
+    gap: 48px;
+    align-items: stretch;
+    padding: 54px 56px;
+    border: 1px solid var(--tsh-line);
+    background:
+        linear-gradient(135deg, rgba(255,255,255,.98), rgba(250,247,241,.92)),
+        repeating-linear-gradient(90deg, rgba(21,21,21,.035) 0 1px, transparent 1px 46px),
+        repeating-linear-gradient(0deg, rgba(21,21,21,.03) 0 1px, transparent 1px 46px);
+    box-shadow: 0 28px 80px rgba(21,21,21,.08);
+    overflow: hidden;
+}
+
+.policy-hero::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 8px;
+    height: 100%;
+    background: linear-gradient(180deg, var(--tsh-gold), var(--tsh-ink));
+}
+
+.policy-eyebrow {
+    display: inline-flex;
+    align-items: center;
+    gap: 14px;
+    margin-bottom: 22px;
+    color: var(--tsh-gold-dark);
+    font-size: 13px;
+    font-weight: 800;
+    letter-spacing: 7px;
+    text-transform: uppercase;
+}
+
+.policy-eyebrow::before {
+    content: "";
+    display: block;
+    width: 62px;
+    height: 1px;
+    background: var(--tsh-gold);
+}
+
+.policy-hero h1 {
+    margin: 0;
+    font-size: clamp(42px, 5.6vw, 78px);
+    line-height: .98;
+    letter-spacing: 11px;
+    text-transform: uppercase;
+    font-weight: 800;
+}
+
+.policy-hero p {
+    margin: 24px 0 0;
+    max-width: 760px;
+    color: var(--tsh-muted);
+    font-size: 18px;
+    line-height: 1.9;
+}
+
+.policy-hero-card {
+    border: 1px solid rgba(183, 152, 103, .42);
+    background: rgba(255,255,255,.78);
+    padding: 34px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    box-shadow: 0 18px 50px rgba(21,21,21,.06);
+}
+
+.policy-hero-card strong {
+    font-size: 15px;
+    letter-spacing: 4px;
+    text-transform: uppercase;
+    margin-bottom: 16px;
+}
+
+.policy-hero-card span {
+    color: var(--tsh-muted);
+    line-height: 1.8;
+    font-size: 16px;
+}
+
+.policy-quick-row {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 18px;
+    margin: 26px 0 70px;
+}
+
+.policy-mini-card {
+    border: 1px solid var(--tsh-line);
+    background: rgba(255,255,255,.84);
+    padding: 24px 26px;
+    transition: transform .28s ease, box-shadow .28s ease, border-color .28s ease;
+}
+
+.policy-mini-card:hover,
+.policy-card:hover,
+.policy-section:hover,
+.policy-step:hover {
+    transform: translateY(-6px);
+    border-color: rgba(183,152,103,.78);
+    box-shadow: 0 22px 58px rgba(21,21,21,.09);
+}
+
+.policy-mini-card b {
+    display: block;
+    margin-bottom: 8px;
+    font-size: 30px;
+    letter-spacing: 4px;
+}
+
+.policy-mini-card span {
+    color: var(--tsh-muted);
+    line-height: 1.7;
+}
+
+.policy-section-title {
+    display: flex;
+    align-items: center;
+    gap: 18px;
+    margin: 58px 0 24px;
+}
+
+.policy-section-title .policy-number {
+    display: inline-flex;
+    width: 46px;
+    height: 46px;
+    border: 1px solid var(--tsh-gold);
+    color: var(--tsh-gold-dark);
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    font-weight: 800;
+    letter-spacing: 1px;
+    background: #fff;
+}
+
+.policy-section-title h2,
+.policy-title h1 {
+    margin: 0;
+    font-size: clamp(25px, 2.8vw, 42px);
+    letter-spacing: 7px;
+    text-transform: uppercase;
+    font-weight: 800;
+}
+
+.policy-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 26px;
+}
+
+.policy-grid.three {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.policy-card,
+.policy-section {
+    position: relative;
+    border: 1px solid var(--tsh-line);
+    background: rgba(255,255,255,.88);
+    padding: 34px 36px;
+    box-shadow: 0 12px 36px rgba(21,21,21,.04);
+    transition: transform .28s ease, box-shadow .28s ease, border-color .28s ease;
+}
+
+.policy-card::before,
+.policy-section::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 4px;
+    background: linear-gradient(90deg, var(--tsh-gold), rgba(183,152,103,0));
+    opacity: .85;
+}
+
+.policy-card h3,
+.policy-section h2 {
+    margin: 0 0 18px;
+    font-size: 20px;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    font-weight: 800;
+}
+
+.policy-card p,
+.policy-section p,
+.policy-section li,
+.policy-card li {
+    color: var(--tsh-muted);
+    font-size: 16px;
+    line-height: 1.88;
+}
+
+.policy-section ul,
+.policy-card ul {
+    margin: 0;
+    padding-left: 20px;
+}
+
+.policy-section li,
+.policy-card li {
+    margin-bottom: 12px;
+}
+
+.policy-note {
+    border-left: 4px solid var(--tsh-gold);
+    background: linear-gradient(90deg, rgba(183,152,103,.12), rgba(255,255,255,.6));
+    padding: 16px 18px;
+    margin-top: 18px;
+    font-style: italic;
+}
+
+.policy-table-wrap {
+    overflow-x: auto;
+    border: 1px solid var(--tsh-line);
+    background: #fff;
+    box-shadow: 0 18px 46px rgba(21,21,21,.05);
+}
+
+.policy-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 0;
+}
+
+.policy-table th {
+    background: var(--tsh-cream);
+    color: var(--tsh-ink);
+    letter-spacing: 2.5px;
+    text-transform: uppercase;
+    font-size: 13px;
+    text-align: left;
+    padding: 22px;
+    border-bottom: 1px solid var(--tsh-line);
+}
+
+.policy-table td {
+    padding: 22px;
+    color: var(--tsh-muted);
+    border-bottom: 1px solid #eee8df;
+    line-height: 1.7;
+}
+
+.policy-table tr:hover td {
+    background: #fffaf2;
+}
+
+.policy-steps {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 18px;
+}
+
+.policy-step {
+    border: 1px solid var(--tsh-line);
+    background: rgba(255,255,255,.88);
+    padding: 28px;
+    transition: transform .28s ease, box-shadow .28s ease, border-color .28s ease;
+}
+
+.policy-step .step-index {
+    width: 42px;
+    height: 42px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    background: var(--tsh-ink);
+    color: #fff;
+    font-weight: 800;
+    margin-bottom: 18px;
+}
+
+.policy-step h3 {
+    margin: 0 0 12px;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+}
+
+.policy-step p {
+    color: var(--tsh-muted);
+    line-height: 1.75;
+}
+
+.policy-cta {
+    display: flex;
+    gap: 14px;
+    flex-wrap: wrap;
+    margin-top: 40px;
+}
+
+.policy-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 190px;
+    padding: 18px 28px;
+    border: 1px solid var(--tsh-ink);
+    text-decoration: none;
+    color: var(--tsh-ink);
+    font-weight: 800;
+    letter-spacing: 4px;
+    text-transform: uppercase;
+    transition: all .25s ease;
+}
+
+.policy-btn.primary {
+    background: var(--tsh-ink);
+    color: #fff;
+}
+
+.policy-btn:hover {
+    transform: translateY(-3px);
+    background: var(--tsh-gold);
+    border-color: var(--tsh-gold);
+    color: #fff;
+}
+
+.policy-fade {
+    animation: policyFadeUp .65s ease both;
+}
+
+.policy-fade.delay-1 { animation-delay: .08s; }
+.policy-fade.delay-2 { animation-delay: .16s; }
+.policy-fade.delay-3 { animation-delay: .24s; }
+
+@keyframes policyFadeUp {
+    from { opacity: 0; transform: translateY(18px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+@media (max-width: 980px) {
+    .policy-page-wrapper.policy-upgraded { padding: 72px 22px 86px; }
+    .policy-hero { grid-template-columns: 1fr; padding: 42px 30px; }
+    .policy-quick-row, .policy-grid, .policy-grid.three, .policy-steps { grid-template-columns: 1fr; }
+    .policy-hero h1 { letter-spacing: 6px; }
+}
+/* ===== END POLICY PAGES ===== */
+</style>
+
 </head>
 <body>
 
@@ -219,16 +593,49 @@
 </div>
 </header>
 <div class="home-notification-bell" data-stylehub-notification-bell></div>
-<main class="policy-page-wrapper">
-    <div class="policy-title"><h1>Chính sách bảo mật</h1></div>
-    <section class="policy-section"><h2>Chính sách bảo vệ thông tin cá nhân</h2><p>Nhằm đảm bảo an toàn cho website và bảo mật thông tin người tiêu dùng, THE STYLE HUB đưa ra chính sách bảo mật thông tin cho khách hàng cá nhân và tổ chức khi mua hàng tại website.</p><p>Chính sách này giải thích cách chúng tôi tiếp nhận, sử dụng và bảo vệ thông tin cá nhân của bạn. Chính sách cũng giải thích các phương thức thực hiện để bảo mật thông tin cá nhân của khách hàng.</p></section>
-    <section class="policy-section"><h2>Mục đích thu thập thông tin</h2><ul><li>Nắm bắt nhu cầu, mong muốn của khách hàng nhằm nâng cao chất lượng sản phẩm.</li><li>Giúp khách hàng cập nhật các chương trình khuyến mại, giảm giá sớm nhất.</li><li>Hỗ trợ khách hàng khi có khiếu nại, ý kiến hoặc yêu cầu hỗ trợ.</li></ul></section>
-    <section class="policy-section"><h2>Phạm vi thu thập thông tin</h2><ul><li>Họ và tên</li><li>Địa chỉ</li><li>Email</li><li>Số điện thoại</li><li>Nội dung cần liên hệ</li></ul></section>
-    <section class="policy-section"><h2>Phạm vi sử dụng thông tin</h2><p>Thông tin thu thập được sử dụng cho các mục đích: giao hàng, thông báo về việc giao hàng, hỗ trợ khách hàng, xử lý đơn đặt hàng và cung cấp sản phẩm thông qua website.</p><p>Ngoài ra, thông tin giao dịch gồm lịch sử mua hàng, giá trị giao dịch, phương thức vận chuyển và thanh toán cũng được lưu trữ nhằm giải quyết các vấn đề phát sinh về sau.</p></section>
-    <section class="policy-section"><h2>Cam kết bảo mật thông tin cá nhân khách hàng</h2><p>Chúng tôi cam kết không trao đổi, mua bán thông tin khách hàng vì mục đích thương mại. Mọi chia sẻ và sử dụng thông tin khách hàng đều tuân thủ chính sách bảo mật và quy định pháp luật.</p></section>
-    <section class="policy-section"><h2>Những người hoặc tổ chức có thể được tiếp cận thông tin</h2><p>Chúng tôi chỉ sử dụng thông tin khách hàng vào các việc chính đáng, được khách hàng đồng ý hoặc theo yêu cầu hợp pháp của cơ quan nhà nước có thẩm quyền.</p></section>
-    <section class="policy-section"><h2>Địa chỉ đơn vị thu thập và quản lý thông tin cá nhân</h2><p>Tên đơn vị: THE STYLE HUB</p><p>Địa chỉ trụ sở: 15 Nguyễn Huệ, P. Bến Nghé, Quận 1, TP. Hồ Chí Minh</p><p>Điện thoại: 02873066060</p></section>
-    <section class="policy-section"><h2>Phương tiện và công cụ để người dùng tiếp cận, chỉnh sửa dữ liệu</h2><p>Khách hàng có thể chỉnh sửa dữ liệu cá nhân bằng cách đăng nhập tài khoản trên website hoặc liên hệ bộ phận hỗ trợ khách hàng để được hỗ trợ.</p></section>
+<main class="policy-page-wrapper policy-upgraded">
+    <section class="policy-hero policy-fade">
+        <div>
+            <div class="policy-eyebrow">Privacy Policy</div>
+            <h1>Chính sách<br>bảo mật</h1>
+            <p>The Style Hub tôn trọng quyền riêng tư của khách hàng. Trang này giải thích cách website tiếp nhận, sử dụng, lưu trữ và bảo vệ thông tin cá nhân trong quá trình mua sắm, theo dõi đơn hàng và liên hệ hỗ trợ.</p>
+            <div class="policy-cta">
+                <a class="policy-btn primary" href="account.html">Quản lý tài khoản</a>
+                <a class="policy-btn" href="contact.html">Liên hệ hỗ trợ</a>
+            </div>
+        </div>
+        <aside class="policy-hero-card">
+            <strong>Data Protection</strong>
+            <span>Thông tin cá nhân chỉ được dùng cho mục đích xử lý đơn hàng, hỗ trợ khách hàng, giao hàng và cải thiện trải nghiệm mua sắm trên website.</span>
+        </aside>
+    </section>
+
+    <div class="policy-section-title policy-fade"><span class="policy-number">01</span><h2>Thông tin được thu thập</h2></div>
+    <section class="policy-grid policy-fade delay-1">
+        <div class="policy-card"><h3>Mục đích thu thập</h3><ul><li>Nắm bắt nhu cầu, mong muốn của khách hàng nhằm nâng cao chất lượng sản phẩm.</li><li>Giúp khách hàng cập nhật các chương trình khuyến mại, giảm giá sớm nhất.</li><li>Hỗ trợ khách hàng khi có khiếu nại, ý kiến hoặc yêu cầu hỗ trợ.</li></ul></div>
+        <div class="policy-card"><h3>Phạm vi thông tin</h3><ul><li>Họ và tên</li><li>Địa chỉ giao hàng</li><li>Email</li><li>Số điện thoại</li><li>Nội dung cần liên hệ hoặc yêu cầu hỗ trợ</li></ul></div>
+    </section>
+
+    <div class="policy-section-title policy-fade"><span class="policy-number">02</span><h2>Cách sử dụng thông tin</h2></div>
+    <section class="policy-grid policy-fade delay-1">
+        <div class="policy-card"><h3>Phạm vi sử dụng</h3><p>Thông tin thu thập được sử dụng cho các mục đích: giao hàng, thông báo về việc giao hàng, hỗ trợ khách hàng, xử lý đơn đặt hàng và cung cấp sản phẩm thông qua website.</p></div>
+        <div class="policy-card"><h3>Lịch sử giao dịch</h3><p>Thông tin giao dịch gồm lịch sử mua hàng, giá trị giao dịch, phương thức vận chuyển và thanh toán được lưu trữ nhằm giải quyết các vấn đề phát sinh về sau.</p></div>
+    </section>
+
+    <section class="policy-section policy-fade delay-2"><h2>Cam kết bảo mật thông tin cá nhân</h2><p>Chúng tôi cam kết không trao đổi, mua bán thông tin khách hàng vì mục đích thương mại. Mọi chia sẻ và sử dụng thông tin khách hàng đều tuân thủ chính sách bảo mật và quy định pháp luật.</p><p class="policy-note">Thông tin chỉ được tiếp cận khi cần xử lý đơn hàng, hỗ trợ khách hàng, theo yêu cầu hợp pháp của cơ quan có thẩm quyền hoặc khi có sự đồng ý của khách hàng.</p></section>
+
+    <div class="policy-section-title policy-fade"><span class="policy-number">03</span><h2>Quyền của khách hàng</h2></div>
+    <section class="policy-steps policy-fade delay-1">
+        <div class="policy-step"><span class="step-index">1</span><h3>Xem dữ liệu</h3><p>Đăng nhập tài khoản để xem thông tin cá nhân, địa chỉ và lịch sử đơn hàng.</p></div>
+        <div class="policy-step"><span class="step-index">2</span><h3>Chỉnh sửa</h3><p>Cập nhật thông tin giao hàng hoặc liên hệ hỗ trợ nếu cần thay đổi dữ liệu.</p></div>
+        <div class="policy-step"><span class="step-index">3</span><h3>Bảo vệ</h3><p>Không chia sẻ mật khẩu, mã đơn hoặc thông tin tài khoản cho người khác.</p></div>
+        <div class="policy-step"><span class="step-index">4</span><h3>Hỗ trợ</h3><p>Liên hệ The Style Hub khi có yêu cầu kiểm tra, chỉnh sửa hoặc khiếu nại dữ liệu.</p></div>
+    </section>
+
+    <section class="policy-grid policy-fade delay-2">
+        <div class="policy-card"><h3>Đơn vị quản lý thông tin</h3><p>Tên đơn vị: THE STYLE HUB</p><p>Địa chỉ trụ sở: 15 Nguyễn Huệ, P. Bến Nghé, Quận 1, TP. Hồ Chí Minh</p><p>Điện thoại: 02873066060</p></div>
+        <div class="policy-card"><h3>Công cụ tiếp cận dữ liệu</h3><p>Khách hàng có thể chỉnh sửa dữ liệu cá nhân bằng cách đăng nhập tài khoản trên website hoặc liên hệ bộ phận hỗ trợ khách hàng để được hỗ trợ.</p></div>
+    </section>
 </main>
 
 <script src="product-data.js?v=property-la-visible-final-20260618"></script>

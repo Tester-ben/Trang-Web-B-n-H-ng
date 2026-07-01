@@ -4,38 +4,817 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>About - The Style Hub</title>
-<link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700;900&display=swap" rel="stylesheet">
 <link href="style.css" rel="stylesheet">
 <style>
-body { font-family: Roboto, sans-serif; margin:0; color:#111; background:#fff; }
-.simple-page-header { height:57px; background:#111; color:#fff; display:flex; align-items:center; justify-content:center; letter-spacing:5px; font-weight:700; }
-.simple-page-header a { color:#fff; text-decoration:none; }
-.simple-page-wrap { max-width:980px; margin:0 auto; padding:70px 28px; line-height:1.75; }
-.simple-page-wrap h1 { font-size:28px; letter-spacing:3px; text-transform:uppercase; margin-bottom:24px; }
-.simple-page-wrap h2 { font-size:16px; letter-spacing:2px; text-transform:uppercase; margin-top:34px; }
-.simple-page-wrap p, .simple-page-wrap li { color:#444; font-size:15px; }
-.simple-page-card { border:1px solid #eee; padding:24px; margin-top:20px; }
-.simple-back { display:inline-block; margin-top:26px; color:#111; text-decoration:none; border-bottom:1px solid #111; }
+:root {
+  --tsh-black: #0d0d0d;
+  --tsh-text: #1e1e1e;
+  --tsh-muted: #6d6d6d;
+  --tsh-soft: #f7f5f1;
+  --tsh-soft-2: #fbfaf7;
+  --tsh-line: #e6e2dc;
+  --tsh-card: #ffffff;
+  --tsh-accent: #b48b5c;
+  --tsh-accent-soft: #ead9c5;
+  --tsh-cream: #fffaf2;
+  --tsh-sand: #f2ede5;
+  --tsh-shadow: 0 22px 55px rgba(56, 42, 24, .08);
+}
+
+* { box-sizing: border-box; }
+
+body {
+  font-family: Roboto, sans-serif;
+  margin: 0;
+  color: var(--tsh-text);
+  background: linear-gradient(180deg, #fff 0%, #fffaf4 48%, #fff 100%);
+}
+
+.about-header {
+  height: 64px;
+  background: var(--tsh-black);
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  letter-spacing: 8px;
+  font-weight: 900;
+  position: sticky;
+  top: 0;
+  z-index: 20;
+  border-bottom: 1px solid rgba(255,255,255,.08);
+  box-shadow: 0 10px 30px rgba(0,0,0,.08);
+}
+
+.about-header a {
+  color: #fff;
+  text-decoration: none;
+  font-size: 18px;
+}
+
+.about-header .top-back-home {
+  position: absolute;
+  left: 32px;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 11px;
+  letter-spacing: 3px;
+  font-weight: 700;
+  opacity: .78;
+  padding: 10px 14px;
+  border: 1px solid rgba(255,255,255,.28);
+  border-radius: 999px;
+  transition: opacity .25s ease, border-color .25s ease, background .25s ease, transform .25s ease;
+}
+.about-header .top-back-home:hover {
+  opacity: 1;
+  background: rgba(255,255,255,.08);
+  border-color: rgba(255,255,255,.55);
+  transform: translateY(-50%) translateX(-2px);
+}
+.about-header .top-brand {
+  color: #fff;
+  text-decoration: none;
+  font-size: 18px;
+}
+@media (max-width: 768px) {
+  .about-header { height: 68px; letter-spacing: 5px; }
+  .about-header .top-back-home {
+    left: 16px;
+    font-size: 9px;
+    letter-spacing: 1.6px;
+    padding: 8px 10px;
+  }
+}
+@media (max-width: 520px) {
+  .about-header .top-back-home { display: none; }
+}
+
+
+.about-container {
+  width: min(1180px, calc(100% - 56px));
+  margin: 0 auto;
+}
+
+.about-hero {
+  position: relative;
+  overflow: hidden;
+  background:
+    radial-gradient(circle at 84% 8%, rgba(180,139,92,.18), transparent 32%),
+    radial-gradient(circle at 10% 92%, rgba(234,217,197,.38), transparent 30%),
+    linear-gradient(135deg, #fffaf2 0%, #ffffff 58%, #f7f1e8 100%);
+  border-bottom: 1px solid var(--tsh-line);
+  padding: 88px 0 72px;
+}
+
+.about-hero::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background-image:
+    linear-gradient(rgba(13,13,13,.035) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(13,13,13,.035) 1px, transparent 1px);
+  background-size: 44px 44px;
+  mask-image: linear-gradient(90deg, transparent, #000 18%, #000 82%, transparent);
+}
+
+.about-hero > .about-container { position: relative; z-index: 1; }
+
+.hero-grid {
+  display: grid;
+  grid-template-columns: 1.12fr .88fr;
+  gap: 58px;
+  align-items: center;
+}
+
+.about-kicker {
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+  color: var(--tsh-muted);
+  font-size: 12px;
+  letter-spacing: 4px;
+  text-transform: uppercase;
+  margin-bottom: 22px;
+  font-weight: 800;
+}
+
+.about-kicker::before {
+  content: "";
+  width: 42px;
+  height: 1px;
+  background: var(--tsh-accent);
+}
+
+.about-hero h1 {
+  font-size: clamp(36px, 5vw, 68px);
+  line-height: 1.04;
+  letter-spacing: 6px;
+  text-transform: uppercase;
+  max-width: 880px;
+  margin: 0;
+  text-shadow: 0 10px 30px rgba(180,139,92,.08);
+}
+
+.about-hero p {
+  max-width: 760px;
+  margin: 26px 0 0;
+  color: #4b4b4b;
+  line-height: 1.9;
+  font-size: 17px;
+}
+
+.hero-actions {
+  display: flex;
+  gap: 14px;
+  flex-wrap: wrap;
+  margin-top: 34px;
+}
+
+.hero-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 168px;
+  height: 48px;
+  padding: 0 22px;
+  border: 1px solid #111;
+  color: #111;
+  text-decoration: none;
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  font-size: 12px;
+  font-weight: 900;
+  transition: .22s ease;
+  position: relative;
+  overflow: hidden;
+}
+
+.hero-btn::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(120deg, transparent, rgba(180,139,92,.16), transparent);
+  transform: translateX(-120%);
+  transition: .35s ease;
+}
+
+.hero-btn:hover::after { transform: translateX(120%); }
+
+.hero-btn.primary {
+  background: #111;
+  color: #fff;
+}
+
+.hero-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 12px 24px rgba(0,0,0,.08);
+}
+
+.hero-panel {
+  background: rgba(255,255,255,.88);
+  border: 1px solid var(--tsh-line);
+  padding: 34px;
+  box-shadow: var(--tsh-shadow);
+  backdrop-filter: blur(10px);
+  border-radius: 2px;
+}
+
+.hero-panel-title {
+  font-size: 13px;
+  letter-spacing: 4px;
+  text-transform: uppercase;
+  font-weight: 900;
+  margin-bottom: 24px;
+}
+
+.hero-feature {
+  display: grid;
+  grid-template-columns: 42px 1fr;
+  gap: 16px;
+  padding: 20px 0;
+  border-top: 1px solid #eee;
+}
+
+.hero-feature:first-of-type { border-top: 0; padding-top: 0; }
+.hero-feature:last-child { padding-bottom: 0; }
+
+.hero-icon {
+  width: 42px;
+  height: 42px;
+  border: 1px solid var(--tsh-accent-soft);
+  background: linear-gradient(135deg, #fff, var(--tsh-cream));
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 900;
+  color: #111;
+  box-shadow: inset 0 0 0 1px rgba(255,255,255,.8);
+}
+
+.hero-feature h3 {
+  margin: 0 0 8px;
+  font-size: 15px;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+}
+
+.hero-feature p {
+  margin: 0;
+  font-size: 14px;
+  line-height: 1.7;
+  color: var(--tsh-muted);
+}
+
+.about-section {
+  padding: 78px 0;
+}
+
+.about-section.soft {
+  background:
+    linear-gradient(180deg, #fbfaf7 0%, #fff 100%);
+  border-top: 1px solid #f0ece5;
+  border-bottom: 1px solid #f0ece5;
+}
+
+.section-head {
+  display: grid;
+  grid-template-columns: .86fr 1.14fr;
+  gap: 60px;
+  align-items: start;
+  margin-bottom: 42px;
+}
+
+.section-label {
+  color: var(--tsh-muted);
+  font-size: 12px;
+  letter-spacing: 4px;
+  text-transform: uppercase;
+  font-weight: 900;
+}
+
+.section-title {
+  margin: 12px 0 0;
+  font-size: clamp(28px, 3.2vw, 44px);
+  line-height: 1.18;
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  position: relative;
+}
+
+.section-title::after {
+  content: "";
+  display: block;
+  width: 58px;
+  height: 3px;
+  margin-top: 18px;
+  background: var(--tsh-accent);
+  opacity: .68;
+}
+
+.section-copy {
+  color: #444;
+  line-height: 1.95;
+  font-size: 16px;
+  margin: 0;
+}
+
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 16px;
+  margin-top: 36px;
+}
+
+.stat-card {
+  background: linear-gradient(180deg, #fff, #fffaf4);
+  border: 1px solid var(--tsh-line);
+  padding: 26px 24px;
+  min-height: 138px;
+  position: relative;
+  overflow: hidden;
+  transition: .22s ease;
+}
+
+.stat-card::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 3px;
+  background: linear-gradient(90deg, var(--tsh-accent), transparent);
+  opacity: .7;
+}
+
+.stat-card:hover {
+  transform: translateY(-5px);
+  box-shadow: var(--tsh-shadow);
+  border-color: var(--tsh-accent-soft);
+}
+
+.stat-card strong {
+  display: block;
+  font-size: 30px;
+  letter-spacing: 2px;
+  margin-bottom: 12px;
+}
+
+.stat-card span {
+  color: var(--tsh-muted);
+  font-size: 13px;
+  line-height: 1.65;
+}
+
+.story-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 22px;
+}
+
+.story-card,
+.value-card,
+.process-card,
+.promise-box {
+  background: #fff;
+  border: 1px solid var(--tsh-line);
+  box-shadow: 0 10px 28px rgba(25,25,25,.025);
+}
+
+.story-card {
+  padding: 34px;
+  position: relative;
+  transition: .22s ease;
+}
+
+.story-card::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 34px;
+  width: 3px;
+  height: 46px;
+  background: var(--tsh-accent);
+  opacity: .55;
+}
+
+.story-card:hover {
+  transform: translateY(-4px);
+  box-shadow: var(--tsh-shadow);
+}
+
+.story-card h3,
+.value-card h3,
+.process-card h3 {
+  margin: 0 0 14px;
+  font-size: 18px;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+}
+
+.story-card p,
+.value-card p,
+.process-card p {
+  margin: 0;
+  color: #4f4f4f;
+  line-height: 1.85;
+  font-size: 15px;
+}
+
+.values-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 18px;
+}
+
+.value-card {
+  padding: 32px 28px;
+  transition: .22s ease;
+  position: relative;
+  overflow: hidden;
+}
+
+.value-card::after {
+  content: "";
+  position: absolute;
+  right: -42px;
+  bottom: -42px;
+  width: 120px;
+  height: 120px;
+  border-radius: 50%;
+  background: rgba(180,139,92,.08);
+  transition: .22s ease;
+}
+
+.value-card:hover::after {
+  transform: scale(1.18);
+  background: rgba(180,139,92,.12);
+}
+
+.value-card:hover {
+  transform: translateY(-4px);
+  box-shadow: var(--tsh-shadow);
+  border-color: var(--tsh-accent-soft);
+}
+
+.value-number {
+  width: 44px;
+  height: 44px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, #111, #4a3a2c);
+  border: 1px solid #111;
+  color: #fff;
+  font-weight: 900;
+  margin-bottom: 22px;
+  letter-spacing: 1px;
+}
+
+.process-list {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  border: 1px solid var(--tsh-line);
+  background: #fff;
+  box-shadow: var(--tsh-shadow);
+}
+
+.process-card {
+  padding: 32px 26px;
+  border: 0;
+  border-right: 1px solid var(--tsh-line);
+  background: linear-gradient(180deg, #fff 0%, #fffaf4 100%);
+  transition: .22s ease;
+}
+
+.process-card:hover {
+  background: #fff;
+  transform: translateY(-4px);
+}
+
+.process-card:last-child { border-right: 0; }
+
+.process-step {
+  color: var(--tsh-accent);
+  font-weight: 900;
+  letter-spacing: 3px;
+  font-size: 12px;
+  margin-bottom: 20px;
+}
+
+.promise-box {
+  padding: 46px;
+  display: grid;
+  grid-template-columns: .92fr 1.08fr;
+  gap: 38px;
+  align-items: start;
+  background:
+    radial-gradient(circle at 0% 0%, rgba(180,139,92,.13), transparent 30%),
+    linear-gradient(135deg, #fff, #faf8f5);
+  box-shadow: var(--tsh-shadow);
+}
+
+.promise-box h2 {
+  margin: 0;
+  font-size: clamp(28px, 3vw, 42px);
+  line-height: 1.2;
+  letter-spacing: 4px;
+  text-transform: uppercase;
+}
+
+.promise-list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.promise-list li {
+  border-bottom: 1px solid var(--tsh-line);
+  padding: 16px 0;
+  color: #555;
+  line-height: 1.7;
+}
+
+.promise-list li:first-child { padding-top: 0; }
+.promise-list li:last-child { border-bottom: 0; padding-bottom: 0; }
+.promise-list strong { color: #111; letter-spacing: 1px; }
+
+.back-row {
+  display: flex;
+  justify-content: space-between;
+  gap: 18px;
+  align-items: center;
+  padding: 46px 0 70px;
+}
+
+.simple-back,
+.simple-home {
+  color: #111;
+  text-decoration: none;
+  border-bottom: 1px solid #111;
+  padding-bottom: 6px;
+  font-size: 15px;
+  letter-spacing: 1px;
+}
+
+.simple-home {
+  border: 1px solid #111;
+  padding: 14px 22px;
+  text-transform: uppercase;
+  letter-spacing: 3px;
+  font-size: 12px;
+  font-weight: 900;
+}
+
+
+.about-hero,
+.about-section,
+.back-row {
+  animation: tshFadeUp .55s ease both;
+}
+
+@keyframes tshFadeUp {
+  from { opacity: 0; transform: translateY(14px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@media (max-width: 900px) {
+  .about-container { width: min(100% - 32px, 1180px); }
+  .hero-grid,
+  .section-head,
+  .story-grid,
+  .promise-box { grid-template-columns: 1fr; gap: 28px; }
+  .stats-grid,
+  .values-grid { grid-template-columns: repeat(2, 1fr); }
+  .process-list { grid-template-columns: 1fr 1fr; }
+  .process-card:nth-child(2) { border-right: 0; }
+  .process-card:nth-child(1),
+  .process-card:nth-child(2) { border-bottom: 1px solid var(--tsh-line); }
+}
+
+@media (max-width: 560px) {
+  .about-header { letter-spacing: 5px; }
+  .about-hero { padding: 56px 0; }
+  .about-hero h1 { letter-spacing: 3px; }
+  .about-section { padding: 54px 0; }
+  .stats-grid,
+  .values-grid,
+  .process-list { grid-template-columns: 1fr; }
+  .process-card { border-right: 0; border-bottom: 1px solid var(--tsh-line); }
+  .process-card:last-child { border-bottom: 0; }
+  .promise-box { padding: 30px 22px; }
+  .back-row { flex-direction: column; align-items: flex-start; }
+}
 </style>
 </head>
 <body>
-<header class="simple-page-header"><a href="index.html">THE STYLE HUB</a></header>
+<header class="about-header">
+  <a class="top-back-home" href="index.html">← BACK TO HOME</a>
+  <a class="top-brand" href="index.html">THE STYLE HUB</a>
+</header>
 
-<main class="simple-page-wrap">
-<h1>About The Style Hub</h1>
-<p>The Style Hub là cửa hàng thời trang hiện đại dành cho menswear, womenswear, kidswear, shoes và các bộ sưu tập seasonal sale. Chúng tôi tập trung vào thiết kế tối giản, chất liệu dễ mặc và trải nghiệm mua sắm rõ ràng, nhanh gọn.</p>
-<div class="simple-page-card">
-<h2>Phong cách thương hiệu</h2>
-<p>Minimal, modern và dễ phối. Mỗi sản phẩm được trình bày với hình ảnh rõ ràng, thông tin size, tình trạng hàng và chính sách hỗ trợ để khách hàng dễ ra quyết định.</p>
-</div>
-<h2>Cam kết</h2>
-<ul>
-<li>Sản phẩm được hiển thị minh bạch về giá, size và tình trạng còn hàng.</li>
-<li>Thông tin giao hàng được lưu riêng theo từng tài khoản để bảo mật và tiện đặt lại.</li>
-<li>Hỗ trợ khách hàng qua hotline mua hàng, khiếu nại và bảo hành.</li>
-</ul>
-<a class="simple-back" href="index.html">← Back to Home</a>
+<section class="about-hero">
+  <div class="about-container">
+    <div class="hero-grid">
+      <div>
+        <div class="about-kicker">About Our Store</div>
+        <h1>Modern style, clear shopping experience.</h1>
+        <p>
+          The Style Hub là cửa hàng thời trang hiện đại dành cho menswear, womenswear, kidswear, shoes và seasonal sale. Chúng tôi tập trung vào phong cách dễ mặc, giao diện mua sắm rõ ràng và quy trình đặt hàng nhanh gọn để khách hàng có thể chọn đồ, kiểm tra size, xem tồn kho và theo dõi đơn thuận tiện hơn.
+        </p>
+        <div class="hero-actions">
+          <a class="hero-btn primary" href="index.html">Shop Now</a>
+          <a class="hero-btn" href="contact.html">Contact Us</a>
+        </div>
+      </div>
+
+      <aside class="hero-panel">
+        <div class="hero-panel-title">What We Focus On</div>
+        <div class="hero-feature">
+          <div class="hero-icon">01</div>
+          <div>
+            <h3>Easy to choose</h3>
+            <p>Hình ảnh, size, giá và tồn kho được hiển thị rõ để khách quyết định nhanh hơn.</p>
+          </div>
+        </div>
+        <div class="hero-feature">
+          <div class="hero-icon">02</div>
+          <div>
+            <h3>Easy to order</h3>
+            <p>Khách có thể thêm nhiều sản phẩm vào bag, chọn số lượng và đặt hàng nhanh.</p>
+          </div>
+        </div>
+        <div class="hero-feature">
+          <div class="hero-icon">03</div>
+          <div>
+            <h3>Easy to track</h3>
+            <p>Lịch sử đơn hàng, đơn đang giao và đơn đã hủy được lưu theo từng tài khoản.</p>
+          </div>
+        </div>
+      </aside>
+    </div>
+  </div>
+</section>
+
+<main>
+  <section class="about-section soft">
+    <div class="about-container">
+      <div class="section-head">
+        <div>
+          <div class="section-label">Brand Story</div>
+          <h2 class="section-title">Một điểm đến cho phong cách hằng ngày.</h2>
+        </div>
+        <p class="section-copy">
+          The Style Hub hướng đến nhóm khách hàng yêu thích sự gọn gàng, dễ phối và có tính ứng dụng cao. Mỗi danh mục sản phẩm được sắp xếp trực quan để người mua không mất nhiều thời gian tìm kiếm. Từ áo thun, hoodie, jacket, quần, đồ trẻ em đến giày dép, mọi sản phẩm đều được trình bày với thông tin rõ ràng và thao tác mua hàng dễ hiểu.
+        </p>
+      </div>
+
+      <div class="stats-grid">
+        <div class="stat-card">
+          <strong>5+</strong>
+          <span>Danh mục chính: Mens, Womens, Kids, Shoes và Sale.</span>
+        </div>
+        <div class="stat-card">
+          <strong>24/7</strong>
+          <span>Website hoạt động liên tục để khách xem sản phẩm bất cứ lúc nào.</span>
+        </div>
+        <div class="stat-card">
+          <strong>1:1</strong>
+          <span>Thông tin đơn hàng được lưu riêng theo từng tài khoản.</span>
+        </div>
+        <div class="stat-card">
+          <strong>Fast</strong>
+          <span>Quy trình đặt hàng, đổi địa chỉ và theo dõi đơn được tối ưu nhanh gọn.</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="about-section">
+    <div class="about-container">
+      <div class="story-grid">
+        <div class="story-card">
+          <h3>Phong cách thương hiệu</h3>
+          <p>
+            Tối giản, hiện đại và dễ mặc. The Style Hub ưu tiên các sản phẩm có form dáng dễ phối, màu sắc trung tính và phù hợp nhiều tình huống như đi học, đi làm, đi chơi hoặc phối đồ hằng ngày.
+          </p>
+        </div>
+        <div class="story-card">
+          <h3>Trải nghiệm mua sắm</h3>
+          <p>
+            Website được thiết kế theo hướng sạch, rõ và ít gây rối mắt. Khách hàng có thể chọn size, xem hướng dẫn size, thêm nhiều sản phẩm vào giỏ hàng, dùng mã giảm giá, đặt hàng và nhận email xác nhận đơn.
+          </p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="about-section soft">
+    <div class="about-container">
+      <div class="section-head">
+        <div>
+          <div class="section-label">Core Values</div>
+          <h2 class="section-title">Những điều The Style Hub theo đuổi.</h2>
+        </div>
+        <p class="section-copy">
+          Mục tiêu của chúng tôi là tạo ra một website bán hàng có cảm giác chuyên nghiệp, dễ dùng và đáng tin cậy. Mỗi chức năng đều phục vụ hành trình mua sắm thực tế: tìm sản phẩm, chọn đúng size, đặt đúng số lượng, nhận xác nhận và theo dõi trạng thái đơn hàng.
+        </p>
+      </div>
+
+      <div class="values-grid">
+        <div class="value-card">
+          <div class="value-number">01</div>
+          <h3>Minh bạch</h3>
+          <p>Giá bán, size, hình ảnh, số lượng tồn kho và trạng thái đơn hàng được hiển thị rõ ràng để khách dễ ra quyết định.</p>
+        </div>
+        <div class="value-card">
+          <div class="value-number">02</div>
+          <h3>Tiện lợi</h3>
+          <p>Khách hàng có thể lưu tài khoản, thêm địa chỉ, theo dõi đơn, hủy đơn khi còn cho phép và đặt lại sản phẩm nhanh chóng.</p>
+        </div>
+        <div class="value-card">
+          <div class="value-number">03</div>
+          <h3>Thẩm mỹ</h3>
+          <p>Giao diện tối giản, typography rõ ràng và bố cục nhiều khoảng thở giúp website có cảm giác hiện đại, cao cấp hơn.</p>
+        </div>
+        <div class="value-card">
+          <div class="value-number">04</div>
+          <h3>Bảo mật</h3>
+          <p>Thông tin đăng nhập, địa chỉ và lịch sử đơn hàng được tách theo từng tài khoản, tránh hiển thị nhầm thông tin giữa người dùng.</p>
+        </div>
+        <div class="value-card">
+          <div class="value-number">05</div>
+          <h3>Đồng bộ</h3>
+          <p>Đơn hàng, trạng thái giao hàng và tồn kho được thiết kế để đồng bộ giữa trang khách hàng và trang quản trị.</p>
+        </div>
+        <div class="value-card">
+          <div class="value-number">06</div>
+          <h3>Hỗ trợ</h3>
+          <p>Khách hàng có thể liên hệ qua hotline hỗ trợ mua hàng, khiếu nại và bảo hành để được xử lý nhanh hơn.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="about-section">
+    <div class="about-container">
+      <div class="section-head">
+        <div>
+          <div class="section-label">Shopping Flow</div>
+          <h2 class="section-title">Quy trình mua hàng đơn giản.</h2>
+        </div>
+        <p class="section-copy">
+          The Style Hub tập trung vào quy trình rõ ràng từ lúc khách xem sản phẩm đến khi đơn hàng được xác nhận và chuyển sang trạng thái giao hàng. Điều này giúp khách yên tâm hơn và giúp admin quản lý đơn dễ hơn.
+        </p>
+      </div>
+
+      <div class="process-list">
+        <div class="process-card">
+          <div class="process-step">STEP 01</div>
+          <h3>Chọn sản phẩm</h3>
+          <p>Xem hình ảnh, giá, mô tả, bảng size và số lượng còn hàng trước khi thêm vào giỏ.</p>
+        </div>
+        <div class="process-card">
+          <div class="process-step">STEP 02</div>
+          <h3>Đặt hàng</h3>
+          <p>Chọn size, chọn số lượng, thêm vào bag hoặc đặt ngay với thông tin giao hàng đầy đủ.</p>
+        </div>
+        <div class="process-card">
+          <div class="process-step">STEP 03</div>
+          <h3>Xác nhận</h3>
+          <p>Khách nhận thông báo đặt hàng, admin kiểm tra đơn và xác nhận xử lý trên trang quản trị.</p>
+        </div>
+        <div class="process-card">
+          <div class="process-step">STEP 04</div>
+          <h3>Theo dõi</h3>
+          <p>Đơn hàng được hiển thị trong tài khoản, có trạng thái rõ ràng như chờ xác nhận, đang giao hoặc đã hủy.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="about-section soft">
+    <div class="about-container">
+      <div class="promise-box">
+        <h2>Cam kết dành cho khách hàng.</h2>
+        <ul class="promise-list">
+          <li><strong>Sản phẩm rõ ràng:</strong> hình ảnh, giá, size và tồn kho được trình bày minh bạch.</li>
+          <li><strong>Đơn hàng dễ quản lý:</strong> khách có thể theo dõi lịch sử đơn, đơn đang giao và đơn đã hủy.</li>
+          <li><strong>Thông tin riêng tư:</strong> tài khoản nào chỉ xem dữ liệu của tài khoản đó, không dùng thông tin demo mặc định.</li>
+          <li><strong>Hỗ trợ nhanh:</strong> các kênh liên hệ được đặt sẵn để khách dễ gọi mua, khiếu nại hoặc hỏi về bảo hành.</li>
+        </ul>
+      </div>
+
+      <div class="back-row">
+        <a class="simple-back" href="index.html">← Back to Home</a>
+        <a class="simple-home" href="collections.html">View Collections</a>
+      </div>
+    </div>
+  </section>
 </main>
+
 <script src="stylehub-common.js"></script>
 </body>
 </html>

@@ -4,39 +4,894 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Contact - The Style Hub</title>
-<link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700;900&display=swap" rel="stylesheet">
 <link href="style.css" rel="stylesheet">
 <style>
-body { font-family: Roboto, sans-serif; margin:0; color:#111; background:#fff; }
-.simple-page-header { height:57px; background:#111; color:#fff; display:flex; align-items:center; justify-content:center; letter-spacing:5px; font-weight:700; }
-.simple-page-header a { color:#fff; text-decoration:none; }
-.simple-page-wrap { max-width:980px; margin:0 auto; padding:70px 28px; line-height:1.75; }
-.simple-page-wrap h1 { font-size:28px; letter-spacing:3px; text-transform:uppercase; margin-bottom:24px; }
-.simple-page-wrap h2 { font-size:16px; letter-spacing:2px; text-transform:uppercase; margin-top:34px; }
-.simple-page-wrap p, .simple-page-wrap li { color:#444; font-size:15px; }
-.simple-page-card { border:1px solid #eee; padding:24px; margin-top:20px; }
-.simple-back { display:inline-block; margin-top:26px; color:#111; text-decoration:none; border-bottom:1px solid #111; }
+:root {
+  --tsh-black: #0d0d0d;
+  --tsh-text: #1f1f1f;
+  --tsh-muted: #6f6f6f;
+  --tsh-soft: #f7f5f1;
+  --tsh-soft-2: #fbfaf7;
+  --tsh-line: #e6e2dc;
+  --tsh-card: #ffffff;
+  --tsh-accent: #b48b5c;
+  --tsh-accent-soft: #ead9c5;
+  --tsh-cream: #fffaf2;
+  --tsh-sand: #f2ede5;
+  --tsh-shadow: 0 22px 55px rgba(56, 42, 24, .08);
+}
+
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  font-family: Roboto, sans-serif;
+  color: var(--tsh-text);
+  background: linear-gradient(180deg, #fff 0%, #fffaf4 48%, #fff 100%);
+}
+
+.contact-header {
+  height: 64px;
+  background: var(--tsh-black);
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  letter-spacing: 8px;
+  font-weight: 900;
+  position: sticky;
+  top: 0;
+  z-index: 20;
+  border-bottom: 1px solid rgba(255,255,255,.08);
+  box-shadow: 0 10px 30px rgba(0,0,0,.08);
+}
+.contact-header a {
+  color: #fff;
+  text-decoration: none;
+  font-size: 18px;
+}
+
+.contact-header .top-back-home {
+  position: absolute;
+  left: 32px;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 11px;
+  letter-spacing: 3px;
+  font-weight: 700;
+  opacity: .78;
+  padding: 10px 14px;
+  border: 1px solid rgba(255,255,255,.28);
+  border-radius: 999px;
+  transition: opacity .25s ease, border-color .25s ease, background .25s ease, transform .25s ease;
+}
+.contact-header .top-back-home:hover {
+  opacity: 1;
+  background: rgba(255,255,255,.08);
+  border-color: rgba(255,255,255,.55);
+  transform: translateY(-50%) translateX(-2px);
+}
+.contact-header .top-brand {
+  color: #fff;
+  text-decoration: none;
+  font-size: 18px;
+}
+@media (max-width: 768px) {
+  .contact-header { height: 68px; letter-spacing: 5px; }
+  .contact-header .top-back-home {
+    left: 16px;
+    font-size: 9px;
+    letter-spacing: 1.6px;
+    padding: 8px 10px;
+  }
+}
+@media (max-width: 520px) {
+  .contact-header .top-back-home { display: none; }
+}
+
+
+.contact-container {
+  width: min(1180px, calc(100% - 56px));
+  margin: 0 auto;
+}
+
+.contact-hero {
+  position: relative;
+  overflow: hidden;
+  background:
+    radial-gradient(circle at 88% 8%, rgba(180,139,92,.18), transparent 31%),
+    radial-gradient(circle at 8% 92%, rgba(234,217,197,.40), transparent 30%),
+    linear-gradient(135deg, #fffaf2 0%, #ffffff 58%, #f7f1e8 100%);
+  border-bottom: 1px solid var(--tsh-line);
+  padding: 82px 0 70px;
+}
+.contact-hero::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background-image:
+    linear-gradient(rgba(13,13,13,.035) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(13,13,13,.035) 1px, transparent 1px);
+  background-size: 44px 44px;
+  mask-image: linear-gradient(90deg, transparent, #000 18%, #000 82%, transparent);
+}
+.contact-hero-inner {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  grid-template-columns: 1.08fr .92fr;
+  gap: 58px;
+  align-items: center;
+}
+.contact-kicker {
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+  color: var(--tsh-muted);
+  font-size: 12px;
+  letter-spacing: 4px;
+  text-transform: uppercase;
+  font-weight: 900;
+  margin-bottom: 22px;
+}
+.contact-kicker::before {
+  content: "";
+  width: 42px;
+  height: 1px;
+  background: var(--tsh-accent);
+}
+.contact-hero h1 {
+  margin: 0;
+  font-size: clamp(36px, 5vw, 68px);
+  line-height: 1.04;
+  letter-spacing: 6px;
+  text-transform: uppercase;
+  text-shadow: 0 10px 30px rgba(180,139,92,.08);
+}
+.contact-hero p {
+  max-width: 760px;
+  margin: 26px 0 0;
+  color: #4b4b4b;
+  font-size: 17px;
+  line-height: 1.9;
+}
+.hero-actions {
+  display: flex;
+  gap: 14px;
+  flex-wrap: wrap;
+  margin-top: 34px;
+}
+.hero-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 168px;
+  height: 48px;
+  padding: 0 22px;
+  border: 1px solid #111;
+  color: #111;
+  text-decoration: none;
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  font-size: 12px;
+  font-weight: 900;
+  transition: .22s ease;
+  position: relative;
+  overflow: hidden;
+}
+.hero-btn::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(120deg, transparent, rgba(180,139,92,.16), transparent);
+  transform: translateX(-120%);
+  transition: .35s ease;
+}
+.hero-btn:hover::after { transform: translateX(120%); }
+.hero-btn.primary {
+  background: #111;
+  color: #fff;
+}
+.hero-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 12px 24px rgba(0,0,0,.08);
+}
+.hero-summary {
+  background: rgba(255,255,255,.88);
+  border: 1px solid var(--tsh-line);
+  padding: 34px;
+  box-shadow: var(--tsh-shadow);
+  backdrop-filter: blur(10px);
+  position: relative;
+  overflow: hidden;
+}
+.hero-summary::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 3px;
+  background: linear-gradient(90deg, var(--tsh-accent), transparent);
+  opacity: .75;
+}
+.hero-summary h2 {
+  margin: 0 0 22px;
+  font-size: 18px;
+  letter-spacing: 4px;
+  text-transform: uppercase;
+}
+.summary-line {
+  display: flex;
+  justify-content: space-between;
+  gap: 18px;
+  padding: 17px 0;
+  border-top: 1px solid #eee;
+  color: #555;
+  line-height: 1.5;
+}
+.summary-line strong {
+  color: #111;
+  white-space: nowrap;
+  letter-spacing: 1px;
+}
+
+.contact-section {
+  padding: 78px 0;
+}
+.contact-section.soft {
+  background: linear-gradient(180deg, #fbfaf7 0%, #fff 100%);
+  border-top: 1px solid #f0ece5;
+  border-bottom: 1px solid #f0ece5;
+}
+.section-head {
+  display: grid;
+  grid-template-columns: .88fr 1.12fr;
+  gap: 60px;
+  align-items: start;
+  margin-bottom: 42px;
+}
+.section-label {
+  color: var(--tsh-muted);
+  font-size: 12px;
+  letter-spacing: 4px;
+  text-transform: uppercase;
+  font-weight: 900;
+}
+.section-title {
+  margin: 12px 0 0;
+  font-size: clamp(28px, 3.2vw, 44px);
+  line-height: 1.18;
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  position: relative;
+}
+.section-title::after {
+  content: "";
+  display: block;
+  width: 58px;
+  height: 3px;
+  margin-top: 18px;
+  background: var(--tsh-accent);
+  opacity: .68;
+}
+.section-copy {
+  color: #444;
+  line-height: 1.95;
+  font-size: 16px;
+  margin: 0;
+}
+
+.support-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 16px;
+}
+.support-card {
+  background: linear-gradient(180deg, #fff, #fffaf4);
+  border: 1px solid var(--tsh-line);
+  padding: 30px 24px;
+  min-height: 210px;
+  transition: .22s ease;
+  position: relative;
+  overflow: hidden;
+}
+.support-card::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 3px;
+  background: linear-gradient(90deg, var(--tsh-accent), transparent);
+  opacity: .68;
+}
+.support-card::after {
+  content: "";
+  position: absolute;
+  right: -44px;
+  bottom: -44px;
+  width: 120px;
+  height: 120px;
+  border-radius: 50%;
+  background: rgba(180,139,92,.08);
+  transition: .22s ease;
+}
+.support-card:hover::after {
+  transform: scale(1.18);
+  background: rgba(180,139,92,.12);
+}
+.support-card:hover {
+  transform: translateY(-5px);
+  box-shadow: var(--tsh-shadow);
+  border-color: var(--tsh-accent-soft);
+}
+.support-no {
+  width: 42px;
+  height: 42px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, #111, #4a3a2c);
+  color: #fff;
+  font-weight: 900;
+  letter-spacing: 1px;
+  margin-bottom: 22px;
+  position: relative;
+  z-index: 1;
+}
+.support-card h3 {
+  margin: 0 0 12px;
+  font-size: 17px;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  position: relative;
+  z-index: 1;
+}
+.support-card p {
+  margin: 0 0 16px;
+  color: #555;
+  line-height: 1.75;
+  font-size: 14px;
+  position: relative;
+  z-index: 1;
+}
+.support-card a {
+  color: #111;
+  text-decoration: none;
+  font-weight: 900;
+  letter-spacing: 1px;
+  position: relative;
+  z-index: 1;
+}
+.support-time {
+  margin-top: 10px;
+  color: var(--tsh-accent);
+  font-size: 12px;
+  font-weight: 700;
+  position: relative;
+  z-index: 1;
+}
+
+.contact-main-grid {
+  display: grid;
+  grid-template-columns: 1fr .85fr;
+  gap: 22px;
+}
+.contact-panel {
+  background: rgba(255,255,255,.94);
+  border: 1px solid var(--tsh-line);
+  padding: 38px;
+  box-shadow: 0 10px 28px rgba(25,25,25,.025);
+  transition: .22s ease;
+}
+.contact-panel:hover {
+  transform: translateY(-4px);
+  box-shadow: var(--tsh-shadow);
+  border-color: var(--tsh-accent-soft);
+}
+.contact-panel h2 {
+  margin: 0 0 18px;
+  font-size: 23px;
+  letter-spacing: 3px;
+  text-transform: uppercase;
+}
+.contact-panel h2::after {
+  content: "";
+  display: block;
+  width: 48px;
+  height: 2px;
+  margin-top: 14px;
+  background: var(--tsh-accent);
+  opacity: .65;
+}
+.contact-panel p {
+  color: #555;
+  line-height: 1.85;
+  margin: 0 0 24px;
+}
+.contact-form {
+  display: grid;
+  gap: 14px;
+}
+.form-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px;
+}
+.contact-form input,
+.contact-form textarea,
+.contact-form select {
+  width: 100%;
+  border: 1px solid #ded8cf;
+  background: #fff;
+  color: #111;
+  min-height: 48px;
+  padding: 14px 16px;
+  font-family: inherit;
+  font-size: 14px;
+  outline: none;
+  transition: .2s ease;
+}
+.contact-form textarea {
+  min-height: 132px;
+  resize: vertical;
+}
+.contact-form input:focus,
+.contact-form textarea:focus,
+.contact-form select:focus {
+  border-color: var(--tsh-accent);
+  box-shadow: 0 0 0 3px rgba(180,139,92,.12);
+}
+.form-submit {
+  height: 52px;
+  border: 0;
+  background: linear-gradient(135deg, #111, #3b3026);
+  color: #fff;
+  letter-spacing: 4px;
+  text-transform: uppercase;
+  font-weight: 900;
+  cursor: pointer;
+  transition: .22s ease;
+}
+.form-submit:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 14px 28px rgba(0,0,0,.10);
+}
+.form-note {
+  color: #888 !important;
+  font-size: 13px;
+  line-height: 1.7 !important;
+  margin: 0 !important;
+}
+
+.info-list {
+  display: grid;
+  gap: 14px;
+}
+.info-item {
+  border: 1px solid var(--tsh-line);
+  padding: 20px;
+  background: linear-gradient(180deg, #fff, #fffaf4);
+  position: relative;
+}
+.info-item::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 20px;
+  width: 3px;
+  height: 34px;
+  background: var(--tsh-accent);
+  opacity: .55;
+}
+.info-item strong {
+  display: block;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  margin-bottom: 8px;
+}
+.info-item span {
+  color: #555;
+  line-height: 1.7;
+}
+
+.store-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 18px;
+}
+.store-card {
+  border: 1px solid var(--tsh-line);
+  background: #fff;
+  padding: 32px;
+  box-shadow: 0 10px 28px rgba(25,25,25,.025);
+  transition: .22s ease;
+  position: relative;
+  overflow: hidden;
+}
+.store-card::after {
+  content: "";
+  position: absolute;
+  right: -48px;
+  bottom: -48px;
+  width: 130px;
+  height: 130px;
+  border-radius: 50%;
+  background: rgba(180,139,92,.08);
+}
+.store-card:hover {
+  transform: translateY(-4px);
+  box-shadow: var(--tsh-shadow);
+  border-color: var(--tsh-accent-soft);
+}
+.store-tag {
+  display: inline-flex;
+  padding: 8px 11px;
+  background: var(--tsh-cream);
+  border: 1px solid var(--tsh-accent-soft);
+  color: #6d5131;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  font-size: 11px;
+  font-weight: 900;
+  margin-bottom: 18px;
+}
+.store-card h3 {
+  margin: 0 0 14px;
+  font-size: 20px;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+}
+.store-card p {
+  margin: 0 0 10px;
+  color: #555;
+  line-height: 1.75;
+}
+
+.process-list {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  border: 1px solid var(--tsh-line);
+  background: #fff;
+  box-shadow: var(--tsh-shadow);
+}
+.process-card {
+  padding: 32px 26px;
+  border-right: 1px solid var(--tsh-line);
+  background: linear-gradient(180deg, #fff 0%, #fffaf4 100%);
+  transition: .22s ease;
+}
+.process-card:hover {
+  background: #fff;
+  transform: translateY(-4px);
+}
+.process-card:last-child { border-right: 0; }
+.process-step {
+  color: var(--tsh-accent);
+  font-weight: 900;
+  letter-spacing: 3px;
+  font-size: 12px;
+  margin-bottom: 20px;
+}
+.process-card h3 {
+  margin: 0 0 12px;
+  font-size: 16px;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+}
+.process-card p {
+  margin: 0;
+  color: #555;
+  line-height: 1.8;
+  font-size: 14px;
+}
+
+.contact-note-box {
+  margin-top: 34px;
+  padding: 34px;
+  border: 1px solid var(--tsh-line);
+  background:
+    radial-gradient(circle at 0% 0%, rgba(180,139,92,.13), transparent 30%),
+    linear-gradient(135deg, #fff, #faf8f5);
+  box-shadow: var(--tsh-shadow);
+  display: grid;
+  grid-template-columns: .8fr 1.2fr;
+  gap: 28px;
+  align-items: start;
+}
+.contact-note-box h3 {
+  margin: 0;
+  font-size: clamp(22px, 2.4vw, 32px);
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  line-height: 1.25;
+}
+.contact-note-box ul {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.contact-note-box li {
+  padding: 13px 0;
+  border-bottom: 1px solid var(--tsh-line);
+  color: #555;
+  line-height: 1.7;
+}
+.contact-note-box li:last-child { border-bottom: 0; }
+.contact-note-box strong { color: #111; }
+
+.back-row {
+  display: flex;
+  justify-content: space-between;
+  gap: 18px;
+  align-items: center;
+  padding: 46px 0 70px;
+}
+.simple-back,
+.simple-home {
+  color: #111;
+  text-decoration: none;
+  border-bottom: 1px solid #111;
+  padding-bottom: 6px;
+  font-size: 15px;
+  letter-spacing: 1px;
+}
+.simple-home {
+  border: 1px solid #111;
+  padding: 14px 22px;
+  text-transform: uppercase;
+  letter-spacing: 3px;
+  font-size: 12px;
+  font-weight: 900;
+  background: #fff;
+}
+.simple-home:hover,
+.simple-back:hover {
+  color: #6d5131;
+  border-color: var(--tsh-accent);
+}
+
+.contact-hero,
+.contact-section,
+.back-row {
+  animation: tshFadeUp .55s ease both;
+}
+@keyframes tshFadeUp {
+  from { opacity: 0; transform: translateY(14px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@media (max-width: 980px) {
+  .contact-container { width: min(100% - 32px, 1180px); }
+  .contact-hero-inner,
+  .contact-main-grid,
+  .section-head,
+  .contact-note-box { grid-template-columns: 1fr; gap: 28px; }
+  .support-grid,
+  .process-list,
+  .store-grid { grid-template-columns: repeat(2, 1fr); }
+  .process-card:nth-child(2) { border-right: 0; }
+  .process-card:nth-child(1),
+  .process-card:nth-child(2) { border-bottom: 1px solid var(--tsh-line); }
+}
+
+@media (max-width: 620px) {
+  .contact-header { letter-spacing: 5px; }
+  .contact-hero { padding: 56px 0; }
+  .contact-hero h1 { letter-spacing: 3px; }
+  .contact-section { padding: 54px 0; }
+  .support-grid,
+  .process-list,
+  .store-grid,
+  .form-row { grid-template-columns: 1fr; }
+  .process-card { border-right: 0; border-bottom: 1px solid var(--tsh-line); }
+  .process-card:last-child { border-bottom: 0; }
+  .contact-panel { padding: 30px 22px; }
+  .contact-note-box { padding: 30px 22px; }
+  .back-row { flex-direction: column; align-items: flex-start; }
+}
 </style>
 </head>
 <body>
-<header class="simple-page-header"><a href="index.html">THE STYLE HUB</a></header>
+<header class="contact-header">
+  <a class="top-back-home" href="index.html">← BACK TO HOME</a>
+  <a class="top-brand" href="index.html">THE STYLE HUB</a>
+</header>
 
-<main class="simple-page-wrap">
-<h1>Contact</h1>
-<p>Liên hệ The Style Hub để được hỗ trợ mua hàng, khiếu nại và bảo hành.</p>
-<div class="simple-page-card">
-<h2>Liên Hệ Hỗ Trợ</h2>
-<p><strong>Gọi mua:</strong> 02796096060 (8:00 - 21:30)</p>
-<p><strong>Khiếu nại:</strong> 02873066060 (8:00 - 21:30)</p>
-<p><strong>Bảo hành:</strong> 02873066060 (8:00 - 21:00)</p>
-</div>
-<div class="simple-page-card">
-<h2>Hệ thống cửa hàng</h2>
-<p><strong>Hồ Chí Minh:</strong> 15 Nguyễn Huệ, P. Bến Nghé, Quận 1</p>
-<p><strong>Hồ Chí Minh:</strong> 236 Cách Mạng Tháng Tám, P. 10, Quận 3</p>
-</div>
-<a class="simple-back" href="index.html">← Back to Home</a>
+<section class="contact-hero">
+  <div class="contact-container contact-hero-inner">
+    <div>
+      <div class="contact-kicker">Customer Support</div>
+      <h1>Contact The Style Hub</h1>
+      <p>
+        Cần hỗ trợ mua hàng, kiểm tra đơn, đổi địa chỉ, khiếu nại hoặc bảo hành? The Style Hub luôn có sẵn các kênh liên hệ rõ ràng để khách hàng được hỗ trợ nhanh và đúng vấn đề.
+      </p>
+      <div class="hero-actions">
+        <a class="hero-btn primary" href="tel:02796096060">Call Now</a>
+        <a class="hero-btn" href="account.html">Track Order</a>
+      </div>
+    </div>
+
+    <aside class="hero-summary">
+      <h2>Thông tin nhanh</h2>
+      <div class="summary-line"><span>Gọi mua</span><strong>02796096060</strong></div>
+      <div class="summary-line"><span>Khiếu nại</span><strong>02873066060</strong></div>
+      <div class="summary-line"><span>Bảo hành</span><strong>02873066060</strong></div>
+      <div class="summary-line"><span>Giờ hỗ trợ</span><strong>08:00 - 21:30</strong></div>
+    </aside>
+  </div>
+</section>
+
+<main>
+  <section class="contact-section">
+    <div class="contact-container">
+      <div class="section-head">
+        <div>
+          <div class="section-label">Support Channels</div>
+          <h2 class="section-title">Chọn đúng kênh hỗ trợ.</h2>
+        </div>
+        <p class="section-copy">
+          Mỗi nhu cầu của khách hàng sẽ có một kênh xử lý riêng: tư vấn mua hàng, kiểm tra đơn, bảo hành hoặc hỗ trợ theo dõi trạng thái giao hàng. Khi liên hệ, bạn nên chuẩn bị mã đơn hàng, số điện thoại đặt hàng và hình ảnh sản phẩm nếu cần kiểm tra lỗi.
+        </p>
+      </div>
+
+      <div class="support-grid">
+        <div class="support-card">
+          <div class="support-no">01</div>
+          <h3>Gọi mua</h3>
+          <p>Tư vấn sản phẩm, size, tồn kho và hỗ trợ đặt hàng nhanh.</p>
+          <a href="tel:02796096060">02796096060</a>
+          <div class="support-time">08:00 - 21:30</div>
+        </div>
+        <div class="support-card">
+          <div class="support-no">02</div>
+          <h3>Khiếu nại</h3>
+          <p>Hỗ trợ các vấn đề về đơn hàng, vận chuyển hoặc sản phẩm.</p>
+          <a href="tel:02873066060">02873066060</a>
+          <div class="support-time">08:00 - 21:30</div>
+        </div>
+        <div class="support-card">
+          <div class="support-no">03</div>
+          <h3>Bảo hành</h3>
+          <p>Tiếp nhận sản phẩm lỗi, cần đổi trả hoặc kiểm tra bảo hành.</p>
+          <a href="tel:02873066060">02873066060</a>
+          <div class="support-time">08:00 - 21:00</div>
+        </div>
+        <div class="support-card">
+          <div class="support-no">04</div>
+          <h3>Theo dõi đơn</h3>
+          <p>Xem Orders History, Shipping Orders và Cancelled Orders.</p>
+          <a href="account.html">MY ACCOUNT</a>
+          <div class="support-time">Online 24/7</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="contact-section soft">
+    <div class="contact-container">
+      <div class="contact-main-grid">
+        <div class="contact-panel">
+          <h2>Gửi yêu cầu hỗ trợ</h2>
+          <p>Điền thông tin bên dưới để cửa hàng nắm nhanh nội dung cần hỗ trợ.</p>
+          <form class="contact-form" onsubmit="event.preventDefault(); alert('The Style Hub đã ghi nhận yêu cầu hỗ trợ của bạn. Vui lòng liên hệ hotline nếu cần xử lý gấp.'); this.reset();">
+            <div class="form-row">
+              <input type="text" name="name" placeholder="Họ và tên" required>
+              <input type="tel" name="phone" placeholder="Số điện thoại" required>
+            </div>
+            <div class="form-row">
+              <input type="email" name="email" placeholder="Email">
+              <input type="text" name="order" placeholder="Mã đơn hàng nếu có">
+            </div>
+            <select name="topic" required>
+              <option value="">Chọn vấn đề cần hỗ trợ</option>
+              <option>Tư vấn mua hàng</option>
+              <option>Kiểm tra đơn hàng</option>
+              <option>Đổi địa chỉ giao hàng</option>
+              <option>Khiếu nại sản phẩm</option>
+              <option>Bảo hành / đổi trả</option>
+              <option>Khác</option>
+            </select>
+            <textarea name="message" placeholder="Mô tả nội dung cần hỗ trợ..." required></textarea>
+            <button class="form-submit" type="submit">Send Request</button>
+            <p class="form-note">Lưu ý: nếu đơn đã chuyển sang Shipping Orders, hệ thống sẽ không hỗ trợ hủy đơn hoặc đổi địa chỉ trực tiếp trên website.</p>
+          </form>
+        </div>
+
+        <div class="contact-panel">
+          <h2>Cần chuẩn bị gì?</h2>
+          <p>Chuẩn bị đủ thông tin sẽ giúp shop xử lý nhanh và chính xác hơn.</p>
+          <div class="info-list">
+            <div class="info-item"><strong>Mã đơn hàng</strong><span>Mã dạng STH... trong Orders History hoặc email xác nhận.</span></div>
+            <div class="info-item"><strong>Tài khoản</strong><span>Email hoặc số điện thoại đã dùng khi đặt hàng.</span></div>
+            <div class="info-item"><strong>Sản phẩm</strong><span>Tên sản phẩm, size, số lượng và ảnh chụp nếu có lỗi.</span></div>
+            <div class="info-item"><strong>Địa chỉ</strong><span>Địa chỉ giao hàng mới nếu đơn vẫn còn trạng thái chờ xác nhận.</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="contact-section">
+    <div class="contact-container">
+      <div class="section-head">
+        <div>
+          <div class="section-label">Store System</div>
+          <h2 class="section-title">Hệ thống cửa hàng.</h2>
+        </div>
+        <p class="section-copy">Bạn có thể liên hệ hotline trước khi đến cửa hàng để kiểm tra sản phẩm, thời gian làm việc hoặc tình trạng đơn hàng.</p>
+      </div>
+
+      <div class="store-grid">
+        <div class="store-card">
+          <div class="store-tag">Flagship Store</div>
+          <h3>Hồ Chí Minh</h3>
+          <p><strong>Địa chỉ:</strong> 15 Nguyễn Huệ, P. Bến Nghé, Quận 1</p>
+          <p><strong>Giờ hỗ trợ:</strong> 08:00 - 21:30</p>
+        </div>
+        <div class="store-card">
+          <div class="store-tag">Service Point</div>
+          <h3>Hồ Chí Minh</h3>
+          <p><strong>Địa chỉ:</strong> 236 Cách Mạng Tháng Tám, P. 10, Quận 3</p>
+          <p><strong>Giờ hỗ trợ:</strong> 08:00 - 21:30</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="contact-section soft">
+    <div class="contact-container">
+      <div class="section-head">
+        <div>
+          <div class="section-label">Support Flow</div>
+          <h2 class="section-title">Quy trình xử lý.</h2>
+        </div>
+        <p class="section-copy">Mỗi yêu cầu được xử lý theo từng bước rõ ràng để tránh bỏ sót thông tin của khách hàng.</p>
+      </div>
+
+      <div class="process-list">
+        <div class="process-card">
+          <div class="process-step">STEP 01</div>
+          <h3>Tiếp nhận</h3>
+          <p>Khách gửi thông tin qua hotline, form hỗ trợ hoặc tài khoản.</p>
+        </div>
+        <div class="process-card">
+          <div class="process-step">STEP 02</div>
+          <h3>Kiểm tra</h3>
+          <p>Shop đối chiếu mã đơn, trạng thái và thông tin giao hàng.</p>
+        </div>
+        <div class="process-card">
+          <div class="process-step">STEP 03</div>
+          <h3>Xử lý</h3>
+          <p>Hỗ trợ đổi thông tin, hủy đơn, bảo hành hoặc khiếu nại.</p>
+        </div>
+        <div class="process-card">
+          <div class="process-step">STEP 04</div>
+          <h3>Phản hồi</h3>
+          <p>Khách nhận kết quả và tiếp tục theo dõi đơn trong tài khoản.</p>
+        </div>
+      </div>
+
+      <div class="contact-note-box">
+        <h3>Ưu tiên xử lý nhanh khi có đủ thông tin.</h3>
+        <ul>
+          <li><strong>Đơn chờ xác nhận:</strong> khách vẫn có thể đổi địa chỉ hoặc hủy đơn trên tài khoản.</li>
+          <li><strong>Đơn đang giao:</strong> hệ thống sẽ khóa thao tác đổi địa chỉ và hủy đơn để tránh sai vận chuyển.</li>
+          <li><strong>Sản phẩm lỗi:</strong> nên gửi kèm ảnh sản phẩm, size, mã đơn và số điện thoại đặt hàng.</li>
+        </ul>
+      </div>
+
+      <div class="back-row">
+        <a class="simple-back" href="index.html">← Back to Home</a>
+        <a class="simple-home" href="account.html">Track My Orders</a>
+      </div>
+    </div>
+  </section>
 </main>
+
 <script src="stylehub-common.js"></script>
 </body>
 </html>

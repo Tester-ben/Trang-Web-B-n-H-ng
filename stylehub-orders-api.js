@@ -481,6 +481,14 @@
         return isRealText(customer.name) || isRealText(customer.phone) || isRealText(customer.email) || isRealText(customer.address) || products.length > 0 || total > 0;
     }
 
+    function getStatusKeyFromText(status) {
+        const text = String(status || "").trim().toLowerCase();
+        if (text.includes("hủy") || text.includes("cancel")) return "cancelled";
+        if (text.includes("đã nhận") || text.includes("hoàn thành") || text.includes("đã giao") || text.includes("completed") || text.includes("done")) return "done";
+        if (text.includes("đang giao") || text.includes("dang giao") || text.includes("shipping") || text.includes("in transit") || text.includes("delivering")) return "shipping";
+        return "pending";
+    }
+
     function normalizeOrder(order) {
         const safeOrder = order || {};
         const customer = getCustomerInfo(safeOrder);
@@ -490,21 +498,32 @@
         const updatedAt = Number(safeOrder.updatedAt || safeOrder.updated_at || createdAt || 0);
         const dateText = cleanText(safeOrder.orderDate || safeOrder.date || safeOrder.createdDate, createdAt ? new Date(createdAt).toLocaleString("vi-VN") : "");
         const totalText = cleanText(safeOrder.totalPriceFormatted || safeOrder.totalPrice || safeOrder.grandTotalFormatted || safeOrder.totalFormatted, calculateTotal(products));
+        const statusText = cleanText(safeOrder.status || safeOrder.orderStatus, "Đang chờ xác nhận");
+        const statusKey = cleanText(safeOrder.statusKey || safeOrder.status_key || safeOrder.orderStatusKey, getStatusKeyFromText(statusText));
 
-        return {
+        return Object.assign({}, safeOrder, {
             orderId: orderId,
             createdAt: createdAt,
             updatedAt: updatedAt,
             orderDate: dateText,
             date: dateText,
-            status: cleanText(safeOrder.status || safeOrder.orderStatus, "Đang chờ xác nhận"),
+            status: statusText,
+            statusKey: statusKey,
             userEmail: customer.email,
             customerEmail: customer.email,
             shippingEmail: firstText([safeOrder.shippingEmail, safeOrder.customerEmail, safeOrder.userEmail, customer.email], customer.email).toLowerCase(),
             userInfo: customer,
             orderedProductsList: products,
-            totalPriceFormatted: totalText
-        };
+            totalPriceFormatted: totalText,
+            cancelReason: cleanText(safeOrder.cancelReason || safeOrder.cancellationReason || safeOrder.cancel_reason, ""),
+            cancelReasonNote: cleanText(safeOrder.cancelReasonNote || safeOrder.cancellationNote || safeOrder.cancel_note, ""),
+            cancelledBy: cleanText(safeOrder.cancelledBy || safeOrder.cancelled_by, ""),
+            cancelledAt: cleanText(safeOrder.cancelledAt || safeOrder.cancelled_at, ""),
+            confirmedAt: cleanText(safeOrder.confirmedAt || safeOrder.confirmed_at, ""),
+            completedAt: cleanText(safeOrder.completedAt || safeOrder.completed_at, ""),
+            addressUpdatedAt: cleanText(safeOrder.addressUpdatedAt || safeOrder.address_updated_at, ""),
+            addressUpdatedBy: cleanText(safeOrder.addressUpdatedBy || safeOrder.address_updated_by, "")
+        });
     }
 
     function shouldKeepOrder(order) {
@@ -632,6 +651,48 @@
         return all;
     }
 
+    function findLocalOrderById(orderId) {
+        const id = cleanText(orderId, "");
+        if (!id) return null;
+        let best = null;
+        getAllLocalOrders().forEach(function(order) {
+            if (!order || cleanText(order.orderId || order.id || order.clientOrderUid, "") !== id) return;
+            const normalized = normalizeOrder(order);
+            if (!best || scoreOrder(normalized) > scoreOrder(best)) best = normalized;
+        });
+        return best;
+    }
+
+    async function getCloudOrderById(orderId) {
+        if (!initFirebase()) return null;
+        try {
+            const snapshot = await firebaseDatabase.ref(DB_ROOT + "/" + orderId).once("value");
+            return snapshot.val() || null;
+        } catch (error) {
+            console.warn("Không đọc được đơn cloud trước khi cập nhật:", error);
+            return null;
+        }
+    }
+
+    async function saveMergedOrderPatch(orderId, patch) {
+        const id = cleanText(orderId, "");
+        if (!id) return normalizeOrder(patch || {});
+        const safePatch = patch && typeof patch === "object" ? patch : {};
+        const localBase = findLocalOrderById(id) || { orderId: id };
+        const cloudBase = await getCloudOrderById(id);
+        const base = cloudBase ? mergeOrderData(localBase, cloudBase) : normalizeOrder(localBase);
+        const merged = normalizeOrder(Object.assign({}, base, safePatch, {
+            orderId: id,
+            updatedAt: safePatch.updatedAt || Date.now()
+        }));
+
+        updateLocalOrder(id, merged);
+        if (initFirebase()) {
+            await firebaseDatabase.ref(DB_ROOT + "/" + id).set(merged);
+        }
+        return merged;
+    }
+
     async function getAllOrders() {
         let all = getAllLocalOrders();
         if (initFirebase()) {
@@ -656,18 +717,31 @@
         return allOrders.filter(function (order) { return getOwnerEmail(order) === targetEmail; });
     }
 
-    async function updateOrderStatus(orderId, status) {
-        const patch = { status: status, updatedAt: Date.now() };
-        if (status === "Đang giao") patch.confirmedAt = new Date().toLocaleString("vi-VN");
-        if (status === "Đã nhận hàng") patch.completedAt = new Date().toLocaleString("vi-VN");
+    async function updateOrderDetails(orderId, extraPatch) {
+        const safeExtraPatch = extraPatch && typeof extraPatch === "object" ? extraPatch : {};
+        const patch = Object.assign({}, safeExtraPatch, { updatedAt: Date.now() });
+
+        // Không ghi patch rời lên Firebase nữa. Nếu order chưa có trên cloud,
+        // Firebase .update(patch) sẽ tạo một đơn chỉ có địa chỉ/status nhưng mất sản phẩm, ngày và tổng tiền.
+        // Vì vậy phải merge với bản local/cloud đầy đủ rồi set lại nguyên order.
+        return saveMergedOrderPatch(orderId, patch);
+    }
+
+    async function updateOrderStatus(orderId, status, extraPatch) {
+        const safeExtraPatch = extraPatch && typeof extraPatch === "object" ? extraPatch : {};
+        const statusKey = getStatusKeyFromText(status);
+        const patch = Object.assign({}, safeExtraPatch, { status: status, statusKey: statusKey, updatedAt: Date.now() });
+        if (statusKey === "shipping") {
+            patch.confirmedAt = patch.confirmedAt || new Date().toLocaleString("vi-VN");
+            patch.shippingStartedAt = patch.shippingStartedAt || new Date().toLocaleString("vi-VN");
+        }
+        if (statusKey === "done") patch.completedAt = new Date().toLocaleString("vi-VN");
         if (isCancelledStockStatus(status)) {
-            patch.cancelledAt = new Date().toLocaleString("vi-VN");
+            patch.cancelledAt = patch.cancelledAt || new Date().toLocaleString("vi-VN");
             restoreStockForOrder(orderId);
         }
-        updateLocalOrder(orderId, patch);
-        if (initFirebase()) {
-            await firebaseDatabase.ref(DB_ROOT + "/" + orderId).update(patch);
-        }
+
+        await saveMergedOrderPatch(orderId, patch);
     }
 
     async function deleteOrder(orderId) {
@@ -702,6 +776,7 @@
         getAllOrders: getAllOrders,
         getOrdersByEmail: getOrdersByEmail,
         updateOrderStatus: updateOrderStatus,
+        updateOrderDetails: updateOrderDetails,
         deleteOrder: deleteOrder,
         onOrdersChanged: onOrdersChanged,
         normalizeOrder: normalizeOrder,

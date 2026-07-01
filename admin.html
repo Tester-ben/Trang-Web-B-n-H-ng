@@ -1176,7 +1176,17 @@
 
     async function confirmOrder(orderId) {
         if (!orderId || orderId === 'N/A') return;
-        try { if (window.StyleHubOrders && typeof StyleHubOrders.updateOrderStatus === 'function') await StyleHubOrders.updateOrderStatus(orderId, 'Đang giao'); await refreshAdminData(); showAdminToast('Đã chấp nhận đơn hàng'); }
+        try {
+            if (window.StyleHubOrders && typeof StyleHubOrders.updateOrderStatus === 'function') {
+                await StyleHubOrders.updateOrderStatus(orderId, 'Đang giao', {
+                    statusKey: 'shipping',
+                    confirmedAt: new Date().toLocaleString('vi-VN'),
+                    shippingStartedAt: new Date().toLocaleString('vi-VN')
+                });
+            }
+            await refreshAdminData();
+            showAdminToast('Đã chấp nhận đơn hàng và chuyển sang Shipping Orders');
+        }
         catch (error) { showAdminToast('Không cập nhật được đơn hàng', 'Kiểm tra Firebase/config hoặc mạng internet.'); console.error(error); }
     }
 
