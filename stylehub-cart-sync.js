@@ -1,4 +1,4 @@
-/* THE STYLE HUB - CART SYNC + UNIVERSAL BAG DRAWER + SELECTED CHECKOUT - CLEAR PAID ITEMS V22 */
+/* THE STYLE HUB - CART SYNC + UNIVERSAL BAG DRAWER + SELECTED CHECKOUT - CLEAR PAID ITEMS + MERGE DUPLICATES + SAFE REMOVE V25 */
 (function () {
     const CART_KEYS = [
         "stylehub_cart_memory_v1",
@@ -132,6 +132,60 @@
         };
     }
 
+    function getCartMergeKey(item) {
+        const normalized = normalizeItem(item);
+        if (!normalized) return "";
+        return [
+            String(normalized.key || "").trim().toLowerCase(),
+            String(normalized.name || "").trim().toLowerCase(),
+            String(normalized.size || "").trim().toLowerCase(),
+            Number(normalized.priceNum || 0),
+            String(normalized.mainImg || "").trim()
+        ].join("||");
+    }
+
+    function mergeDuplicateCartItems(cart) {
+        const merged = [];
+        const indexByKey = {};
+
+        (Array.isArray(cart) ? cart : []).forEach(function (rawItem) {
+            const item = normalizeItem(rawItem);
+            if (!item) return;
+
+            const mergeKey = getCartMergeKey(item);
+            if (!mergeKey) return;
+
+            if (Object.prototype.hasOwnProperty.call(indexByKey, mergeKey)) {
+                const existing = merged[indexByKey[mergeKey]];
+                existing.qty = getQty(existing) + getQty(item);
+            } else {
+                indexByKey[mergeKey] = merged.length;
+                merged.push(item);
+            }
+        });
+
+        return merged;
+    }
+
+    function isCartChangedAfterMerge(originalCart, mergedCart) {
+        const safeOriginal = (Array.isArray(originalCart) ? originalCart : []).map(normalizeItem).filter(Boolean);
+        if (safeOriginal.length !== mergedCart.length) return true;
+        try {
+            return JSON.stringify(safeOriginal) !== JSON.stringify(mergedCart);
+        } catch (error) {
+            return true;
+        }
+    }
+
+    function syncProductDetailCartMemory(cart) {
+        const safeCart = mergeDuplicateCartItems(cart);
+        window.cartMemoryArray = safeCart;
+        if (typeof window.StyleHubSetProductDetailCartMemory === "function") {
+            try { window.StyleHubSetProductDetailCartMemory(safeCart); } catch (error) {}
+        }
+        return safeCart;
+    }
+
     function getCartItemFingerprint(item) {
         const normalized = normalizeItem(item);
         if (!normalized) return "";
@@ -146,7 +200,7 @@
     }
 
     function writeCartStorageOnly(cart) {
-        const safeCart = (Array.isArray(cart) ? cart : []).map(normalizeItem).filter(Boolean);
+        const safeCart = mergeDuplicateCartItems(Array.isArray(cart) ? cart : []);
         const data = JSON.stringify(safeCart);
 
         CART_KEYS.forEach(function (key) {
@@ -154,15 +208,25 @@
             localStorage.setItem(key, data);
         });
 
-        window.cartMemoryArray = safeCart;
+        syncProductDetailCartMemory(safeCart);
         return safeCart;
     }
 
     function readCart() {
         for (const key of CART_KEYS) {
-            const cart = parseCart(localStorage.getItem(key)).map(normalizeItem).filter(Boolean);
-            if (cart.length > 0) return cart;
+            const rawCart = parseCart(localStorage.getItem(key));
+            const cart = rawCart.map(normalizeItem).filter(Boolean);
+            if (cart.length > 0) {
+                const mergedCart = mergeDuplicateCartItems(cart);
+                if (isCartChangedAfterMerge(cart, mergedCart)) {
+                    writeCartStorageOnly(mergedCart);
+                } else {
+                    syncProductDetailCartMemory(mergedCart);
+                }
+                return mergedCart;
+            }
         }
+        syncProductDetailCartMemory([]);
         return [];
     }
 
@@ -170,6 +234,7 @@
         const safeCart = writeCartStorageOnly(cart);
         update(safeCart);
         renderBagModal(safeCart);
+        return safeCart;
     }
 
     function clear() {
@@ -1711,10 +1776,12 @@
             resetSelectedIndexes(safeRemainingCart);
         }
 
-        if (typeof window.renderCartUI === "function") {
+        if (typeof window.renderCartUI === "function" && typeof window.StyleHubSetProductDetailCartMemory === "function") {
+            syncProductDetailCartMemory(safeRemainingCart);
             try { window.renderCartUI(); } catch (error) {}
             // Sau renderCartUI cũ, chốt lại storage lần nữa để không hiện lại món đã thanh toán.
             setTimeout(function () {
+                syncProductDetailCartMemory(safeRemainingCart);
                 writeCartStorageOnly(safeRemainingCart);
                 update(safeRemainingCart);
             }, 80);
@@ -1898,21 +1965,44 @@
         if (removeBtn) {
             event.preventDefault();
             event.stopPropagation();
+            if (typeof event.stopImmediatePropagation === "function") event.stopImmediatePropagation();
 
             const index = Number(removeBtn.getAttribute("data-stylehub-remove-index"));
             const cart = readCart();
-            if (Number.isInteger(index) && index >= 0) {
+            if (Number.isInteger(index) && index >= 0 && index < cart.length) {
                 const selectedBefore = new Set(getSelectedIndexes(cart));
-                cart.splice(index, 1);
-                const selectedAfter = [];
-                selectedBefore.forEach(function (selectedIndex) {
-                    if (selectedIndex < index) selectedAfter.push(selectedIndex);
-                    if (selectedIndex > index) selectedAfter.push(selectedIndex - 1);
-                });
-                save(cart);
-                setSelectedIndexes(selectedAfter, cart);
-                renderBagModal(cart);
-                if (typeof window.renderCartUI === "function") setTimeout(window.renderCartUI, 80);
+                const currentItem = normalizeItem(cart[index]);
+                const currentQty = getQty(currentItem);
+                let selectedAfter = [];
+
+                // Nếu cùng sản phẩm đang được gộp SL: 2, 3,... thì bấm Xóa chỉ trừ 1 cái.
+                // Chỉ khi SL còn 1 mới xóa hẳn dòng sản phẩm khỏi BAG.
+                if (currentQty > 1) {
+                    cart[index] = Object.assign({}, currentItem, { qty: currentQty - 1 });
+                    selectedBefore.forEach(function (selectedIndex) {
+                        if (selectedIndex >= 0 && selectedIndex < cart.length) selectedAfter.push(selectedIndex);
+                    });
+                } else {
+                    cart.splice(index, 1);
+                    selectedBefore.forEach(function (selectedIndex) {
+                        if (selectedIndex < index) selectedAfter.push(selectedIndex);
+                        if (selectedIndex > index) selectedAfter.push(selectedIndex - 1);
+                    });
+                }
+
+                const savedCart = save(cart) || readCart();
+                setSelectedIndexes(selectedAfter, savedCart);
+                renderBagModal(savedCart);
+                // Đồng bộ biến cartMemoryArray trong product-detail.html trước khi gọi renderCartUI.
+                // Nếu không, drawer cũ có thể ghi ngược giỏ hàng cũ làm nút Xóa không có tác dụng.
+                syncProductDetailCartMemory(savedCart);
+                if (typeof window.renderCartUI === "function" && typeof window.StyleHubSetProductDetailCartMemory === "function") {
+                    setTimeout(function () {
+                        syncProductDetailCartMemory(savedCart);
+                        window.renderCartUI();
+                        writeCartStorageOnly(savedCart);
+                    }, 80);
+                }
             }
             return;
         }
@@ -2048,7 +2138,9 @@
         submitCheckout: submitUniversalCheckout,
         getSelectedIndexes: getSelectedIndexes,
         setSelectedIndexes: setSelectedIndexes,
-        getSelectedCart: getSelectedCart
+        getSelectedCart: getSelectedCart,
+        mergeDuplicateCartItems: mergeDuplicateCartItems,
+        writeCartStorageOnly: writeCartStorageOnly
     };
 
     window.openStyleHubBag = openBag;

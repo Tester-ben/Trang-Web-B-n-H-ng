@@ -1129,16 +1129,16 @@
 </div>
 </div>
 <script>
-        let isLoggedIn = localStorage.getItem('isLoggedInStatus') === 'true'; 
-        let userData = { firstName: "Thanh Tú", lastName: "Phan", email: "phantu210206@gmail.com" };
+        let isLoggedIn = localStorage.getItem('isLoggedInStatus') === 'true' && !!(localStorage.getItem('hub_current_user_key') || localStorage.getItem('hub_email')); 
+        let userData = JSON.parse(localStorage.getItem("hub_userData") || "{}") || {};
 
-        // SỬA LỖI: Nhắm đúng ID gốc "headerAccountLink" để hiển thị tên Phan Thanh Tú
+        // Cập nhật đúng tên tài khoản đang đăng nhập, không dùng tên demo mặc định
         function checkGlobalLoginStatus() {
             const accountLink = document.getElementById('headerAccountLink');
             if (accountLink) {
-                if (localStorage.getItem('isLoggedInStatus') === 'true') {
+                if (localStorage.getItem('isLoggedInStatus') === 'true' && (localStorage.getItem('hub_current_user_key') || localStorage.getItem('hub_email'))) {
                     isLoggedIn = true;
-                    const savedName = localStorage.getItem('hub_name') || "PHAN THANH TÚ";
+                    const savedName = localStorage.getItem('hub_name') || "ACCOUNT";
                     accountLink.innerText = savedName.toUpperCase();
                 } else {
                     isLoggedIn = false;
@@ -1208,26 +1208,38 @@
         }
 
         function handleRegister() {
-            userData.firstName = document.getElementById('reg-fname').value;
-            userData.lastName = document.getElementById('reg-lname').value;
-            userData.email = document.getElementById('reg-email').value;
-            userData.password = document.getElementById('reg-pass').value;
-            showToast("Đăng ký thành công! Hãy đăng nhập thông tin.");
+            const firstName = document.getElementById('reg-fname').value.trim();
+            const lastName = document.getElementById('reg-lname').value.trim();
+            const email = document.getElementById('reg-email').value.trim();
+            const password = document.getElementById('reg-pass').value;
+
+            const result = window.StyleHubAuth
+                ? window.StyleHubAuth.register({ firstName, lastName, email, password })
+                : { ok: false, message: "Hệ thống tài khoản chưa sẵn sàng. Vui lòng tải lại trang." };
+
+            showToast(result.message);
+            if (!result.ok) return;
+
+            userData = result.user;
             toggleAuthForm('login');
         }
 
         function handleLogin() {
-            const emailInput = document.getElementById('login-email').value;
+            const emailInput = document.getElementById('login-email').value.trim();
+            const passwordInput = document.getElementById('login-pass').value;
+            const result = window.StyleHubAuth
+                ? window.StyleHubAuth.login(emailInput, passwordInput)
+                : { ok: false, message: "Hệ thống tài khoản chưa sẵn sàng. Vui lòng tải lại trang." };
+
+            showToast(result.message);
+            if (!result.ok) return;
+
             isLoggedIn = true;
-            localStorage.setItem('isLoggedInStatus', 'true'); 
-            if (emailInput !== userData.email) {
-                userData.firstName = "Thanh Tú"; userData.lastName = "Phan"; userData.email = emailInput;
-            }
-            const fullDisplayName = `${userData.lastName} ${userData.firstName}`;
-            localStorage.setItem('hub_name', fullDisplayName); 
+            userData = result.user;
+            const fullDisplayName = result.user.name || result.user.email.split('@')[0];
             checkGlobalLoginStatus();
             accountModal.style.display = 'none';
-            triggerFireworkCelebration(fullDisplayName);
+            if (typeof triggerFireworkCelebration === 'function') triggerFireworkCelebration(fullDisplayName);
         }
 
         function getPagedCategoryPageFromUrl(categoryName) {
@@ -1593,7 +1605,7 @@ document.addEventListener("click", function(e) {
 <script src="stylehub-common.js?v=stock-cloud-sync-20260630"></script>
 
 <script src="stylehub-ai-chat.js"></script>
-<script src="stylehub-cart-sync.js?v=fix-property-la-image-20260618"></script>
+<script src="stylehub-cart-sync.js?v=bag-merge-remove-20260701"></script>
 
 <script>
 /* PROPERTY OF LA IMAGE FALLBACK */

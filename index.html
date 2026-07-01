@@ -859,7 +859,7 @@
 
 <script src="product-data.js?v=home-shoes-marquee-20260618"></script>
 <script>
-        let isLoggedIn = localStorage.getItem('isLoggedInStatus') === 'true'; 
+        let isLoggedIn = localStorage.getItem('isLoggedInStatus') === 'true' && !!(localStorage.getItem('hub_current_user_key') || localStorage.getItem('hub_email')); 
         let userData = JSON.parse(localStorage.getItem("hub_userData")) || { firstName: "", lastName: "", email: "", password: "" };
 
         function checkGlobalLoginStatus() {
@@ -867,7 +867,7 @@
             const dbUserName = document.getElementById('db-user-name');
             const dbUserEmail = document.getElementById('db-user-email');
 
-            if (localStorage.getItem('isLoggedInStatus') === 'true') {
+            if (localStorage.getItem('isLoggedInStatus') === 'true' && (localStorage.getItem('hub_current_user_key') || localStorage.getItem('hub_email'))) {
                 isLoggedIn = true;
 
                 const savedName = (localStorage.getItem('hub_name') || "USER").trim() || "USER";
@@ -914,7 +914,7 @@
         accountTrigger.onclick = function(e) {
             e.preventDefault();
 
-            const loggedInNow = localStorage.getItem('isLoggedInStatus') === 'true';
+            const loggedInNow = window.StyleHubAuth ? !!window.StyleHubAuth.getCurrentUser() : (localStorage.getItem('isLoggedInStatus') === 'true' && !!(localStorage.getItem('hub_current_user_key') || localStorage.getItem('hub_email')));
 
             if (loggedInNow) {
                 showPage('dashboard');
@@ -990,35 +990,35 @@
             const email = document.getElementById('reg-email').value.trim();
             const password = document.getElementById('reg-pass').value;
 
-            userData = { firstName, lastName, email, password };
-            localStorage.setItem('hub_userData', JSON.stringify(userData));
-            rememberHubLoginIdentity(`${lastName || ''} ${firstName || ''}`.trim(), email);
-            localStorage.setItem('isLoggedInStatus', 'false');
+            const result = window.StyleHubAuth
+                ? window.StyleHubAuth.register({ firstName, lastName, email, password })
+                : { ok: false, message: "Hệ thống tài khoản chưa sẵn sàng. Vui lòng tải lại trang." };
 
-            showToast("Đăng ký thành công! Hãy đăng nhập thông tin.");
+            showToast(result.message);
+            if (!result.ok) return;
+
+            userData = { firstName, lastName, email, password, name: `${lastName || ''} ${firstName || ''}`.trim() };
             toggleAuthForm('login');
         }
 
         function handleLogin() {
             const emailInput = document.getElementById('login-email').value.trim();
-            const savedUserData = JSON.parse(localStorage.getItem("hub_userData") || '{}');
+            const passwordInput = document.getElementById('login-pass').value;
+            const result = window.StyleHubAuth
+                ? window.StyleHubAuth.login(emailInput, passwordInput)
+                : { ok: false, message: "Hệ thống tài khoản chưa sẵn sàng. Vui lòng tải lại trang." };
 
-            let fullDisplayName = "";
-            if (savedUserData.email && savedUserData.email.trim().toLowerCase() === emailInput.toLowerCase()) {
-                fullDisplayName = `${savedUserData.lastName || ''} ${savedUserData.firstName || ''}`.trim();
-            }
-            if (!fullDisplayName) {
-                fullDisplayName = emailInput.split('@')[0];
-            }
+            showToast(result.message);
+            if (!result.ok) return;
 
+            const account = result.user;
+            const fullDisplayName = account.name || emailInput.split('@')[0];
             isLoggedIn = true;
-            localStorage.setItem('isLoggedInStatus', 'true');
-            localStorage.setItem('hub_name', fullDisplayName);
-            rememberHubLoginIdentity(fullDisplayName, emailInput);
+            userData = account;
 
             accountTrigger.innerText = fullDisplayName.toUpperCase();
             document.getElementById('db-user-name').innerText = fullDisplayName;
-            document.getElementById('db-user-email').innerText = emailInput;
+            document.getElementById('db-user-email').innerText = account.email;
 
             accountModal.style.display = 'none';
             triggerFireworkCelebration(fullDisplayName);
@@ -1026,12 +1026,13 @@
 
         function handleSignOut() {
             isLoggedIn = false;
-            const logoutEmail = localStorage.getItem('hub_email') || localStorage.getItem('hub_current_user_key') || '';
-            if (logoutEmail) localStorage.setItem('hub_last_user_email', logoutEmail.trim().toLowerCase());
-            localStorage.setItem('isLoggedInStatus', 'false');
-            localStorage.removeItem('hub_name');
-            localStorage.removeItem('hub_email');
-            localStorage.removeItem('hub_current_user_key');
+            if (window.StyleHubAuth) window.StyleHubAuth.signOut();
+            else {
+                localStorage.setItem('isLoggedInStatus', 'false');
+                localStorage.removeItem('hub_name');
+                localStorage.removeItem('hub_email');
+                localStorage.removeItem('hub_current_user_key');
+            }
 
             accountTrigger.innerText = "ACCOUNT";
             document.getElementById('db-user-name').innerText = "USER";
@@ -1261,7 +1262,7 @@
 <script src="stylehub-common.js?v=stock-cloud-sync-20260630"></script>
 
 <script src="stylehub-ai-chat.js"></script>
-<script src="stylehub-cart-sync.js?v=home-shoes-marquee-20260618"></script>
+<script src="stylehub-cart-sync.js?v=bag-merge-remove-20260701"></script>
 
 <script>
 /* PROPERTY OF LA IMAGE FALLBACK */

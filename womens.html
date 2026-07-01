@@ -861,8 +861,8 @@
 <script>
         document.addEventListener("DOMContentLoaded", function() {
             const accountLink = document.getElementById('headerAccountLink');
-            if (localStorage.getItem('isLoggedInStatus') === 'true') {
-                const savedName = localStorage.getItem('hub_name') || "PHAN THANH TÚ";
+            if (localStorage.getItem('isLoggedInStatus') === 'true' && (localStorage.getItem('hub_current_user_key') || localStorage.getItem('hub_email'))) {
+                const savedName = localStorage.getItem('hub_name') || "ACCOUNT";
                 accountLink.innerText = savedName.toUpperCase();
             } else {
                 accountLink.innerText = "ACCOUNT";
@@ -1359,7 +1359,7 @@ document.addEventListener("click", function(e) {
 <script src="stylehub-common.js?v=stock-cloud-sync-20260630"></script>
 
 <script src="stylehub-ai-chat.js"></script>
-<script src="stylehub-cart-sync.js?v=fix-property-la-image-20260618"></script>
+<script src="stylehub-cart-sync.js?v=bag-merge-remove-20260701"></script>
 
 <script>
 /* PROPERTY OF LA IMAGE FALLBACK */

@@ -457,7 +457,19 @@
             document.getElementById("searchBox").style.display = "none";
         }
 
-        const checkLogin = localStorage.getItem('isLoggedInStatus') === 'true';
+        function isValidAccountSession() {
+            const email = String(localStorage.getItem('hub_current_user_key') || localStorage.getItem('hub_email') || '').trim().toLowerCase();
+            if (localStorage.getItem('isLoggedInStatus') !== 'true' || !email) return false;
+            if (window.StyleHubAuth && typeof window.StyleHubAuth.getCurrentUser === 'function') {
+                return !!window.StyleHubAuth.getCurrentUser();
+            }
+            try {
+                const accounts = JSON.parse(localStorage.getItem('stylehub_accounts_v1') || '{}');
+                return !!(accounts && accounts[email]);
+            } catch (error) {
+                return false;
+            }
+        }
         let pendingCancelOrderId = '';
         let cachedAccountOrders = [];
         let cachedCancelledOrders = [];
@@ -518,7 +530,7 @@
             openSearchBox();
         };
 
-        if (!checkLogin) {
+        if (!isValidAccountSession()) {
             // Chưa đăng nhập thì quay về trang chủ để đăng nhập lại, không hiện popup lỗi.
             window.location.replace("index.html");
             return;
@@ -1211,12 +1223,15 @@
 
         }
         function executeLogout() {
-            const currentEmail = getCurrentUserEmail();
-            if (currentEmail) localStorage.setItem('hub_last_user_email', currentEmail);
-            localStorage.setItem('isLoggedInStatus', 'false');
-            localStorage.removeItem('hub_name');
-            localStorage.removeItem('hub_email');
-            localStorage.removeItem('hub_current_user_key');
+            if (window.StyleHubAuth) window.StyleHubAuth.signOut();
+            else {
+                const currentEmail = getCurrentUserEmail();
+                if (currentEmail) localStorage.setItem('hub_last_user_email', currentEmail);
+                localStorage.setItem('isLoggedInStatus', 'false');
+                localStorage.removeItem('hub_name');
+                localStorage.removeItem('hub_email');
+                localStorage.removeItem('hub_current_user_key');
+            }
             window.location.href = "index.html"; // Trở về trang chủ sau khi thoát
         }
     </script>
@@ -1272,10 +1287,10 @@
 <div class="footer-bottom">© 2026 THE STYLE HUB. UI/UX Interface Design Project.</div>
 <script src="stylehub-notifications.js?v=notification-bell-fixed-all-pages-20260616"></script>
 <script src="stylehub-responsive-nav.js?v=kids-bottoms-3-products-20260618"></script>
-<script src="stylehub-common.js"></script>
+<script src="stylehub-common.js?v=account-restore-full-20260701"></script>
 
 <script src="stylehub-ai-chat.js"></script>
-<script src="stylehub-cart-sync.js?v=fix-property-la-image-20260618"></script>
+<script src="stylehub-cart-sync.js?v=bag-delete-correct-20260701"></script>
 
 <script>
 /* PROPERTY OF LA IMAGE FALLBACK */
@@ -1306,6 +1321,6 @@
 })();
 </script>
 
-<script src="stylehub-vn-address.js?v=account-edit-address-20260623"></script>
+<script src="stylehub-vn-address.js?v=account-restore-full-20260701"></script>
 </body>
 </html>

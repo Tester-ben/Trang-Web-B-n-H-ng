@@ -1,3 +1,220 @@
+
+/* ===== STYLE HUB ACCOUNT AUTH FIX =====
+   Sửa 2 lỗi:
+   1) Không còn tên demo/owner hiện trên máy người khác.
+   2) Không cho đăng nhập bằng email chưa đăng ký hoặc sai mật khẩu.
+   Lưu ý: Đây là auth demo bằng localStorage cho project tĩnh. Production nên dùng Firebase Auth. */
+(function () {
+    const ACCOUNTS_KEY = "stylehub_accounts_v1";
+    const SESSION_FLAG = "isLoggedInStatus";
+    const DEMO_EMAILS = ["phantu210206@gmail.com"];
+    const DEMO_NAME_PATTERNS = ["phan thanh tu", "thanh tu phan", "phan thanh tú", "thanh tú phan"];
+
+    function normalizeEmail(email) {
+        return String(email || "").trim().toLowerCase();
+    }
+
+    function normalizeName(name) {
+        return String(name || "").trim().toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/\s+/g, " ");
+    }
+
+    function isValidEmail(email) {
+        return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(normalizeEmail(email));
+    }
+
+    function readAccounts() {
+        try {
+            const parsed = JSON.parse(localStorage.getItem(ACCOUNTS_KEY) || "{}");
+            return parsed && typeof parsed === "object" ? parsed : {};
+        } catch (error) {
+            return {};
+        }
+    }
+
+    function writeAccounts(accounts) {
+        localStorage.setItem(ACCOUNTS_KEY, JSON.stringify(accounts || {}));
+    }
+
+    function isDemoIdentity(email, name) {
+        const cleanEmail = normalizeEmail(email);
+        const cleanName = normalizeName(name);
+        if (DEMO_EMAILS.includes(cleanEmail)) return true;
+        return DEMO_NAME_PATTERNS.some(function (pattern) {
+            return cleanName === pattern || cleanName.includes(pattern);
+        });
+    }
+
+    function clearSessionOnly() {
+        localStorage.setItem(SESSION_FLAG, "false");
+        localStorage.removeItem("hub_name");
+        localStorage.removeItem("hub_email");
+        localStorage.removeItem("hub_current_user_key");
+        localStorage.removeItem("userEmail");
+    }
+
+    function purgeDemoIdentity() {
+        const accounts = readAccounts();
+        const currentEmail = normalizeEmail(localStorage.getItem("hub_email") || localStorage.getItem("hub_current_user_key") || "");
+        const currentName = localStorage.getItem("hub_name") || "";
+        const oldUser = (function () {
+            try { return JSON.parse(localStorage.getItem("hub_userData") || "{}"); }
+            catch (error) { return {}; }
+        })();
+        const oldEmail = normalizeEmail(oldUser.email);
+        const oldName = String(oldUser.name || [oldUser.lastName, oldUser.firstName].filter(Boolean).join(" ") || "");
+
+        // Không xoá session nếu email đó đã là tài khoản thật trong máy hiện tại.
+        // Bản trước nhận diện "Thanh Tú / phantu..." là dữ liệu demo nên khi sang trang sản phẩm
+        // nó tự clear session, làm người dùng bị đăng xuất.
+        const currentIsRealAccount = currentEmail && accounts[currentEmail];
+        if (!currentIsRealAccount && isDemoIdentity(currentEmail, currentName)) {
+            clearSessionOnly();
+            localStorage.removeItem("hub_last_user_email");
+        }
+
+        // Chỉ xoá hub_userData demo cũ khi nó không tương ứng với tài khoản đã đăng ký.
+        const oldUserIsRealAccount = oldEmail && accounts[oldEmail];
+        if (!oldUserIsRealAccount && isDemoIdentity(oldEmail, oldName)) {
+            localStorage.removeItem("hub_userData");
+        }
+    }
+
+    function migrateOldSingleAccount() {
+        let oldUser = {};
+        try { oldUser = JSON.parse(localStorage.getItem("hub_userData") || "{}"); }
+        catch (error) { oldUser = {}; }
+
+        const email = normalizeEmail(oldUser.email);
+        const password = String(oldUser.password || "");
+        const firstName = String(oldUser.firstName || "").trim();
+        const lastName = String(oldUser.lastName || "").trim();
+        const name = String(oldUser.name || [lastName, firstName].filter(Boolean).join(" ") || email.split("@")[0] || "").trim();
+
+        if (!email || !password || isDemoIdentity(email, name)) return;
+
+        const accounts = readAccounts();
+        if (!accounts[email]) {
+            accounts[email] = {
+                email,
+                password,
+                firstName,
+                lastName,
+                name,
+                createdAt: Date.now(),
+                migratedFrom: "hub_userData"
+            };
+            writeAccounts(accounts);
+        }
+    }
+
+    function setSession(account) {
+        const email = normalizeEmail(account.email);
+        const name = String(account.name || [account.lastName, account.firstName].filter(Boolean).join(" ") || email.split("@")[0]).trim();
+        localStorage.setItem(SESSION_FLAG, "true");
+        localStorage.setItem("hub_name", name);
+        localStorage.setItem("hub_email", email);
+        localStorage.setItem("hub_current_user_key", email);
+        localStorage.setItem("hub_last_user_email", email);
+        localStorage.setItem("hub_account_email_" + name.toLowerCase().replace(/\s+/g, "_"), email);
+        localStorage.setItem("userEmail", email);
+    }
+
+    function register(data) {
+        purgeDemoIdentity();
+        migrateOldSingleAccount();
+
+        const email = normalizeEmail(data && data.email);
+        const password = String((data && data.password) || "");
+        const firstName = String((data && data.firstName) || "").trim();
+        const lastName = String((data && data.lastName) || "").trim();
+        const name = String((data && data.name) || [lastName, firstName].filter(Boolean).join(" ") || email.split("@")[0] || "").trim();
+
+        if (!isValidEmail(email)) return { ok: false, message: "Email không hợp lệ." };
+        if (password.length < 6) return { ok: false, message: "Mật khẩu phải có ít nhất 6 ký tự." };
+        if (!name) return { ok: false, message: "Vui lòng nhập tên tài khoản." };
+
+        const accounts = readAccounts();
+        if (accounts[email]) {
+            return { ok: false, message: "Email này đã được đăng ký. Vui lòng đăng nhập hoặc dùng email khác." };
+        }
+
+        const account = { email, password, firstName, lastName, name, createdAt: Date.now() };
+        accounts[email] = account;
+        writeAccounts(accounts);
+        localStorage.setItem("hub_userData", JSON.stringify({ firstName, lastName, email, password, name }));
+        return { ok: true, message: "Đăng ký thành công! Hãy đăng nhập thông tin.", user: account };
+    }
+
+    function login(email, password) {
+        purgeDemoIdentity();
+        migrateOldSingleAccount();
+
+        const cleanEmail = normalizeEmail(email);
+        const cleanPassword = String(password || "");
+        const accounts = readAccounts();
+        const account = accounts[cleanEmail];
+
+        if (!isValidEmail(cleanEmail)) return { ok: false, message: "Email không hợp lệ." };
+        if (!account) return { ok: false, message: "Tài khoản này chưa được đăng ký. Vui lòng tạo tài khoản trước." };
+        if (String(account.password || "") !== cleanPassword) return { ok: false, message: "Mật khẩu không đúng. Vui lòng kiểm tra lại." };
+
+        setSession(account);
+        return { ok: true, message: "Đăng nhập thành công!", user: account };
+    }
+
+    function getCurrentUser() {
+        purgeDemoIdentity();
+        migrateOldSingleAccount();
+
+        if (localStorage.getItem(SESSION_FLAG) !== "true") return null;
+        const email = normalizeEmail(localStorage.getItem("hub_current_user_key") || localStorage.getItem("hub_email") || "");
+        if (!email) {
+            clearSessionOnly();
+            return null;
+        }
+        const accounts = readAccounts();
+        const account = accounts[email];
+        if (!account) {
+            clearSessionOnly();
+            return null;
+        }
+        return account;
+    }
+
+    function signOut() {
+        const email = normalizeEmail(localStorage.getItem("hub_email") || localStorage.getItem("hub_current_user_key") || "");
+        if (email) localStorage.setItem("hub_last_user_email", email);
+        clearSessionOnly();
+    }
+
+    function syncHeader() {
+        const user = getCurrentUser();
+        const accountLinks = document.querySelectorAll("#account-trigger, #headerAccountLink");
+        accountLinks.forEach(function (link) {
+            if (user) {
+                link.textContent = String(user.name || user.email.split("@")[0]).toUpperCase();
+                link.href = "account.html";
+            } else {
+                link.textContent = "ACCOUNT";
+                link.href = "account.html";
+            }
+        });
+    }
+
+    purgeDemoIdentity();
+    migrateOldSingleAccount();
+
+    window.StyleHubAuth = {
+        register,
+        login,
+        signOut,
+        getCurrentUser,
+        syncHeader,
+        readAccounts,
+        normalizeEmail
+    };
+})();
+
 document.addEventListener("DOMContentLoaded", function () {
     syncHeaderAccountName();
     syncBagCount();
@@ -7,21 +224,15 @@ document.addEventListener("DOMContentLoaded", function () {
 });
 
 function syncHeaderAccountName() {
-    const accountLinks = document.querySelectorAll("#account-trigger, #headerAccountLink");
-    const isLoggedIn = localStorage.getItem("isLoggedInStatus") === "true";
-    const savedName = localStorage.getItem("hub_name");
-    if (isLoggedIn && !localStorage.getItem("hub_current_user_key") && localStorage.getItem("hub_email")) {
-        localStorage.setItem("hub_current_user_key", localStorage.getItem("hub_email").trim().toLowerCase());
+    if (window.StyleHubAuth && typeof window.StyleHubAuth.syncHeader === "function") {
+        window.StyleHubAuth.syncHeader();
+        return;
     }
 
+    const accountLinks = document.querySelectorAll("#account-trigger, #headerAccountLink");
     accountLinks.forEach(function (link) {
-        if (isLoggedIn && savedName && savedName.trim() !== "") {
-            link.textContent = savedName.toUpperCase();
-            link.href = "account.html";
-        } else {
-            link.textContent = "ACCOUNT";
-            link.href = "account.html";
-        }
+        link.textContent = "ACCOUNT";
+        link.href = "account.html";
     });
 }
 
@@ -737,7 +948,7 @@ function searchProducts() {
             }
             .stylehub-modal-overlay.open { display: flex; }
             .stylehub-modal-box {
-                width: min(620px, 100%);
+                width: min(760px, 100%);
                 max-height: 85vh;
                 overflow: auto;
                 background: #fff;
@@ -1181,16 +1392,16 @@ function searchProducts() {
                 <button class="stylehub-modal-close" type="button">×</button>
                 <h3>Size Guide</h3>
                 <table class="stylehub-size-table">
-                    <thead><tr><th>Size</th><th>Gợi ý cân nặng</th><th>Ghi chú</th></tr></thead>
+                    <thead><tr><th>Size</th><th>Gợi ý cân nặng</th><th>Gợi ý chiều cao</th><th>Ghi chú</th></tr></thead>
                     <tbody>
-                        <tr><td>XS</td><td>20 - 30kg</td><td>Kids / dáng nhỏ</td></tr>
-                        <tr><td>S</td><td>30 - 45kg</td><td>Kids lớn / người nhỏ</td></tr>
-                        <tr><td>M</td><td>45 - 58kg</td><td>Regular fit</td></tr>
-                        <tr><td>L</td><td>58 - 72kg</td><td>Relaxed fit</td></tr>
-                        <tr><td>XL</td><td>72 - 88kg</td><td>Oversized fit</td></tr>
+                        <tr><td>XS</td><td>20 - 30kg</td><td>110 - 130cm</td><td>Kids / dáng nhỏ</td></tr>
+                        <tr><td>S</td><td>30 - 45kg</td><td>130 - 155cm</td><td>Kids lớn / người nhỏ</td></tr>
+                        <tr><td>M</td><td>45 - 58kg</td><td>155 - 168cm</td><td>Regular fit</td></tr>
+                        <tr><td>L</td><td>58 - 72kg</td><td>168 - 178cm</td><td>Relaxed fit</td></tr>
+                        <tr><td>XL</td><td>72 - 88kg</td><td>178 - 188cm</td><td>Oversized fit</td></tr>
                     </tbody>
                 </table>
-                <p style="margin-top:14px;color:#666;font-size:13px;line-height:1.6;">Bảng size chỉ mang tính tham khảo. Với sản phẩm form rộng, có thể giảm 1 size nếu muốn mặc vừa người.</p>
+                <p style="margin-top:14px;color:#666;font-size:13px;line-height:1.6;">Bảng size chỉ mang tính tham khảo theo cân nặng và chiều cao. Với sản phẩm form rộng, có thể giảm 1 size nếu muốn mặc vừa người.</p>
             </div>
         `;
         document.body.appendChild(modal);
