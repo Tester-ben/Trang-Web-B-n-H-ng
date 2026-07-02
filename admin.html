@@ -357,6 +357,77 @@
         .login-card input:focus { border-color: #60a5fa; box-shadow: 0 0 0 3px rgba(96,165,250,.12); }
         .login-card button { width: 100%; padding: 14px; border: none; border-radius: 12px; background: linear-gradient(135deg, #e0f2fe, #93c5fd); color: #0f172a; font-weight: 900; letter-spacing: 2px; text-transform: uppercase; cursor: pointer; }
         .login-error { min-height: 20px; color: #fb7185; font-size: 13px; margin-top: 12px; text-align: center; }
+
+        .support-layout {
+            display: grid;
+            grid-template-columns: minmax(280px, 360px) 1fr;
+            gap: 18px;
+            align-items: stretch;
+        }
+        .support-list-panel, .support-thread-panel {
+            min-height: 560px;
+            border-radius: 24px;
+            background: rgba(15, 23, 42, .72);
+            border: 1px solid rgba(148, 163, 184, .16);
+            box-shadow: 0 18px 48px rgba(0,0,0,.22), inset 0 1px 0 rgba(255,255,255,.04);
+            overflow: hidden;
+        }
+        .support-list-panel { padding: 12px; }
+        .support-thread-panel { display: flex; flex-direction: column; }
+        .support-conversation-card {
+            width: 100%;
+            text-align: left;
+            color: #e5edf8;
+            background: rgba(2, 6, 23, .42);
+            border: 1px solid rgba(148, 163, 184, .14);
+            border-radius: 18px;
+            padding: 14px;
+            margin-bottom: 10px;
+            cursor: pointer;
+            transition: .18s ease;
+        }
+        .support-conversation-card:hover, .support-conversation-card.active {
+            transform: translateY(-1px);
+            border-color: rgba(96, 165, 250, .38);
+            background: rgba(14, 38, 62, .68);
+        }
+        .support-conversation-top { display: flex; justify-content: space-between; gap: 10px; align-items: flex-start; }
+        .support-customer-name { font-size: 13px; font-weight: 900; letter-spacing: .7px; text-transform: uppercase; color: #fff; }
+        .support-time { color: #94a3b8; font-size: 11px; white-space: nowrap; }
+        .support-type { display: inline-flex; margin: 9px 0 8px; padding: 5px 9px; border-radius: 999px; color: #fde68a; background: rgba(251, 191, 36, .08); border: 1px solid rgba(251, 191, 36, .18); font-size: 10px; font-weight: 900; letter-spacing: .9px; text-transform: uppercase; }
+        .support-preview { color: #cbd5e1; font-size: 12px; line-height: 1.45; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+        .support-unread-dot { display: inline-flex; align-items: center; justify-content: center; min-width: 22px; height: 22px; border-radius: 999px; background: #ef4444; color: #fff; font-size: 11px; font-weight: 900; box-shadow: 0 10px 18px rgba(239,68,68,.24); }
+        .support-thread-header { padding: 20px 22px; border-bottom: 1px solid rgba(148, 163, 184, .14); display: flex; justify-content: space-between; gap: 16px; align-items: flex-start; }
+        .support-thread-title { margin: 0 0 8px; color: #fff; font-size: 18px; letter-spacing: .8px; }
+        .support-thread-meta { color: #aab6c8; font-size: 12px; line-height: 1.65; }
+        .support-thread-actions { display: flex; flex-wrap: wrap; gap: 8px; justify-content: flex-end; }
+        .support-danger-btn { background: rgba(239, 68, 68, .12); color: #fecaca; border: 1px solid rgba(248, 113, 113, .32); }
+        .support-danger-btn:hover { background: rgba(239, 68, 68, .2); border-color: rgba(248, 113, 113, .58); transform: translateY(-1px); }
+        .support-thread-body { flex: 1; overflow-y: auto; padding: 20px 22px; background: linear-gradient(180deg, rgba(2,6,23,.1), rgba(2,6,23,.34)); }
+        .support-message-row { display: flex; margin-bottom: 13px; }
+        .support-bubble-wrap { display: flex; align-items: flex-start; gap: 8px; max-width: 82%; }
+        .support-message-row.admin .support-bubble-wrap { flex-direction: row-reverse; }
+        .support-message-row.admin { justify-content: flex-end; }
+        .support-bubble { max-width: 100%; padding: 13px 15px; border-radius: 16px; font-size: 13px; line-height: 1.55; box-shadow: 0 10px 24px rgba(0,0,0,.16); }
+        .support-delete-message { width: 30px; height: 30px; flex: 0 0 30px; border-radius: 999px; border: 1px solid rgba(248,113,113,.24); background: rgba(239,68,68,.08); color: #fecaca; cursor: pointer; opacity: .72; transition: .18s ease; font-size: 13px; display: inline-flex; align-items: center; justify-content: center; }
+        .support-delete-message:hover { opacity: 1; transform: translateY(-1px); background: rgba(239,68,68,.2); border-color: rgba(248,113,113,.55); color: #fff; }
+        .support-message-row.customer .support-bubble { background: rgba(255,255,255,.94); color: #111827; border-top-left-radius: 6px; }
+        .support-message-row.admin .support-bubble { background: linear-gradient(135deg, #0b3030, #111827); color: #fff; border-top-right-radius: 6px; }
+        .support-bubble-meta { display: block; margin-bottom: 5px; font-size: 10px; opacity: .72; letter-spacing: .8px; text-transform: uppercase; }
+        .support-bubble-text { white-space: pre-wrap; }
+        .support-attachment-image { display: block; width: 100%; max-width: 260px; max-height: 300px; object-fit: cover; margin-top: 10px; border-radius: 14px; border: 1px solid rgba(15,23,42,.14); background: #f8fafc; box-shadow: 0 10px 22px rgba(0,0,0,.12); }
+        .support-message-row.admin .support-attachment-image { border-color: rgba(255,255,255,.18); }
+        .support-image-caption { display: block; margin-top: 7px; font-size: 11px; opacity: .72; }
+        .support-reply-box { padding: 16px 18px 18px; border-top: 1px solid rgba(148, 163, 184, .14); background: rgba(2, 6, 23, .36); }
+        .support-reply-box textarea { width: 100%; min-height: 86px; resize: vertical; border-radius: 16px; border: 1px solid rgba(148, 163, 184, .22); background: rgba(15, 23, 42, .72); color: #fff; outline: none; padding: 13px 14px; font-family: inherit; line-height: 1.5; }
+        .support-reply-box textarea:focus { border-color: rgba(96,165,250,.7); box-shadow: 0 0 0 3px rgba(96,165,250,.12); }
+        .support-reply-actions { display: flex; justify-content: flex-end; gap: 10px; margin-top: 12px; }
+        .support-empty { padding: 32px; color: #94a3b8; text-align: center; }
+        @media (max-width: 1000px) {
+            .support-layout { grid-template-columns: 1fr; }
+            .support-list-panel, .support-thread-panel { min-height: auto; }
+        }
+
         #admin-screen { display: none; }
         .admin-toast-wrap { position: fixed; top: 86px; right: 28px; z-index: 9999; display: flex; flex-direction: column; gap: 12px; pointer-events: none; }
         .admin-toast { min-width: 280px; max-width: 390px; display: flex; align-items: center; gap: 12px; padding: 15px 17px; border-radius: 16px; color: #f8fafc; background: rgba(15, 23, 42, .94); border: 1px solid rgba(134, 239, 172, .32); box-shadow: 0 22px 55px rgba(0,0,0,.34), inset 0 1px 0 rgba(255,255,255,.06); backdrop-filter: blur(16px); animation: toastIn .22s ease-out; }
@@ -449,11 +520,12 @@
             <nav class="admin-nav" aria-label="Admin navigation">
                 <button class="admin-nav-btn active" data-tab="dashboard" onclick="switchAdminTab('dashboard')"><span class="admin-nav-icon">📊</span> Tổng quan</button>
                 <button class="admin-nav-btn" data-tab="orders" onclick="switchAdminTab('orders')"><span class="admin-nav-icon">🧾</span> Đơn hàng</button>
+                <button class="admin-nav-btn" data-tab="messages" onclick="switchAdminTab('messages')"><span class="admin-nav-icon">💬</span> Tin nhắn</button>
                 <button class="admin-nav-btn" data-tab="products" onclick="switchAdminTab('products')"><span class="admin-nav-icon">📦</span> Sản phẩm</button>
                 <button class="admin-nav-btn" data-tab="addProduct" onclick="switchAdminTab('addProduct')"><span class="admin-nav-icon">➕</span> Thêm mới</button>
                 <button class="admin-nav-btn" data-tab="customers" onclick="switchAdminTab('customers')"><span class="admin-nav-icon">👥</span> Khách hàng</button>
             </nav>
-            <div class="sidebar-note">ADMIN WORKSPACE<br>Theo dõi đơn hàng mới, cập nhật tồn kho, thêm sản phẩm và kiểm tra doanh thu cửa hàng.</div>
+            <div class="sidebar-note">ADMIN WORKSPACE<br>Theo dõi đơn hàng mới, phản hồi tin nhắn khách hàng, cập nhật tồn kho, thêm sản phẩm và kiểm tra doanh thu cửa hàng.</div>
         </aside>
 
         <main class="admin-content">
@@ -505,6 +577,37 @@
                     </div>
                 </div>
                 <div class="order-list" id="admin-orders"></div>
+            </section>
+
+
+            <section class="admin-section" id="section-messages">
+                <div class="admin-title-row">
+                    <div>
+                        <h1>Tin nhắn khách hàng</h1>
+                        <p class="admin-subtitle">Nhận yêu cầu từ chat AI: khiếu nại, góp ý sản phẩm, đổi trả, đặt số lượng lớn hoặc câu hỏi cần nhân viên hỗ trợ.</p>
+                    </div>
+                    <div class="admin-chip" id="supportMessageCount">0 tin nhắn</div>
+                </div>
+                <div class="admin-toolbar">
+                    <div class="toolbar-left">
+                        <input class="admin-search" id="supportSearchInput" oninput="renderSupportMessages()" placeholder="Tìm tên khách, email, số điện thoại, nội dung...">
+                        <select class="admin-select" id="supportStatusFilter" onchange="renderSupportMessages()">
+                            <option value="all">Tất cả tin nhắn</option>
+                            <option value="open">Đang mở</option>
+                            <option value="unread">Chưa đọc</option>
+                            <option value="resolved">Đã xử lý</option>
+                        </select>
+                    </div>
+                    <div class="toolbar-right">
+                        <button class="admin-secondary-btn" onclick="renderSupportMessages()">Làm mới</button>
+                    </div>
+                </div>
+                <div class="support-layout">
+                    <div class="support-list-panel" id="supportConversationList"></div>
+                    <div class="support-thread-panel" id="supportConversationDetail">
+                        <div class="support-empty">Chọn một cuộc trò chuyện để xem nội dung và phản hồi khách hàng.</div>
+                    </div>
+                </div>
             </section>
 
             <section class="admin-section" id="section-products">
@@ -596,7 +699,22 @@
     let selectedOrderIds = new Set();
     let latestRenderedOrderIds = [];
     let latestOrdersCache = [];
+    let supportConversationsCache = [];
+    let activeSupportConversationId = '';
+    let supportRealtimeStarted = false;
     let adminConfirmResolver = null;
+    const SUPPORT_DB_ROOT = 'stylehub_orders/support_conversations';
+    const SUPPORT_LOCAL_KEY = 'tsh_support_conversations_v1';
+    const STYLEHUB_FIREBASE_CONFIG = {
+        apiKey: "AIzaSyBLmPFwTOltztOw28_LUp1L56jgYYAaApM",
+        authDomain: "thestylehub-aaf2f.firebaseapp.com",
+        databaseURL: "https://thestylehub-aaf2f-default-rtdb.firebaseio.com",
+        projectId: "thestylehub-aaf2f",
+        storageBucket: "thestylehub-aaf2f.firebasestorage.app",
+        messagingSenderId: "1044789250378",
+        appId: "1:1044789250378:web:e268f523e323954a6dd9b3",
+        measurementId: "G-Y53W16W4W3"
+    };
 
     function loginAdmin() {
         const passwordInput = document.getElementById('adminPassword');
@@ -626,6 +744,7 @@
         document.getElementById('admin-screen').style.display = 'block';
         refreshAdminData();
         startAdminRealtime();
+        startSupportRealtime();
     }
 
     function switchAdminTab(tabName) {
@@ -635,6 +754,7 @@
         if (target) target.classList.add('active');
         if (tabName === 'products') renderProducts();
         if (tabName === 'orders') renderOrders();
+        if (tabName === 'messages') { startSupportRealtime(); renderSupportMessages(); }
         if (tabName === 'customers') renderCustomers();
         if (tabName === 'dashboard') renderDashboard();
     }
@@ -1391,6 +1511,340 @@
                 const stock = getStockInfo(item.id, item);
                 return `<div class="compact-row"><span><strong>${escapeHtml(item.name || item.id)}</strong><br>${escapeHtml(item.id)}</span><span>${escapeHtml(stock.label)}<br>${stock.stock} sản phẩm</span></div>`;
             }).join('') : '<div class="compact-row"><span><strong>Tồn kho ổn định</strong><br>Không có sản phẩm sắp hết/hết hàng</span><span>OK</span></div>';
+        }
+    }
+
+
+    function getSupportDatabase() {
+        try {
+            if (typeof firebase === 'undefined' || typeof firebase.database !== 'function') return null;
+            if (!firebase.apps || firebase.apps.length === 0) firebase.initializeApp(STYLEHUB_FIREBASE_CONFIG);
+            return firebase.database();
+        } catch (error) {
+            console.warn('Không kết nối được Firebase support chat:', error);
+            return null;
+        }
+    }
+
+    function readSupportLocal() {
+        try { return JSON.parse(localStorage.getItem(SUPPORT_LOCAL_KEY) || '{}') || {}; }
+        catch (error) { return {}; }
+    }
+
+    function writeSupportLocal(map) {
+        localStorage.setItem(SUPPORT_LOCAL_KEY, JSON.stringify(map || {}));
+        try { window.dispatchEvent(new StorageEvent('storage', { key: SUPPORT_LOCAL_KEY, newValue: JSON.stringify(map || {}) })); } catch (error) {}
+    }
+
+    function supportMessagesArray(conversation) {
+        const messages = conversation && conversation.messages ? conversation.messages : {};
+        return Object.keys(messages).map(function(key) { return Object.assign({ id: key }, messages[key] || {}); }).sort(function(a, b) { return Number(a.createdAt || 0) - Number(b.createdAt || 0); });
+    }
+
+    function isSafeSupportImage(value) {
+        return /^data:image\/(png|jpe?g|webp|gif);base64,/i.test(String(value || ''));
+    }
+
+    function supportMessageContentHtml(msg) {
+        const text = msg && msg.text ? `<div class="support-bubble-text">${escapeHtml(msg.text)}</div>` : '';
+        const hasImage = msg && isSafeSupportImage(msg.imageData);
+        const imageName = msg && msg.imageName ? msg.imageName : 'Ảnh khách gửi';
+        const image = hasImage ? `<a href="${msg.imageData}" target="_blank" rel="noopener"><img class="support-attachment-image" src="${msg.imageData}" alt="${escapeHtml(imageName)}"></a><span class="support-image-caption">${escapeHtml(imageName)} · bấm ảnh để xem lớn</span>` : '';
+        return text + image || '<div class="support-bubble-text">Không có nội dung.</div>';
+    }
+
+    function supportLastPreview(msg) {
+        if (!msg) return '';
+        if (msg.imageData) return msg.text ? '📷 ' + msg.text : '📷 Hình ảnh khách gửi';
+        return msg.text || '';
+    }
+
+    function normalizeSupportConversation(id, data) {
+        const safe = data || {};
+        const messages = supportMessagesArray(safe);
+        const last = messages[messages.length - 1] || {};
+        return Object.assign({}, safe, {
+            id: safe.id || id,
+            customerName: firstText([safe.customerName, safe.name], 'Khách vãng lai'),
+            customerEmail: firstText([safe.customerEmail, safe.email], ''),
+            customerPhone: firstText([safe.customerPhone, safe.phone], ''),
+            type: firstText([safe.type, last.type], 'Yêu cầu hỗ trợ'),
+            status: firstText([safe.status], 'open'),
+            lastMessage: firstText([safe.lastMessage, supportLastPreview(last)], ''),
+            lastSender: firstText([safe.lastSender, last.from], ''),
+            unreadForAdmin: !!safe.unreadForAdmin,
+            updatedAt: Number(safe.updatedAt || last.createdAt || safe.createdAt || 0),
+            createdAt: Number(safe.createdAt || safe.updatedAt || last.createdAt || Date.now()),
+            messages: safe.messages || {}
+        });
+    }
+
+    function supportTime(value) {
+        const date = new Date(Number(value || Date.now()));
+        return date.toLocaleString('vi-VN', { hour: '2-digit', minute: '2-digit', day: '2-digit', month: '2-digit' });
+    }
+
+    async function getSupportConversations() {
+        const db = getSupportDatabase();
+        if (db) {
+            const snapshot = await db.ref(SUPPORT_DB_ROOT).once('value');
+            const raw = snapshot.val() || {};
+            return Object.keys(raw).map(function(id) { return normalizeSupportConversation(id, raw[id]); }).sort(function(a, b) { return b.updatedAt - a.updatedAt; });
+        }
+        const local = readSupportLocal();
+        return Object.keys(local).map(function(id) { return normalizeSupportConversation(id, local[id]); }).sort(function(a, b) { return b.updatedAt - a.updatedAt; });
+    }
+
+    function filteredSupportConversations() {
+        const keyword = normalizeText(document.getElementById('supportSearchInput') ? document.getElementById('supportSearchInput').value : '');
+        const filter = document.getElementById('supportStatusFilter') ? document.getElementById('supportStatusFilter').value : 'all';
+        return (supportConversationsCache || []).filter(function(convo) {
+            const haystack = normalizeText([convo.customerName, convo.customerEmail, convo.customerPhone, convo.type, convo.lastMessage, convo.status, JSON.stringify(convo.messages || {})].join(' '));
+            const matchKeyword = !keyword || haystack.includes(keyword);
+            const matchFilter = filter === 'all' ||
+                (filter === 'open' && convo.status !== 'resolved') ||
+                (filter === 'unread' && convo.unreadForAdmin) ||
+                (filter === 'resolved' && convo.status === 'resolved');
+            return matchKeyword && matchFilter;
+        });
+    }
+
+    async function loadSupportConversations() {
+        supportConversationsCache = await getSupportConversations();
+        renderSupportMessages();
+    }
+
+    function renderSupportMessages() {
+        const list = document.getElementById('supportConversationList');
+        const detail = document.getElementById('supportConversationDetail');
+        const count = document.getElementById('supportMessageCount');
+        if (!list || !detail) return;
+        const rows = filteredSupportConversations();
+        const unread = (supportConversationsCache || []).filter(function(item) { return item.unreadForAdmin; }).length;
+        if (count) count.textContent = supportConversationsCache.length + ' cuộc trò chuyện' + (unread ? ' · ' + unread + ' mới' : '');
+
+        if (!rows.length) {
+            list.innerHTML = '<div class="support-empty">Chưa có tin nhắn phù hợp.</div>';
+            detail.innerHTML = '<div class="support-empty">Tin nhắn từ chat AI sẽ xuất hiện tại đây.</div>';
+            return;
+        }
+        if (!activeSupportConversationId || !rows.some(function(item) { return item.id === activeSupportConversationId; })) activeSupportConversationId = rows[0].id;
+        list.innerHTML = rows.map(function(convo) {
+            return `<button class="support-conversation-card ${convo.id === activeSupportConversationId ? 'active' : ''}" onclick="openSupportConversation('${escapeHtml(convo.id)}')">
+                <div class="support-conversation-top"><span class="support-customer-name">${escapeHtml(convo.customerName)}</span><span class="support-time">${escapeHtml(supportTime(convo.updatedAt))}</span></div>
+                <span class="support-type">${escapeHtml(convo.type)}</span>
+                <div class="support-preview">${escapeHtml(convo.lastMessage || 'Chưa có nội dung')}</div>
+                ${convo.unreadForAdmin ? '<span class="support-unread-dot">NEW</span>' : ''}
+            </button>`;
+        }).join('');
+        renderSupportConversationDetail();
+    }
+
+    async function openSupportConversation(id) {
+        activeSupportConversationId = id;
+        const convo = (supportConversationsCache || []).find(function(item) { return item.id === id; });
+        if (convo && convo.unreadForAdmin) await markSupportRead(id);
+        renderSupportMessages();
+    }
+
+    async function markSupportRead(id) {
+        const db = getSupportDatabase();
+        if (db) {
+            await db.ref(SUPPORT_DB_ROOT + '/' + id).update({ unreadForAdmin: false, adminReadAt: Date.now() });
+        } else {
+            const local = readSupportLocal();
+            if (local[id]) { local[id].unreadForAdmin = false; local[id].adminReadAt = Date.now(); writeSupportLocal(local); }
+        }
+        supportConversationsCache = supportConversationsCache.map(function(item) { return item.id === id ? Object.assign({}, item, { unreadForAdmin: false }) : item; });
+    }
+
+    function renderSupportConversationDetail() {
+        const detail = document.getElementById('supportConversationDetail');
+        if (!detail) return;
+        const convo = (supportConversationsCache || []).find(function(item) { return item.id === activeSupportConversationId; });
+        if (!convo) {
+            detail.innerHTML = '<div class="support-empty">Chọn một cuộc trò chuyện để phản hồi khách hàng.</div>';
+            return;
+        }
+        const messages = supportMessagesArray(convo);
+        detail.innerHTML = `
+            <div class="support-thread-header">
+                <div>
+                    <h3 class="support-thread-title">${escapeHtml(convo.customerName)}</h3>
+                    <div class="support-thread-meta">
+                        ${escapeHtml(convo.type)} · ${escapeHtml(convo.status === 'resolved' ? 'Đã xử lý' : 'Đang mở')}<br>
+                        ${convo.customerPhone ? 'SĐT: ' + escapeHtml(convo.customerPhone) + '<br>' : ''}
+                        ${convo.customerEmail ? 'Email: ' + escapeHtml(convo.customerEmail) : ''}
+                    </div>
+                </div>
+                <div class="support-thread-actions">
+                    <button class="admin-secondary-btn" onclick="markSupportResolved('${escapeHtml(convo.id)}')">Đánh dấu đã xử lý</button>
+                    <button class="admin-secondary-btn support-danger-btn" onclick="deleteSupportConversation('${escapeHtml(convo.id)}')">Xóa cuộc trò chuyện</button>
+                </div>
+            </div>
+            <div class="support-thread-body" id="supportThreadBody">
+                ${messages.length ? messages.map(function(msg) {
+                    const fromAdmin = msg.from === 'admin';
+                    return `<div class="support-message-row ${fromAdmin ? 'admin' : 'customer'}">
+                        <div class="support-bubble-wrap">
+                            <div class="support-bubble"><span class="support-bubble-meta">${fromAdmin ? 'THE STYLE HUB' : escapeHtml(convo.customerName)} · ${escapeHtml(supportTime(msg.createdAt))}</span>${supportMessageContentHtml(msg)}</div>
+                            <button class="support-delete-message" title="Xóa tin nhắn này" onclick="deleteSupportMessage('${escapeHtml(convo.id)}','${escapeHtml(msg.id)}')">🗑</button>
+                        </div>
+                    </div>`;
+                }).join('') : '<div class="support-empty">Chưa có nội dung tin nhắn.</div>'}
+            </div>
+            <div class="support-reply-box">
+                <textarea id="supportReplyInput" placeholder="Nhập phản hồi cho khách hàng..."></textarea>
+                <div class="support-reply-actions">
+                    <button class="admin-secondary-btn" onclick="document.getElementById('supportReplyInput').value=''">Xóa nội dung</button>
+                    <button class="admin-primary-btn" onclick="sendSupportReply()">Gửi phản hồi</button>
+                </div>
+            </div>`;
+        const body = document.getElementById('supportThreadBody');
+        if (body) body.scrollTop = body.scrollHeight;
+    }
+
+
+    function supportMessagePatchAfterDelete(conversation, remainingMessages) {
+        const last = remainingMessages[remainingMessages.length - 1] || null;
+        return {
+            lastMessage: supportLastPreview(last) || '',
+            lastSender: last && last.from ? last.from : '',
+            unreadForAdmin: remainingMessages.some(function(msg) { return msg.from !== 'admin' && msg.unreadForAdmin; }),
+            unreadForCustomer: remainingMessages.some(function(msg) { return msg.from === 'admin' && msg.unreadForCustomer; }),
+            updatedAt: Date.now()
+        };
+    }
+
+    async function deleteSupportMessage(conversationId, messageId) {
+        if (!conversationId || !messageId) return;
+        const convo = (supportConversationsCache || []).find(function(item) { return item.id === conversationId; });
+        if (!convo) return;
+        const agreed = await showAdminConfirm({
+            kicker: 'Xóa tin nhắn chat',
+            title: 'Xóa tin nhắn này?',
+            message: 'Tin nhắn sẽ bị xóa khỏi cuộc trò chuyện của khách và admin. Thao tác này không thể hoàn tác.',
+            confirmText: 'Xóa tin nhắn',
+            icon: '🗑️'
+        });
+        if (!agreed) return;
+        try {
+            const remaining = supportMessagesArray(convo).filter(function(msg) { return String(msg.id) !== String(messageId); });
+            const patch = supportMessagePatchAfterDelete(convo, remaining);
+            const db = getSupportDatabase();
+            if (db) {
+                const ref = db.ref(SUPPORT_DB_ROOT + '/' + conversationId);
+                await ref.child('messages/' + messageId).remove();
+                await ref.update(patch);
+            } else {
+                const local = readSupportLocal();
+                if (local[conversationId] && local[conversationId].messages) delete local[conversationId].messages[messageId];
+                if (local[conversationId]) Object.assign(local[conversationId], patch);
+                writeSupportLocal(local);
+            }
+            await loadSupportConversations();
+            activeSupportConversationId = conversationId;
+            renderSupportMessages();
+            showAdminToast('Đã xóa tin nhắn', 'Tin nhắn đã được gỡ khỏi cuộc trò chuyện.');
+        } catch (error) {
+            console.error(error);
+            showAdminToast('Không xóa được tin nhắn', 'Kiểm tra Firebase/config hoặc mạng internet.');
+        }
+    }
+
+    async function deleteSupportConversation(conversationId) {
+        if (!conversationId) return;
+        const convo = (supportConversationsCache || []).find(function(item) { return item.id === conversationId; });
+        const agreed = await showAdminConfirm({
+            kicker: 'Xóa cuộc trò chuyện',
+            title: 'Xóa toàn bộ chat với khách này?',
+            message: 'Toàn bộ tin nhắn, hình ảnh và phản hồi trong cuộc trò chuyện sẽ bị xóa khỏi hệ thống. Thao tác này không thể hoàn tác.',
+            confirmText: 'Xóa chat',
+            icon: '⚠️'
+        });
+        if (!agreed) return;
+        try {
+            const db = getSupportDatabase();
+            if (db) await db.ref(SUPPORT_DB_ROOT + '/' + conversationId).remove();
+            else {
+                const local = readSupportLocal();
+                delete local[conversationId];
+                writeSupportLocal(local);
+            }
+            supportConversationsCache = (supportConversationsCache || []).filter(function(item) { return item.id !== conversationId; });
+            activeSupportConversationId = supportConversationsCache[0] ? supportConversationsCache[0].id : '';
+            await loadSupportConversations();
+            renderSupportMessages();
+            showAdminToast('Đã xóa cuộc trò chuyện', (convo && convo.customerName ? convo.customerName : 'Tin nhắn') + ' đã được xóa khỏi mục Tin nhắn.');
+        } catch (error) {
+            console.error(error);
+            showAdminToast('Không xóa được cuộc trò chuyện', 'Kiểm tra Firebase/config hoặc mạng internet.');
+        }
+    }
+
+    async function sendSupportReply() {
+        const input = document.getElementById('supportReplyInput');
+        const text = input ? input.value.trim() : '';
+        const id = activeSupportConversationId;
+        if (!text || !id) return;
+        const now = Date.now();
+        const messageId = 'admin_' + now + '_' + Math.random().toString(36).slice(2, 7);
+        const message = { id: messageId, from: 'admin', text: text, createdAt: now };
+        try {
+            const db = getSupportDatabase();
+            if (db) {
+                const ref = db.ref(SUPPORT_DB_ROOT + '/' + id);
+                await ref.update({ lastMessage: text, lastSender: 'admin', unreadForAdmin: false, unreadForCustomer: true, status: 'open', updatedAt: now });
+                await ref.child('messages/' + messageId).set(message);
+            } else {
+                const local = readSupportLocal();
+                const current = local[id] || { id: id, messages: {} };
+                local[id] = Object.assign({}, current, { lastMessage: text, lastSender: 'admin', unreadForAdmin: false, unreadForCustomer: true, status: 'open', updatedAt: now, messages: Object.assign({}, current.messages || {}, { [messageId]: message }) });
+                writeSupportLocal(local);
+            }
+            if (input) input.value = '';
+            await loadSupportConversations();
+            activeSupportConversationId = id;
+            renderSupportMessages();
+            showAdminToast('Đã gửi phản hồi', 'Khách sẽ thấy phản hồi trong khung chat AI.');
+        } catch (error) {
+            console.error(error);
+            showAdminToast('Không gửi được phản hồi', 'Kiểm tra Firebase/config hoặc mạng internet.');
+        }
+    }
+
+    async function markSupportResolved(id) {
+        if (!id) return;
+        try {
+            const db = getSupportDatabase();
+            if (db) await db.ref(SUPPORT_DB_ROOT + '/' + id).update({ status: 'resolved', resolvedAt: Date.now(), unreadForAdmin: false });
+            else {
+                const local = readSupportLocal();
+                if (local[id]) { local[id].status = 'resolved'; local[id].resolvedAt = Date.now(); local[id].unreadForAdmin = false; writeSupportLocal(local); }
+            }
+            await loadSupportConversations();
+            activeSupportConversationId = id;
+            renderSupportMessages();
+            showAdminToast('Đã đánh dấu cuộc trò chuyện là đã xử lý');
+        } catch (error) {
+            showAdminToast('Không cập nhật được trạng thái tin nhắn');
+            console.error(error);
+        }
+    }
+
+    function startSupportRealtime() {
+        if (supportRealtimeStarted) return;
+        supportRealtimeStarted = true;
+        const db = getSupportDatabase();
+        if (db) {
+            db.ref(SUPPORT_DB_ROOT).on('value', function(snapshot) {
+                const raw = snapshot.val() || {};
+                supportConversationsCache = Object.keys(raw).map(function(id) { return normalizeSupportConversation(id, raw[id]); }).sort(function(a, b) { return b.updatedAt - a.updatedAt; });
+                renderSupportMessages();
+            });
+        } else {
+            loadSupportConversations();
+            window.addEventListener('storage', function(event) { if (event.key === SUPPORT_LOCAL_KEY) loadSupportConversations(); });
         }
     }
 

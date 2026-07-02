@@ -20,8 +20,25 @@
     const STORAGE_MESSAGES = "tsh_ai_pro_messages";
     const STORAGE_CONTEXT = "tsh_ai_pro_context";
     const STORAGE_POS = "tsh_ai_pro_position";
+    const SUPPORT_CONVERSATION_KEY = "tsh_support_conversation_id";
+    const SUPPORT_SEEN_KEY = "tsh_support_seen_admin_messages";
+    const SUPPORT_LOCAL_KEY = "tsh_support_conversations_v1";
+    const SUPPORT_DB_ROOT = "stylehub_orders/support_conversations";
     const STYLE_ID = "tsh-ai-pro-style";
     const WIDGET_ID = "tsh-ai-pro-widget";
+    const STYLEHUB_FIREBASE_CONFIG = {
+        apiKey: "AIzaSyBLmPFwTOltztOw28_LUp1L56jgYYAaApM",
+        authDomain: "thestylehub-aaf2f.firebaseapp.com",
+        databaseURL: "https://thestylehub-aaf2f-default-rtdb.firebaseio.com",
+        projectId: "thestylehub-aaf2f",
+        storageBucket: "thestylehub-aaf2f.firebasestorage.app",
+        messagingSenderId: "1044789250378",
+        appId: "1:1044789250378:web:e268f523e323954a6dd9b3",
+        measurementId: "G-Y53W16W4W3"
+    };
+    let supportDbPromise = null;
+    let supportReplyListenerStarted = false;
+    let selectedImageAttachment = null;
 
     const CLOTHING_SIZE = {
         male: [
@@ -320,6 +337,98 @@
                 border-color: #111;
             }
 
+            .tsh-ai-support-note {
+                display: block;
+                margin-top: 8px;
+                padding: 10px 12px;
+                border-radius: 12px;
+                background: #fffaf1;
+                border: 1px solid #ead8b8;
+                color: #6f4a1f;
+                font-size: 13px;
+                line-height: 1.45;
+            }
+
+            .tsh-ai-msg.bot strong.tsh-shop-name {
+                display: block;
+                margin-bottom: 4px;
+                color: #0b3030;
+                letter-spacing: .6px;
+            }
+
+            .tsh-ai-chat-image {
+                display: block;
+                width: 100%;
+                max-width: 240px;
+                max-height: 260px;
+                object-fit: cover;
+                border-radius: 14px;
+                margin-top: 8px;
+                border: 1px solid rgba(0,0,0,.08);
+                background: #f7f7f7;
+            }
+
+            .tsh-ai-msg.user .tsh-ai-chat-image {
+                border-color: rgba(255,255,255,.22);
+                background: #111;
+            }
+
+            .tsh-ai-selected-image {
+                display: none;
+                align-items: center;
+                gap: 10px;
+                margin: 0 14px 10px;
+                padding: 10px;
+                border-radius: 16px;
+                border: 1px solid #ead8b8;
+                background: #fffaf1;
+            }
+
+            .tsh-ai-selected-image.active {
+                display: flex;
+            }
+
+            .tsh-ai-selected-image img {
+                width: 52px;
+                height: 52px;
+                object-fit: cover;
+                border-radius: 12px;
+                background: #eee;
+                border: 1px solid rgba(0,0,0,.08);
+            }
+
+            .tsh-ai-selected-info {
+                flex: 1;
+                min-width: 0;
+                color: #6f4a1f;
+                font-size: 12px;
+                line-height: 1.35;
+            }
+
+            .tsh-ai-selected-info strong {
+                display: block;
+                color: #111;
+                white-space: nowrap;
+                overflow: hidden;
+                text-overflow: ellipsis;
+            }
+
+            .tsh-ai-remove-image {
+                border: none;
+                background: rgba(0,0,0,.08);
+                color: #111;
+                width: 28px;
+                height: 28px;
+                border-radius: 50%;
+                cursor: pointer;
+                font-size: 16px;
+                line-height: 1;
+            }
+
+            .tsh-ai-file-input {
+                display: none;
+            }
+
             .tsh-ai-inputbar {
                 display: flex;
                 align-items: center;
@@ -327,6 +436,27 @@
                 padding: 12px 14px 16px;
                 background: #fff;
                 border-top: 1px solid #f0f0f0;
+            }
+
+            .tsh-ai-attach {
+                width: 44px;
+                height: 44px;
+                flex: 0 0 44px;
+                border-radius: 50%;
+                border: 1px solid #ddd;
+                background: #fff;
+                color: #111;
+                font-size: 18px;
+                cursor: pointer;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+            }
+
+            .tsh-ai-attach:hover {
+                background: #111;
+                color: #fff;
+                border-color: #111;
             }
 
             .tsh-ai-input {
@@ -379,6 +509,105 @@
         return String(str || "").replace(/[&<>"']/g, function (m) {
             return ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#039;" })[m];
         });
+    }
+
+    function isSafeImageDataUrl(value) {
+        return /^data:image\/(png|jpe?g|webp|gif);base64,/i.test(String(value || ""));
+    }
+
+    function imageAttachmentHtml(attachment) {
+        if (!attachment || !isSafeImageDataUrl(attachment.dataUrl)) return "";
+        const alt = escapeHTML(attachment.name || "Ảnh khách gửi");
+        return `<img class="tsh-ai-chat-image" src="${attachment.dataUrl}" alt="${alt}" loading="lazy">`;
+    }
+
+    function buildChatHtml(text, attachment) {
+        const safeText = text ? escapeHTML(text) : "";
+        const img = imageAttachmentHtml(attachment);
+        if (safeText && img) return safeText + img;
+        return safeText || img || "";
+    }
+
+    function formatFileSize(bytes) {
+        const n = Number(bytes || 0);
+        if (!n) return "";
+        if (n < 1024 * 1024) return Math.max(1, Math.round(n / 1024)) + " KB";
+        return (n / (1024 * 1024)).toFixed(1).replace(".0", "") + " MB";
+    }
+
+    function compressImageFile(file) {
+        return new Promise(function(resolve, reject) {
+            if (!file || !String(file.type || "").startsWith("image/")) {
+                reject(new Error("Vui lòng chọn đúng file ảnh."));
+                return;
+            }
+
+            if (file.size > 6 * 1024 * 1024) {
+                reject(new Error("Ảnh hơi nặng. Bạn chọn ảnh dưới 6MB giúp shop nhé."));
+                return;
+            }
+
+            const reader = new FileReader();
+            reader.onerror = function() { reject(new Error("Không đọc được ảnh. Bạn thử chọn ảnh khác nhé.")); };
+            reader.onload = function() {
+                const image = new Image();
+                image.onerror = function() { reject(new Error("Ảnh không hợp lệ. Bạn thử chọn ảnh khác nhé.")); };
+                image.onload = function() {
+                    const maxSide = 1100;
+                    let width = image.naturalWidth || image.width;
+                    let height = image.naturalHeight || image.height;
+                    const scale = Math.min(1, maxSide / Math.max(width, height));
+                    width = Math.max(1, Math.round(width * scale));
+                    height = Math.max(1, Math.round(height * scale));
+
+                    const canvas = document.createElement("canvas");
+                    canvas.width = width;
+                    canvas.height = height;
+                    const ctx = canvas.getContext("2d");
+                    ctx.fillStyle = "#ffffff";
+                    ctx.fillRect(0, 0, width, height);
+                    ctx.drawImage(image, 0, 0, width, height);
+
+                    let quality = 0.82;
+                    let dataUrl = canvas.toDataURL("image/jpeg", quality);
+                    while (dataUrl.length > 1200000 && quality > 0.55) {
+                        quality -= 0.08;
+                        dataUrl = canvas.toDataURL("image/jpeg", quality);
+                    }
+
+                    resolve({
+                        dataUrl: dataUrl,
+                        name: file.name || "image.jpg",
+                        type: "image/jpeg",
+                        originalType: file.type || "",
+                        size: Math.round(dataUrl.length * 0.75),
+                        width: width,
+                        height: height
+                    });
+                };
+                image.src = String(reader.result || "");
+            };
+            reader.readAsDataURL(file);
+        });
+    }
+
+    function setSelectedImageAttachment(attachment) {
+        selectedImageAttachment = attachment || null;
+        const preview = document.getElementById("tshAiSelectedImage");
+        if (!preview) return;
+        if (!selectedImageAttachment) {
+            preview.classList.remove("active");
+            preview.innerHTML = "";
+            return;
+        }
+        preview.classList.add("active");
+        preview.innerHTML = `
+            <img src="${selectedImageAttachment.dataUrl}" alt="${escapeHTML(selectedImageAttachment.name || "Ảnh đã chọn")}">
+            <div class="tsh-ai-selected-info"><strong>${escapeHTML(selectedImageAttachment.name || "Ảnh đã chọn")}</strong><span>Ảnh sẽ được gửi cho shop · ${escapeHTML(formatFileSize(selectedImageAttachment.size))}</span></div>
+            <button class="tsh-ai-remove-image" type="button" id="tshAiRemoveImage" title="Bỏ ảnh">×</button>
+        `;
+        const remove = document.getElementById("tshAiRemoveImage");
+        if (remove) remove.addEventListener("click", function() { setSelectedImageAttachment(null); });
     }
 
     function normalize(str) {
@@ -664,6 +893,207 @@
         return "Mình gợi ý cho bạn vài sản phẩm phù hợp trong THE STYLE HUB:";
     }
 
+
+    function loadExternalScript(src) {
+        return new Promise(function (resolve, reject) {
+            if (document.querySelector('script[src="' + src + '"]')) return resolve();
+            const script = document.createElement("script");
+            script.src = src;
+            script.onload = resolve;
+            script.onerror = reject;
+            document.head.appendChild(script);
+        });
+    }
+
+    function hasFirebaseConfig() {
+        return STYLEHUB_FIREBASE_CONFIG && STYLEHUB_FIREBASE_CONFIG.apiKey && STYLEHUB_FIREBASE_CONFIG.databaseURL;
+    }
+
+    function getSupportDb() {
+        if (supportDbPromise) return supportDbPromise;
+        supportDbPromise = (async function () {
+            if (!hasFirebaseConfig()) return null;
+            try {
+                if (typeof firebase === "undefined") {
+                    await loadExternalScript("https://www.gstatic.com/firebasejs/10.12.5/firebase-app-compat.js");
+                    await loadExternalScript("https://www.gstatic.com/firebasejs/10.12.5/firebase-database-compat.js");
+                } else if (typeof firebase.database !== "function") {
+                    await loadExternalScript("https://www.gstatic.com/firebasejs/10.12.5/firebase-database-compat.js");
+                }
+                if (!firebase.apps || firebase.apps.length === 0) firebase.initializeApp(STYLEHUB_FIREBASE_CONFIG);
+                return firebase.database();
+            } catch (error) {
+                console.warn("THE STYLE HUB support chat đang dùng local fallback:", error);
+                return null;
+            }
+        })();
+        return supportDbPromise;
+    }
+
+    function getSupportConversationId() {
+        let id = localStorage.getItem(SUPPORT_CONVERSATION_KEY);
+        if (!id) {
+            id = "support_" + Date.now() + "_" + Math.random().toString(36).slice(2, 8);
+            localStorage.setItem(SUPPORT_CONVERSATION_KEY, id);
+        }
+        return id;
+    }
+
+    function readSupportLocal() {
+        try { return JSON.parse(localStorage.getItem(SUPPORT_LOCAL_KEY)) || {}; }
+        catch (e) { return {}; }
+    }
+
+    function writeSupportLocal(map) {
+        localStorage.setItem(SUPPORT_LOCAL_KEY, JSON.stringify(map || {}));
+        try { window.dispatchEvent(new StorageEvent("storage", { key: SUPPORT_LOCAL_KEY, newValue: JSON.stringify(map || {}) })); } catch (e) {}
+    }
+
+    function getSupportCustomerInfo() {
+        const name = localStorage.getItem("hub_name") || localStorage.getItem("customer_name") || localStorage.getItem("checkout_name") || "Khách vãng lai";
+        const email = localStorage.getItem("hub_email") || localStorage.getItem("customer_email") || localStorage.getItem("checkout_email") || "";
+        const phone = localStorage.getItem("hub_phone") || localStorage.getItem("customer_phone") || localStorage.getItem("checkout_phone") || "";
+        return { name: String(name || "Khách vãng lai"), email: String(email || ""), phone: String(phone || "") };
+    }
+
+    function supportMessageType(text, attachment) {
+        const t = normalize(text);
+        if (attachment && attachment.dataUrl) return "Hình ảnh hỗ trợ";
+        if (t.includes("khieu nai") || t.includes("phan nan") || t.includes("khong hai long") || t.includes("complain")) return "Khiếu nại";
+        if (t.includes("so luong lon") || t.includes("dat nhieu") || t.includes("mua nhieu") || t.includes("mua si") || t.includes("gia si") || t.includes("bulk")) return "Đặt số lượng lớn";
+        if (t.includes("y kien") || t.includes("gop y") || t.includes("feedback") || t.includes("danh gia")) return "Góp ý sản phẩm";
+        if (t.includes("bao hanh") || t.includes("doi tra") || t.includes("doi hang") || t.includes("hoan tien") || t.includes("tra hang")) return "Đổi trả / bảo hành";
+        if (t.includes("nhan vien") || t.includes("nguoi that") || t.includes("admin") || t.includes("shop rep") || t.includes("gap shop")) return "Cần nhân viên hỗ trợ";
+        return "Yêu cầu hỗ trợ";
+    }
+
+    function shouldForwardToSupport(text) {
+        const t = normalize(text);
+        const keywords = [
+            "khieu nai", "phan nan", "khong hai long", "complain", "loi don", "loi san pham", "hang loi", "hang hong",
+            "bao hanh", "doi tra", "doi hang", "tra hang", "hoan tien", "huy don", "doi dia chi",
+            "so luong lon", "dat nhieu", "mua nhieu", "mua si", "gia si", "bulk", "doanh nghiep",
+            "y kien", "gop y", "feedback", "danh gia san pham", "nhan vien", "nguoi that", "admin", "gap shop", "lien he shop", "tu van vien"
+        ];
+        if (keywords.some(function (word) { return t.includes(word); })) return true;
+        return false;
+    }
+
+    async function saveCustomerSupportMessage(text, attachment) {
+        const conversationId = getSupportConversationId();
+        const customer = getSupportCustomerInfo();
+        const now = Date.now();
+        const messageId = "msg_" + now + "_" + Math.random().toString(36).slice(2, 7);
+        const hasImage = !!(attachment && attachment.dataUrl);
+        const cleanText = String(text || "").trim();
+        const type = supportMessageType(cleanText, attachment);
+        const displayText = cleanText || (hasImage ? "Khách đã gửi hình ảnh." : "");
+        const message = {
+            id: messageId,
+            from: "customer",
+            text: displayText,
+            createdAt: now,
+            type: type
+        };
+
+        if (hasImage) {
+            message.imageData = attachment.dataUrl;
+            message.imageName = attachment.name || "image.jpg";
+            message.imageType = attachment.type || "image/jpeg";
+            message.imageSize = attachment.size || 0;
+            message.imageWidth = attachment.width || 0;
+            message.imageHeight = attachment.height || 0;
+        }
+
+        const lastMessage = hasImage ? (cleanText ? "📷 " + cleanText : "📷 Khách gửi hình ảnh") : cleanText;
+        const conversationPatch = {
+            id: conversationId,
+            customerName: customer.name,
+            customerEmail: customer.email,
+            customerPhone: customer.phone,
+            type: type,
+            status: "open",
+            lastMessage: lastMessage,
+            lastSender: "customer",
+            unreadForAdmin: true,
+            updatedAt: now,
+            createdAt: now
+        };
+
+        const db = await getSupportDb();
+        if (db) {
+            const ref = db.ref(SUPPORT_DB_ROOT + "/" + conversationId);
+            const snapshot = await ref.once("value");
+            if (snapshot.exists() && snapshot.val() && snapshot.val().createdAt) delete conversationPatch.createdAt;
+            await ref.update(conversationPatch);
+            await ref.child("messages/" + messageId).set(message);
+        } else {
+            const map = readSupportLocal();
+            const current = map[conversationId] || { id: conversationId, messages: {} };
+            map[conversationId] = Object.assign({}, current, conversationPatch, {
+                createdAt: current.createdAt || now,
+                messages: Object.assign({}, current.messages || {}, { [messageId]: message })
+            });
+            writeSupportLocal(map);
+        }
+        return { conversationId: conversationId, messageId: messageId, type: type };
+    }
+
+    function supportAckHtml(result) {
+        const shortId = String(result.conversationId || "").replace("support_", "").slice(0, 8).toUpperCase();
+        return `<strong class="tsh-shop-name">THE STYLE HUB đã nhận được tin nhắn của bạn.</strong>` +
+            `Shop sẽ kiểm tra và phản hồi lại ngay tại khung chat này trong thời gian sớm nhất.` +
+            `<span class="tsh-ai-support-note">Mã hỗ trợ: ${escapeHTML(shortId || "SUPPORT")} · Nhóm yêu cầu: ${escapeHTML(result.type || "Hỗ trợ")}</span>`;
+    }
+
+    function loadSeenSupportMessages() {
+        try { return JSON.parse(localStorage.getItem(SUPPORT_SEEN_KEY)) || {}; }
+        catch (e) { return {}; }
+    }
+
+    function markSupportMessageSeen(id) {
+        const seen = loadSeenSupportMessages();
+        seen[id] = true;
+        localStorage.setItem(SUPPORT_SEEN_KEY, JSON.stringify(seen));
+    }
+
+    function appendShop(content, save = true) {
+        const body = document.getElementById("tshAiBody");
+        const meta = document.createElement("div");
+        meta.className = "tsh-ai-meta";
+        meta.textContent = `THE STYLE HUB ${formatTime()}`;
+
+        const msg = document.createElement("div");
+        msg.className = "tsh-ai-msg bot";
+        msg.innerHTML = content;
+
+        if (body) {
+            body.append(meta, msg);
+            body.scrollTop = body.scrollHeight;
+        }
+
+        if (save) storeMessage("bot", content, "THE STYLE HUB");
+    }
+
+    function startSupportReplyListener() {
+        if (supportReplyListenerStarted) return;
+        supportReplyListenerStarted = true;
+        const conversationId = getSupportConversationId();
+
+        getSupportDb().then(function (db) {
+            if (!db) return;
+            db.ref(SUPPORT_DB_ROOT + "/" + conversationId + "/messages").on("child_added", function (snapshot) {
+                const msg = snapshot.val() || {};
+                const messageId = msg.id || snapshot.key;
+                if (msg.from !== "admin" || !messageId) return;
+                const seen = loadSeenSupportMessages();
+                if (seen[messageId]) return;
+                markSupportMessageSeen(messageId);
+                appendShop(`<strong class="tsh-shop-name">THE STYLE HUB phản hồi:</strong>${escapeHTML(msg.text || "")}`);
+            });
+        });
+    }
+
     function buildReply(text) {
         const context = loadContext();
         const t = normalize(text);
@@ -765,7 +1195,7 @@
         saveMessages(messages);
     }
 
-    function appendUser(text, save = true) {
+    function appendUser(text, save = true, attachment) {
         const body = document.getElementById("tshAiBody");
 
         const meta = document.createElement("div");
@@ -774,12 +1204,13 @@
 
         const msg = document.createElement("div");
         msg.className = "tsh-ai-msg user";
-        msg.innerHTML = escapeHTML(text);
+        const html = buildChatHtml(text, attachment);
+        msg.innerHTML = html || "Đã gửi hình ảnh";
 
         body.append(meta, msg);
         body.scrollTop = body.scrollHeight;
 
-        if (save) storeMessage("user", escapeHTML(text), "Me");
+        if (save) storeMessage("user", html || escapeHTML(text), "Me");
     }
 
     function appendBot(content, save = true) {
@@ -813,9 +1244,25 @@
         }, 650);
     }
 
-    function handleMessage(text) {
-        appendUser(text);
-        showTyping(() => appendBot(buildReply(text)));
+    function handleMessage(text, attachment) {
+        const hasImage = !!(attachment && attachment.dataUrl);
+        appendUser(text || (hasImage ? "" : text), true, attachment);
+
+        if (hasImage || shouldForwardToSupport(text)) {
+            showTyping(async function () {
+                try {
+                    const result = await saveCustomerSupportMessage(text, attachment);
+                    appendBot(supportAckHtml(result));
+                    startSupportReplyListener();
+                } catch (error) {
+                    console.error("Không gửi được tin nhắn hỗ trợ:", error);
+                    appendBot("Shop chưa nhận được tin nhắn do lỗi kết nối. Bạn thử gửi lại giúp mình hoặc liên hệ hotline 02796096060 nhé.");
+                }
+            });
+            return;
+        }
+
+        showTyping(function () { appendBot(buildReply(text)); });
     }
 
     function addToCart(productId) {
@@ -982,10 +1429,15 @@
                     <button data-suggest="Cho tôi coi quần jean">Quần jean</button>
                     <button data-suggest="Cho tôi coi dress shirt">Dress shirt</button>
                     <button data-suggest="Tư vấn size giày nam">Size giày nam</button>
+                    <button data-suggest="Tôi muốn gặp nhân viên hỗ trợ">Gặp shop hỗ trợ</button>
                     <button data-suggest="Có sản phẩm sale không">Sale</button>
                 </div>
 
+                <div class="tsh-ai-selected-image" id="tshAiSelectedImage"></div>
+
                 <form class="tsh-ai-inputbar" id="tshAiForm">
+                    <input class="tsh-ai-file-input" id="tshAiImageInput" type="file" accept="image/*">
+                    <button class="tsh-ai-attach" id="tshAiAttach" type="button" title="Gửi ảnh cho shop">📷</button>
                     <input class="tsh-ai-input" id="tshAiInput" placeholder="Send a message" autocomplete="off">
                     <button class="tsh-ai-send" type="submit">➤</button>
                 </form>
@@ -1001,15 +1453,34 @@
         document.getElementById("tshAiClose").addEventListener("click", closeChat);
         document.getElementById("tshAiClear").addEventListener("click", clearHistory);
 
+        const attachBtn = document.getElementById("tshAiAttach");
+        const imageInput = document.getElementById("tshAiImageInput");
+        if (attachBtn && imageInput) {
+            attachBtn.addEventListener("click", function() { imageInput.click(); });
+            imageInput.addEventListener("change", async function() {
+                const file = imageInput.files && imageInput.files[0];
+                imageInput.value = "";
+                if (!file) return;
+                try {
+                    const attachment = await compressImageFile(file);
+                    setSelectedImageAttachment(attachment);
+                } catch (error) {
+                    appendBot(escapeHTML(error.message || "Không chọn được ảnh. Bạn thử lại nhé."));
+                }
+            });
+        }
+
         document.getElementById("tshAiForm").addEventListener("submit", function (e) {
             e.preventDefault();
             const input = document.getElementById("tshAiInput");
             const text = input.value.trim();
+            const attachment = selectedImageAttachment;
 
-            if (!text) return;
+            if (!text && !attachment) return;
 
             input.value = "";
-            handleMessage(text);
+            setSelectedImageAttachment(null);
+            handleMessage(text, attachment);
         });
 
         document.querySelectorAll(".tsh-ai-suggestions button").forEach(btn => {
@@ -1027,5 +1498,6 @@
     document.addEventListener("DOMContentLoaded", function () {
         injectStyle();
         createWidget();
+        startSupportReplyListener();
     });
 })();
