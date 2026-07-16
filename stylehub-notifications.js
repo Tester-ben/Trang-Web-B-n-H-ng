@@ -340,6 +340,9 @@
                 border: 1px solid rgba(17,17,17,.16) !important;
                 box-shadow: 0 12px 30px rgba(0,0,0,.22) !important;
                 font-size: 22px !important;
+                pointer-events: auto !important;
+                touch-action: manipulation !important;
+                -webkit-tap-highlight-color: transparent !important;
             }
 
             .home-notification-bell .stylehub-bell-btn:hover,
@@ -451,10 +454,12 @@
                 right: 104px !important;
                 bottom: 24px !important;
                 top: auto !important;
-                z-index: 999999 !important;
+                z-index: 2147483646 !important;
                 display: inline-flex !important;
                 justify-content: center !important;
                 align-items: center !important;
+                pointer-events: auto !important;
+                touch-action: manipulation !important;
             }
 
             .home-notification-bell .stylehub-bell-btn {
@@ -535,10 +540,12 @@
                 right: 104px !important;
                 bottom: 24px !important;
                 top: auto !important;
-                z-index: 999999 !important;
+                z-index: 2147483646 !important;
                 display: inline-flex !important;
                 justify-content: center !important;
                 align-items: center !important;
+                pointer-events: auto !important;
+                touch-action: manipulation !important;
             }
 
             .home-notification-bell .stylehub-bell-btn {
@@ -632,6 +639,59 @@
                     height: 52px !important;
                     font-size: 20px !important;
                 }
+
+                .home-notification-bell .stylehub-notification-panel {
+                    position: fixed !important;
+                    left: 12px !important;
+                    right: 12px !important;
+                    bottom: 86px !important;
+                    top: auto !important;
+                    width: auto !important;
+                    max-width: none !important;
+                    max-height: min(60vh, 460px) !important;
+                    z-index: 2147483647 !important;
+                }
+
+                .home-notification-bell .stylehub-notification-panel::before {
+                    right: 96px !important;
+                }
+            }
+
+            /* ===== MOBILE PANEL DIRECTION =====
+               Trang chủ: giữ bảng thông báo bật lên phía trên chuông.
+               Các trang khác: bảng thông báo xổ dọc xuống dưới chuông để không che nội dung/menu. */
+            @media (max-width: 768px) {
+                /* Trang chủ giữ cách hiển thị bình thường phía trên nút chuông. */
+                .home-notification-bell .stylehub-notification-panel {
+                    position: fixed !important;
+                    top: auto !important;
+                    bottom: 86px !important;
+                    left: 12px !important;
+                    right: 12px !important;
+                    width: auto !important;
+                    max-height: min(60vh, 460px) !important;
+                    overflow-y: auto !important;
+                }
+
+                /* Trang danh mục và các trang còn lại: xổ bảng xuống theo chiều dọc. */
+                .filter-right-sort[data-stylehub-notification-bell] .stylehub-notification-panel,
+                .pd-notification-bell .stylehub-notification-panel {
+                    position: fixed !important;
+                    top: 126px !important;
+                    bottom: auto !important;
+                    left: 12px !important;
+                    right: 12px !important;
+                    width: auto !important;
+                    max-width: none !important;
+                    max-height: calc(100vh - 142px) !important;
+                    overflow-y: auto !important;
+                    z-index: 2147483647 !important;
+                }
+
+                .filter-right-sort[data-stylehub-notification-bell] .stylehub-notification-panel::before,
+                .pd-notification-bell .stylehub-notification-panel::before {
+                    display: none !important;
+                }
             }
 
             /* Hide floating bell while drawer/modals are open so it does not bleed over checkout. */
@@ -701,9 +761,11 @@
         const btn = root.querySelector(".stylehub-bell-btn");
         const panel = root.querySelector(".stylehub-notification-panel");
 
-        btn.addEventListener("click", function (event) {
-            event.preventDefault();
-            event.stopPropagation();
+        function toggleNotificationPanel(event) {
+            if (event) {
+                event.preventDefault();
+                event.stopPropagation();
+            }
 
             document.querySelectorAll(".stylehub-notification-root.open").forEach(function (item) {
                 if (item !== root) item.classList.remove("open");
@@ -722,6 +784,21 @@
                     count.classList.remove("show");
                 }
             }
+        }
+
+        let lastPointerOpen = 0;
+        btn.addEventListener("pointerup", function (event) {
+            lastPointerOpen = Date.now();
+            toggleNotificationPanel(event);
+        });
+
+        btn.addEventListener("click", function (event) {
+            if (Date.now() - lastPointerOpen < 500) {
+                event.preventDefault();
+                event.stopPropagation();
+                return;
+            }
+            toggleNotificationPanel(event);
         });
 
         if (panel) {

@@ -2585,3 +2585,89 @@ setTimeout(initStyleHubFooterSocialFullSet, 1000);
     setTimeout(cleanFeaturedMenu, 800);
 })();
 /* ===== END FEATURED MENU CLEANUP ===== */
+
+/* ===== MOBILE PRODUCT IMAGE FLIP ===== */
+(function () {
+    function isMobileTouch() {
+        return window.matchMedia('(max-width: 768px)').matches &&
+            (window.matchMedia('(hover: none)').matches || navigator.maxTouchPoints > 0);
+    }
+
+    function injectMobileFlipStyles() {
+        if (document.getElementById('stylehub-mobile-product-flip-style')) return;
+        const style = document.createElement('style');
+        style.id = 'stylehub-mobile-product-flip-style';
+        style.textContent = `
+            @media (max-width: 768px) {
+                .mens-card.mobile-image-flipped .img-front,
+                .product-card.mobile-image-flipped .img-main {
+                    opacity: 0 !important;
+                }
+
+                .mens-card.mobile-image-flipped .img-back,
+                .product-card.mobile-image-flipped .img-hover {
+                    opacity: 1 !important;
+                    transform: scale(1.01) !important;
+                }
+
+                .mens-thumb-box img,
+                .product-thumb img,
+                .hover-img img {
+                    transition: opacity .35s ease, transform .35s ease !important;
+                }
+            }
+        `;
+        document.head.appendChild(style);
+    }
+
+    function findProductCard(target) {
+        return target.closest('.mens-card, .product-card');
+    }
+
+    function hasSecondImage(card) {
+        return !!(
+            (card.querySelector('.img-front') && card.querySelector('.img-back')) ||
+            (card.querySelector('.img-main') && card.querySelector('.img-hover'))
+        );
+    }
+
+    function isInsideProductImage(target, card) {
+        const imageArea = target.closest('.mens-thumb-box, .product-thumb, .hover-img, .product-image, .thumb-box');
+        return !!(imageArea && card.contains(imageArea));
+    }
+
+    function closeOtherCards(currentCard) {
+        document.querySelectorAll('.mens-card.mobile-image-flipped, .product-card.mobile-image-flipped')
+            .forEach(function (card) {
+                if (card !== currentCard) card.classList.remove('mobile-image-flipped');
+            });
+    }
+
+    document.addEventListener('click', function (event) {
+        if (!isMobileTouch()) return;
+
+        const target = event.target instanceof Element ? event.target : null;
+        if (!target || target.closest('.stylehub-wishlist-btn, button, input, select, textarea')) return;
+
+        const card = findProductCard(target);
+        if (!card || !hasSecondImage(card) || !isInsideProductImage(target, card)) return;
+
+        if (!card.classList.contains('mobile-image-flipped')) {
+            event.preventDefault();
+            event.stopPropagation();
+            closeOtherCards(card);
+            card.classList.add('mobile-image-flipped');
+        }
+    }, true);
+
+    document.addEventListener('click', function (event) {
+        if (!isMobileTouch()) return;
+        const target = event.target instanceof Element ? event.target : null;
+        if (!target || target.closest('.mens-card, .product-card')) return;
+        closeOtherCards(null);
+    });
+
+    injectMobileFlipStyles();
+    document.addEventListener('DOMContentLoaded', injectMobileFlipStyles);
+})();
+/* ===== END MOBILE PRODUCT IMAGE FLIP ===== */

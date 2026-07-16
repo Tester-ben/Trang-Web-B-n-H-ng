@@ -501,7 +501,7 @@ body {
 <div class="search-overlay" id="searchBox">
     <div class="search-panel">
         <button class="search-close-btn" onclick="closeSearchBox()">×</button>
-        <input class="search-input" id="searchInput" onkeyup="searchProducts()" placeholder="SEARCH FOR PRODUCTS..." type="text">
+        <input class="search-input" id="searchInput" onkeyup="searchProducts()" placeholder="TÌM KIẾM FOR PRODUCTS..." type="text">
         <div class="search-results" id="searchResults"></div>
     </div>
 </div>
@@ -596,7 +596,7 @@ body {
 <main class="policy-page-wrapper policy-upgraded">
     <section class="policy-hero policy-fade">
         <div>
-            <div class="policy-eyebrow">Shipping Policy</div>
+            <div class="policy-eyebrow">Chính sách giao hàng</div>
             <h1>Chính sách<br>giao hàng</h1>
             <p>The Style Hub hỗ trợ giao hàng toàn quốc cho đơn đặt qua website. Chính sách này giúp khách hàng nắm rõ thời gian xử lý, phí vận chuyển, phạm vi giao hàng và cách kiểm tra khi nhận sản phẩm.</p>
             <div class="policy-cta">
@@ -605,7 +605,7 @@ body {
             </div>
         </div>
         <aside class="policy-hero-card">
-            <strong>Delivery Flow</strong>
+            <strong>Quy trình giao hàng</strong>
             <span>Đặt hàng → xác nhận thông tin → xử lý đơn → bàn giao vận chuyển → giao đến địa chỉ khách hàng.</span>
         </aside>
     </section>
@@ -666,7 +666,7 @@ function searchProducts() {
         return text.includes(keyword);
     }).slice(0, 12);
     if (results.length === 0) {
-        resultsBox.innerHTML = `<p class="search-empty">No products found.</p>`;
+        resultsBox.innerHTML = `<p class="search-empty">Không tìm thấy sản phẩm.</p>`;
         return;
     }
     results.forEach(id => {
@@ -706,7 +706,7 @@ document.addEventListener("click", function(e) {
 <footer class="site-footer support-footer">
     <div class="footer-col footer-brand">
         <h3>THE STYLE HUB</h3>
-        <p>Modern fashion store for menswear, womenswear, kidswear, shoes and seasonal sale collections.</p>
+        <p>Cửa hàng thời trang hiện đại dành cho nam, nữ, trẻ em, giày dép và các bộ sưu tập giảm giá theo mùa.</p>
         <div class="social-links footer-social-links">
             <a class="footer-social-icon footer-fb-icon" href="#" aria-label="Facebook"><img src="images/fb.png" alt="Facebook"></a>
             <a class="footer-social-icon footer-zalo-icon" href="#" aria-label="Zalo"><img src="images/zalo.png" alt="Zalo"></a>
@@ -716,13 +716,13 @@ document.addEventListener("click", function(e) {
 
     <div class="footer-col footer-categories">
         <h4>DANH MỤC</h4>
-        <a href="collections.html">ALL PRODUCTS</a>
-        <a href="mens.html">MENS</a>
-        <a href="womens.html">WOMENS</a>
-        <a href="kids.html">KIDS</a>
-        <a href="sale.html">SALE</a>
-        <a href="shoes.html">SHOES</a>
-        <a href="account.html" id="account-trigger">ACCOUNT</a>
+        <a href="collections.html">TẤT CẢ SẢN PHẨM</a>
+        <a href="mens.html">NAM</a>
+        <a href="womens.html">WONAM</a>
+        <a href="kids.html">TRẺ EM</a>
+        <a href="sale.html">GIẢM GIÁ</a>
+        <a href="shoes.html">GIÀY DÉP</a>
+        <a href="account.html" id="account-trigger">TÀI KHOẢN</a>
     </div>
 
     <div class="footer-col footer-support">
@@ -743,7 +743,7 @@ document.addEventListener("click", function(e) {
             <img src="images/mastercard.png" alt="Mastercard">
             <img src="images/jcb.png" alt="JCB">
         </div>
-        <div class="footer-badges"><img src="images/dathongbao.png" alt="Đã thông báo"><span>DMCA PROTECTED</span></div>
+        <div class="footer-badges"><img src="images/dathongbao.png" alt="Đã thông báo"><span>ĐƯỢC BẢO VỆ BẢN QUYỀN</span></div>
     </div>
 </footer>
 <div class="footer-bottom">© 2026 THE STYLE HUB. UI/UX Interface Design Project.</div>

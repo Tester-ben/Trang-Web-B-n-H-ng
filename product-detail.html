@@ -375,9 +375,24 @@
             transform: none !important;
             pointer-events: none;
         }
-        .stylehub-order-success-done:hover {
-            background: #1c1c1c;
-            border-color: #1c1c1c;
+        /* Giữ nền nút Đóng đồng nhất trong popup Order Now, không bị hiệu ứng nút chung phủ nửa nút. */
+        .stylehub-order-success-done,
+        .stylehub-order-success-done:hover,
+        .stylehub-order-success-done:focus,
+        .stylehub-order-success-done:active {
+            background: #111 !important;
+            background-image: none !important;
+            border-color: #111 !important;
+            color: #fff !important;
+            box-shadow: none !important;
+            opacity: 1 !important;
+            transform: none !important;
+        }
+        .stylehub-order-success-done::before,
+        .stylehub-order-success-done::after {
+            content: none !important;
+            display: none !important;
+            background: transparent !important;
         }
         body.stylehub-order-success-open .tsh-ai-toggle,
         body.stylehub-order-success-open .tsh-ai-box,
