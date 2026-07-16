@@ -6,23 +6,7 @@
     <title>Product Detail - The Style Hub</title>
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="style.css">
-
-    <!-- EmailJS: gửi mail xác nhận đơn hàng -->
-    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
-    <script type="text/javascript">
-        window.STYLEHUB_EMAILJS_PUBLIC_KEY = "MB1m-Q2_ueI82N8Xo";
-        window.STYLEHUB_EMAILJS_SERVICE_ID = "service_xjsmniq";
-        // Template cũ của trang thanh toán đang hoạt động là template_f4bnal4.
-        // Giữ thêm template_1v0d3yr làm dự phòng để không bị mất email nếu ID template thay đổi.
-        window.STYLEHUB_EMAILJS_TEMPLATE_ID = "template_f4bnal4";
-        window.STYLEHUB_EMAILJS_FALLBACK_TEMPLATE_IDS = ["template_1v0d3yr"];
-
-        (function () {
-            if (window.emailjs && typeof window.emailjs.init === "function") {
-                window.emailjs.init(window.STYLEHUB_EMAILJS_PUBLIC_KEY);
-            }
-        })();
-    </script>
+    <!-- STATIC DEMO MODE: EmailJS removed. Checkout only shows success UI; no email is sent. -->
 <style>
         * { box-sizing: border-box; margin: 0; padding: 0; }
         body { font-family: 'Roboto', sans-serif; background-color: #ffffff; color: #111111; overflow-x: hidden; }
@@ -108,7 +92,8 @@
         
         .specs-details-section { border-top: 1px solid #eee; padding-top: 30px; }
         .specs-heading { font-size: 12px; text-transform: uppercase; letter-spacing: 1.5px; font-weight: 500; margin-bottom: 15px; }
-        .specs-ul { list-style: none; } .specs-ul li { font-size: 12px; color: #555; line-height: 1.8; margin-bottom: 10px; padding-left: 15px; position: relative; }
+        .specs-intro { font-size: 13px; color: #555; line-height: 1.85; margin: 0 0 16px; }
+        .specs-ul { list-style: none; } .specs-ul li { font-size: 13px; color: #555; line-height: 1.9; margin-bottom: 12px; padding-left: 16px; position: relative; }
         .specs-ul li::before { content: "•"; position: absolute; left: 0; color: #999; }
         
         /* ==================== DRAWER GIỎ HÀNG CẠNH PHẢI ==================== */
@@ -786,9 +771,12 @@
 
                     <div class="specs-details-section">
                         <h3 class="specs-heading">Product Specifications</h3>
-                        <ul class="specs-ul">
-                            <li><strong>Chất liệu vải:</strong> Cotton premium mềm mại, dệt mật độ cao thoáng khí, giữ phom cực tốt.</li>
-                            <li><strong>Kiểu dáng:</strong> Thiết kế phom dáng thoải mái tôn dáng hiện đại, dễ dàng phối hợp nhiều layout.</li>
+                        <p class="specs-intro" id="specs-intro-target">Sản phẩm được thiết kế theo tinh thần tối giản, dễ mặc và phù hợp với nhiều phong cách hằng ngày.</p>
+                        <ul class="specs-ul" id="specs-list-target">
+                            <li><strong>Chất liệu:</strong> Bề mặt mềm mại, thoáng khí, tạo cảm giác dễ chịu khi sử dụng trong thời gian dài.</li>
+                            <li><strong>Kiểu dáng:</strong> Phom hiện đại, dễ phối cùng nhiều item khác trong tủ đồ.</li>
+                            <li><strong>Ứng dụng:</strong> Phù hợp để đi học, đi làm, đi chơi hoặc sử dụng trong các hoạt động thường ngày.</li>
+                            <li><strong>Bảo quản:</strong> Nên giặt nhẹ, hạn chế sử dụng chất tẩy mạnh và phơi ở nơi thoáng mát để giữ sản phẩm bền đẹp.</li>
                         </ul>
                     </div>
                 </div>
@@ -903,9 +891,7 @@
 
     <!-- DATA KHO HÀNG TỔNG HỢP -->
     <script src="product-data.js?v=fix-kids-products-20260624"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-database-compat.js"></script>
-    <script src="stylehub-orders-api.js?v=stock-cloud-sync-20260630"></script>
+    <script src="stylehub-orders-api.js?v=static-demo-products-20260709"></script>
     
     <script>
         
@@ -1105,6 +1091,80 @@
             window.selectedSize = "M";
         }
 
+        function renderProductSpecifications(productId, productItem) {
+            const introTarget = document.getElementById("specs-intro-target");
+            const listTarget = document.getElementById("specs-list-target");
+            if (!introTarget || !listTarget) return;
+
+            const id = String(productId || "").toLowerCase();
+            const category = getProductCategoryById(id);
+            const productName = productItem && productItem.name ? productItem.name : "sản phẩm này";
+
+            const specsByCategory = {
+                shoes: {
+                    intro: `${productName} được phát triển theo phong cách sneaker hiện đại, ưu tiên sự êm chân, dễ phối đồ và phù hợp với nhịp sống năng động hằng ngày. Thiết kế tập trung vào cảm giác nhẹ, bề mặt thoáng và form giày gọn gàng để có thể sử dụng trong nhiều hoàn cảnh khác nhau.`,
+                    items: [
+                        ["Chất liệu thân giày", "Kết hợp bề mặt da tổng hợp cao cấp và lớp vải thoáng khí, giúp đôi giày giữ được vẻ chỉn chu nhưng vẫn tạo cảm giác dễ chịu khi di chuyển lâu."],
+                        ["Đế giày", "Phần đế cao su có độ bám tốt, hỗ trợ bước đi ổn định trên nhiều bề mặt như sàn gạch, đường phố hoặc khu vực ngoài trời khô ráo."],
+                        ["Lót trong", "Lớp lót mềm giúp giảm cảm giác bí chân, hạn chế ma sát và tạo sự thoải mái khi mang cả ngày."],
+                        ["Kiểu dáng", "Dáng sneaker basic, đường nét tối giản, dễ phối cùng quần jeans, quần short, chân váy hoặc outfit streetwear."],
+                        ["Dịp sử dụng", "Phù hợp đi học, đi làm, dạo phố, du lịch ngắn ngày hoặc các hoạt động cần sự linh hoạt nhưng vẫn thời trang."],
+                        ["Bảo quản", "Nên lau nhẹ bằng khăn mềm sau khi sử dụng, tránh ngâm nước lâu và để giày ở nơi khô thoáng để giữ form tốt hơn."]
+                    ]
+                },
+                womens: {
+                    intro: `${productName} hướng đến phong cách nữ tính hiện đại, dễ mặc và dễ ứng dụng trong nhiều hoàn cảnh. Sản phẩm được chọn theo tiêu chí nhẹ nhàng, tôn dáng, không quá cầu kỳ nhưng vẫn tạo điểm nhấn thanh lịch cho outfit hằng ngày.`,
+                    items: [
+                        ["Chất liệu", "Vải mềm, bề mặt mịn, tạo cảm giác thoải mái khi mặc và hạn chế nhăn ở mức cơ bản trong quá trình sử dụng."],
+                        ["Phom dáng", "Thiết kế vừa vặn, giúp tôn đường nét cơ thể mà vẫn giữ được sự thoải mái khi vận động."],
+                        ["Chi tiết thiết kế", "Đường may gọn, bố cục tinh giản, dễ kết hợp cùng các phụ kiện như túi xách, giày cao gót, sneaker hoặc sandal."],
+                        ["Khả năng phối đồ", "Có thể phối với quần jeans, chân váy, áo khoác mỏng hoặc các item basic để tạo outfit đi học, đi làm và đi chơi."],
+                        ["Cảm giác mặc", "Ưu tiên sự nhẹ nhàng, thoáng và dễ chịu để người mặc tự tin trong cả ngày dài."],
+                        ["Bảo quản", "Nên giặt riêng với màu tương đồng, lộn trái sản phẩm trước khi giặt và phơi ở nơi râm mát để giữ màu lâu hơn."]
+                    ]
+                },
+                kids: {
+                    intro: `${productName} được lựa chọn theo tiêu chí dễ mặc, dễ vận động và phù hợp với sinh hoạt thường ngày của trẻ. Thiết kế ưu tiên sự thoải mái, an toàn và màu sắc hài hòa để bé có thể mặc đi học, đi chơi hoặc tham gia hoạt động ngoài trời nhẹ.`,
+                    items: [
+                        ["Chất liệu", "Bề mặt vải mềm, thân thiện với da, giúp hạn chế cảm giác khó chịu khi bé mặc trong nhiều giờ."],
+                        ["Độ thoải mái", "Phom rộng vừa phải, không bó sát, hỗ trợ bé chạy nhảy, học tập và vui chơi dễ dàng."],
+                        ["Thiết kế", "Kiểu dáng đơn giản, năng động, dễ phối với quần short, quần dài, áo khoác hoặc giày sneaker trẻ em."],
+                        ["Độ bền", "Đường may chắc, phù hợp với tần suất sử dụng thường xuyên của trẻ trong sinh hoạt hằng ngày."],
+                        ["Dịp sử dụng", "Phù hợp đi học, đi chơi cuối tuần, du lịch gia đình hoặc các buổi sinh hoạt ngoại khóa nhẹ."],
+                        ["Bảo quản", "Nên giặt nhẹ, tránh chất tẩy mạnh và kiểm tra hướng dẫn size để chọn kích thước vừa vặn cho bé."]
+                    ]
+                },
+                sale: {
+                    intro: `${productName} thuộc nhóm sản phẩm ưu đãi được chọn lọc từ các mẫu dễ mặc, dễ phối và có tính ứng dụng cao. Dù nằm trong danh mục sale, sản phẩm vẫn giữ tinh thần thiết kế của THE STYLE HUB: tối giản, hiện đại và phù hợp nhiều phong cách cá nhân.`,
+                    items: [
+                        ["Chất liệu", "Chất liệu được chọn theo từng dòng sản phẩm, ưu tiên cảm giác thoải mái, bền dáng và phù hợp với nhu cầu mặc hằng ngày."],
+                        ["Thiết kế", "Kiểu dáng dễ ứng dụng, không kén người mặc, có thể phối nhanh với các item cơ bản trong tủ đồ."],
+                        ["Giá trị sử dụng", "Phù hợp cho khách hàng muốn hoàn thiện outfit với mức giá tốt nhưng vẫn đảm bảo tính thẩm mỹ."],
+                        ["Gợi ý phối đồ", "Có thể kết hợp cùng sneaker, quần jeans, áo thun, áo khoác hoặc phụ kiện đơn giản để tạo tổng thể gọn gàng."],
+                        ["Lưu ý sản phẩm", "Số lượng và size trong danh mục sale có thể giới hạn, nên kiểm tra kỹ size trước khi thêm vào giỏ hàng."],
+                        ["Bảo quản", "Giặt nhẹ, tránh phơi trực tiếp dưới nắng gắt và bảo quản nơi khô thoáng để sản phẩm giữ được độ mới lâu hơn."]
+                    ]
+                },
+                mens: {
+                    intro: `${productName} mang tinh thần menswear tối giản, mạnh mẽ và dễ ứng dụng. Sản phẩm phù hợp với những outfit hằng ngày, từ phong cách casual thoải mái đến smart-casual gọn gàng khi đi học, đi làm hoặc gặp gỡ bạn bè.`,
+                    items: [
+                        ["Chất liệu vải", "Cotton hoặc chất liệu pha cao cấp tùy dòng sản phẩm, bề mặt mềm, thoáng khí và có khả năng giữ phom ổn định."],
+                        ["Phom dáng", "Form mặc hiện đại, không quá ôm cũng không quá rộng, giúp tổng thể trông gọn gàng và dễ vận động."],
+                        ["Chi tiết hoàn thiện", "Đường may chắc, bo cổ và bo tay cân đối, tạo cảm giác chỉn chu khi mặc nhiều lần."],
+                        ["Khả năng phối đồ", "Dễ kết hợp với quần jeans, quần kaki, quần short, sneaker hoặc áo khoác ngoài để tạo nhiều layout khác nhau."],
+                        ["Dịp sử dụng", "Phù hợp đi học, đi làm, dạo phố, cà phê cuối tuần hoặc các buổi gặp mặt cần sự thoải mái nhưng vẫn gọn gàng."],
+                        ["Bảo quản", "Nên lộn trái trước khi giặt, giặt ở chế độ nhẹ và hạn chế sấy nhiệt cao để giữ màu và form sản phẩm."]
+                    ]
+                }
+            };
+
+            const specs = specsByCategory[category] || specsByCategory.mens;
+            introTarget.textContent = specs.intro;
+            listTarget.innerHTML = specs.items.map(function(item) {
+                return `<li><strong>${escapeStyleHubText(item[0])}:</strong> ${escapeStyleHubText(item[1])}</li>`;
+            }).join("");
+        }
+
         document.addEventListener("DOMContentLoaded", function() {
             const urlParams = new URLSearchParams(window.location.search);
             const productId = urlParams.get('id') || 'tops-1';
@@ -1199,6 +1259,7 @@
             }
 
             if (currentItem) {
+                renderProductSpecifications(productId, currentItem);
                 document.getElementById('brand-name-target').innerText = currentItem.brand || "Essentials";
                 document.getElementById('product-name-target').innerText = currentItem.name;
                 document.getElementById('product-price-target').innerText = currentItem.price;
@@ -2113,30 +2174,9 @@
             }).join("\n");
         }
 
-
         function waitForStyleHubEmailJS(timeoutMs = 6000) {
-            return new Promise(function(resolve, reject) {
-                const start = Date.now();
-
-                function check() {
-                    if (window.emailjs && typeof window.emailjs.send === "function") {
-                        if (typeof window.emailjs.init === "function") {
-                            window.emailjs.init(window.STYLEHUB_EMAILJS_PUBLIC_KEY);
-                        }
-                        resolve();
-                        return;
-                    }
-
-                    if (Date.now() - start > timeoutMs) {
-                        reject(new Error("EmailJS SDK chưa tải được. Kiểm tra mạng hoặc CDN @emailjs/browser."));
-                        return;
-                    }
-
-                    setTimeout(check, 120);
-                }
-
-                check();
-            });
+            // STATIC DEMO MODE: no external EmailJS SDK is loaded.
+            return Promise.resolve({ staticDemo: true });
         }
 
         function normalizeStyleHubEmail(value) {
@@ -2157,81 +2197,9 @@
         }
 
         async function sendStyleHubOrderEmail(orderObject) {
-            await waitForStyleHubEmailJS();
-
-            const userInfo = orderObject.userInfo || {};
-            const toEmail = normalizeStyleHubEmail(
-                orderObject.shippingEmail ||
-                userInfo.email ||
-                orderObject.customerEmail ||
-                orderObject.userEmail ||
-                localStorage.getItem("hub_shipping_email") ||
-                localStorage.getItem("hub_email") ||
-                ""
-            );
-
-            if (!isValidStyleHubEmail(toEmail)) {
-                throw new Error("Email người nhận không hợp lệ hoặc đang bị trống: " + (toEmail || "N/A"));
-            }
-
-            const customerName = userInfo.name || localStorage.getItem("hub_name") || "Khách hàng";
-            const orderId = orderObject.orderId || "";
-            const orderDate = orderObject.orderDate || orderObject.date || new Date().toLocaleString("vi-VN");
-            const customerPhone = userInfo.phone || localStorage.getItem("hub_phone") || "";
-            const customerAddress = userInfo.address || localStorage.getItem("hub_address") || "";
-            const productDetails = buildStyleHubProductDetails(orderObject);
-            const totalPrice = orderObject.totalPriceFormatted || formatStyleHubVND(calculateStyleHubOrderTotal(orderObject.orderedProductsList)) || "0 ₫";
-
-            const templateParams = {
-                // Các biến chính đang dùng trong EmailJS template
-                to_email: toEmail,
-                customer_name: customerName,
-                orderId: orderId,
-                order_date: orderDate,
-                customer_phone: customerPhone,
-                customer_address: customerAddress,
-                product_details: productDetails,
-                total_price: totalPrice,
-
-                // Biến dự phòng để template cũ/mới đều nhận được dữ liệu
-                email: toEmail,
-                user_email: toEmail,
-                reply_to: toEmail,
-                to_name: customerName,
-                from_name: "The Style Hub",
-                order_id: orderId,
-                order_number: orderId,
-                phone: customerPhone,
-                address: customerAddress,
-                message: productDetails,
-                total: totalPrice
-            };
-
-            console.log("Đang gửi EmailJS với dữ liệu:", templateParams);
-            console.log("EmailJS Service ID:", window.STYLEHUB_EMAILJS_SERVICE_ID);
-
-            const templateIds = getStyleHubEmailTemplateIds();
-            if (templateIds.length === 0) {
-                throw new Error("Chưa cấu hình EmailJS Template ID.");
-            }
-
-            let lastError = null;
-            for (const templateId of templateIds) {
-                try {
-                    console.log("EmailJS Template ID đang thử:", templateId);
-                    return await window.emailjs.send(
-                        window.STYLEHUB_EMAILJS_SERVICE_ID,
-                        templateId,
-                        templateParams,
-                        window.STYLEHUB_EMAILJS_PUBLIC_KEY
-                    );
-                } catch (error) {
-                    lastError = error;
-                    console.error("Gửi EmailJS thất bại với template " + templateId + ":", error);
-                }
-            }
-
-            throw lastError || new Error("Gửi EmailJS thất bại.");
+            // STATIC DEMO MODE: do not send email, do not call EmailJS.
+            console.log("[THE STYLE HUB - STATIC DEMO] Email confirmation skipped.", orderObject);
+            return { staticDemo: true, skipped: "email" };
         }
 
         // Cho stylehub-cart-sync.js dùng lại hàm này khi khách đặt hàng từ BAG nhiều sản phẩm.
@@ -2264,6 +2232,37 @@
         function formatStyleHubVND(amount) {
             const safeAmount = Number(amount) || 0;
             return safeAmount.toLocaleString("vi-VN") + " ₫";
+        }
+
+        function normalizeStyleHubAccountKey(value) {
+            return String(value || '').trim().toLowerCase().replace(/[^a-z0-9@._-]+/g, '_');
+        }
+
+        function saveStyleHubCustomerDemoOrder(orderObject, accountEmail, customerName) {
+            const order = Object.assign({}, orderObject || {}, {
+                staticDemoCustomerOnly: true,
+                adminSyncDisabled: true
+            });
+
+            const keys = ['stylehub_customer_demo_orders'];
+            const emailKey = normalizeStyleHubAccountKey(accountEmail || order.userEmail || order.customerEmail || order.shippingEmail || '');
+            const nameKey = normalizeStyleHubAccountKey(customerName || (order.userInfo && order.userInfo.name) || '');
+
+            if (emailKey) keys.push('stylehub_customer_demo_orders_' + emailKey);
+            if (nameKey) keys.push('stylehub_customer_demo_orders_' + nameKey);
+
+            keys.forEach(function(storageKey) {
+                try {
+                    const current = JSON.parse(localStorage.getItem(storageKey) || '[]');
+                    const list = Array.isArray(current) ? current : [];
+                    const next = [order].concat(list.filter(function(item) {
+                        return String(item && item.orderId || '') !== String(order.orderId || '');
+                    }));
+                    localStorage.setItem(storageKey, JSON.stringify(next.slice(0, 30)));
+                } catch (error) {
+                    console.warn('[THE STYLE HUB - STATIC DEMO] Không thể lưu đơn demo vào tài khoản:', error);
+                }
+            });
         }
 
 
@@ -2368,8 +2367,6 @@
                 email: email
             });
 
-            const orderStorageKey = 'hub_orders_' + accountEmail;
-            const existingOrdersArray = JSON.parse(localStorage.getItem(orderStorageKey) || '[]');
             const uniqueOrderId = "STH" + Date.now().toString().slice(-6) + Math.floor(10 + Math.random() * 90);
 
             const orderCreatedAt = Date.now();
@@ -2399,16 +2396,14 @@
                 status: "Đang chờ xác nhận"
             };
 
-            /*
-              FAST CHECKOUT:
-              Lưu local và đóng giao diện ngay để người dùng không phải chờ EmailJS/Firebase.
-              EmailJS + Firebase vẫn chạy ở nền sau đó.
+            /* STATIC DEMO CHECKOUT:
+              Lưu đơn demo ở máy người dùng để hiển thị trong Account > Orders History.
+              Không lưu vào hub_orders/Firebase/backend nên đơn khách đặt sẽ KHÔNG nhảy sang Admin.
             */
-            existingOrdersArray.unshift(newCompletedOrderObject);
-            localStorage.setItem(orderStorageKey, JSON.stringify(existingOrdersArray));
+            saveStyleHubCustomerDemoOrder(newCompletedOrderObject, accountEmail, name);
+            console.log("[THE STYLE HUB - STATIC DEMO] Customer-only demo order saved. Admin sync disabled:", newCompletedOrderObject);
 
-            // Không lưu vào hub_orders global nữa để tránh Orders History hiển thị 2 đơn giống nhau.
-            // Đơn đã được lưu riêng theo account bằng hub_orders_<email> và đồng bộ Firebase ở nền.
+            // Không lưu vào hub_orders global/hub_orders_<email> để tránh Admin đọc thành đơn thật.
 
             if (window.StyleHubNotifications && typeof StyleHubNotifications.addOrderSuccessNotification === 'function') {
                 StyleHubNotifications.addOrderSuccessNotification(newCompletedOrderObject);
@@ -2429,7 +2424,7 @@
             }
 
             showStyleHubOrderSuccessDrawer(newCompletedOrderObject);
-            showToastNotification("ĐẶT HÀNG THÀNH CÔNG! EMAIL XÁC NHẬN ĐANG ĐƯỢC GỬI.");
+            showToastNotification("ĐẶT HÀNG THÀNH CÔNG! Đơn chỉ hiện trong tài khoản demo, không gửi sang Admin.");
 
             if (submitButton) {
                 submitButton.disabled = false;
@@ -2441,7 +2436,7 @@
             }, 1200);
 
             setTimeout(function() {
-                // Gửi email ở nền, không chặn màn hình đặt hàng.
+                // STATIC DEMO MODE: bỏ gửi email ở nền.
                 sendStyleHubOrderEmail(newCompletedOrderObject)
                     .then(function() {
                         console.log("Email xác nhận đơn hàng đã gửi thành công.");
@@ -2449,17 +2444,7 @@
                     .catch(function(emailError) {
                         console.error("Gửi email xác nhận thất bại:", emailError);
                     });
-
-                // Lưu cloud ở nền, không làm chậm nút đặt hàng.
-                if (window.StyleHubOrders && typeof StyleHubOrders.saveOrder === 'function') {
-                    StyleHubOrders.saveOrder(newCompletedOrderObject)
-                        .then(function() {
-                            console.log("Đơn hàng đã đồng bộ Firebase thành công.");
-                        })
-                        .catch(function(error) {
-                            console.error("Không thể đồng bộ Firebase, đơn hàng đã lưu local:", error);
-                        });
-                }
+                // STATIC DEMO MODE: không lưu cloud/Firebase.
             }, 50);
         }
 
@@ -2623,7 +2608,7 @@ document.addEventListener("click", function(e) {
 </footer>
 <div class="footer-bottom">© 2026 THE STYLE HUB. UI/UX Interface Design Project.</div>
 <script src="stylehub-notifications.js?v=notification-bell-fixed-all-pages-20260616"></script>
-<script src="stylehub-responsive-nav.js?v=kids-bottoms-3-products-20260618"></script>
+<script src="stylehub-responsive-nav.js?v=header-not-auto-collapse-20260709b"></script>
 <script src="stylehub-common.js?v=stock-cloud-sync-20260630"></script>
 
 <script src="shoe-size-patch.js?v=shoe-size-no-flash-20260616"></script>

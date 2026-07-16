@@ -1,5 +1,5 @@
 /* =========================================================
-   THE STYLE HUB - RESPONSIVE NAVIGATION V4
+   THE STYLE HUB - RESPONSIVE NAVIGATION V5
    - Đồng bộ dropdown desktop cho các trang có menu thường.
    - Sửa lỗi hover MENS/WOMENS/KIDS/SALE/SHOES bị bắt nhầm sang FEATURED.
    - Giữ mobile menu 2 gạch khi màn hình nhỏ.
@@ -365,7 +365,46 @@
                 opacity: 1;
             }
 
-            @media (max-width: 1120px) {
+            /* JS sẽ tự thêm class này khi link SHOES hoặc cụm bên phải thật sự sát logo. */
+            .main-header.stylehub-nav-collapsed .nav-container {
+                display: grid !important;
+                grid-template-columns: 48px 1fr auto !important;
+                align-items: center !important;
+                padding-left: 16px !important;
+                padding-right: 16px !important;
+                gap: 8px !important;
+            }
+
+            .main-header.stylehub-nav-collapsed .mobile-menu-toggle {
+                display: inline-flex !important;
+            }
+
+            .main-header.stylehub-nav-collapsed .nav-left {
+                display: none !important;
+            }
+
+            .main-header.stylehub-nav-collapsed .logo {
+                justify-self: center !important;
+                text-align: center !important;
+                white-space: nowrap !important;
+            }
+
+            .main-header.stylehub-nav-collapsed .logo a {
+                letter-spacing: 6px !important;
+            }
+
+            .main-header.stylehub-nav-collapsed .nav-right {
+                justify-self: end !important;
+                display: flex !important;
+                align-items: center !important;
+                gap: 18px !important;
+            }
+
+            .main-header.stylehub-nav-collapsed .nav-right a {
+                margin-left: 0 !important;
+            }
+
+            @media (max-width: 860px) {
                 .main-header .nav-container {
                     display: grid !important;
                     grid-template-columns: 48px 1fr auto !important;
@@ -609,6 +648,57 @@
         });
     }
 
+    function getVisibleRect(element) {
+        if (!element) return null;
+        const rect = element.getBoundingClientRect();
+        if (rect.width <= 0 || rect.height <= 0) return null;
+        return rect;
+    }
+
+    function updateHeaderCollapseMode() {
+        const header = document.querySelector(".main-header");
+        if (!header) return;
+
+        const navLeft = header.querySelector(".nav-left");
+        const logo = header.querySelector(".logo");
+        const navRight = header.querySelector(".nav-right");
+
+        if (!navLeft || !logo) return;
+
+        // Chỉ ép thu menu ở màn hình rất nhỏ. Còn lại để JS đo đúng khoảng cách thật.
+        if (window.innerWidth <= 860) {
+            header.classList.add("stylehub-nav-collapsed");
+            return;
+        }
+
+        // Tạm mở menu desktop để đo đúng vị trí của link cuối cùng bên trái, không đo cả khung nav-left.
+        header.classList.remove("stylehub-nav-collapsed");
+
+        const safeGap = 12;
+        const logoRect = logo.getBoundingClientRect();
+
+        const leftItems = Array.from(navLeft.children)
+            .map(getVisibleRect)
+            .filter(Boolean);
+        const lastLeftRect = leftItems.length ? leftItems[leftItems.length - 1] : null;
+
+        const rightItems = navRight
+            ? Array.from(navRight.children).map(getVisibleRect).filter(Boolean)
+            : [];
+        const firstRightRect = rightItems.length ? rightItems[0] : null;
+
+        const leftHitsLogo = lastLeftRect && lastLeftRect.right + safeGap >= logoRect.left;
+        const rightHitsLogo = firstRightRect && firstRightRect.left - safeGap <= logoRect.right;
+
+        if (leftHitsLogo || rightHitsLogo) {
+            header.classList.add("stylehub-nav-collapsed");
+        }
+    }
+
+    function scheduleHeaderCollapseCheck() {
+        window.requestAnimationFrame(updateHeaderCollapseMode);
+    }
+
     function initResponsiveNav() {
         injectStyle();
         removeOldMoreMenu();
@@ -616,6 +706,15 @@
         const header = document.querySelector(".main-header");
         syncDesktopDropdowns(header);
         createMobileMenu(header);
+        scheduleHeaderCollapseCheck();
+
+        window.addEventListener("resize", scheduleHeaderCollapseCheck);
+        window.addEventListener("orientationchange", scheduleHeaderCollapseCheck);
+        window.addEventListener("load", scheduleHeaderCollapseCheck);
+
+        if (document.fonts && document.fonts.ready) {
+            document.fonts.ready.then(scheduleHeaderCollapseCheck).catch(function () {});
+        }
     }
 
     if (document.readyState === "loading") {

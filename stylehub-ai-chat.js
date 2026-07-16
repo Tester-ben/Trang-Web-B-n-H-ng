@@ -26,16 +26,7 @@
     const SUPPORT_DB_ROOT = "stylehub_orders/support_conversations";
     const STYLE_ID = "tsh-ai-pro-style";
     const WIDGET_ID = "tsh-ai-pro-widget";
-    const STYLEHUB_FIREBASE_CONFIG = {
-        apiKey: "AIzaSyBLmPFwTOltztOw28_LUp1L56jgYYAaApM",
-        authDomain: "thestylehub-aaf2f.firebaseapp.com",
-        databaseURL: "https://thestylehub-aaf2f-default-rtdb.firebaseio.com",
-        projectId: "thestylehub-aaf2f",
-        storageBucket: "thestylehub-aaf2f.firebasestorage.app",
-        messagingSenderId: "1044789250378",
-        appId: "1:1044789250378:web:e268f523e323954a6dd9b3",
-        measurementId: "G-Y53W16W4W3"
-    };
+    const STYLEHUB_FIREBASE_CONFIG = {}; // STATIC DEMO MODE: Firebase disabled.
     let supportDbPromise = null;
     let supportReplyListenerStarted = false;
     let selectedImageAttachment = null;
@@ -910,24 +901,8 @@
     }
 
     function getSupportDb() {
-        if (supportDbPromise) return supportDbPromise;
-        supportDbPromise = (async function () {
-            if (!hasFirebaseConfig()) return null;
-            try {
-                if (typeof firebase === "undefined") {
-                    await loadExternalScript("https://www.gstatic.com/firebasejs/10.12.5/firebase-app-compat.js");
-                    await loadExternalScript("https://www.gstatic.com/firebasejs/10.12.5/firebase-database-compat.js");
-                } else if (typeof firebase.database !== "function") {
-                    await loadExternalScript("https://www.gstatic.com/firebasejs/10.12.5/firebase-database-compat.js");
-                }
-                if (!firebase.apps || firebase.apps.length === 0) firebase.initializeApp(STYLEHUB_FIREBASE_CONFIG);
-                return firebase.database();
-            } catch (error) {
-                console.warn("THE STYLE HUB support chat đang dùng local fallback:", error);
-                return null;
-            }
-        })();
-        return supportDbPromise;
+        // STATIC DEMO MODE: support chat does not connect to Firebase/admin.
+        return Promise.resolve(null);
     }
 
     function getSupportConversationId() {
@@ -980,69 +955,19 @@
     }
 
     async function saveCustomerSupportMessage(text, attachment) {
-        const conversationId = getSupportConversationId();
-        const customer = getSupportCustomerInfo();
-        const now = Date.now();
-        const messageId = "msg_" + now + "_" + Math.random().toString(36).slice(2, 7);
-        const hasImage = !!(attachment && attachment.dataUrl);
-        const cleanText = String(text || "").trim();
-        const type = supportMessageType(cleanText, attachment);
-        const displayText = cleanText || (hasImage ? "Khách đã gửi hình ảnh." : "");
-        const message = {
-            id: messageId,
-            from: "customer",
-            text: displayText,
-            createdAt: now,
-            type: type
+        // STATIC DEMO MODE: acknowledge only, do not save to admin/local database.
+        return {
+            conversationId: "STATIC_DEMO",
+            messageId: "STATIC_MSG",
+            type: supportMessageType(String(text || ""), attachment),
+            staticDemo: true
         };
-
-        if (hasImage) {
-            message.imageData = attachment.dataUrl;
-            message.imageName = attachment.name || "image.jpg";
-            message.imageType = attachment.type || "image/jpeg";
-            message.imageSize = attachment.size || 0;
-            message.imageWidth = attachment.width || 0;
-            message.imageHeight = attachment.height || 0;
-        }
-
-        const lastMessage = hasImage ? (cleanText ? "📷 " + cleanText : "📷 Khách gửi hình ảnh") : cleanText;
-        const conversationPatch = {
-            id: conversationId,
-            customerName: customer.name,
-            customerEmail: customer.email,
-            customerPhone: customer.phone,
-            type: type,
-            status: "open",
-            lastMessage: lastMessage,
-            lastSender: "customer",
-            unreadForAdmin: true,
-            updatedAt: now,
-            createdAt: now
-        };
-
-        const db = await getSupportDb();
-        if (db) {
-            const ref = db.ref(SUPPORT_DB_ROOT + "/" + conversationId);
-            const snapshot = await ref.once("value");
-            if (snapshot.exists() && snapshot.val() && snapshot.val().createdAt) delete conversationPatch.createdAt;
-            await ref.update(conversationPatch);
-            await ref.child("messages/" + messageId).set(message);
-        } else {
-            const map = readSupportLocal();
-            const current = map[conversationId] || { id: conversationId, messages: {} };
-            map[conversationId] = Object.assign({}, current, conversationPatch, {
-                createdAt: current.createdAt || now,
-                messages: Object.assign({}, current.messages || {}, { [messageId]: message })
-            });
-            writeSupportLocal(map);
-        }
-        return { conversationId: conversationId, messageId: messageId, type: type };
     }
 
     function supportAckHtml(result) {
         const shortId = String(result.conversationId || "").replace("support_", "").slice(0, 8).toUpperCase();
         return `<strong class="tsh-shop-name">THE STYLE HUB đã nhận được tin nhắn của bạn.</strong>` +
-            `Shop sẽ kiểm tra và phản hồi lại ngay tại khung chat này trong thời gian sớm nhất.` +
+            `Đây là bản demo web tĩnh nên tin nhắn không được gửi sang Admin thật.` +
             `<span class="tsh-ai-support-note">Mã hỗ trợ: ${escapeHTML(shortId || "SUPPORT")} · Nhóm yêu cầu: ${escapeHTML(result.type || "Hỗ trợ")}</span>`;
     }
 
@@ -1076,22 +1001,8 @@
     }
 
     function startSupportReplyListener() {
-        if (supportReplyListenerStarted) return;
+        // STATIC DEMO MODE: no realtime admin replies.
         supportReplyListenerStarted = true;
-        const conversationId = getSupportConversationId();
-
-        getSupportDb().then(function (db) {
-            if (!db) return;
-            db.ref(SUPPORT_DB_ROOT + "/" + conversationId + "/messages").on("child_added", function (snapshot) {
-                const msg = snapshot.val() || {};
-                const messageId = msg.id || snapshot.key;
-                if (msg.from !== "admin" || !messageId) return;
-                const seen = loadSeenSupportMessages();
-                if (seen[messageId]) return;
-                markSupportMessageSeen(messageId);
-                appendShop(`<strong class="tsh-shop-name">THE STYLE HUB phản hồi:</strong>${escapeHTML(msg.text || "")}`);
-            });
-        });
     }
 
     function buildReply(text) {
