@@ -470,7 +470,7 @@ function initFooterSupportContactBlock() {
         const block = document.createElement("div");
         block.className = "footer-support-contact-block";
         block.innerHTML = `
-            <h4 class="footer-support-contact-title">Liên Hệ Hỗ Trợ</h4>
+            <h4 class="footer-support-contact-title"><a href="contact.html" aria-label="Mở trang liên hệ hỗ trợ" style="color:inherit;text-decoration:none;cursor:pointer;">Liên Hệ Hỗ Trợ</a></h4>
             <p class="footer-support-contact-line" style="white-space:nowrap !important;display:block !important;width:max-content !important;max-width:none !important;">Gọi&nbsp;mua:&nbsp;02796096060&nbsp;(8:00&nbsp;-&nbsp;21:30)</p>
             <p class="footer-support-contact-line" style="white-space:nowrap !important;display:block !important;width:max-content !important;max-width:none !important;">Khiếu&nbsp;nại:&nbsp;02873066060&nbsp;(8:00&nbsp;-&nbsp;21:30)</p>
             <p class="footer-support-contact-line" style="white-space:nowrap !important;display:block !important;width:max-content !important;max-width:none !important;">Bảo&nbsp;hành:&nbsp;02873066060&nbsp;(8:00&nbsp;-&nbsp;21:00)</p>

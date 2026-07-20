@@ -501,7 +501,7 @@ body {
 <div class="search-overlay" id="searchBox">
     <div class="search-panel">
         <button class="search-close-btn" onclick="closeSearchBox()">×</button>
-        <input class="search-input" id="searchInput" onkeyup="searchProducts()" placeholder="TÌM KIẾM FOR PRODUCTS..." type="text">
+        <input class="search-input" id="searchInput" onkeyup="searchProducts()" placeholder="SEARCH FOR PRODUCTS..." type="text">
         <div class="search-results" id="searchResults"></div>
     </div>
 </div>
@@ -605,7 +605,7 @@ body {
             </div>
         </div>
         <aside class="policy-hero-card">
-            <strong>Thông tin tóm tắt</strong>
+            <strong>Quick Summary</strong>
             <span>Đổi hàng trong thời gian quy định, bảo hành lỗi kỹ thuật theo từng nhóm sản phẩm và hỗ trợ nhanh với đơn online nếu sản phẩm lỗi từ nhà sản xuất hoặc giao nhầm.</span>
         </aside>
     </section>
@@ -630,7 +630,7 @@ body {
 
     <div class="policy-section-title policy-fade"><span class="policy-number">03</span><h2>Quy trình đổi hàng</h2></div>
     <section class="policy-steps policy-fade delay-1">
-        <div class="policy-step"><span class="step-index">1</span><h3>Gửi yêu cầu</h3><p>Liên hệ The Style Hub qua hotline, fanpage hoặc trang Liên hệ.</p></div>
+        <div class="policy-step"><span class="step-index">1</span><h3>Gửi yêu cầu</h3><p>Liên hệ The Style Hub qua hotline, fanpage hoặc trang Contact.</p></div>
         <div class="policy-step"><span class="step-index">2</span><h3>Xác nhận</h3><p>Cung cấp mã đơn, hình ảnh sản phẩm và lý do cần đổi/bảo hành.</p></div>
         <div class="policy-step"><span class="step-index">3</span><h3>Đối soát</h3><p>Bộ phận hỗ trợ kiểm tra điều kiện, phí vận chuyển và phương án xử lý.</p></div>
         <div class="policy-step"><span class="step-index">4</span><h3>Hoàn tất</h3><p>Giao sản phẩm mới hoặc hỗ trợ bảo hành theo chính sách.</p></div>
@@ -672,7 +672,7 @@ function searchProducts() {
         return text.includes(keyword);
     }).slice(0, 12);
     if (results.length === 0) {
-        resultsBox.innerHTML = `<p class="search-empty">Không tìm thấy sản phẩm.</p>`;
+        resultsBox.innerHTML = `<p class="search-empty">No products found.</p>`;
         return;
     }
     results.forEach(id => {
@@ -711,8 +711,8 @@ document.addEventListener("click", function(e) {
 
 <footer class="site-footer support-footer">
     <div class="footer-col footer-brand">
-        <h3>THE STYLE HUB</h3>
-        <p>Cửa hàng thời trang hiện đại dành cho nam, nữ, trẻ em, giày dép và các bộ sưu tập giảm giá theo mùa.</p>
+        <h3><a href="index.html" aria-label="Về trang chủ THE STYLE HUB" style="color: inherit; text-decoration: none;">THE STYLE HUB</a></h3>
+        <p>Điểm đến thời trang hiện đại dành cho nam, nữ, trẻ em, giày dép và các bộ sưu tập theo mùa.</p>
         <div class="social-links footer-social-links">
             <a class="footer-social-icon footer-fb-icon" href="#" aria-label="Facebook"><img src="images/fb.png" alt="Facebook"></a>
             <a class="footer-social-icon footer-zalo-icon" href="#" aria-label="Zalo"><img src="images/zalo.png" alt="Zalo"></a>
@@ -722,13 +722,13 @@ document.addEventListener("click", function(e) {
 
     <div class="footer-col footer-categories">
         <h4>DANH MỤC</h4>
-        <a href="collections.html">TẤT CẢ SẢN PHẨM</a>
-        <a href="mens.html">NAM</a>
-        <a href="womens.html">WONAM</a>
-        <a href="kids.html">TRẺ EM</a>
-        <a href="sale.html">GIẢM GIÁ</a>
-        <a href="shoes.html">GIÀY DÉP</a>
-        <a href="account.html" id="account-trigger">TÀI KHOẢN</a>
+        <a href="collections.html">ALL PRODUCTS</a>
+        <a href="mens.html">MENS</a>
+        <a href="womens.html">WOMENS</a>
+        <a href="kids.html">KIDS</a>
+        <a href="sale.html">SALE</a>
+        <a href="shoes.html">SHOES</a>
+        <a href="account.html" id="account-trigger">ACCOUNT</a>
     </div>
 
     <div class="footer-col footer-support">
@@ -749,10 +749,10 @@ document.addEventListener("click", function(e) {
             <img src="images/mastercard.png" alt="Mastercard">
             <img src="images/jcb.png" alt="JCB">
         </div>
-        <div class="footer-badges"><img src="images/dathongbao.png" alt="Đã thông báo"><span>ĐƯỢC BẢO VỆ BẢN QUYỀN</span></div>
+        <div class="footer-badges"><img src="images/dathongbao.png" alt="Đã thông báo"><span>DMCA PROTECTED</span></div>
     </div>
 </footer>
-<div class="footer-bottom">© 2026 THE STYLE HUB. UI/UX Interface Design Project.</div>
+<div class="footer-bottom">© 2026 THE STYLE HUB — Cảm ơn bạn đã tin tưởng và đồng hành cùng chúng tôi.</div>
 <script src="stylehub-notifications.js?v=notification-bell-fixed-all-pages-20260616"></script>
 <script src="stylehub-responsive-nav.js?v=responsive-collapse-20260709"></script>
 <script src="stylehub-common.js"></script>
