@@ -1022,14 +1022,39 @@ function searchProducts() {
                 text-decoration: none;
                 display: block;
             }
-            .stylehub-mini-card img {
+            .stylehub-mini-image {
+                position: relative;
                 width: 100%;
                 aspect-ratio: 3/4;
+                overflow: hidden;
+                background: #f7f7f7;
+                margin-bottom: 10px;
+            }
+            .stylehub-mini-card img {
+                position: absolute;
+                inset: 0;
+                width: 100%;
+                height: 100%;
                 object-fit: cover;
                 object-position: center top;
-                background: #f7f7f7;
                 display: block;
-                margin-bottom: 10px;
+                transition: opacity .28s ease;
+            }
+            .stylehub-mini-card .stylehub-mini-img-main {
+                opacity: 1;
+                z-index: 1;
+            }
+            .stylehub-mini-card .stylehub-mini-img-hover {
+                opacity: 0;
+                z-index: 2;
+            }
+            @media (hover: hover) and (pointer: fine) {
+                .stylehub-mini-card:hover .stylehub-mini-img-main {
+                    opacity: 0;
+                }
+                .stylehub-mini-card:hover .stylehub-mini-img-hover {
+                    opacity: 1;
+                }
             }
             .stylehub-mini-card strong {
                 display: block;
@@ -1453,13 +1478,19 @@ function searchProducts() {
         section.innerHTML = `
             <h2>${sectionTitle}</h2>
             <div class="stylehub-mini-grid">
-                ${valid.slice(0, 4).map(([id, item]) => `
+                ${valid.slice(0, 4).map(([id, item]) => {
+                    const mainImage = item.mainImg || (item.images && item.images[0]) || "";
+                    const hoverImage = item.hoverImg || item.backImg || (item.images && item.images[1]) || mainImage;
+                    return `
                     <a class="stylehub-mini-card" href="product-detail.html?id=${encodeURIComponent(id)}">
-                        <img src="${item.mainImg || (item.images && item.images[0]) || ""}" alt="${item.name || ""}">
-                        <strong>${item.name || ""}</strong>
-                        <span>${item.price || ""}</span>
-                    </a>
-                `).join("")}
+                        <div class="stylehub-mini-image">
+                            <img class="stylehub-mini-img-main" src="${escapeHtml(mainImage)}" alt="${escapeHtml(item.name || "")}">
+                            <img class="stylehub-mini-img-hover" src="${escapeHtml(hoverImage)}" alt="${escapeHtml((item.name || "") + " - ảnh sau")}">
+                        </div>
+                        <strong>${escapeHtml(item.name || "")}</strong>
+                        <span>${escapeHtml(item.price || "")}</span>
+                    </a>`;
+                }).join("")}
             </div>
         `;
         return section;
@@ -2671,3 +2702,172 @@ setTimeout(initStyleHubFooterSocialFullSet, 1000);
     document.addEventListener('DOMContentLoaded', injectMobileFlipStyles);
 })();
 /* ===== END MOBILE PRODUCT IMAGE FLIP ===== */
+
+
+/* ===== FEATURED DROPDOWN SAME AS OTHER NAV ITEMS - ALL PAGES ===== */
+(function () {
+    const featuredLinks = [
+        ["collections.html", "NEW ARRIVALS"],
+        ["exchange-warranty-policy.html", "CHÍNH SÁCH ĐỔI HÀNG & BẢO HÀNH"],
+        ["privacy-policy.html", "CHÍNH SÁCH BẢO MẬT"],
+        ["shipping-policy.html", "CHÍNH SÁCH GIAO HÀNG"]
+    ];
+
+    function normalize(value) {
+        return (value || "").replace(/\s+/g, " ").trim().toUpperCase();
+    }
+
+    function createDropdown() {
+        const dropdown = document.createElement("div");
+        dropdown.className = "nav-dropdown";
+
+        featuredLinks.forEach(function (item) {
+            const link = document.createElement("a");
+            link.href = item[0];
+            link.textContent = item[1];
+            dropdown.appendChild(link);
+        });
+
+        return dropdown;
+    }
+
+    function updateDesktopFeatured() {
+        document.querySelectorAll(".main-header .nav-left > div").forEach(function (menu) {
+            const trigger = menu.querySelector(":scope > a");
+            if (normalize(trigger && trigger.textContent) !== "FEATURED") return;
+
+            menu.classList.remove("menu-item-has-mega");
+            menu.classList.add("menu-item-has-dropdown");
+
+            menu.querySelectorAll(":scope > .mega-menu-dropdown, :scope > .nav-dropdown")
+                .forEach(function (oldDropdown) { oldDropdown.remove(); });
+
+            menu.appendChild(createDropdown());
+        });
+    }
+
+    function updateMobileFeatured() {
+        document.querySelectorAll(".mobile-menu-group").forEach(function (group) {
+            const title = group.querySelector(".mobile-menu-title");
+            if (normalize(title && title.textContent) !== "FEATURED") return;
+
+            group.querySelectorAll("a").forEach(function (link) { link.remove(); });
+            featuredLinks.forEach(function (item) {
+                const link = document.createElement("a");
+                link.href = item[0];
+                link.textContent = item[1];
+                group.appendChild(link);
+            });
+        });
+    }
+
+    function updateFeaturedEverywhere() {
+        updateDesktopFeatured();
+        updateMobileFeatured();
+    }
+
+    updateFeaturedEverywhere();
+    document.addEventListener("DOMContentLoaded", updateFeaturedEverywhere);
+    window.addEventListener("load", updateFeaturedEverywhere);
+    setTimeout(updateFeaturedEverywhere, 150);
+    setTimeout(updateFeaturedEverywhere, 600);
+})();
+/* ===== END FEATURED DROPDOWN SAME AS OTHER NAV ITEMS ===== */
+
+/* ===== FOOTER SOCIAL LINKS: OPEN OFFICIAL WEBSITES ===== */
+(function () {
+    const SOCIAL_URLS = {
+        facebook: "https://www.facebook.com/",
+        zalo: "https://zalo.me/",
+        instagram: "https://www.instagram.com/",
+        youtube: "https://www.youtube.com/",
+        shopee: "https://shopee.vn/"
+    };
+
+    function detectSocial(anchor) {
+        const img = anchor.querySelector("img");
+        const text = [
+            anchor.className,
+            anchor.getAttribute("aria-label"),
+            anchor.getAttribute("title"),
+            img && img.getAttribute("alt"),
+            img && img.getAttribute("src"),
+            img && img.getAttribute("data-stylehub-clean-social")
+        ].filter(Boolean).join(" ").toLowerCase();
+
+        if (text.includes("facebook") || text.includes("fb-icon") || text.includes("fb.png")) return "facebook";
+        if (text.includes("zalo")) return "zalo";
+        if (text.includes("instagram")) return "instagram";
+        if (text.includes("youtube") || text.includes("ytb")) return "youtube";
+        if (text.includes("shopee") || text.includes("shoppe")) return "shopee";
+        return "";
+    }
+
+    function bindFooterSocialLinks() {
+        document.querySelectorAll(
+            ".site-footer .social-links a, .site-footer .footer-social-links a, .site-footer a.footer-social-icon"
+        ).forEach(function (anchor) {
+            const social = detectSocial(anchor);
+            if (!social || !SOCIAL_URLS[social]) return;
+
+            anchor.href = SOCIAL_URLS[social];
+            anchor.target = "_blank";
+            anchor.rel = "noopener noreferrer";
+            anchor.setAttribute("aria-label", "Mở " + social.charAt(0).toUpperCase() + social.slice(1));
+        });
+    }
+
+    bindFooterSocialLinks();
+    document.addEventListener("DOMContentLoaded", bindFooterSocialLinks);
+    window.addEventListener("load", bindFooterSocialLinks);
+    setTimeout(bindFooterSocialLinks, 200);
+    setTimeout(bindFooterSocialLinks, 800);
+})();
+/* ===== END FOOTER SOCIAL LINKS ===== */
+
+/* ===== FOOTER THE STYLE HUB LOGO: BACK TO HOME ===== */
+(function () {
+    function normalizeText(value) {
+        return String(value || "").replace(/\s+/g, " ").trim().toUpperCase();
+    }
+
+    function bindFooterBrandHomeLink() {
+        document.querySelectorAll(".site-footer .footer-brand").forEach(function (brandColumn) {
+            const candidates = brandColumn.querySelectorAll("h1, h2, h3, h4, .footer-logo, .brand-title, strong");
+
+            candidates.forEach(function (element) {
+                if (normalizeText(element.textContent) !== "THE STYLE HUB") return;
+
+                const existingLink = element.closest('a[href]');
+                if (existingLink) {
+                    existingLink.href = "index.html";
+                    existingLink.removeAttribute("target");
+                    existingLink.removeAttribute("rel");
+                    existingLink.style.cursor = "pointer";
+                    return;
+                }
+
+                if (element.dataset.stylehubFooterHomeReady === "1") return;
+                element.dataset.stylehubFooterHomeReady = "1";
+
+                const link = document.createElement("a");
+                link.href = "index.html";
+                link.setAttribute("aria-label", "Quay về trang chủ THE STYLE HUB");
+                link.style.color = "inherit";
+                link.style.textDecoration = "none";
+                link.style.cursor = "pointer";
+                link.innerHTML = element.innerHTML;
+
+                element.innerHTML = "";
+                element.appendChild(link);
+            });
+        });
+    }
+
+    bindFooterBrandHomeLink();
+    document.addEventListener("DOMContentLoaded", bindFooterBrandHomeLink);
+    window.addEventListener("load", bindFooterBrandHomeLink);
+    setTimeout(bindFooterBrandHomeLink, 200);
+    setTimeout(bindFooterBrandHomeLink, 800);
+})();
+/* ===== END FOOTER HOME LINK ===== */
