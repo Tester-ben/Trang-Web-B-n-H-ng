@@ -1,3 +1,124 @@
+/* ===== CART ISOLATION BY ACCOUNT =====
+   Mỗi tài khoản có giỏ hàng riêng. Khi đổi tài khoản, các key giỏ hàng
+   dùng chung của dự án sẽ được lưu lại theo email và khôi phục đúng giỏ. */
+(function () {
+    const CART_KEYS = [
+        "stylehub_cart_memory_v1",
+        "stylehub_cart",
+        "hub_cart",
+        "cartMemoryArray",
+        "the_style_hub_cart",
+        "cart"
+    ];
+    const ACTIVE_OWNER_KEY = "stylehub_active_cart_owner_v1";
+    const USER_CART_PREFIX = "stylehub_account_cart_v1_";
+
+    function normalizeOwner(value) {
+        return String(value || "guest").trim().toLowerCase() || "guest";
+    }
+
+    function getCurrentOwner() {
+        const loggedIn = localStorage.getItem("isLoggedInStatus") === "true";
+        if (!loggedIn) return "guest";
+        return normalizeOwner(
+            localStorage.getItem("hub_current_user_key") ||
+            localStorage.getItem("hub_email") ||
+            localStorage.getItem("userEmail") ||
+            "guest"
+        );
+    }
+
+    function scopedKey(owner) {
+        return USER_CART_PREFIX + encodeURIComponent(normalizeOwner(owner));
+    }
+
+    function parseCart(raw) {
+        try {
+            const value = JSON.parse(raw || "[]");
+            return Array.isArray(value) ? value : [];
+        } catch (error) {
+            return [];
+        }
+    }
+
+    function readGlobalCart() {
+        for (const key of CART_KEYS) {
+            const raw = localStorage.getItem(key);
+            if (raw !== null) {
+                const cart = parseCart(raw);
+                if (cart.length || raw === "[]") return cart;
+            }
+        }
+        return [];
+    }
+
+    function writeGlobalCart(cart) {
+        const safeCart = Array.isArray(cart) ? cart : [];
+        const data = JSON.stringify(safeCart);
+        CART_KEYS.forEach(function (key) {
+            localStorage.setItem(key, data);
+        });
+        window.cartMemoryArray = safeCart;
+    }
+
+    function saveOwnerCart(owner, cart) {
+        localStorage.setItem(scopedKey(owner), JSON.stringify(Array.isArray(cart) ? cart : []));
+    }
+
+    function loadOwnerCart(owner) {
+        return parseCart(localStorage.getItem(scopedKey(owner)) || "[]");
+    }
+
+    function switchToCurrentOwner() {
+        const currentOwner = getCurrentOwner();
+        const previousOwnerRaw = localStorage.getItem(ACTIVE_OWNER_KEY);
+        const previousOwner = previousOwnerRaw ? normalizeOwner(previousOwnerRaw) : "";
+
+        // Lần đầu cài bản sửa: coi giỏ hiện tại thuộc tài khoản đang đăng nhập.
+        if (!previousOwner) {
+            const existingCart = readGlobalCart();
+            saveOwnerCart(currentOwner, existingCart);
+            localStorage.setItem(ACTIVE_OWNER_KEY, currentOwner);
+            writeGlobalCart(existingCart);
+            return existingCart;
+        }
+
+        if (previousOwner !== currentOwner) {
+            saveOwnerCart(previousOwner, readGlobalCart());
+            const nextCart = loadOwnerCart(currentOwner);
+            writeGlobalCart(nextCart);
+            localStorage.setItem(ACTIVE_OWNER_KEY, currentOwner);
+            document.dispatchEvent(new CustomEvent("stylehub-cart-owner-change", {
+                detail: { owner: currentOwner, cart: nextCart }
+            }));
+            return nextCart;
+        }
+
+        const currentCart = readGlobalCart();
+        saveOwnerCart(currentOwner, currentCart);
+        return currentCart;
+    }
+
+    function persistCurrentOwnerCart() {
+        const owner = getCurrentOwner();
+        saveOwnerCart(owner, readGlobalCart());
+    }
+
+    window.StyleHubAccountCart = {
+        getCurrentOwner,
+        switchToCurrentOwner,
+        persistCurrentOwnerCart,
+        readGlobalCart,
+        writeGlobalCart
+    };
+
+    switchToCurrentOwner();
+    document.addEventListener("DOMContentLoaded", switchToCurrentOwner);
+    window.addEventListener("pageshow", switchToCurrentOwner);
+    window.addEventListener("beforeunload", persistCurrentOwnerCart);
+    document.addEventListener("stylehub-cart-change", persistCurrentOwnerCart);
+})();
+
 
 /* ===== STYLE HUB ACCOUNT AUTH FIX =====
    Sửa 2 lỗi:
@@ -159,6 +280,7 @@
         if (String(account.password || "") !== cleanPassword) return { ok: false, message: "Mật khẩu không đúng. Vui lòng kiểm tra lại." };
 
         setSession(account);
+        if (window.StyleHubAccountCart) window.StyleHubAccountCart.switchToCurrentOwner();
         return { ok: true, message: "Đăng nhập thành công!", user: account };
     }
 
@@ -185,6 +307,7 @@
         const email = normalizeEmail(localStorage.getItem("hub_email") || localStorage.getItem("hub_current_user_key") || "");
         if (email) localStorage.setItem("hub_last_user_email", email);
         clearSessionOnly();
+        if (window.StyleHubAccountCart) window.StyleHubAccountCart.switchToCurrentOwner();
     }
 
     function syncHeader() {
@@ -241,6 +364,7 @@ function syncBagCount() {
     let cart = [];
 
     try {
+        if (window.StyleHubAccountCart) window.StyleHubAccountCart.switchToCurrentOwner();
         cart = JSON.parse(localStorage.getItem("cart")) || [];
     } catch (error) {
         cart = [];
@@ -1022,39 +1146,14 @@ function searchProducts() {
                 text-decoration: none;
                 display: block;
             }
-            .stylehub-mini-image {
-                position: relative;
+            .stylehub-mini-card img {
                 width: 100%;
                 aspect-ratio: 3/4;
-                overflow: hidden;
-                background: #f7f7f7;
-                margin-bottom: 10px;
-            }
-            .stylehub-mini-card img {
-                position: absolute;
-                inset: 0;
-                width: 100%;
-                height: 100%;
                 object-fit: cover;
                 object-position: center top;
+                background: #f7f7f7;
                 display: block;
-                transition: opacity .28s ease;
-            }
-            .stylehub-mini-card .stylehub-mini-img-main {
-                opacity: 1;
-                z-index: 1;
-            }
-            .stylehub-mini-card .stylehub-mini-img-hover {
-                opacity: 0;
-                z-index: 2;
-            }
-            @media (hover: hover) and (pointer: fine) {
-                .stylehub-mini-card:hover .stylehub-mini-img-main {
-                    opacity: 0;
-                }
-                .stylehub-mini-card:hover .stylehub-mini-img-hover {
-                    opacity: 1;
-                }
+                margin-bottom: 10px;
             }
             .stylehub-mini-card strong {
                 display: block;
@@ -1478,19 +1577,13 @@ function searchProducts() {
         section.innerHTML = `
             <h2>${sectionTitle}</h2>
             <div class="stylehub-mini-grid">
-                ${valid.slice(0, 4).map(([id, item]) => {
-                    const mainImage = item.mainImg || (item.images && item.images[0]) || "";
-                    const hoverImage = item.hoverImg || item.backImg || (item.images && item.images[1]) || mainImage;
-                    return `
+                ${valid.slice(0, 4).map(([id, item]) => `
                     <a class="stylehub-mini-card" href="product-detail.html?id=${encodeURIComponent(id)}">
-                        <div class="stylehub-mini-image">
-                            <img class="stylehub-mini-img-main" src="${escapeHtml(mainImage)}" alt="${escapeHtml(item.name || "")}">
-                            <img class="stylehub-mini-img-hover" src="${escapeHtml(hoverImage)}" alt="${escapeHtml((item.name || "") + " - ảnh sau")}">
-                        </div>
-                        <strong>${escapeHtml(item.name || "")}</strong>
-                        <span>${escapeHtml(item.price || "")}</span>
-                    </a>`;
-                }).join("")}
+                        <img src="${item.mainImg || (item.images && item.images[0]) || ""}" alt="${item.name || ""}">
+                        <strong>${item.name || ""}</strong>
+                        <span>${item.price || ""}</span>
+                    </a>
+                `).join("")}
             </div>
         `;
         return section;
@@ -2774,100 +2867,14 @@ setTimeout(initStyleHubFooterSocialFullSet, 1000);
 })();
 /* ===== END FEATURED DROPDOWN SAME AS OTHER NAV ITEMS ===== */
 
-/* ===== FOOTER SOCIAL LINKS: OPEN OFFICIAL WEBSITES ===== */
-(function () {
-    const SOCIAL_URLS = {
-        facebook: "https://www.facebook.com/",
-        zalo: "https://zalo.me/",
-        instagram: "https://www.instagram.com/",
-        youtube: "https://www.youtube.com/",
-        shopee: "https://shopee.vn/"
-    };
 
-    function detectSocial(anchor) {
-        const img = anchor.querySelector("img");
-        const text = [
-            anchor.className,
-            anchor.getAttribute("aria-label"),
-            anchor.getAttribute("title"),
-            img && img.getAttribute("alt"),
-            img && img.getAttribute("src"),
-            img && img.getAttribute("data-stylehub-clean-social")
-        ].filter(Boolean).join(" ").toLowerCase();
-
-        if (text.includes("facebook") || text.includes("fb-icon") || text.includes("fb.png")) return "facebook";
-        if (text.includes("zalo")) return "zalo";
-        if (text.includes("instagram")) return "instagram";
-        if (text.includes("youtube") || text.includes("ytb")) return "youtube";
-        if (text.includes("shopee") || text.includes("shoppe")) return "shopee";
-        return "";
-    }
-
-    function bindFooterSocialLinks() {
-        document.querySelectorAll(
-            ".site-footer .social-links a, .site-footer .footer-social-links a, .site-footer a.footer-social-icon"
-        ).forEach(function (anchor) {
-            const social = detectSocial(anchor);
-            if (!social || !SOCIAL_URLS[social]) return;
-
-            anchor.href = SOCIAL_URLS[social];
-            anchor.target = "_blank";
-            anchor.rel = "noopener noreferrer";
-            anchor.setAttribute("aria-label", "Mở " + social.charAt(0).toUpperCase() + social.slice(1));
-        });
-    }
-
-    bindFooterSocialLinks();
-    document.addEventListener("DOMContentLoaded", bindFooterSocialLinks);
-    window.addEventListener("load", bindFooterSocialLinks);
-    setTimeout(bindFooterSocialLinks, 200);
-    setTimeout(bindFooterSocialLinks, 800);
-})();
-/* ===== END FOOTER SOCIAL LINKS ===== */
-
-/* ===== FOOTER THE STYLE HUB LOGO: BACK TO HOME ===== */
-(function () {
-    function normalizeText(value) {
-        return String(value || "").replace(/\s+/g, " ").trim().toUpperCase();
-    }
-
-    function bindFooterBrandHomeLink() {
-        document.querySelectorAll(".site-footer .footer-brand").forEach(function (brandColumn) {
-            const candidates = brandColumn.querySelectorAll("h1, h2, h3, h4, .footer-logo, .brand-title, strong");
-
-            candidates.forEach(function (element) {
-                if (normalizeText(element.textContent) !== "THE STYLE HUB") return;
-
-                const existingLink = element.closest('a[href]');
-                if (existingLink) {
-                    existingLink.href = "index.html";
-                    existingLink.removeAttribute("target");
-                    existingLink.removeAttribute("rel");
-                    existingLink.style.cursor = "pointer";
-                    return;
-                }
-
-                if (element.dataset.stylehubFooterHomeReady === "1") return;
-                element.dataset.stylehubFooterHomeReady = "1";
-
-                const link = document.createElement("a");
-                link.href = "index.html";
-                link.setAttribute("aria-label", "Quay về trang chủ THE STYLE HUB");
-                link.style.color = "inherit";
-                link.style.textDecoration = "none";
-                link.style.cursor = "pointer";
-                link.innerHTML = element.innerHTML;
-
-                element.innerHTML = "";
-                element.appendChild(link);
-            });
-        });
-    }
-
-    bindFooterBrandHomeLink();
-    document.addEventListener("DOMContentLoaded", bindFooterBrandHomeLink);
-    window.addEventListener("load", bindFooterBrandHomeLink);
-    setTimeout(bindFooterBrandHomeLink, 200);
-    setTimeout(bindFooterBrandHomeLink, 800);
-})();
-/* ===== END FOOTER HOME LINK ===== */
+/* Keep the current account cart snapshot synchronized after cart actions. */
+["click", "change", "input"].forEach(function (eventName) {
+    document.addEventListener(eventName, function () {
+        if (!window.StyleHubAccountCart) return;
+        setTimeout(function () {
+            window.StyleHubAccountCart.persistCurrentOwnerCart();
+            syncBagCount();
+        }, 80);
+    }, true);
+});

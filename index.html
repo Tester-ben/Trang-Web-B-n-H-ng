@@ -909,7 +909,7 @@
             const loggedInNow = window.StyleHubAuth ? !!window.StyleHubAuth.getCurrentUser() : (localStorage.getItem('isLoggedInStatus') === 'true' && !!(localStorage.getItem('hub_current_user_key') || localStorage.getItem('hub_email')));
 
             if (loggedInNow) {
-                showPage('dashboard');
+                window.location.href = 'account.html';
             } else {
                 accountModal.style.display = 'block';
             }
@@ -1014,6 +1014,12 @@
 
             accountModal.style.display = 'none';
             triggerFireworkCelebration(fullDisplayName);
+
+            // Sau khi đăng nhập, luôn chuyển sang trang account.html chuẩn.
+            // Không sử dụng dashboard tài khoản cũ nằm bên trong trang chủ nữa.
+            setTimeout(function () {
+                window.location.href = 'account.html';
+            }, 500);
         }
 
         function handleSignOut() {
