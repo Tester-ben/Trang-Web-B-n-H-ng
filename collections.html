@@ -219,8 +219,26 @@
     <script>
     const grid = document.querySelector(".mens-product-grid");
 
-    Object.keys(database).forEach(id => {
+    // NEW ARRIVALS chỉ hiển thị một nhóm sản phẩm mới được chọn,
+    // không lấy toàn bộ sản phẩm trong database.
+    const newArrivalIds = [
+        "tops-28",
+        "tops-29",
+        "hoodies-22",
+        "hoodies-23",
+        "womens-21",
+        "womens-22",
+        "bottoms-13",
+        "womens-bottoms-22",
+        "kids-25",
+        "kids-bottoms-20",
+        "shoe-13",
+        "sale-25"
+    ];
+
+    newArrivalIds.forEach(id => {
         const item = database[id];
+        if (!item) return;
 
         grid.innerHTML += `
             <a href="product-detail.html?id=${id}" class="product-card" data-product-id="${id}">

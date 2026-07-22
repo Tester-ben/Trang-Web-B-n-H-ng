@@ -302,6 +302,23 @@
     resize: vertical;
 }
 
+.account-edit-field input.account-input-error {
+    border-color: #ff2f2f !important;
+    background: #fffafa;
+}
+
+.account-field-error {
+    display: none;
+    margin-top: 6px;
+    color: #ff2f2f;
+    font-size: 11px;
+    line-height: 1.4;
+}
+
+.account-field-error.show {
+    display: block;
+}
+
 .account-edit-actions {
     display: flex;
     justify-content: flex-end;
@@ -426,7 +443,8 @@
                     </div>
                     <div class="account-edit-field">
                         <label for="editPhone">Phone Number</label>
-                        <input type="text" id="editPhone" placeholder="Phone number">
+                        <input type="text" id="editPhone" placeholder="Phone number" inputmode="numeric" maxlength="10">
+                        <small id="editPhoneError" class="account-field-error" aria-live="polite"></small>
                     </div>
                     <div class="account-edit-field full-row">
                         <label for="editEmail">Email</label>
@@ -785,14 +803,34 @@
             if (form) form.classList.remove('active');
         }
 
+        function setEditPhoneError(message) {
+            const phoneInput = document.getElementById('editPhone');
+            const errorText = document.getElementById('editPhoneError');
+            if (!phoneInput || !errorText) return;
+
+            const hasError = Boolean(message);
+            phoneInput.classList.toggle('account-input-error', hasError);
+            errorText.textContent = message || '';
+            errorText.classList.toggle('show', hasError);
+        }
+
         function saveProfileEditForm() {
             const name = document.getElementById('editFullName').value.trim();
             const phone = document.getElementById('editPhone').value.trim();
             const email = document.getElementById('editEmail').value.trim().toLowerCase();
             const address = document.getElementById('editAddress').value.trim();
 
-            if (!name || !phone || !email || !address) {
-                showAccountToast('Vui lòng nhập đầy đủ tên, số điện thoại, email và địa chỉ.');
+            setEditPhoneError('');
+
+            if (!/^0\d{9}$/.test(phone)) {
+                setEditPhoneError('Số điện thoại phải gồm đúng 10 số và bắt đầu bằng số 0.');
+                document.getElementById('editPhone').focus();
+                document.getElementById('editPhone').scrollIntoView({ behavior: 'smooth', block: 'center' });
+                return;
+            }
+
+            if (!name || !email || !address) {
+                showAccountToast('Vui lòng nhập đầy đủ tên, email và địa chỉ.');
                 return;
             }
 
@@ -813,6 +851,19 @@
             closeProfileEditForm();
             showAccountToast('Đã cập nhật thông tin giao hàng.');
         }
+
+
+        document.addEventListener('DOMContentLoaded', function () {
+            const editPhoneInput = document.getElementById('editPhone');
+            if (!editPhoneInput) return;
+
+            editPhoneInput.addEventListener('input', function () {
+                this.value = this.value.replace(/\D/g, '').slice(0, 10);
+                if (/^0\d{9}$/.test(this.value)) {
+                    setEditPhoneError('');
+                }
+            });
+        });
 
         function getCurrentUserEmail() {
             return recoverCurrentUserEmail();

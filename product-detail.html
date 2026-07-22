@@ -823,7 +823,7 @@
                     </div>
                     <div class="form-group">
                         <label>Số điện thoại</label>
-                        <input type="tel" id="cusPhone" required placeholder="Chưa cập nhật">
+                        <input type="tel" id="cusPhone" required inputmode="numeric" maxlength="10" pattern="0[0-9]{9}" placeholder="Chưa cập nhật">
                     </div>
                     <div class="form-group vn-address-group">
                         <label>Địa chỉ nhận hàng</label>
@@ -1013,7 +1013,19 @@
                 if (cartMemoryArray.length > 0) {
                     setTimeout(function() {
                         showToastNotification('Đã thêm lại đơn hàng vào BAG!');
-                        toggleCartDrawer(true);
+
+                        // Không tự mở BAG sau khi chuyển từ nút "Đặt lại đơn này".
+                        // Drawer toàn màn hình có thể giữ thao tác cuộn bên trong nó,
+                        // khiến trang sản phẩm trông như bị đứng im.
+                        toggleCartDrawer(false);
+                        document.body.classList.remove(
+                            'stylehub-cart-open',
+                            'stylehub-checkout-open',
+                            'stylehub-auth-open',
+                            'stylehub-order-success-open'
+                        );
+                        document.documentElement.style.overflow = '';
+                        document.body.style.overflow = '';
                     }, 250);
                 }
             } catch (error) {
@@ -1164,6 +1176,23 @@
                 return `<li><strong>${escapeStyleHubText(item[0])}:</strong> ${escapeStyleHubText(item[1])}</li>`;
             }).join("");
         }
+
+        // Khôi phục trạng thái cuộn khi trang được mở hoặc phục hồi từ bộ nhớ trình duyệt.
+        window.addEventListener('pageshow', function() {
+            document.documentElement.style.overflow = '';
+            document.body.style.overflow = '';
+            document.body.classList.remove(
+                'stylehub-cart-open',
+                'stylehub-checkout-open',
+                'stylehub-auth-open',
+                'stylehub-order-success-open'
+            );
+
+            ['cartOverlay', 'checkoutOverlay', 'authModal'].forEach(function(id) {
+                const overlay = document.getElementById(id);
+                if (overlay) overlay.classList.remove('open');
+            });
+        });
 
         document.addEventListener("DOMContentLoaded", function() {
             const urlParams = new URLSearchParams(window.location.search);
@@ -2287,6 +2316,58 @@
             ].join('@@');
         }
 
+        function clearCheckoutPhoneError() {
+            const phoneInput = document.getElementById('cusPhone');
+            const errorEl = document.getElementById('cusPhoneError');
+            if (phoneInput) {
+                phoneInput.style.borderColor = '';
+                phoneInput.style.boxShadow = '';
+                phoneInput.removeAttribute('aria-invalid');
+            }
+            if (errorEl) errorEl.remove();
+        }
+
+        function showCheckoutPhoneError(message) {
+            const phoneInput = document.getElementById('cusPhone');
+            if (!phoneInput) return;
+
+            clearCheckoutPhoneError();
+            phoneInput.style.borderColor = '#ff3b30';
+            phoneInput.style.boxShadow = '0 0 0 1px #ff3b30';
+            phoneInput.setAttribute('aria-invalid', 'true');
+
+            const errorEl = document.createElement('small');
+            errorEl.id = 'cusPhoneError';
+            errorEl.textContent = message;
+            errorEl.style.display = 'block';
+            errorEl.style.marginTop = '6px';
+            errorEl.style.color = '#ff3b30';
+            errorEl.style.fontSize = '12px';
+            errorEl.style.lineHeight = '1.4';
+            phoneInput.insertAdjacentElement('afterend', errorEl);
+
+            phoneInput.focus({ preventScroll: true });
+            phoneInput.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }
+
+        (function initCheckoutPhoneValidation() {
+            function bindPhoneValidation() {
+                const phoneInput = document.getElementById('cusPhone');
+                if (!phoneInput || phoneInput.dataset.phoneValidationReady === '1') return;
+                phoneInput.dataset.phoneValidationReady = '1';
+                phoneInput.addEventListener('input', function () {
+                    const digits = this.value.replace(/\D/g, '').slice(0, 10);
+                    if (this.value !== digits) this.value = digits;
+                    clearCheckoutPhoneError();
+                });
+            }
+            if (document.readyState === 'loading') {
+                document.addEventListener('DOMContentLoaded', bindPhoneValidation);
+            } else {
+                bindPhoneValidation();
+            }
+        })();
+
         async function submitFinalOrder() {
             if (styleHubOrderSubmitLocked) {
                 return;
@@ -2307,7 +2388,21 @@
             const address = document.getElementById('cusAddress').value.trim();
             const email = document.getElementById('cusEmail').value.trim().toLowerCase();
 
-            if(!name || !phone || !address || !email) {
+            if (!/^0\d{9}$/.test(phone)) {
+                showCheckoutPhoneError("Số điện thoại phải gồm đúng 10 số và bắt đầu bằng số 0.");
+                showToastNotification("Vui lòng kiểm tra lại số điện thoại!");
+                styleHubOrderSubmitLocked = false;
+                if (submitButton) {
+                    submitButton.disabled = false;
+                    submitButton.style.pointerEvents = "";
+                    submitButton.innerText = originalButtonText || "XÁC NHẬN ĐẶT HÀNG";
+                }
+                return;
+            }
+
+            clearCheckoutPhoneError();
+
+            if(!name || !address || !email) {
                 showToastNotification("Vui lòng điền đầy đủ thông tin giao hàng!");
                 styleHubOrderSubmitLocked = false;
                 if (submitButton) {
