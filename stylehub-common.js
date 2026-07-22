@@ -924,6 +924,32 @@ function searchProducts() {
         return null;
     }
 
+    /* Một số sản phẩm mẫu được đặt ở trạng thái hết hàng trên toàn website. */
+    function applyPresetOutOfStockProducts() {
+        if (typeof database === "undefined" || !database) return;
+
+        const outOfStockProductIds = [
+            "shoe-2",
+            "shoe-7",
+            "tops-5",
+            "tops-18",
+            "bottoms-4",
+            "womens-6",
+            "womens-bottoms-3",
+            "kids-4",
+            "kids-bottoms-2",
+            "sale-3",
+            "sale-14"
+        ];
+
+        outOfStockProductIds.forEach(function (productId) {
+            const product = database[productId];
+            if (!product) return;
+            product.stock = 0;
+            product.outOfStock = true;
+        });
+    }
+
     function stableHash(value) {
         let hash = 0;
         String(value || "").split("").forEach(ch => {
@@ -1874,6 +1900,7 @@ function searchProducts() {
 
     function runAll() {
         injectStyles();
+        applyPresetOutOfStockProducts();
         initFooterPageLinks();
         initCollectionFilters();
         initAdminCustomProductCards();

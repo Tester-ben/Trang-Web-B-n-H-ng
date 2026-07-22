@@ -1914,3 +1914,371 @@ header .nav-right a,
     }
 }
 /* ===== END MOBILE 2-COLUMN COLLECTION GRID ===== */
+
+/* ===== MOBILE HOME BANNER BALANCED LAYOUT ===== */
+@media (max-width: 768px) {
+    /* Banner chính: giữ ảnh lớn, không còn khoảng đen thừa phía trên */
+    .main-hero-banner {
+        height: 620px !important;
+        min-height: 0 !important;
+        background: #111 !important;
+        display: block !important;
+        padding: 0 !important;
+    }
+
+    .main-hero-img {
+        position: absolute !important;
+        top: 0 !important;
+        left: 0 !important;
+        width: 100% !important;
+        height: 72% !important;
+        object-fit: cover !important;
+        object-position: center 42% !important;
+        transform: none !important;
+    }
+
+    .main-hero-banner::after {
+        background: linear-gradient(to bottom, rgba(0,0,0,.05) 0%, rgba(0,0,0,.08) 55%, #111 76%, #111 100%) !important;
+    }
+
+    .main-hero-content {
+        bottom: 42px !important;
+        padding: 0 24px !important;
+    }
+
+    .main-hero-content h2 {
+        font-size: 30px !important;
+        letter-spacing: 9px !important;
+        margin-bottom: 18px !important;
+    }
+
+    .main-shop-btn {
+        min-width: 188px !important;
+        padding: 14px 24px !important;
+    }
+
+    /* Banner giày: bố cục gọn hơn, ảnh vẫn phủ kín và không bị thu bé thành khung */
+    .shoes-hero {
+        height: 620px !important;
+        min-height: 0 !important;
+        background: #8f8f8f !important;
+    }
+
+    .shoes-hero img {
+        position: absolute !important;
+        inset: 0 !important;
+        width: 100% !important;
+        height: 100% !important;
+        object-fit: cover !important;
+        object-position: center center !important;
+        transform: none !important;
+    }
+
+    .shoes-hero::after {
+        background: linear-gradient(to bottom, rgba(0,0,0,.04) 0%, rgba(0,0,0,.12) 58%, rgba(0,0,0,.35) 100%) !important;
+    }
+
+    .shoes-hero-content {
+        bottom: 48px !important;
+        padding: 0 24px !important;
+    }
+
+    .shoes-hero-content h2 {
+        font-size: 40px !important;
+        letter-spacing: 7px !important;
+        margin-bottom: 24px !important;
+    }
+
+    .shoes-shop-btn {
+        width: min(250px, calc(100vw - 72px)) !important;
+        padding: 15px 20px !important;
+        text-align: center !important;
+    }
+}
+
+@media (max-width: 390px) {
+    .main-hero-banner,
+    .shoes-hero {
+        height: 570px !important;
+    }
+
+    .main-hero-img {
+        height: 70% !important;
+    }
+
+    .main-hero-content h2 {
+        font-size: 27px !important;
+        letter-spacing: 7px !important;
+    }
+}
+/* ===== END MOBILE HOME BANNER BALANCED LAYOUT ===== */
+
+/* ===== MOBILE HOME HERO: FULL PORTRAIT LIKE REFERENCE ===== */
+@media (max-width: 768px) {
+    .main-hero-banner,
+    .shoes-hero {
+        position: relative !important;
+        width: 100% !important;
+        height: calc(100svh - 57px) !important;
+        min-height: 680px !important;
+        max-height: 900px !important;
+        overflow: hidden !important;
+        padding: 0 !important;
+        margin: 0 !important;
+        background: #111 !important;
+    }
+
+    .main-hero-img,
+    .shoes-hero img {
+        position: absolute !important;
+        inset: 0 !important;
+        width: 100% !important;
+        height: 100% !important;
+        max-width: none !important;
+        max-height: none !important;
+        object-fit: cover !important;
+        transform: none !important;
+        margin: 0 !important;
+    }
+
+    .main-hero-img {
+        object-position: center top !important;
+    }
+
+    .shoes-hero img {
+        object-position: center center !important;
+    }
+
+    .main-hero-banner::after,
+    .shoes-hero::after {
+        content: "" !important;
+        position: absolute !important;
+        inset: 0 !important;
+        z-index: 1 !important;
+        pointer-events: none !important;
+        background: linear-gradient(
+            to bottom,
+            rgba(0,0,0,0.02) 0%,
+            rgba(0,0,0,0.04) 48%,
+            rgba(0,0,0,0.5) 100%
+        ) !important;
+    }
+
+    .main-hero-content,
+    .shoes-hero-content {
+        position: absolute !important;
+        left: 50% !important;
+        right: auto !important;
+        bottom: 26px !important;
+        width: calc(100% - 48px) !important;
+        padding: 0 !important;
+        transform: translateX(-50%) !important;
+        z-index: 2 !important;
+        text-align: center !important;
+    }
+
+    .main-hero-content h2,
+    .shoes-hero-content h2 {
+        color: #fff !important;
+        font-size: clamp(30px, 9vw, 44px) !important;
+        line-height: 1.15 !important;
+        letter-spacing: clamp(5px, 2vw, 9px) !important;
+        margin: 0 0 26px !important;
+        white-space: normal !important;
+        text-shadow: 0 2px 12px rgba(0,0,0,.22) !important;
+    }
+
+    .main-shop-btn,
+    .shoes-shop-btn {
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        width: 100% !important;
+        max-width: 260px !important;
+        min-height: 46px !important;
+        margin: 0 auto !important;
+        padding: 13px 20px !important;
+        border: 1px solid rgba(255,255,255,.15) !important;
+        background: rgba(0,0,0,.88) !important;
+        color: #fff !important;
+        box-sizing: border-box !important;
+    }
+}
+
+@media (max-width: 390px) {
+    .main-hero-banner,
+    .shoes-hero {
+        height: calc(100svh - 57px) !important;
+        min-height: 620px !important;
+    }
+
+    .main-hero-content,
+    .shoes-hero-content {
+        bottom: 22px !important;
+        width: calc(100% - 36px) !important;
+    }
+
+    .main-hero-content h2,
+    .shoes-hero-content h2 {
+        font-size: 30px !important;
+        letter-spacing: 5px !important;
+        margin-bottom: 20px !important;
+    }
+}
+/* ===== END MOBILE HOME HERO: FULL PORTRAIT LIKE REFERENCE ===== */
+
+/* ===== MOBILE SHOES BANNER: XOAY ĐÔI GIÀY THEO CHIỀU DỌC ===== */
+@media (max-width: 768px) {
+    .shoes-hero {
+        position: relative !important;
+        overflow: hidden !important;
+    }
+
+    .shoes-hero img {
+        position: absolute !important;
+        top: 50% !important;
+        left: 50% !important;
+        width: 620px !important;
+        height: min(100vw, 430px) !important;
+        max-width: none !important;
+        max-height: none !important;
+        object-fit: cover !important;
+        object-position: center center !important;
+        transform: translate(-50%, -50%) rotate(90deg) scale(1.08) !important;
+        transform-origin: center center !important;
+    }
+
+    .shoes-hero-content {
+        z-index: 3 !important;
+    }
+}
+
+@media (max-width: 390px) {
+    .shoes-hero img {
+        width: 570px !important;
+        height: 390px !important;
+    }
+}
+/* ===== END MOBILE SHOES BANNER VERTICAL ===== */
+
+/* ===== MOBILE SHOES HERO FINAL: ẢNH DỌC PHỦ KÍN, KHÔNG CÒN KHUNG ĐEN ===== */
+@media (max-width: 768px) {
+    .shoes-hero {
+        position: relative !important;
+        width: 100% !important;
+        height: calc(100svh - 57px) !important;
+        min-height: 620px !important;
+        max-height: 900px !important;
+        margin: 0 !important;
+        padding: 0 !important;
+        overflow: hidden !important;
+        background: #d0d0d0 !important;
+    }
+
+    .shoes-hero img {
+        position: absolute !important;
+        top: 50% !important;
+        left: 50% !important;
+        width: calc(100svh - 57px) !important;
+        height: 100vw !important;
+        min-width: 620px !important;
+        max-width: none !important;
+        max-height: none !important;
+        margin: 0 !important;
+        object-fit: cover !important;
+        object-position: center center !important;
+        transform: translate(-50%, -50%) rotate(90deg) !important;
+        transform-origin: center center !important;
+    }
+
+    .shoes-hero::after {
+        position: absolute !important;
+        inset: 0 !important;
+        z-index: 1 !important;
+        background: linear-gradient(
+            to bottom,
+            rgba(0,0,0,0) 0%,
+            rgba(0,0,0,0.04) 58%,
+            rgba(0,0,0,0.38) 100%
+        ) !important;
+        pointer-events: none !important;
+    }
+
+    .shoes-hero-content {
+        position: absolute !important;
+        left: 50% !important;
+        bottom: 28px !important;
+        width: calc(100% - 48px) !important;
+        z-index: 3 !important;
+        transform: translateX(-50%) !important;
+        padding: 0 !important;
+        margin: 0 !important;
+        background: transparent !important;
+    }
+
+    .shoes-hero-content h2 {
+        margin: 0 0 20px !important;
+        color: #fff !important;
+        font-size: clamp(32px, 10vw, 44px) !important;
+        line-height: 1 !important;
+        letter-spacing: 7px !important;
+        text-shadow: 0 2px 12px rgba(0,0,0,.35) !important;
+    }
+
+    .shoes-shop-btn {
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        width: min(250px, 100%) !important;
+        min-height: 46px !important;
+        margin: 0 auto !important;
+        padding: 12px 20px !important;
+        box-sizing: border-box !important;
+        background: rgba(0,0,0,.88) !important;
+        color: #fff !important;
+        border: 1px solid rgba(255,255,255,.18) !important;
+    }
+}
+
+@media (max-width: 390px) {
+    .shoes-hero {
+        min-height: 570px !important;
+    }
+
+    .shoes-hero img {
+        width: max(570px, calc(100svh - 57px)) !important;
+        height: 100vw !important;
+    }
+
+    .shoes-hero-content {
+        bottom: 22px !important;
+        width: calc(100% - 36px) !important;
+    }
+}
+/* ===== END MOBILE SHOES HERO FINAL ===== */
+
+/* ===== MOBILE HERO TITLE: XUỐNG DÒNG CÂN ĐỐI ===== */
+@media (max-width: 768px) {
+    .main-hero-content h2 {
+        width: 100% !important;
+        max-width: 340px !important;
+        margin-left: auto !important;
+        margin-right: auto !important;
+        font-size: clamp(27px, 7.4vw, 34px) !important;
+        line-height: 1.18 !important;
+        letter-spacing: clamp(3px, 1.2vw, 5px) !important;
+        white-space: normal !important;
+        overflow-wrap: normal !important;
+        word-break: keep-all !important;
+        text-wrap: balance !important;
+    }
+}
+
+@media (max-width: 390px) {
+    .main-hero-content h2 {
+        max-width: 290px !important;
+        font-size: 27px !important;
+        letter-spacing: 3px !important;
+    }
+}
+/* ===== END MOBILE HERO TITLE WRAP ===== */
