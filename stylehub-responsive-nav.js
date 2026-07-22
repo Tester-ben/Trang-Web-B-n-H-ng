@@ -615,11 +615,31 @@
             <div class="mobile-menu-panel">
                 <div class="mobile-menu-brand">THE STYLE HUB</div>
                 <button type="button" class="mobile-menu-close" aria-label="Close menu">×</button>
+                <div class="mobile-menu-group mobile-account-group">
+                    <div class="mobile-menu-title">TÀI KHOẢN</div>
+                    <a href="account.html" id="stylehub-mobile-account-link">ACCOUNT</a>
+                </div>
                 ${groups}
             </div>
         `;
 
         document.body.appendChild(overlay);
+
+        const mobileAccountLink = overlay.querySelector("#stylehub-mobile-account-link");
+        if (mobileAccountLink) {
+            let accountText = "ACCOUNT";
+
+            if (window.StyleHubAuth && typeof window.StyleHubAuth.getCurrentUser === "function") {
+                const currentUser = window.StyleHubAuth.getCurrentUser();
+                if (currentUser) {
+                    accountText = String(currentUser.name || currentUser.email || "ACCOUNT").toUpperCase();
+                }
+            } else if (localStorage.getItem("isLoggedInStatus") === "true") {
+                accountText = String(localStorage.getItem("hub_name") || "ACCOUNT").toUpperCase();
+            }
+
+            mobileAccountLink.textContent = accountText;
+        }
 
         function openMenu() {
             overlay.classList.add("is-open");

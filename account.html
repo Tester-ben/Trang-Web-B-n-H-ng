@@ -360,6 +360,124 @@
 /* ===== END ACCOUNT PROFILE EMAIL + EDIT ADDRESS FIX ===== */
 </style>
 
+
+<style id="account-mobile-fit-fix">
+/* Chỉ thu gọn thanh đầu trang và 4 tab trên giao diện mobile */
+@media (max-width: 768px) {
+    .main-header {
+        height: 57px !important;
+        overflow: visible !important;
+    }
+
+    .main-header .nav-container {
+        width: 100% !important;
+        height: 57px !important;
+        padding: 0 18px !important;
+        display: grid !important;
+        grid-template-columns: 42px minmax(0, 1fr) 58px !important;
+        align-items: center !important;
+        gap: 6px !important;
+    }
+
+    .main-header .logo {
+        min-width: 0 !important;
+        width: 100% !important;
+        text-align: center !important;
+        white-space: nowrap !important;
+        overflow: hidden !important;
+    }
+
+    .main-header .logo a {
+        display: block !important;
+        font-size: clamp(12px, 3.8vw, 15px) !important;
+        letter-spacing: clamp(2.5px, 1.25vw, 4px) !important;
+        white-space: nowrap !important;
+        text-overflow: clip !important;
+    }
+
+    .main-header .nav-left,
+    .main-header .nav-right {
+        min-width: 0 !important;
+        gap: 0 !important;
+    }
+
+    .main-header .nav-left {
+        justify-content: flex-start !important;
+    }
+
+    .main-header .nav-right {
+        justify-content: flex-end !important;
+    }
+
+    .main-header .nav-right a:last-child {
+        display: block !important;
+        font-size: 9px !important;
+        letter-spacing: 1px !important;
+        white-space: nowrap !important;
+    }
+
+    .account-page-wrapper {
+        width: 100% !important;
+        max-width: 100% !important;
+        margin-top: 102px !important;
+        padding: 0 20px !important;
+        overflow-x: hidden !important;
+    }
+
+    .account-tabs-nav {
+        width: 100% !important;
+        display: grid !important;
+        grid-template-columns: repeat(4, minmax(0, 1fr)) !important;
+        gap: 0 !important;
+        padding-bottom: 0 !important;
+        margin-bottom: 35px !important;
+        overflow: visible !important;
+    }
+
+    .account-tabs-nav .tab-btn {
+        width: 100% !important;
+        min-width: 0 !important;
+        padding: 0 3px 14px !important;
+        font-size: clamp(8px, 2.45vw, 10px) !important;
+        line-height: 1.18 !important;
+        letter-spacing: clamp(.55px, .28vw, 1.15px) !important;
+        text-align: center !important;
+        white-space: normal !important;
+        overflow-wrap: normal !important;
+        word-break: normal !important;
+    }
+
+    .account-tabs-nav .tab-btn.active::after {
+        left: 8% !important;
+        width: 84% !important;
+        bottom: -1px !important;
+    }
+}
+
+@media (max-width: 390px) {
+    .main-header .nav-container {
+        padding: 0 14px !important;
+        grid-template-columns: 38px minmax(0, 1fr) 52px !important;
+    }
+
+    .main-header .logo a {
+        font-size: 12px !important;
+        letter-spacing: 2.8px !important;
+    }
+
+    .account-page-wrapper {
+        padding: 0 14px !important;
+    }
+
+    .account-tabs-nav .tab-btn {
+        font-size: 8px !important;
+        letter-spacing: .5px !important;
+        padding-left: 1px !important;
+        padding-right: 1px !important;
+    }
+}
+</style>
+
 </head>
 <body>
     <div id="searchBox" class="search-overlay">
@@ -1111,6 +1229,8 @@
             const userNameKey = `hub_orders_${normalizeAccountKey(localStorage.getItem('hub_name') || '')}`;
             const perUserKey = resolvedEmail ? `hub_orders_${resolvedEmail}` : '';
             const perUserOrders = perUserKey ? safeParseOrders(perUserKey) : [];
+            const normalizedEmailKey = resolvedEmail ? `hub_orders_${normalizeAccountKey(resolvedEmail)}` : '';
+            const normalizedEmailOrders = normalizedEmailKey ? safeParseOrders(normalizedEmailKey) : [];
             const nameKeyOrders = safeParseOrders(userNameKey);
             const globalOrders = safeParseOrders('hub_orders').filter(order => {
                 if (resolvedEmail && getOrderOwnerEmail(order) === resolvedEmail) return true;
@@ -1119,15 +1239,49 @@
             });
             const customerDemoOrders = getCustomerDemoOrdersForAccount(resolvedEmail, currentName);
 
+            // Một số luồng đặt hàng cũ lưu đơn bằng key có email đã chuẩn hóa
+            // hoặc key riêng khác nhau. Quét toàn bộ key đơn hàng để không làm mất
+            // đơn vừa đặt khi chuyển sang trang Account.
+            const discoveredLocalOrders = [];
+            Object.keys(localStorage).forEach(function(storageKey) {
+                const isOrderKey = storageKey === 'hub_orders' ||
+                    storageKey.indexOf('hub_orders_') === 0 ||
+                    storageKey === 'stylehub_customer_demo_orders' ||
+                    storageKey.indexOf('stylehub_customer_demo_orders_') === 0;
+                if (!isOrderKey) return;
+
+                safeParseOrders(storageKey).forEach(function(order) {
+                    const ownerEmail = getOrderOwnerEmail(order);
+                    const customerName = getOrderCustomerName(order);
+                    const keySuffix = storageKey
+                        .replace(/^hub_orders_/, '')
+                        .replace(/^stylehub_customer_demo_orders_/, '');
+
+                    const emailMatches = resolvedEmail && (
+                        ownerEmail === resolvedEmail ||
+                        keySuffix === resolvedEmail ||
+                        keySuffix === normalizeAccountKey(resolvedEmail)
+                    );
+                    const nameMatches = currentName && (
+                        customerName === currentName ||
+                        keySuffix === normalizeAccountKey(currentName)
+                    );
+
+                    if (emailMatches || nameMatches) discoveredLocalOrders.push(order);
+                });
+            });
+
             // Quan trọng: luôn merge cloud + local. Không được return cloud sớm,
             // vì cloud có thể chỉ là bản patch đổi địa chỉ/status và thiếu sản phẩm/tổng tiền.
             // Bản static demo dùng stylehub_customer_demo_orders để khách xem lịch sử đơn,
             // nhưng Admin không đọc key này nên đơn không nhảy sang Admin.
             const merged = [
                 ...perUserOrders,
+                ...normalizedEmailOrders,
                 ...nameKeyOrders,
                 ...globalOrders,
                 ...customerDemoOrders,
+                ...discoveredLocalOrders,
                 ...matchedCloudByEmail,
                 ...matchedDirectEmail,
                 ...matchedCloudByName

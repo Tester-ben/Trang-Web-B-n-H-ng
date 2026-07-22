@@ -1146,14 +1146,41 @@ function searchProducts() {
                 text-decoration: none;
                 display: block;
             }
-            .stylehub-mini-card img {
+            .stylehub-mini-thumb {
+                position: relative;
                 width: 100%;
                 aspect-ratio: 3/4;
+                overflow: hidden;
+                background: #f7f7f7;
+                margin-bottom: 10px;
+            }
+            .stylehub-mini-thumb img {
+                position: absolute;
+                inset: 0;
+                width: 100%;
+                height: 100%;
                 object-fit: cover;
                 object-position: center top;
-                background: #f7f7f7;
                 display: block;
-                margin-bottom: 10px;
+                margin: 0;
+                transition: opacity .32s ease, transform .38s ease;
+            }
+            .stylehub-mini-thumb .stylehub-mini-img-main {
+                opacity: 1;
+                z-index: 1;
+            }
+            .stylehub-mini-thumb .stylehub-mini-img-hover {
+                opacity: 0;
+                z-index: 2;
+            }
+            @media (hover: hover) and (pointer: fine) {
+                .stylehub-mini-card:hover .stylehub-mini-img-main {
+                    opacity: 0;
+                }
+                .stylehub-mini-card:hover .stylehub-mini-img-hover {
+                    opacity: 1;
+                    transform: scale(1.015);
+                }
             }
             .stylehub-mini-card strong {
                 display: block;
@@ -1579,7 +1606,10 @@ function searchProducts() {
             <div class="stylehub-mini-grid">
                 ${valid.slice(0, 4).map(([id, item]) => `
                     <a class="stylehub-mini-card" href="product-detail.html?id=${encodeURIComponent(id)}">
-                        <img src="${item.mainImg || (item.images && item.images[0]) || ""}" alt="${item.name || ""}">
+                        <div class="stylehub-mini-thumb product-image">
+                            <img class="stylehub-mini-img-main" src="${item.mainImg || (item.images && item.images[0]) || ""}" alt="${item.name || ""}">
+                            <img class="stylehub-mini-img-hover" src="${(item.images && (item.images[1] || item.images[0])) || item.hoverImg || item.mainImg || ""}" alt="${item.name || ""} - ảnh sau">
+                        </div>
                         <strong>${item.name || ""}</strong>
                         <span>${item.price || ""}</span>
                     </a>
@@ -2878,3 +2908,192 @@ setTimeout(initStyleHubFooterSocialFullSet, 1000);
         }, 80);
     }, true);
 });
+
+/* ===== GLOBAL MOBILE SWIPE RIGHT TO GO BACK =====
+   Áp dụng cho tất cả trang có tải stylehub-common.js, kể cả trang chính sách.
+   Vuốt từ mép trái sang phải: quay lại từng trang đã xem trong website.
+   Khi không còn trang trước trong website: trở về index.html.
+*/
+(function initGlobalMobileSwipeBack() {
+    const STACK_KEY = "stylehub_internal_page_stack_v2";
+    const NAV_FLAG_KEY = "stylehub_swipe_navigating_v2";
+    const MOBILE_QUERY = "(max-width: 768px)";
+    const EDGE_START_MAX = 55;
+    const MIN_SWIPE_X = 90;
+    const MAX_SWIPE_Y = 65;
+    const MAX_DURATION = 900;
+
+    function isMobile() {
+        return window.matchMedia && window.matchMedia(MOBILE_QUERY).matches;
+    }
+
+    function normalizeUrl(value) {
+        try {
+            const url = new URL(value, window.location.href);
+            if (url.origin !== window.location.origin) return "";
+            url.hash = "";
+            return url.href;
+        } catch (error) {
+            return "";
+        }
+    }
+
+    function readStack() {
+        try {
+            const parsed = JSON.parse(sessionStorage.getItem(STACK_KEY) || "[]");
+            return Array.isArray(parsed) ? parsed.filter(Boolean) : [];
+        } catch (error) {
+            return [];
+        }
+    }
+
+    function writeStack(stack) {
+        try {
+            sessionStorage.setItem(STACK_KEY, JSON.stringify((stack || []).slice(-40)));
+        } catch (error) {}
+    }
+
+    function rememberCurrentPage() {
+        const current = normalizeUrl(window.location.href);
+        if (!current) return;
+
+        let stack = readStack();
+        const navigatingBack = sessionStorage.getItem(NAV_FLAG_KEY) === "1";
+        sessionStorage.removeItem(NAV_FLAG_KEY);
+
+        if (navigatingBack) {
+            // Trang đích đã có sẵn ở cuối stack sau khi pop, không thêm trùng.
+            if (!stack.length || stack[stack.length - 1] !== current) {
+                stack.push(current);
+            }
+            writeStack(stack);
+            return;
+        }
+
+        if (!stack.length || stack[stack.length - 1] !== current) {
+            stack.push(current);
+            writeStack(stack);
+        }
+    }
+
+    function isBlockedTarget(target) {
+        if (!(target instanceof Element)) return false;
+        return Boolean(target.closest([
+            "input", "textarea", "select", "button",
+            "[contenteditable='true']",
+            ".search-overlay", ".cart-overlay", ".checkout-overlay",
+            "#checkoutOverlay", ".stylehub-modal-overlay",
+            ".cancel-modal-overlay", ".order-address-modal-overlay",
+            ".ai-chat-window", ".chat-window", ".stylehub-chat-window",
+            ".swiper", ".carousel", ".slider",
+            ".stylehub-thumb-nav", ".image-scroll-gallery"
+        ].join(",")));
+    }
+
+    function getHomeUrl() {
+        return new URL("index.html", window.location.href).href;
+    }
+
+    function goBackInsideWebsite() {
+        const current = normalizeUrl(window.location.href);
+        let stack = readStack();
+
+        // Dọn các bản ghi trùng ở cuối stack.
+        while (stack.length > 1 && stack[stack.length - 1] === stack[stack.length - 2]) {
+            stack.pop();
+        }
+
+        // Bảo đảm trang hiện tại nằm ở cuối rồi bỏ nó ra.
+        if (stack.length && stack[stack.length - 1] === current) {
+            stack.pop();
+        } else {
+            const currentIndex = stack.lastIndexOf(current);
+            if (currentIndex >= 0) stack = stack.slice(0, currentIndex);
+        }
+
+        let destination = stack.length ? stack[stack.length - 1] : "";
+
+        // Nếu chưa ghi nhận được lịch sử nội bộ, dùng referrer cùng website.
+        if (!destination) {
+            const referrer = normalizeUrl(document.referrer);
+            if (referrer && referrer !== current) destination = referrer;
+        }
+
+        // Không cho vuốt thoát khỏi website; hết lịch sử thì về trang chủ.
+        if (!destination || destination === current) {
+            destination = getHomeUrl();
+            stack = destination === current ? [current] : [destination];
+        }
+
+        if (destination === current) return;
+
+        writeStack(stack);
+        try { sessionStorage.setItem(NAV_FLAG_KEY, "1"); } catch (error) {}
+        document.documentElement.classList.add("stylehub-swipe-leaving");
+        window.location.href = destination;
+    }
+
+    function bindSwipe() {
+        if (window.__styleHubGlobalSwipeBackBound) return;
+        window.__styleHubGlobalSwipeBackBound = true;
+
+        let startX = 0;
+        let startY = 0;
+        let startTime = 0;
+        let tracking = false;
+
+        document.addEventListener("touchstart", function (event) {
+            if (!isMobile() || event.touches.length !== 1 || isBlockedTarget(event.target)) {
+                tracking = false;
+                return;
+            }
+
+            const touch = event.touches[0];
+            // Bắt đầu gần mép trái để không xung đột cuộn trang và lật ảnh sản phẩm.
+            tracking = touch.clientX <= EDGE_START_MAX;
+            if (!tracking) return;
+
+            startX = touch.clientX;
+            startY = touch.clientY;
+            startTime = Date.now();
+        }, { passive: true });
+
+        document.addEventListener("touchend", function (event) {
+            if (!tracking || !isMobile() || !event.changedTouches.length) {
+                tracking = false;
+                return;
+            }
+
+            const touch = event.changedTouches[0];
+            const deltaX = touch.clientX - startX;
+            const deltaY = touch.clientY - startY;
+            const duration = Date.now() - startTime;
+            tracking = false;
+
+            if (
+                deltaX >= MIN_SWIPE_X &&
+                Math.abs(deltaY) <= MAX_SWIPE_Y &&
+                deltaX > Math.abs(deltaY) * 1.35 &&
+                duration <= MAX_DURATION
+            ) {
+                goBackInsideWebsite();
+            }
+        }, { passive: true });
+
+        document.addEventListener("touchcancel", function () {
+            tracking = false;
+        }, { passive: true });
+    }
+
+    if (document.readyState === "loading") {
+        document.addEventListener("DOMContentLoaded", function () {
+            rememberCurrentPage();
+            bindSwipe();
+        });
+    } else {
+        rememberCurrentPage();
+        bindSwipe();
+    }
+
+    window.addEventListener("pageshow", rememberCurrentPage);
+})();
