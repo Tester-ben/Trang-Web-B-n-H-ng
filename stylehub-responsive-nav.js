@@ -639,6 +639,31 @@
             }
 
             mobileAccountLink.textContent = accountText;
+
+            mobileAccountLink.addEventListener("click", function (event) {
+                const loggedIn = window.StyleHubAuth && typeof window.StyleHubAuth.getCurrentUser === "function"
+                    ? !!window.StyleHubAuth.getCurrentUser()
+                    : (localStorage.getItem("isLoggedInStatus") === "true" && !!(localStorage.getItem("hub_current_user_key") || localStorage.getItem("hub_email")));
+
+                if (loggedIn) {
+                    mobileAccountLink.href = "account.html";
+                    return;
+                }
+
+                event.preventDefault();
+                closeMenu();
+
+                const accountTrigger = document.getElementById("account-trigger");
+                const accountModal = document.getElementById("account-modal");
+
+                if (accountTrigger && accountModal) {
+                    accountTrigger.click();
+                    return;
+                }
+
+                sessionStorage.setItem("stylehub_open_login_on_home", "1");
+                window.location.href = "index.html";
+            });
         }
 
         function openMenu() {
@@ -719,6 +744,18 @@
         window.requestAnimationFrame(updateHeaderCollapseMode);
     }
 
+
+    function openRequestedLoginOnHome() {
+        if (sessionStorage.getItem("stylehub_open_login_on_home") !== "1") return;
+        if (!document.getElementById("account-modal")) return;
+
+        sessionStorage.removeItem("stylehub_open_login_on_home");
+        setTimeout(function () {
+            const accountTrigger = document.getElementById("account-trigger");
+            if (accountTrigger) accountTrigger.click();
+        }, 150);
+    }
+
     function initResponsiveNav() {
         injectStyle();
         removeOldMoreMenu();
@@ -726,6 +763,7 @@
         const header = document.querySelector(".main-header");
         syncDesktopDropdowns(header);
         createMobileMenu(header);
+        openRequestedLoginOnHome();
         scheduleHeaderCollapseCheck();
 
         window.addEventListener("resize", scheduleHeaderCollapseCheck);
