@@ -219,26 +219,8 @@
     <script>
     const grid = document.querySelector(".mens-product-grid");
 
-    // NEW ARRIVALS chỉ hiển thị một nhóm sản phẩm mới được chọn,
-    // không lấy toàn bộ sản phẩm trong database.
-    const newArrivalIds = [
-        "tops-28",
-        "tops-29",
-        "hoodies-22",
-        "hoodies-23",
-        "womens-21",
-        "womens-22",
-        "bottoms-13",
-        "womens-bottoms-22",
-        "kids-25",
-        "kids-bottoms-20",
-        "shoe-13",
-        "sale-25"
-    ];
-
-    newArrivalIds.forEach(id => {
+    Object.keys(database).forEach(id => {
         const item = database[id];
-        if (!item) return;
 
         grid.innerHTML += `
             <a href="product-detail.html?id=${id}" class="product-card" data-product-id="${id}">
@@ -627,8 +609,8 @@ document.addEventListener("click", function(e) {
 
 <footer class="site-footer support-footer">
     <div class="footer-col footer-brand">
-        <h3><a href="index.html" aria-label="Về trang chủ THE STYLE HUB" style="color: inherit; text-decoration: none;">THE STYLE HUB</a></h3>
-        <p>Điểm đến thời trang hiện đại dành cho nam, nữ, trẻ em, giày dép và các bộ sưu tập theo mùa.</p>
+        <h3>THE STYLE HUB</h3>
+        <p>Modern fashion store for menswear, womenswear, kidswear, shoes and seasonal sale collections.</p>
         <div class="social-links footer-social-links">
             <a class="footer-social-icon footer-fb-icon" href="#" aria-label="Facebook"><img src="images/fb.png" alt="Facebook"></a>
             <a class="footer-social-icon footer-zalo-icon" href="#" aria-label="Zalo"><img src="images/zalo.png" alt="Zalo"></a>
@@ -674,10 +656,12 @@ document.addEventListener("click", function(e) {
         </div>
     </div>
 </footer>
-<div class="footer-bottom">© 2026 THE STYLE HUB — Cảm ơn bạn đã tin tưởng và đồng hành cùng chúng tôi.</div>
+<div class="footer-bottom">© 2026 THE STYLE HUB. UI/UX Interface Design Project.</div>
 <script src="stylehub-notifications.js?v=notification-bell-fixed-all-pages-20260616"></script>
-<script src="stylehub-responsive-nav.js?v=responsive-collapse-20260709"></script>
-<script src="stylehub-orders-api.js?v=static-demo-products-20260709"></script>
+<script src="stylehub-responsive-nav.js?v=kids-bottoms-3-products-20260618"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-database-compat.js"></script>
+<script src="stylehub-orders-api.js?v=stock-cloud-sync-20260630"></script>
 <script src="stylehub-common.js?v=stock-cloud-sync-20260630"></script>
 <script src="stylehub-cart-sync.js?v=bag-merge-remove-20260701"></script>
 

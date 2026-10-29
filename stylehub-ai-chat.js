@@ -26,38 +26,36 @@
     const SUPPORT_DB_ROOT = "stylehub_orders/support_conversations";
     const STYLE_ID = "tsh-ai-pro-style";
     const WIDGET_ID = "tsh-ai-pro-widget";
-    const STYLEHUB_FIREBASE_CONFIG = {}; // STATIC DEMO MODE: Firebase disabled.
+    const STYLEHUB_FIREBASE_CONFIG = {
+        apiKey: "AIzaSyBLmPFwTOltztOw28_LUp1L56jgYYAaApM",
+        authDomain: "thestylehub-aaf2f.firebaseapp.com",
+        databaseURL: "https://thestylehub-aaf2f-default-rtdb.firebaseio.com",
+        projectId: "thestylehub-aaf2f",
+        storageBucket: "thestylehub-aaf2f.firebasestorage.app",
+        messagingSenderId: "1044789250378",
+        appId: "1:1044789250378:web:e268f523e323954a6dd9b3",
+        measurementId: "G-Y53W16W4W3"
+    };
     let supportDbPromise = null;
     let supportReplyListenerStarted = false;
     let selectedImageAttachment = null;
 
-    const SHIRT_SIZE = {
+    const CLOTHING_SIZE = {
         male: [
-            { size: "S", minW: 50, maxW: 60, minH: 160, maxH: 165 },
-            { size: "M", minW: 60, maxW: 70, minH: 165, maxH: 170 },
-            { size: "L", minW: 70, maxW: 80, minH: 170, maxH: 175 },
-            { size: "XL", minW: 80, maxW: 85, minH: 175, maxH: 180 }
+            { size: "XS", minW: 42, maxW: 47, height: "1m54 - 1m59" },
+            { size: "S", minW: 48, maxW: 53, height: "1m60 - 1m64" },
+            { size: "M", minW: 53, maxW: 60, height: "1m65 - 1m69" },
+            { size: "L", minW: 61, maxW: 68, height: "1m70 - 1m75" },
+            { size: "XL", minW: 69, maxW: 75, height: "trên 1m75" },
+            { size: "XXL", minW: 76, maxW: 200, height: "trên 1m75" }
         ],
         female: [
-            { size: "S", minW: 42, maxW: 50, minH: 150, maxH: 155 },
-            { size: "M", minW: 50, maxW: 55, minH: 155, maxH: 160 },
-            { size: "L", minW: 55, maxW: 60, minH: 160, maxH: 165 },
-            { size: "XL", minW: 60, maxW: 68, minH: 165, maxH: 170 }
-        ]
-    };
-
-    const PANTS_SIZE = {
-        male: [
-            { size: "S", minW: 50, maxW: 57, waist: "74 - 78cm", jean: "28 - 29" },
-            { size: "M", minW: 58, maxW: 65, waist: "78 - 82cm", jean: "30 - 31" },
-            { size: "L", minW: 66, maxW: 72, waist: "82 - 86cm", jean: "32 - 33" },
-            { size: "XL", minW: 73, maxW: 80, waist: "86 - 90cm", jean: "34 - 35" }
-        ],
-        female: [
-            { size: "S", minW: 40, maxW: 45, waist: "64 - 68cm", hip: "88 - 92cm" },
-            { size: "M", minW: 45, maxW: 52, waist: "68 - 72cm", hip: "92 - 96cm" },
-            { size: "L", minW: 53, maxW: 57, waist: "72 - 76cm", hip: "96 - 100cm" },
-            { size: "XL", minW: 58, maxW: 63, waist: "76 - 80cm", hip: "100 - 104cm" }
+            { size: "XS", minW: 32, maxW: 36, height: "1m42 - 1m47" },
+            { size: "S", minW: 37, maxW: 42, height: "1m48 - 1m53" },
+            { size: "M", minW: 43, maxW: 48, height: "1m54 - 1m59" },
+            { size: "L", minW: 49, maxW: 54, height: "1m60 - 1m65" },
+            { size: "XL", minW: 55, maxW: 60, height: "trên 1m65" },
+            { size: "XXL", minW: 61, maxW: 200, height: "trên 1m65" }
         ]
     };
 
@@ -708,21 +706,6 @@
 
     function inferIntent(text) {
         const t = normalize(text);
-
-        // Câu có hỏi size phải được xử lý như tư vấn size trước khi xét danh mục.
-        // Ví dụ: "còn quần thì tôi mặc size gì" không được chuyển thành gợi ý sản phẩm quần.
-        if (
-            t.includes("size") ||
-            t.includes("mac co nao") ||
-            t.includes("mac so may") ||
-            t.includes("mac size gi") ||
-            t.includes("nen chon co") ||
-            t.includes("chon co") ||
-            t.includes("cao") ||
-            t.includes("nang") ||
-            /\d+\s*(kg|m|cm)/.test(t)
-        ) return "size";
-
         if (t.includes("dress shirt") || t.includes("so mi")) return "dress-shirt";
         if (t.includes("jean") || t.includes("denim")) return "jeans";
         if (t.includes("quan") || t.includes("pant") || t.includes("short")) return "pants";
@@ -730,6 +713,7 @@
         if (t.includes("giay") || t.includes("dep") || t.includes("shoe") || t.includes("sneaker")) return "shoes";
         if (t.includes("vay") || t.includes("dam") || t.includes("dress")) return "dress";
         if (t.includes("ao") || t.includes("top") || t.includes("tee") || t.includes("shirt")) return "tops";
+        if (t.includes("size") || t.includes("cao") || t.includes("nang") || /\d+\s*(kg|m|cm)/.test(t)) return "size";
         return "general";
     }
 
@@ -794,48 +778,39 @@
         return "";
     }
 
-    function nextSize(list, row) {
-        const index = list.findIndex(item => item.size === row.size);
-        return index >= 0 && index < list.length - 1 ? list[index + 1] : row;
-    }
+    function clothingSize(weight, gender, fit) {
+        const list = CLOTHING_SIZE[gender] || CLOTHING_SIZE.male;
+        let row = list.find(r => weight >= r.minW && weight <= r.maxW) || list[list.length - 1];
 
-    function nearestByWeight(list, weight) {
-        const exact = list.find(row => weight >= row.minW && weight <= row.maxW);
-        if (exact) return exact;
-
-        return list.reduce((best, row) => {
-            const distance = weight < row.minW ? row.minW - weight : weight - row.maxW;
-            const bestDistance = weight < best.minW ? best.minW - weight : weight - best.maxW;
-            return distance < bestDistance ? row : best;
-        }, list[0]);
-    }
-
-    function recommendShirtSize(weight, height, gender, fit) {
-        const list = SHIRT_SIZE[gender];
-        let row = list.find(item =>
-            weight >= item.minW && weight <= item.maxW &&
-            height >= item.minH && height <= item.maxH
-        );
-
-        if (!row) {
-            const byWeight = nearestByWeight(list, weight);
-            const byHeight = list.reduce((best, item) => {
-                const distance = height < item.minH ? item.minH - height : (height > item.maxH ? height - item.maxH : 0);
-                const bestDistance = height < best.minH ? best.minH - height : (height > best.maxH ? height - best.maxH : 0);
-                return distance < bestDistance ? item : best;
-            }, list[0]);
-            row = list[Math.max(list.indexOf(byWeight), list.indexOf(byHeight))];
+        if (fit === "loose") {
+            const idx = list.findIndex(r => r.size === row.size);
+            if (idx >= 0 && idx < list.length - 1) row = list[idx + 1];
         }
 
-        if (fit === "loose") row = nextSize(list, row);
         return row;
     }
 
-    function recommendPantsSize(weight, gender, fit) {
-        const list = PANTS_SIZE[gender];
-        let row = nearestByWeight(list, weight);
-        if (fit === "loose") row = nextSize(list, row);
-        return row;
+    function smartClothingSize(weight, height, gender, fit) {
+        // Không bắt khách phải chọn nam/nữ. Nếu chưa rõ giới tính, dùng bảng unisex/nam làm mặc định,
+        // vì form size S/M/L/XL của shop dùng chung khá giống unisex.
+        const mainGender = gender || "male";
+        const row = clothingSize(weight, mainGender, fit);
+
+        let note = "";
+        if (!gender) {
+            note = " Mình đang tính theo form unisex/nam. Nếu bạn chọn đồ nữ ôm body thì có thể giảm 1 size.";
+        }
+
+        if (height) {
+            if (height >= 175 && ["S", "M"].includes(row.size)) {
+                note += " Vì bạn khá cao, nếu thích che form hoặc áo dài hơn thì nên ưu tiên tăng thêm 1 size.";
+            }
+            if (height <= 158 && ["XL", "XXL"].includes(row.size) && fit !== "loose") {
+                note += " Nếu bạn không muốn áo quá dài, có thể cân nhắc giảm 1 size.";
+            }
+        }
+
+        return { row, note };
     }
 
     function shoeNumberSize(size, gender, fit) {
@@ -935,8 +910,24 @@
     }
 
     function getSupportDb() {
-        // STATIC DEMO MODE: support chat does not connect to Firebase/admin.
-        return Promise.resolve(null);
+        if (supportDbPromise) return supportDbPromise;
+        supportDbPromise = (async function () {
+            if (!hasFirebaseConfig()) return null;
+            try {
+                if (typeof firebase === "undefined") {
+                    await loadExternalScript("https://www.gstatic.com/firebasejs/10.12.5/firebase-app-compat.js");
+                    await loadExternalScript("https://www.gstatic.com/firebasejs/10.12.5/firebase-database-compat.js");
+                } else if (typeof firebase.database !== "function") {
+                    await loadExternalScript("https://www.gstatic.com/firebasejs/10.12.5/firebase-database-compat.js");
+                }
+                if (!firebase.apps || firebase.apps.length === 0) firebase.initializeApp(STYLEHUB_FIREBASE_CONFIG);
+                return firebase.database();
+            } catch (error) {
+                console.warn("THE STYLE HUB support chat đang dùng local fallback:", error);
+                return null;
+            }
+        })();
+        return supportDbPromise;
     }
 
     function getSupportConversationId() {
@@ -989,20 +980,70 @@
     }
 
     async function saveCustomerSupportMessage(text, attachment) {
-        // STATIC DEMO MODE: acknowledge only, do not save to admin/local database.
-        return {
-            conversationId: "STATIC_DEMO",
-            messageId: "STATIC_MSG",
-            type: supportMessageType(String(text || ""), attachment),
-            staticDemo: true
+        const conversationId = getSupportConversationId();
+        const customer = getSupportCustomerInfo();
+        const now = Date.now();
+        const messageId = "msg_" + now + "_" + Math.random().toString(36).slice(2, 7);
+        const hasImage = !!(attachment && attachment.dataUrl);
+        const cleanText = String(text || "").trim();
+        const type = supportMessageType(cleanText, attachment);
+        const displayText = cleanText || (hasImage ? "Khách đã gửi hình ảnh." : "");
+        const message = {
+            id: messageId,
+            from: "customer",
+            text: displayText,
+            createdAt: now,
+            type: type
         };
+
+        if (hasImage) {
+            message.imageData = attachment.dataUrl;
+            message.imageName = attachment.name || "image.jpg";
+            message.imageType = attachment.type || "image/jpeg";
+            message.imageSize = attachment.size || 0;
+            message.imageWidth = attachment.width || 0;
+            message.imageHeight = attachment.height || 0;
+        }
+
+        const lastMessage = hasImage ? (cleanText ? "📷 " + cleanText : "📷 Khách gửi hình ảnh") : cleanText;
+        const conversationPatch = {
+            id: conversationId,
+            customerName: customer.name,
+            customerEmail: customer.email,
+            customerPhone: customer.phone,
+            type: type,
+            status: "open",
+            lastMessage: lastMessage,
+            lastSender: "customer",
+            unreadForAdmin: true,
+            updatedAt: now,
+            createdAt: now
+        };
+
+        const db = await getSupportDb();
+        if (db) {
+            const ref = db.ref(SUPPORT_DB_ROOT + "/" + conversationId);
+            const snapshot = await ref.once("value");
+            if (snapshot.exists() && snapshot.val() && snapshot.val().createdAt) delete conversationPatch.createdAt;
+            await ref.update(conversationPatch);
+            await ref.child("messages/" + messageId).set(message);
+        } else {
+            const map = readSupportLocal();
+            const current = map[conversationId] || { id: conversationId, messages: {} };
+            map[conversationId] = Object.assign({}, current, conversationPatch, {
+                createdAt: current.createdAt || now,
+                messages: Object.assign({}, current.messages || {}, { [messageId]: message })
+            });
+            writeSupportLocal(map);
+        }
+        return { conversationId: conversationId, messageId: messageId, type: type };
     }
 
     function supportAckHtml(result) {
         const shortId = String(result.conversationId || "").replace("support_", "").slice(0, 8).toUpperCase();
         return `<strong class="tsh-shop-name">THE STYLE HUB đã nhận được tin nhắn của bạn.</strong>` +
-            `<span class="tsh-ai-support-wait">Vui lòng đợi trong ít phút, nhân viên hỗ trợ sẽ phản hồi bạn sớm nhất.</span>` +
-            `<span class="tsh-ai-support-note">Mã hỗ trợ: ${escapeHTML(shortId || "SUPPORT")} · ${escapeHTML(result.type || "Hỗ trợ")}</span>`;
+            `Shop sẽ kiểm tra và phản hồi lại ngay tại khung chat này trong thời gian sớm nhất.` +
+            `<span class="tsh-ai-support-note">Mã hỗ trợ: ${escapeHTML(shortId || "SUPPORT")} · Nhóm yêu cầu: ${escapeHTML(result.type || "Hỗ trợ")}</span>`;
     }
 
     function loadSeenSupportMessages() {
@@ -1035,8 +1076,22 @@
     }
 
     function startSupportReplyListener() {
-        // STATIC DEMO MODE: no realtime admin replies.
+        if (supportReplyListenerStarted) return;
         supportReplyListenerStarted = true;
+        const conversationId = getSupportConversationId();
+
+        getSupportDb().then(function (db) {
+            if (!db) return;
+            db.ref(SUPPORT_DB_ROOT + "/" + conversationId + "/messages").on("child_added", function (snapshot) {
+                const msg = snapshot.val() || {};
+                const messageId = msg.id || snapshot.key;
+                if (msg.from !== "admin" || !messageId) return;
+                const seen = loadSeenSupportMessages();
+                if (seen[messageId]) return;
+                markSupportMessageSeen(messageId);
+                appendShop(`<strong class="tsh-shop-name">THE STYLE HUB phản hồi:</strong>${escapeHTML(msg.text || "")}`);
+            });
+        });
     }
 
     function buildReply(text) {
@@ -1058,25 +1113,11 @@
         if (newShoeSize) context.shoeSize = newShoeSize;
 
         if (intent === "shoes" || category === "shoes") context.lastIntent = "shoes";
-        if (["tops", "pants", "hoodie", "jeans", "dress", "dress-shirt"].includes(intent)) {
-            context.lastIntent = "clothing";
-            context.clothingType = intent;
-        }
-
-        // Ghi nhớ loại trang phục ngay cả khi câu hiện tại là câu hỏi size.
-        // Nhờ đó chatbot dùng lại chiều cao, cân nặng và kiểu mặc từ các tin nhắn trước.
-        if (intent === "size") {
-            if (t.includes("quan") || t.includes("pant") || t.includes("jean") || t.includes("short")) {
-                context.clothingType = "pants";
-            } else if (t.includes("ao") || t.includes("hoodie") || t.includes("so mi") || t.includes("shirt")) {
-                context.clothingType = "tops";
-            }
-        }
+        if (["tops", "pants", "hoodie", "jeans", "dress", "dress-shirt"].includes(intent)) context.lastIntent = "clothing";
 
         saveContext(context);
 
-        const greetingWords = new Set(["hi", "hello", "hey", "chao", "xin chao"]);
-        if (greetingWords.has(t)) {
+        if (t.includes("hi") || t.includes("hello") || t.includes("chao")) {
             return "Chào bạn! Mình là Stylist AI của THE STYLE HUB. Bạn muốn xem áo, quần, giày, dress shirt hay cần tư vấn size?";
         }
 
@@ -1097,33 +1138,20 @@
             context.lastIntent = "clothing";
             saveContext(context);
 
-            if (!context.gender) {
-                return "Bạn đang chọn đồ cho nam hay nữ?";
-            }
-
-            if (!context.weight || (context.clothingType !== "pants" && !context.height)) {
-                return context.clothingType === "pants"
-                    ? "Bạn cho mình cân nặng hiện tại nhé. Ví dụ: 65kg. Nếu có số đo vòng eo thì gửi thêm để mình kiểm tra chính xác hơn."
-                    : "Bạn cho mình chiều cao và cân nặng hiện tại nhé. Ví dụ: 1m70 65kg.";
+            if (!context.height || !context.weight) {
+                return "Bạn cho mình chiều cao và cân nặng hiện tại nhé. Ví dụ: 1m70 65kg.";
             }
 
             if (!context.fit) {
                 return "Bạn thích mặc vừa vặn hay rộng rãi/thoải mái hơn?";
             }
 
-            const genderText = context.gender === "female" ? "nữ" : "nam";
+            const result = smartClothingSize(context.weight, context.height, context.gender, context.fit);
+            const row = result.row;
+            const genderText = context.gender === "female" ? "nữ" : (context.gender === "male" ? "nam" : "unisex");
             const fitText = context.fit === "loose" ? "rộng rãi/thoải mái" : "vừa vặn";
 
-            if (context.clothingType === "pants") {
-                const row = recommendPantsSize(context.weight, context.gender, context.fit);
-                const extra = context.gender === "female"
-                    ? `vòng eo ${row.waist}, vòng mông ${row.hip}`
-                    : `vòng eo/bụng ${row.waist}, tương đương size jean/Âu ${row.jean}`;
-                return `Dựa trên thông tin bạn đã cung cấp: đồ ${genderText}, cân nặng khoảng ${context.weight}kg và thích mặc ${fitText}, với quần mình gợi ý size ${row.size}. Theo bảng size, size ${row.size} phù hợp cân nặng ${row.minW} - ${row.maxW}kg, ${extra}.`;
-            }
-
-            const row = recommendShirtSize(context.weight, context.height, context.gender, context.fit);
-            return `Dựa trên thông tin bạn đã cung cấp: đồ ${genderText}, cao khoảng ${context.height}cm, nặng khoảng ${context.weight}kg và thích mặc ${fitText}, với áo mình gợi ý size ${row.size}. Theo bảng size, size ${row.size} phù hợp chiều cao ${row.minH} - ${row.maxH}cm và cân nặng ${row.minW} - ${row.maxW}kg.`;
+            return `Với chiều cao khoảng ${context.height}cm và cân nặng khoảng ${context.weight}kg, nếu bạn thích mặc ${fitText} thì mình gợi ý chọn size ${row.size}. Size này hợp khoảng chiều cao ${row.height}.${result.note}`;
         }
 
         if (wantsProducts(text) || ["tops", "pants", "hoodie", "jeans", "dress", "dress-shirt", "shoes"].includes(intent) || category) {

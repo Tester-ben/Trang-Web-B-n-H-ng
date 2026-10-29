@@ -525,18 +525,15 @@
                 <button class="admin-nav-btn" data-tab="addProduct" onclick="switchAdminTab('addProduct')"><span class="admin-nav-icon">➕</span> Thêm mới</button>
                 <button class="admin-nav-btn" data-tab="customers" onclick="switchAdminTab('customers')"><span class="admin-nav-icon">👥</span> Khách hàng</button>
             </nav>
-            <div class="sidebar-note">ADMIN WORKSPACE<br>Khu vực admin demo: trình bày giao diện quản lý bằng dữ liệu mẫu, không kết nối backend.</div>
+            <div class="sidebar-note">ADMIN WORKSPACE<br>Theo dõi đơn hàng mới, phản hồi tin nhắn khách hàng, cập nhật tồn kho, thêm sản phẩm và kiểm tra doanh thu cửa hàng.</div>
         </aside>
 
         <main class="admin-content">
-            <div style="margin-bottom:18px;padding:14px 16px;border:1px solid #f3d36b;background:#fff8d6;color:#4d3b00;border-radius:12px;font-size:14px;line-height:1.5;">
-                <strong>STATIC DEMO MODE:</strong> Admin chỉ dùng dữ liệu mẫu để trình bày chức năng. Đơn/tin nhắn khách thao tác ở website sẽ không được lưu thật và không nhảy sang Admin.
-            </div>
             <section class="admin-section active" id="section-dashboard">
                 <div class="admin-title-row">
                     <div>
                         <h1>Tổng quan</h1>
-                        <p class="admin-subtitle">Theo dõi doanh thu, đơn hàng, tồn kho bằng dữ liệu mẫu cho bản web tĩnh.</p>
+                        <p class="admin-subtitle">Theo dõi doanh thu tháng, đơn hàng, tồn kho và các sản phẩm cần xử lý.</p>
                     </div>
                     <div class="admin-chip" id="dashboardMonthChip">Tháng hiện tại</div>
                 </div>
@@ -557,7 +554,7 @@
                 <div class="admin-title-row">
                     <div>
                         <h1>Quản lý đơn hàng</h1>
-                        <p class="admin-subtitle">Demo thao tác xác nhận, giao hàng, hoàn tất và xóa đơn trên dữ liệu mẫu.</p>
+                        <p class="admin-subtitle">Xác nhận đơn, chuyển trạng thái giao hàng, hoàn tất đơn và xóa các đơn test/không hợp lệ.</p>
                     </div>
                     <div class="order-count" id="orderCount">0 đơn hàng</div>
                 </div>
@@ -691,7 +688,9 @@
 </section>
 
 <script src="product-data.js?v=admin-dashboard-20260630-stock-sync"></script>
-<script src="stylehub-orders-api.js?v=static-demo-products-20260709"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-database-compat.js"></script>
+<script src="stylehub-orders-api.js?v=stock-cloud-sync-20260630"></script>
 <script>
     const ADMIN_PASSWORD = "admin123";
     const CUSTOM_PRODUCTS_KEY = "stylehub_admin_products_v1";
@@ -706,7 +705,16 @@
     let adminConfirmResolver = null;
     const SUPPORT_DB_ROOT = 'stylehub_orders/support_conversations';
     const SUPPORT_LOCAL_KEY = 'tsh_support_conversations_v1';
-    const STYLEHUB_FIREBASE_CONFIG = {}; // STATIC DEMO MODE: Firebase disabled.
+    const STYLEHUB_FIREBASE_CONFIG = {
+        apiKey: "AIzaSyBLmPFwTOltztOw28_LUp1L56jgYYAaApM",
+        authDomain: "thestylehub-aaf2f.firebaseapp.com",
+        databaseURL: "https://thestylehub-aaf2f-default-rtdb.firebaseio.com",
+        projectId: "thestylehub-aaf2f",
+        storageBucket: "thestylehub-aaf2f.firebasestorage.app",
+        messagingSenderId: "1044789250378",
+        appId: "1:1044789250378:web:e268f523e323954a6dd9b3",
+        measurementId: "G-Y53W16W4W3"
+    };
 
     function loginAdmin() {
         const passwordInput = document.getElementById('adminPassword');
@@ -857,7 +865,7 @@
         applyProductsToDatabase();
         if (window.StyleHubOrders && typeof StyleHubOrders.saveCustomProductsMap === 'function') {
             StyleHubOrders.saveCustomProductsMap(safeMap).catch(function(error) {
-                console.warn('STATIC DEMO - không đồng bộ sản phẩm:', error);
+                console.warn('Không thể đồng bộ sản phẩm lên Firebase:', error);
             });
         }
     }
@@ -874,7 +882,7 @@
         applyProductsToDatabase();
         if (window.StyleHubOrders && typeof StyleHubOrders.saveInventoryMap === 'function') {
             StyleHubOrders.saveInventoryMap(safeMap).catch(function(error) {
-                console.warn('STATIC DEMO - không đồng bộ tồn kho:', error);
+                console.warn('Không thể đồng bộ tồn kho lên Firebase:', error);
             });
         }
     }
@@ -1093,15 +1101,13 @@
     }
 
     async function getAdminOrders() {
-        // STATIC DEMO MODE: Admin shows sample orders only.
-        // Customer checkout orders are intentionally ignored.
         let orders = [];
         try {
             if (window.StyleHubOrders && typeof StyleHubOrders.getAllOrders === 'function') {
                 orders = await StyleHubOrders.getAllOrders();
             }
-        } catch (error) { console.error('Không lấy được dữ liệu mẫu đơn hàng:', error); }
-        return uniqueAdminOrders(Array.isArray(orders) ? orders : []);
+        } catch (error) { console.error('Không lấy được đơn hàng từ cloud, chuyển sang localStorage:', error); }
+        return uniqueAdminOrders((Array.isArray(orders) ? orders : []).concat(getLocalOrdersFallback()));
     }
 
     async function refreshAdminData(preloadedOrders) {
@@ -1255,7 +1261,7 @@
         const agreed = await showAdminConfirm({ title: 'Xóa ' + ids.length + ' đơn đã chọn?', message: 'Các đơn được chọn sẽ bị xóa khỏi trang admin. Bạn nên kiểm tra kỹ trước khi xác nhận.', confirmText: 'Xóa ' + ids.length + ' đơn', icon: '🗑️' });
         if (!agreed) return;
         try { const deletedCount = await deleteOrderIds(ids); selectedOrderIds.clear(); await refreshAdminData(); showAdminToast('Đã xóa ' + deletedCount + ' đơn đã chọn'); }
-        catch (error) { showAdminToast('Không xóa được các đơn đã chọn', 'Đây là dữ liệu demo tĩnh, vui lòng thử lại thao tác.'); console.error(error); }
+        catch (error) { showAdminToast('Không xóa được các đơn đã chọn', 'Kiểm tra Firebase/config hoặc mạng internet.'); console.error(error); }
     }
 
     async function deleteAllOrders() {
@@ -1265,7 +1271,7 @@
         const agreed = await showAdminConfirm({ kicker: 'Xóa toàn bộ đơn hàng', title: 'Xóa tất cả ' + ids.length + ' đơn hàng?', message: 'Thao tác này sẽ xóa toàn bộ đơn hiện có và không thể hoàn tác. Chỉ xác nhận khi bạn chắc chắn đây là đơn test hoặc đơn không cần giữ.', confirmText: 'Xóa tất cả', icon: '⚠️' });
         if (!agreed) return;
         try { const deletedCount = await deleteOrderIds(ids); selectedOrderIds.clear(); await refreshAdminData(); showAdminToast('Đã xóa tất cả đơn hàng', deletedCount + ' đơn đã được xóa.'); }
-        catch (error) { showAdminToast('Không xóa được tất cả đơn', 'Đây là dữ liệu demo tĩnh, vui lòng thử lại thao tác.'); console.error(error); }
+        catch (error) { showAdminToast('Không xóa được tất cả đơn', 'Kiểm tra Firebase/config hoặc mạng internet.'); console.error(error); }
     }
 
     function startAdminRealtime() {
@@ -1273,6 +1279,8 @@
         adminRealtimeStarted = true;
         if (window.StyleHubOrders && typeof StyleHubOrders.onOrdersChanged === 'function') {
             StyleHubOrders.onOrdersChanged(function(orders) { refreshAdminData(orders); });
+        } else {
+            window.addEventListener('storage', function(event) { if (event.key && (event.key.indexOf('hub_orders') === 0 || event.key === INVENTORY_KEY || event.key === CUSTOM_PRODUCTS_KEY)) refreshAdminData(); });
         }
     }
 
@@ -1299,7 +1307,7 @@
             await refreshAdminData();
             showAdminToast('Đã chấp nhận đơn hàng và chuyển sang Shipping Orders');
         }
-        catch (error) { showAdminToast('Không cập nhật được đơn hàng', 'Đây là dữ liệu demo tĩnh, vui lòng thử lại thao tác.'); console.error(error); }
+        catch (error) { showAdminToast('Không cập nhật được đơn hàng', 'Kiểm tra Firebase/config hoặc mạng internet.'); console.error(error); }
     }
 
     async function completeOrder(orderId) {
@@ -1506,9 +1514,16 @@
         }
     }
 
+
     function getSupportDatabase() {
-        // STATIC DEMO MODE: no Firebase/support database.
-        return null;
+        try {
+            if (typeof firebase === 'undefined' || typeof firebase.database !== 'function') return null;
+            if (!firebase.apps || firebase.apps.length === 0) firebase.initializeApp(STYLEHUB_FIREBASE_CONFIG);
+            return firebase.database();
+        } catch (error) {
+            console.warn('Không kết nối được Firebase support chat:', error);
+            return null;
+        }
     }
 
     function readSupportLocal() {
@@ -1570,45 +1585,14 @@
     }
 
     async function getSupportConversations() {
-        // STATIC DEMO MODE: Admin message box uses sample conversations only.
-        const now = Date.now();
-        const demo = {
-            demo_support_01: {
-                id: 'demo_support_01',
-                customerName: 'Nguyễn Minh Anh',
-                customerEmail: 'demo.customer01@stylehub.vn',
-                customerPhone: '0901234567',
-                type: 'Tư vấn size',
-                status: 'open',
-                unreadForAdmin: true,
-                createdAt: now - 3600000,
-                updatedAt: now - 1800000,
-                lastMessage: 'Mình cao 1m65 nặng 52kg thì nên chọn size nào?',
-                lastSender: 'customer',
-                messages: {
-                    msg_01: { id: 'msg_01', from: 'customer', text: 'Mình cao 1m65 nặng 52kg thì nên chọn size nào?', createdAt: now - 3600000, type: 'Tư vấn size' },
-                    msg_02: { id: 'msg_02', from: 'admin', text: 'Bạn có thể chọn size S nếu muốn vừa vặn, hoặc size M nếu thích rộng thoải mái hơn.', createdAt: now - 2400000 }
-                }
-            },
-            demo_support_02: {
-                id: 'demo_support_02',
-                customerName: 'Trần Gia Hân',
-                customerEmail: 'demo.customer02@stylehub.vn',
-                customerPhone: '0912345678',
-                type: 'Đổi trả / bảo hành',
-                status: 'resolved',
-                unreadForAdmin: false,
-                createdAt: now - 7200000,
-                updatedAt: now - 5400000,
-                lastMessage: 'Shop đã hỗ trợ kiểm tra chính sách đổi size.',
-                lastSender: 'admin',
-                messages: {
-                    msg_03: { id: 'msg_03', from: 'customer', text: 'Nếu mua giày bị chật thì đổi size được không?', createdAt: now - 7200000, type: 'Đổi trả / bảo hành' },
-                    msg_04: { id: 'msg_04', from: 'admin', text: 'Dạ được, sản phẩm chưa qua sử dụng và còn tag có thể đổi size theo chính sách cửa hàng.', createdAt: now - 5400000 }
-                }
-            }
-        };
-        return Object.keys(demo).map(function(id) { return normalizeSupportConversation(id, demo[id]); }).sort(function(a, b) { return b.updatedAt - a.updatedAt; });
+        const db = getSupportDatabase();
+        if (db) {
+            const snapshot = await db.ref(SUPPORT_DB_ROOT).once('value');
+            const raw = snapshot.val() || {};
+            return Object.keys(raw).map(function(id) { return normalizeSupportConversation(id, raw[id]); }).sort(function(a, b) { return b.updatedAt - a.updatedAt; });
+        }
+        const local = readSupportLocal();
+        return Object.keys(local).map(function(id) { return normalizeSupportConversation(id, local[id]); }).sort(function(a, b) { return b.updatedAt - a.updatedAt; });
     }
 
     function filteredSupportConversations() {
@@ -1641,7 +1625,7 @@
 
         if (!rows.length) {
             list.innerHTML = '<div class="support-empty">Chưa có tin nhắn phù hợp.</div>';
-            detail.innerHTML = '<div class="support-empty">Tin nhắn ở đây là dữ liệu mẫu trong bản web tĩnh.</div>';
+            detail.innerHTML = '<div class="support-empty">Tin nhắn từ chat AI sẽ xuất hiện tại đây.</div>';
             return;
         }
         if (!activeSupportConversationId || !rows.some(function(item) { return item.id === activeSupportConversationId; })) activeSupportConversationId = rows[0].id;
@@ -1764,7 +1748,7 @@
             showAdminToast('Đã xóa tin nhắn', 'Tin nhắn đã được gỡ khỏi cuộc trò chuyện.');
         } catch (error) {
             console.error(error);
-            showAdminToast('Không xóa được tin nhắn', 'Đây là dữ liệu demo tĩnh, vui lòng thử lại thao tác.');
+            showAdminToast('Không xóa được tin nhắn', 'Kiểm tra Firebase/config hoặc mạng internet.');
         }
     }
 
@@ -1794,7 +1778,7 @@
             showAdminToast('Đã xóa cuộc trò chuyện', (convo && convo.customerName ? convo.customerName : 'Tin nhắn') + ' đã được xóa khỏi mục Tin nhắn.');
         } catch (error) {
             console.error(error);
-            showAdminToast('Không xóa được cuộc trò chuyện', 'Đây là dữ liệu demo tĩnh, vui lòng thử lại thao tác.');
+            showAdminToast('Không xóa được cuộc trò chuyện', 'Kiểm tra Firebase/config hoặc mạng internet.');
         }
     }
 
@@ -1822,10 +1806,10 @@
             await loadSupportConversations();
             activeSupportConversationId = id;
             renderSupportMessages();
-            showAdminToast('Đã gửi phản hồi', 'Đây là thao tác mô phỏng trong Admin demo.');
+            showAdminToast('Đã gửi phản hồi', 'Khách sẽ thấy phản hồi trong khung chat AI.');
         } catch (error) {
             console.error(error);
-            showAdminToast('Không gửi được phản hồi', 'Đây là dữ liệu demo tĩnh, vui lòng thử lại thao tác.');
+            showAdminToast('Không gửi được phản hồi', 'Kiểm tra Firebase/config hoặc mạng internet.');
         }
     }
 
@@ -1851,7 +1835,17 @@
     function startSupportRealtime() {
         if (supportRealtimeStarted) return;
         supportRealtimeStarted = true;
-        loadSupportConversations();
+        const db = getSupportDatabase();
+        if (db) {
+            db.ref(SUPPORT_DB_ROOT).on('value', function(snapshot) {
+                const raw = snapshot.val() || {};
+                supportConversationsCache = Object.keys(raw).map(function(id) { return normalizeSupportConversation(id, raw[id]); }).sort(function(a, b) { return b.updatedAt - a.updatedAt; });
+                renderSupportMessages();
+            });
+        } else {
+            loadSupportConversations();
+            window.addEventListener('storage', function(event) { if (event.key === SUPPORT_LOCAL_KEY) loadSupportConversations(); });
+        }
     }
 
     function renderCustomers() {

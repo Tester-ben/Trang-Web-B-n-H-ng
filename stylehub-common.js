@@ -1,124 +1,3 @@
-/* ===== CART ISOLATION BY ACCOUNT =====
-   Mỗi tài khoản có giỏ hàng riêng. Khi đổi tài khoản, các key giỏ hàng
-   dùng chung của dự án sẽ được lưu lại theo email và khôi phục đúng giỏ. */
-(function () {
-    const CART_KEYS = [
-        "stylehub_cart_memory_v1",
-        "stylehub_cart",
-        "hub_cart",
-        "cartMemoryArray",
-        "the_style_hub_cart",
-        "cart"
-    ];
-    const ACTIVE_OWNER_KEY = "stylehub_active_cart_owner_v1";
-    const USER_CART_PREFIX = "stylehub_account_cart_v1_";
-
-    function normalizeOwner(value) {
-        return String(value || "guest").trim().toLowerCase() || "guest";
-    }
-
-    function getCurrentOwner() {
-        const loggedIn = localStorage.getItem("isLoggedInStatus") === "true";
-        if (!loggedIn) return "guest";
-        return normalizeOwner(
-            localStorage.getItem("hub_current_user_key") ||
-            localStorage.getItem("hub_email") ||
-            localStorage.getItem("userEmail") ||
-            "guest"
-        );
-    }
-
-    function scopedKey(owner) {
-        return USER_CART_PREFIX + encodeURIComponent(normalizeOwner(owner));
-    }
-
-    function parseCart(raw) {
-        try {
-            const value = JSON.parse(raw || "[]");
-            return Array.isArray(value) ? value : [];
-        } catch (error) {
-            return [];
-        }
-    }
-
-    function readGlobalCart() {
-        for (const key of CART_KEYS) {
-            const raw = localStorage.getItem(key);
-            if (raw !== null) {
-                const cart = parseCart(raw);
-                if (cart.length || raw === "[]") return cart;
-            }
-        }
-        return [];
-    }
-
-    function writeGlobalCart(cart) {
-        const safeCart = Array.isArray(cart) ? cart : [];
-        const data = JSON.stringify(safeCart);
-        CART_KEYS.forEach(function (key) {
-            localStorage.setItem(key, data);
-        });
-        window.cartMemoryArray = safeCart;
-    }
-
-    function saveOwnerCart(owner, cart) {
-        localStorage.setItem(scopedKey(owner), JSON.stringify(Array.isArray(cart) ? cart : []));
-    }
-
-    function loadOwnerCart(owner) {
-        return parseCart(localStorage.getItem(scopedKey(owner)) || "[]");
-    }
-
-    function switchToCurrentOwner() {
-        const currentOwner = getCurrentOwner();
-        const previousOwnerRaw = localStorage.getItem(ACTIVE_OWNER_KEY);
-        const previousOwner = previousOwnerRaw ? normalizeOwner(previousOwnerRaw) : "";
-
-        // Lần đầu cài bản sửa: coi giỏ hiện tại thuộc tài khoản đang đăng nhập.
-        if (!previousOwner) {
-            const existingCart = readGlobalCart();
-            saveOwnerCart(currentOwner, existingCart);
-            localStorage.setItem(ACTIVE_OWNER_KEY, currentOwner);
-            writeGlobalCart(existingCart);
-            return existingCart;
-        }
-
-        if (previousOwner !== currentOwner) {
-            saveOwnerCart(previousOwner, readGlobalCart());
-            const nextCart = loadOwnerCart(currentOwner);
-            writeGlobalCart(nextCart);
-            localStorage.setItem(ACTIVE_OWNER_KEY, currentOwner);
-            document.dispatchEvent(new CustomEvent("stylehub-cart-owner-change", {
-                detail: { owner: currentOwner, cart: nextCart }
-            }));
-            return nextCart;
-        }
-
-        const currentCart = readGlobalCart();
-        saveOwnerCart(currentOwner, currentCart);
-        return currentCart;
-    }
-
-    function persistCurrentOwnerCart() {
-        const owner = getCurrentOwner();
-        saveOwnerCart(owner, readGlobalCart());
-    }
-
-    window.StyleHubAccountCart = {
-        getCurrentOwner,
-        switchToCurrentOwner,
-        persistCurrentOwnerCart,
-        readGlobalCart,
-        writeGlobalCart
-    };
-
-    switchToCurrentOwner();
-    document.addEventListener("DOMContentLoaded", switchToCurrentOwner);
-    window.addEventListener("pageshow", switchToCurrentOwner);
-    window.addEventListener("beforeunload", persistCurrentOwnerCart);
-    document.addEventListener("stylehub-cart-change", persistCurrentOwnerCart);
-})();
-
 
 /* ===== STYLE HUB ACCOUNT AUTH FIX =====
    Sửa 2 lỗi:
@@ -280,7 +159,6 @@
         if (String(account.password || "") !== cleanPassword) return { ok: false, message: "Mật khẩu không đúng. Vui lòng kiểm tra lại." };
 
         setSession(account);
-        if (window.StyleHubAccountCart) window.StyleHubAccountCart.switchToCurrentOwner();
         return { ok: true, message: "Đăng nhập thành công!", user: account };
     }
 
@@ -307,7 +185,6 @@
         const email = normalizeEmail(localStorage.getItem("hub_email") || localStorage.getItem("hub_current_user_key") || "");
         if (email) localStorage.setItem("hub_last_user_email", email);
         clearSessionOnly();
-        if (window.StyleHubAccountCart) window.StyleHubAccountCart.switchToCurrentOwner();
     }
 
     function syncHeader() {
@@ -364,7 +241,6 @@ function syncBagCount() {
     let cart = [];
 
     try {
-        if (window.StyleHubAccountCart) window.StyleHubAccountCart.switchToCurrentOwner();
         cart = JSON.parse(localStorage.getItem("cart")) || [];
     } catch (error) {
         cart = [];
@@ -594,7 +470,7 @@ function initFooterSupportContactBlock() {
         const block = document.createElement("div");
         block.className = "footer-support-contact-block";
         block.innerHTML = `
-            <h4 class="footer-support-contact-title"><a href="contact.html" aria-label="Mở trang liên hệ hỗ trợ" style="color:inherit;text-decoration:none;cursor:pointer;">Liên Hệ Hỗ Trợ</a></h4>
+            <h4 class="footer-support-contact-title">Liên Hệ Hỗ Trợ</h4>
             <p class="footer-support-contact-line" style="white-space:nowrap !important;display:block !important;width:max-content !important;max-width:none !important;">Gọi&nbsp;mua:&nbsp;02796096060&nbsp;(8:00&nbsp;-&nbsp;21:30)</p>
             <p class="footer-support-contact-line" style="white-space:nowrap !important;display:block !important;width:max-content !important;max-width:none !important;">Khiếu&nbsp;nại:&nbsp;02873066060&nbsp;(8:00&nbsp;-&nbsp;21:30)</p>
             <p class="footer-support-contact-line" style="white-space:nowrap !important;display:block !important;width:max-content !important;max-width:none !important;">Bảo&nbsp;hành:&nbsp;02873066060&nbsp;(8:00&nbsp;-&nbsp;21:00)</p>
@@ -924,32 +800,6 @@ function searchProducts() {
         return null;
     }
 
-    /* Một số sản phẩm mẫu được đặt ở trạng thái hết hàng trên toàn website. */
-    function applyPresetOutOfStockProducts() {
-        if (typeof database === "undefined" || !database) return;
-
-        const outOfStockProductIds = [
-            "shoe-2",
-            "shoe-7",
-            "tops-5",
-            "tops-18",
-            "bottoms-4",
-            "womens-6",
-            "womens-bottoms-3",
-            "kids-4",
-            "kids-bottoms-2",
-            "sale-3",
-            "sale-14"
-        ];
-
-        outOfStockProductIds.forEach(function (productId) {
-            const product = database[productId];
-            if (!product) return;
-            product.stock = 0;
-            product.outOfStock = true;
-        });
-    }
-
     function stableHash(value) {
         let hash = 0;
         String(value || "").split("").forEach(ch => {
@@ -1172,41 +1022,14 @@ function searchProducts() {
                 text-decoration: none;
                 display: block;
             }
-            .stylehub-mini-thumb {
-                position: relative;
+            .stylehub-mini-card img {
                 width: 100%;
                 aspect-ratio: 3/4;
-                overflow: hidden;
-                background: #f7f7f7;
-                margin-bottom: 10px;
-            }
-            .stylehub-mini-thumb img {
-                position: absolute;
-                inset: 0;
-                width: 100%;
-                height: 100%;
                 object-fit: cover;
                 object-position: center top;
+                background: #f7f7f7;
                 display: block;
-                margin: 0;
-                transition: opacity .32s ease, transform .38s ease;
-            }
-            .stylehub-mini-thumb .stylehub-mini-img-main {
-                opacity: 1;
-                z-index: 1;
-            }
-            .stylehub-mini-thumb .stylehub-mini-img-hover {
-                opacity: 0;
-                z-index: 2;
-            }
-            @media (hover: hover) and (pointer: fine) {
-                .stylehub-mini-card:hover .stylehub-mini-img-main {
-                    opacity: 0;
-                }
-                .stylehub-mini-card:hover .stylehub-mini-img-hover {
-                    opacity: 1;
-                    transform: scale(1.015);
-                }
+                margin-bottom: 10px;
             }
             .stylehub-mini-card strong {
                 display: block;
@@ -1632,10 +1455,7 @@ function searchProducts() {
             <div class="stylehub-mini-grid">
                 ${valid.slice(0, 4).map(([id, item]) => `
                     <a class="stylehub-mini-card" href="product-detail.html?id=${encodeURIComponent(id)}">
-                        <div class="stylehub-mini-thumb product-image">
-                            <img class="stylehub-mini-img-main" src="${item.mainImg || (item.images && item.images[0]) || ""}" alt="${item.name || ""}">
-                            <img class="stylehub-mini-img-hover" src="${(item.images && (item.images[1] || item.images[0])) || item.hoverImg || item.mainImg || ""}" alt="${item.name || ""} - ảnh sau">
-                        </div>
+                        <img src="${item.mainImg || (item.images && item.images[0]) || ""}" alt="${item.name || ""}">
                         <strong>${item.name || ""}</strong>
                         <span>${item.price || ""}</span>
                     </a>
@@ -1900,7 +1720,6 @@ function searchProducts() {
 
     function runAll() {
         injectStyles();
-        applyPresetOutOfStockProducts();
         initFooterPageLinks();
         initCollectionFilters();
         initAdminCustomProductCards();
@@ -2766,361 +2585,3 @@ setTimeout(initStyleHubFooterSocialFullSet, 1000);
     setTimeout(cleanFeaturedMenu, 800);
 })();
 /* ===== END FEATURED MENU CLEANUP ===== */
-
-/* ===== MOBILE PRODUCT IMAGE FLIP ===== */
-(function () {
-    function isMobileTouch() {
-        return window.matchMedia('(max-width: 768px)').matches &&
-            (window.matchMedia('(hover: none)').matches || navigator.maxTouchPoints > 0);
-    }
-
-    function injectMobileFlipStyles() {
-        if (document.getElementById('stylehub-mobile-product-flip-style')) return;
-        const style = document.createElement('style');
-        style.id = 'stylehub-mobile-product-flip-style';
-        style.textContent = `
-            @media (max-width: 768px) {
-                .mens-card.mobile-image-flipped .img-front,
-                .product-card.mobile-image-flipped .img-main {
-                    opacity: 0 !important;
-                }
-
-                .mens-card.mobile-image-flipped .img-back,
-                .product-card.mobile-image-flipped .img-hover {
-                    opacity: 1 !important;
-                    transform: scale(1.01) !important;
-                }
-
-                .mens-thumb-box img,
-                .product-thumb img,
-                .hover-img img {
-                    transition: opacity .35s ease, transform .35s ease !important;
-                }
-            }
-        `;
-        document.head.appendChild(style);
-    }
-
-    function findProductCard(target) {
-        return target.closest('.mens-card, .product-card');
-    }
-
-    function hasSecondImage(card) {
-        return !!(
-            (card.querySelector('.img-front') && card.querySelector('.img-back')) ||
-            (card.querySelector('.img-main') && card.querySelector('.img-hover'))
-        );
-    }
-
-    function isInsideProductImage(target, card) {
-        const imageArea = target.closest('.mens-thumb-box, .product-thumb, .hover-img, .product-image, .thumb-box');
-        return !!(imageArea && card.contains(imageArea));
-    }
-
-    function closeOtherCards(currentCard) {
-        document.querySelectorAll('.mens-card.mobile-image-flipped, .product-card.mobile-image-flipped')
-            .forEach(function (card) {
-                if (card !== currentCard) card.classList.remove('mobile-image-flipped');
-            });
-    }
-
-    document.addEventListener('click', function (event) {
-        if (!isMobileTouch()) return;
-
-        const target = event.target instanceof Element ? event.target : null;
-        if (!target || target.closest('.stylehub-wishlist-btn, button, input, select, textarea')) return;
-
-        const card = findProductCard(target);
-        if (!card || !hasSecondImage(card) || !isInsideProductImage(target, card)) return;
-
-        if (!card.classList.contains('mobile-image-flipped')) {
-            event.preventDefault();
-            event.stopPropagation();
-            closeOtherCards(card);
-            card.classList.add('mobile-image-flipped');
-        }
-    }, true);
-
-    document.addEventListener('click', function (event) {
-        if (!isMobileTouch()) return;
-        const target = event.target instanceof Element ? event.target : null;
-        if (!target || target.closest('.mens-card, .product-card')) return;
-        closeOtherCards(null);
-    });
-
-    injectMobileFlipStyles();
-    document.addEventListener('DOMContentLoaded', injectMobileFlipStyles);
-})();
-/* ===== END MOBILE PRODUCT IMAGE FLIP ===== */
-
-
-/* ===== FEATURED DROPDOWN SAME AS OTHER NAV ITEMS - ALL PAGES ===== */
-(function () {
-    const featuredLinks = [
-        ["collections.html", "NEW ARRIVALS"],
-        ["exchange-warranty-policy.html", "CHÍNH SÁCH ĐỔI HÀNG & BẢO HÀNH"],
-        ["privacy-policy.html", "CHÍNH SÁCH BẢO MẬT"],
-        ["shipping-policy.html", "CHÍNH SÁCH GIAO HÀNG"]
-    ];
-
-    function normalize(value) {
-        return (value || "").replace(/\s+/g, " ").trim().toUpperCase();
-    }
-
-    function createDropdown() {
-        const dropdown = document.createElement("div");
-        dropdown.className = "nav-dropdown";
-
-        featuredLinks.forEach(function (item) {
-            const link = document.createElement("a");
-            link.href = item[0];
-            link.textContent = item[1];
-            dropdown.appendChild(link);
-        });
-
-        return dropdown;
-    }
-
-    function updateDesktopFeatured() {
-        document.querySelectorAll(".main-header .nav-left > div").forEach(function (menu) {
-            const trigger = menu.querySelector(":scope > a");
-            if (normalize(trigger && trigger.textContent) !== "FEATURED") return;
-
-            menu.classList.remove("menu-item-has-mega");
-            menu.classList.add("menu-item-has-dropdown");
-
-            menu.querySelectorAll(":scope > .mega-menu-dropdown, :scope > .nav-dropdown")
-                .forEach(function (oldDropdown) { oldDropdown.remove(); });
-
-            menu.appendChild(createDropdown());
-        });
-    }
-
-    function updateMobileFeatured() {
-        document.querySelectorAll(".mobile-menu-group").forEach(function (group) {
-            const title = group.querySelector(".mobile-menu-title");
-            if (normalize(title && title.textContent) !== "FEATURED") return;
-
-            group.querySelectorAll("a").forEach(function (link) { link.remove(); });
-            featuredLinks.forEach(function (item) {
-                const link = document.createElement("a");
-                link.href = item[0];
-                link.textContent = item[1];
-                group.appendChild(link);
-            });
-        });
-    }
-
-    function updateFeaturedEverywhere() {
-        updateDesktopFeatured();
-        updateMobileFeatured();
-    }
-
-    updateFeaturedEverywhere();
-    document.addEventListener("DOMContentLoaded", updateFeaturedEverywhere);
-    window.addEventListener("load", updateFeaturedEverywhere);
-    setTimeout(updateFeaturedEverywhere, 150);
-    setTimeout(updateFeaturedEverywhere, 600);
-})();
-/* ===== END FEATURED DROPDOWN SAME AS OTHER NAV ITEMS ===== */
-
-
-/* Keep the current account cart snapshot synchronized after cart actions. */
-["click", "change", "input"].forEach(function (eventName) {
-    document.addEventListener(eventName, function () {
-        if (!window.StyleHubAccountCart) return;
-        setTimeout(function () {
-            window.StyleHubAccountCart.persistCurrentOwnerCart();
-            syncBagCount();
-        }, 80);
-    }, true);
-});
-
-/* ===== GLOBAL MOBILE SWIPE RIGHT TO GO BACK =====
-   Áp dụng cho tất cả trang có tải stylehub-common.js, kể cả trang chính sách.
-   Vuốt từ mép trái sang phải: quay lại từng trang đã xem trong website.
-   Khi không còn trang trước trong website: trở về index.html.
-*/
-(function initGlobalMobileSwipeBack() {
-    const STACK_KEY = "stylehub_internal_page_stack_v2";
-    const NAV_FLAG_KEY = "stylehub_swipe_navigating_v2";
-    const MOBILE_QUERY = "(max-width: 768px)";
-    const EDGE_START_MAX = 55;
-    const MIN_SWIPE_X = 90;
-    const MAX_SWIPE_Y = 65;
-    const MAX_DURATION = 900;
-
-    function isMobile() {
-        return window.matchMedia && window.matchMedia(MOBILE_QUERY).matches;
-    }
-
-    function normalizeUrl(value) {
-        try {
-            const url = new URL(value, window.location.href);
-            if (url.origin !== window.location.origin) return "";
-            url.hash = "";
-            return url.href;
-        } catch (error) {
-            return "";
-        }
-    }
-
-    function readStack() {
-        try {
-            const parsed = JSON.parse(sessionStorage.getItem(STACK_KEY) || "[]");
-            return Array.isArray(parsed) ? parsed.filter(Boolean) : [];
-        } catch (error) {
-            return [];
-        }
-    }
-
-    function writeStack(stack) {
-        try {
-            sessionStorage.setItem(STACK_KEY, JSON.stringify((stack || []).slice(-40)));
-        } catch (error) {}
-    }
-
-    function rememberCurrentPage() {
-        const current = normalizeUrl(window.location.href);
-        if (!current) return;
-
-        let stack = readStack();
-        const navigatingBack = sessionStorage.getItem(NAV_FLAG_KEY) === "1";
-        sessionStorage.removeItem(NAV_FLAG_KEY);
-
-        if (navigatingBack) {
-            // Trang đích đã có sẵn ở cuối stack sau khi pop, không thêm trùng.
-            if (!stack.length || stack[stack.length - 1] !== current) {
-                stack.push(current);
-            }
-            writeStack(stack);
-            return;
-        }
-
-        if (!stack.length || stack[stack.length - 1] !== current) {
-            stack.push(current);
-            writeStack(stack);
-        }
-    }
-
-    function isBlockedTarget(target) {
-        if (!(target instanceof Element)) return false;
-        return Boolean(target.closest([
-            "input", "textarea", "select", "button",
-            "[contenteditable='true']",
-            ".search-overlay", ".cart-overlay", ".checkout-overlay",
-            "#checkoutOverlay", ".stylehub-modal-overlay",
-            ".cancel-modal-overlay", ".order-address-modal-overlay",
-            ".ai-chat-window", ".chat-window", ".stylehub-chat-window",
-            ".swiper", ".carousel", ".slider",
-            ".stylehub-thumb-nav", ".image-scroll-gallery"
-        ].join(",")));
-    }
-
-    function getHomeUrl() {
-        return new URL("index.html", window.location.href).href;
-    }
-
-    function goBackInsideWebsite() {
-        const current = normalizeUrl(window.location.href);
-        let stack = readStack();
-
-        // Dọn các bản ghi trùng ở cuối stack.
-        while (stack.length > 1 && stack[stack.length - 1] === stack[stack.length - 2]) {
-            stack.pop();
-        }
-
-        // Bảo đảm trang hiện tại nằm ở cuối rồi bỏ nó ra.
-        if (stack.length && stack[stack.length - 1] === current) {
-            stack.pop();
-        } else {
-            const currentIndex = stack.lastIndexOf(current);
-            if (currentIndex >= 0) stack = stack.slice(0, currentIndex);
-        }
-
-        let destination = stack.length ? stack[stack.length - 1] : "";
-
-        // Nếu chưa ghi nhận được lịch sử nội bộ, dùng referrer cùng website.
-        if (!destination) {
-            const referrer = normalizeUrl(document.referrer);
-            if (referrer && referrer !== current) destination = referrer;
-        }
-
-        // Không cho vuốt thoát khỏi website; hết lịch sử thì về trang chủ.
-        if (!destination || destination === current) {
-            destination = getHomeUrl();
-            stack = destination === current ? [current] : [destination];
-        }
-
-        if (destination === current) return;
-
-        writeStack(stack);
-        try { sessionStorage.setItem(NAV_FLAG_KEY, "1"); } catch (error) {}
-        document.documentElement.classList.add("stylehub-swipe-leaving");
-        window.location.href = destination;
-    }
-
-    function bindSwipe() {
-        if (window.__styleHubGlobalSwipeBackBound) return;
-        window.__styleHubGlobalSwipeBackBound = true;
-
-        let startX = 0;
-        let startY = 0;
-        let startTime = 0;
-        let tracking = false;
-
-        document.addEventListener("touchstart", function (event) {
-            if (!isMobile() || event.touches.length !== 1 || isBlockedTarget(event.target)) {
-                tracking = false;
-                return;
-            }
-
-            const touch = event.touches[0];
-            // Bắt đầu gần mép trái để không xung đột cuộn trang và lật ảnh sản phẩm.
-            tracking = touch.clientX <= EDGE_START_MAX;
-            if (!tracking) return;
-
-            startX = touch.clientX;
-            startY = touch.clientY;
-            startTime = Date.now();
-        }, { passive: true });
-
-        document.addEventListener("touchend", function (event) {
-            if (!tracking || !isMobile() || !event.changedTouches.length) {
-                tracking = false;
-                return;
-            }
-
-            const touch = event.changedTouches[0];
-            const deltaX = touch.clientX - startX;
-            const deltaY = touch.clientY - startY;
-            const duration = Date.now() - startTime;
-            tracking = false;
-
-            if (
-                deltaX >= MIN_SWIPE_X &&
-                Math.abs(deltaY) <= MAX_SWIPE_Y &&
-                deltaX > Math.abs(deltaY) * 1.35 &&
-                duration <= MAX_DURATION
-            ) {
-                goBackInsideWebsite();
-            }
-        }, { passive: true });
-
-        document.addEventListener("touchcancel", function () {
-            tracking = false;
-        }, { passive: true });
-    }
-
-    if (document.readyState === "loading") {
-        document.addEventListener("DOMContentLoaded", function () {
-            rememberCurrentPage();
-            bindSwipe();
-        });
-    } else {
-        rememberCurrentPage();
-        bindSwipe();
-    }
-
-    window.addEventListener("pageshow", rememberCurrentPage);
-})();

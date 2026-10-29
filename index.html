@@ -46,31 +46,18 @@
             margin-bottom: 35px;
         }
         
-        /* Đồng bộ kích thước 3 ô SHOP MENS, SHOP WOMENS và BUSINESS CASUAL */
-        .hero-btn-container .shop-btn,
         .outfit-section-title h3 {
-            width: min(520px, calc(100vw - 40px));
-            height: 78px;
-            box-sizing: border-box;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            padding: 0 24px;
-            border: 1px solid #111111;
-            background-color: #ffffff;
-            color: #111111;
+            display: inline-block;
             font-size: 20px;
             font-weight: 400;
             letter-spacing: 4px;
-            line-height: 1.2;
-            text-align: center;
+            color: #111111;
+            margin: 0;
             text-transform: uppercase;
+            padding: 12px 35px;
+            border: 1px solid #111111;
             transition: all 0.4s ease;
-        }
-
-        .outfit-section-title h3 {
-            margin: 0 auto;
-            cursor: pointer;
+            cursor: default;
         }
 
         .outfit-section-title h3:hover {
@@ -453,13 +440,34 @@
 <header class="main-header">
 <div class="nav-container">
 <nav class="nav-left">
-<div class="menu-item-has-dropdown">
+<div class="menu-item-has-mega">
 <a class="nav-link-featured" href="index.html">FEATURED</a>
-<div class="nav-dropdown">
+<div class="mega-menu-dropdown">
+<div class="mega-menu-container">
+<div class="mega-links-col">
 <a href="collections.html">NEW ARRIVALS</a>
-<a href="exchange-warranty-policy.html">CHÍNH SÁCH ĐỔI HÀNG &amp; BẢO HÀNH</a>
+<a href="mens.html">MLB SPRING 2026</a>
+<a href="womens.html">COLLECTION NINE WOMENSWEAR</a>
+<a href="mens.html">ESSENTIALS CLASSIC STYLES</a>
+<a href="mens.html">ATHLETICS &amp; TEAM APPAREL</a>
+<a href="mens.html">ESSENTIALS</a>
+<a href="mens.html">FEAR OF GOD</a>
+<a href="sale.html">SALE</a>
+
+<a href="exchange-warranty-policy.html">CHÍNH SÁCH ĐỔI HÀNG & BẢO HÀNH</a>
 <a href="privacy-policy.html">CHÍNH SÁCH BẢO MẬT</a>
-<a href="shipping-policy.html">CHÍNH SÁCH GIAO HÀNG</a>
+<a href="shipping-policy.html">CHÍNH SÁCH GIAO HÀNG</a></div>
+<div class="mega-images-col">
+<a class="mega-img-card" href="womens.html">
+<img alt="Collection Nine Womenswear" src="https://fearofgod.com/cdn/shop/files/LOOK_36_26241979-d8f6-4a59-81bf-798c81a576b9.jpg?v=1758565392&amp;width=1200"/>
+<span>COLLECTION NINE WOMENSWEAR</span>
+</a>
+<a class="mega-img-card" href="mens.html">
+<img alt="Collection Nine Menswear" src="https://fearofgod.com/cdn/shop/files/LOOK_29.png?v=1774904924&amp;width=1200"/>
+<span>COLLECTION NINE MENSWEAR</span>
+</a>
+</div>
+</div>
 </div>
 </div>
 <div class="menu-item-has-dropdown">
@@ -909,7 +917,7 @@
             const loggedInNow = window.StyleHubAuth ? !!window.StyleHubAuth.getCurrentUser() : (localStorage.getItem('isLoggedInStatus') === 'true' && !!(localStorage.getItem('hub_current_user_key') || localStorage.getItem('hub_email')));
 
             if (loggedInNow) {
-                window.location.href = 'account.html';
+                showPage('dashboard');
             } else {
                 accountModal.style.display = 'block';
             }
@@ -1014,12 +1022,6 @@
 
             accountModal.style.display = 'none';
             triggerFireworkCelebration(fullDisplayName);
-
-            // Sau khi đăng nhập, luôn chuyển sang trang account.html chuẩn.
-            // Không sử dụng dashboard tài khoản cũ nằm bên trong trang chủ nữa.
-            setTimeout(function () {
-                window.location.href = 'account.html';
-            }, 500);
         }
 
         function handleSignOut() {
@@ -1205,7 +1207,7 @@
 <footer class="site-footer support-footer">
     <div class="footer-col footer-brand">
         <h3>THE STYLE HUB</h3>
-        <p>Điểm đến thời trang hiện đại dành cho nam, nữ, trẻ em, giày dép và các bộ sưu tập theo mùa.</p>
+        <p>Modern fashion store for menswear, womenswear, kidswear, shoes and seasonal sale collections.</p>
         <div class="social-links footer-social-links">
             <a class="footer-social-icon footer-fb-icon" href="#" aria-label="Facebook"><img src="images/fb.png" alt="Facebook"></a>
             <a class="footer-social-icon footer-zalo-icon" href="#" aria-label="Zalo"><img src="images/zalo.png" alt="Zalo"></a>
@@ -1251,10 +1253,12 @@
         </div>
     </div>
 </footer>
-<div class="footer-bottom">© 2026 THE STYLE HUB — Cảm ơn bạn đã tin tưởng và đồng hành cùng chúng tôi.</div>
+<div class="footer-bottom">© 2026 THE STYLE HUB. UI/UX Interface Design Project.</div>
 <script src="stylehub-notifications.js?v=notification-bell-fixed-all-pages-20260616"></script>
-<script src="stylehub-responsive-nav.js?v=responsive-collapse-20260709"></script>
-<script src="stylehub-orders-api.js?v=static-demo-products-20260709"></script>
+<script src="stylehub-responsive-nav.js?v=kids-bottoms-3-products-20260618"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-database-compat.js"></script>
+<script src="stylehub-orders-api.js?v=stock-cloud-sync-20260630"></script>
 <script src="stylehub-common.js?v=stock-cloud-sync-20260630"></script>
 
 <script src="stylehub-ai-chat.js"></script>
