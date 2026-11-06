@@ -38,7 +38,7 @@
     /* 1. Từ vựng thuộc tính và nhãn tiếng Việt                            */
     /* ------------------------------------------------------------------ */
     var LABELS = {
-        gender: { men: 'nam', women: 'nữ', kids: 'trẻ em', unisex: 'unisex' },
+        gender: { men: 'đồ nam', women: 'đồ nữ', kids: 'đồ trẻ em', unisex: 'unisex' },
         category: { top: 'áo', bottom: 'quần', outerwear: 'áo khoác', footwear: 'giày dép' },
         type: {
             tee: 'áo thun', longsleeve: 'áo thun dài tay', tank: 'áo ba lỗ', polo: 'áo polo', shirt: 'áo sơ mi',
@@ -285,6 +285,11 @@
             product: { ctx: 0.35, cb: 0.05, ucf: 0.25, icf: 0.05, mf: 0.18, pop: 0.12 }
         },
         mmrLambda: 0.7,
+        // Quy tắc trải nghiệm: nếu người dùng vừa xem sản phẩm trong 30 phút gần nhất (đang trong phiên),
+        // trọng số "session" ở trang chủ tối thiểu 0.3 để gợi ý phản ánh ý định hiện tại. Không ảnh hưởng
+        // thực nghiệm offline (đánh giá theo ngày, không có phiên đang mở).
+        liveSessionMinutes: 30,
+        liveSessionWeight: 0.3,
         groupWeights: { type: 3, category: 1.5, gender: 2.5, color: 1.5, style: 1.5, material: 1, fit: 0.75, brand: 0.75, price: 1 }
     };
 
@@ -353,7 +358,8 @@
         var i = key.indexOf(':');
         var group = key.slice(0, i), value = key.slice(i + 1);
         if (group === 'brand') return value.replace(/\b\w/g, function (c) { return c.toUpperCase(); });
-        return (LABELS[group] && LABELS[group][value]) || value;
+        var label = (LABELS[group] && LABELS[group][value]) || value;
+        return group === 'style' ? 'phong cách ' + label : label;
     }
 
     /* ------------------------------------------------------------------ */
@@ -597,11 +603,11 @@
         // Popularity (xu hướng, có suy giảm)
         var popularity = new Map(), popCount = new Map();
         var popWeight = { view: 0.5, cart: 1.5, wishlist: 2, rating: 2, purchase: 3 };
+        function popContribution(e) { return e && e.score > 0 ? (popWeight[e.strongest] || 0.5) * decay(now - e.lastTs, opts.shortHalfLifeDays) : 0; }
         users.forEach(function (u) {
             u.items.forEach(function (e, item) {
                 if (e.score <= 0) return;
-                var wgt = (popWeight[e.strongest] || 0.5) * decay(now - e.lastTs, opts.shortHalfLifeDays);
-                popularity.set(item, (popularity.get(item) || 0) + wgt);
+                popularity.set(item, (popularity.get(item) || 0) + popContribution(e));
                 popCount.set(item, (popCount.get(item) || 0) + 1);
             });
         });
@@ -741,13 +747,24 @@
             });
             return scores;
         }
-        function sessionScores(user, candidates) {
-            var me = users.get(user), scores = new Map(), anchors = new Map();
-            if (!me || !me.recent.length) return { scores: scores, anchors: anchors };
-            var recentItems = me.recent.slice(0, 5);
+        function recentFor(user, override) {
+            if (Array.isArray(override) && override.length) {
+                return override.filter(function (r) { return r && catalog[r.item]; })
+                    .map(function (r) { return { item: r.item, ts: Math.min(now, Number(r.ts) || now) }; })
+                    .sort(function (a, b) { return b.ts - a.ts; }).slice(0, 10);
+            }
+            var me = users.get(user);
+            return me ? me.recent : [];
+        }
+        function sessionScores(user, candidates, override) {
+            var scores = new Map(), anchors = new Map();
+            var recentList = recentFor(user, override);
+            if (!recentList.length) return { scores: scores, anchors: anchors };
+            var recentItems = recentList.slice(0, 5);
             candidates.forEach(function (id) {
                 var total = 0, best = null;
                 recentItems.forEach(function (r, rank) {
+                    if (r.item === id) return; // không "gợi ý" lại chính sản phẩm vừa xem vì... chính nó
                     var w = Math.pow(0.6, rank) * decay(now - r.ts, 7);
                     var s = w * (0.7 * contentSim(r.item, id) + 0.3 * itemCFSim(r.item, id));
                     total += s;
@@ -758,10 +775,18 @@
             return { scores: scores, anchors: anchors };
         }
 
-        function popularityScores(candidates) {
-            var scores = new Map();
-            candidates.forEach(function (id) { var s = popularity.get(id); if (s > 0) scores.set(id, s); });
+        /** Độ phổ biến trong CỘNG ĐỒNG: trừ phần đóng góp của chính người dùng (không gợi ý lại thứ chỉ mình họ xem). */
+        function popularityScores(candidates, user) {
+            var me = users.get(user), scores = new Map();
+            candidates.forEach(function (id) {
+                var s = (popularity.get(id) || 0) - (me ? popContribution(me.items.get(id)) : 0);
+                if (s > 1e-12) scores.set(id, s);
+            });
             return scores;
+        }
+        function communityCount(id, user) {
+            var me = users.get(user), e = me ? me.items.get(id) : null;
+            return (popCount.get(id) || 0) - (e && e.score > 0 ? 1 : 0);
         }
         function mfScores(user, candidates) {
             var scores = new Map();
@@ -867,17 +892,19 @@
                 ucf: filterTo(ucf.scores, candidates),
                 icf: filterTo(icf.scores, candidates),
                 mf: mfScores(user, candidates),
-                pop: popularityScores(candidates)
+                pop: popularityScores(candidates, user)
             };
             var session = null;
             if (context === 'product' && o.productId) raw.ctx = contextScores(o.productId, candidates);
-            else { session = sessionScores(user, candidates); raw.session = session.scores; }
+            else { session = sessionScores(user, candidates, o.recent); raw.session = session.scores; }
+            var recentList = recentFor(user, o.recent);
+            var liveSession = recentList.length > 0 && now - recentList[0].ts <= opts.liveSessionMinutes * 60000;
             var norm = {}, available = {};
             Object.keys(raw).forEach(function (k) { norm[k] = normalizeMap(raw[k]); available[k] = norm[k].size > 0; });
             return {
                 user: user, context: context, candidates: candidates, normalized: norm, available: available,
                 positives: me ? me.positives : 0, taste: cb.taste, ucf: ucf, icf: icf, session: session,
-                gate: gate, genderProfile: gp
+                gate: gate, genderProfile: gp, liveSession: liveSession
             };
         }
         function filterTo(map, candidates) {
@@ -912,8 +939,13 @@
 
         /** Switching hybrid: người dùng mới (ít tương tác) ở trang chủ dùng bộ trọng số cold-start. */
         function weightsFor(comp) {
-            if (comp.context === 'home' && comp.positives <= opts.coldStartThreshold && opts.weights.cold) return opts.weights.cold;
-            return opts.weights[comp.context] || opts.weights.home;
+            var base;
+            if (comp.context === 'home' && comp.positives <= opts.coldStartThreshold && opts.weights.cold) base = opts.weights.cold;
+            else base = opts.weights[comp.context] || opts.weights.home;
+            if (comp.context === 'home' && comp.liveSession && (base.session || 0) < opts.liveSessionWeight) {
+                base = Object.assign({}, base, { session: opts.liveSessionWeight });
+            }
+            return base;
         }
 
         /** Đa dạng hóa bằng Maximal Marginal Relevance. */
@@ -994,7 +1026,7 @@
             } else if (main === 'mf') {
                 text = 'Mô hình học máy BPR dự đoán bạn sẽ thích';
             } else if (main === 'pop') {
-                var c = popCount.get(item.id) || 0;
+                var c = communityCount(item.id, comp.user);
                 text = c >= 2 ? 'Đang được nhiều khách quan tâm (' + c + ' người)' : 'Sản phẩm nổi bật để bạn khám phá';
                 evidence = { users: c };
             }

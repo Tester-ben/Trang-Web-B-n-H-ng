@@ -213,10 +213,15 @@ test('Style DNA phản ánh loại và màu chiếm ưu thế', () => {
     assert.ok(dna.interactions >= 2);
 });
 
-test('Switching hybrid: người dùng ít tương tác dùng bộ trọng số cold-start', () => {
+test('Switching hybrid: người dùng ít tương tác dùng bộ trọng số cold-start; đang trong phiên thì tăng "session"', () => {
     const model = engine.createModel({ catalog: CATALOG, events: [ev('n', 'tee-black', 'view', 1)], now: NOW, options: { mf: { enabled: false } } });
     const comp = model.componentScores('n', { context: 'home' });
     assert.equal(model.weightsFor(comp), model.options.weights.cold);
+    const live = model.componentScores('n', { context: 'home', recent: [{ item: 'hoodie-black', ts: NOW - 60000 }] });
+    assert.equal(live.liveSession, true);
+    assert.equal(model.weightsFor(live).session, model.options.liveSessionWeight);
+    const recs = model.recommend('n', { recent: [{ item: 'hoodie-black', ts: NOW - 60000 }], limit: 1, diversify: false });
+    assert.equal(recs[0].id, 'hoodie-grey', 'khách vừa xem hoodie đen -> gợi ý hoodie tương tự');
     const custom = engine.createModel({ catalog: CATALOG, events: [], now: NOW, options: { weights: { home: { ucf: 1 } } } });
     assert.deepEqual(custom.options.weights.home, { ucf: 1 }, 'bộ trọng số được thay thế, không trộn với mặc định');
 });

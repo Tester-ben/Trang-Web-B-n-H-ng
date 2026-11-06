@@ -1,0 +1,19 @@
+{
+  "name": "the-style-hub",
+  "version": "2.0.0",
+  "private": true,
+  "description": "Hệ gợi ý sản phẩm thời trang dựa trên hành vi mua sắm, đánh giá và sự tương đồng sở thích giữa người dùng (Hybrid: Content-based + User/Item-based CF + BPR).",
+  "engines": {
+    "node": ">=22.13"
+  },
+  "scripts": {
+    "start": "node server/server.js",
+    "test": "node --test \"tests/*.test.js\"",
+    "evaluate": "node evaluation/run-evaluation.js",
+    "evaluate:quick": "node evaluation/run-evaluation.js --quick",
+    "seed:demo": "node server/seed-demo.js",
+    "create-admin": "node server/create-admin.js",
+    "attributes": "node tools/generate-product-attributes.js"
+  },
+  "license": "UNLICENSED"
+}

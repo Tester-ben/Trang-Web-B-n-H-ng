@@ -48,7 +48,7 @@ function targetsIn(events, from, to) {
     const truth = new Map();
     for (const e of events) {
         if (e.ts < from || e.ts >= to) continue;
-        const positive = e.type === 'purchase' || (e.type === 'rating' && Number(e.value) >= 4);
+        const positive = e.type === 'purchase' || ((e.type === 'rating' || e.type === 'review') && Number(e.value) >= 4);
         if (!positive) continue;
         const u = String(e.user);
         if (!truth.has(u)) truth.set(u, new Set());
