@@ -395,6 +395,16 @@ function markdownReport(R) {
         R.sentiment.forEach((r) => L.push('| ' + r.label + ' | ' + f3(r.n10) + ' | ' + pct(r.r10) + ' |'));
         L.push('');
     }
+    if (R.viewedOnly) {
+        L.push('### Ablation: hệ số cho sản phẩm người dùng chỉ mới xem (trang chủ)');
+        L.push('');
+        L.push('| Hệ số | NDCG@10 | Coverage@10 (%) | Novelty@10 |');
+        L.push('|---|---|---|---|');
+        R.viewedOnly.forEach((r) => L.push('| ' + r.factor + (r.factor === engine.DEFAULTS.viewedOnlyFactor ? ' (mặc định)' : '') + ' | ' + f3(r.n10) + ' | ' + pct(r.coverage10) + ' | ' + r.nov10.toFixed(2) + ' |'));
+        L.push('');
+        L.push('Mục đích trải nghiệm: không lặp lại đúng những mẫu khách vừa xem khi điểm gần bằng nhau. Chọn hệ số lớn nhất không làm giảm NDCG@10 đáng kể.');
+        L.push('');
+    }
     if (R.rho) {
         L.push('## 6. Độ nhạy theo cơ chế sinh dữ liệu (ρ = tỉ trọng "gu cụm" ẩn; seed ' + R.config.firstSeed + ')');
         L.push('');
@@ -455,6 +465,7 @@ function main() {
         { name: 'Hybrid v2 (tinh chỉnh) + MMR', weights: tunedWeights, lambda, coldWeights }
     ];
 
+    const viewedRows = {};
     const perSeed = [], tuned = [], tunedCold = [], pooled = {}, coldPerSeed = [], coldUsers = [], sentimentRows = { on: [], off: [] };
     R.evaluatedUsers = [];
     let lambdaInfo = null;
@@ -508,6 +519,12 @@ function main() {
             const a = runAlgorithms(noSent, ds, [{ name: 'h', weights: best.weights }], seed).h.summary;
             const b = res['Hybrid v2 (tinh chỉnh)'].summary;
             sentimentRows.off.push(a); sentimentRows.on.push(b);
+            // Ablation: hệ số cho sản phẩm "chỉ mới xem" ở trang chủ (ưu tiên khám phá mẫu mới)
+            [1, 0.9, 0.8, 0.7].forEach((f) => {
+                const sp = buildSplit(ds, cutTest, end, { viewedOnlyFactor: f });
+                const r = runAlgorithms(sp, ds, [{ name: 'h', weights: best.weights, coldWeights: bestCold.weights }], seed).h.summary;
+                viewedRows[f] = (viewedRows[f] || []).concat([{ n10: r.n10, cov: r.coverage10, nov: r.nov10 }]);
+            });
         }
     }
 
@@ -530,6 +547,9 @@ function main() {
 
     if (args.data === 'simulated') {
         R.coldStart = { results: aggregate(coldPerSeed), users: coldUsers };
+        R.viewedOnly = Object.keys(viewedRows).map(Number).sort((a, b) => b - a).map((f) => ({
+            factor: f, n10: M.mean(viewedRows[f].map((x) => x.n10)), coverage10: M.mean(viewedRows[f].map((x) => x.cov)), nov10: M.mean(viewedRows[f].map((x) => x.nov))
+        }));
         R.sentiment = [
             { label: 'Hybrid v2 — có điều chỉnh theo cảm xúc (μ = 0.3)', n10: M.mean(sentimentRows.on.map((x) => x.n10)), r10: M.mean(sentimentRows.on.map((x) => x.r10)) },
             { label: 'Hybrid v2 — chỉ dùng số sao (μ = 0)', n10: M.mean(sentimentRows.off.map((x) => x.n10)), r10: M.mean(sentimentRows.off.map((x) => x.r10)) }

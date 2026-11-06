@@ -280,14 +280,17 @@
         // Trọng số hybrid. Giá trị "home" được tinh chỉnh bằng grid search trên tập validation
         // (evaluation/run-evaluation.js -> recommender/tuned-weights.json). Xem docs/KET_QUA_THUC_NGHIEM.md.
         weights: {
-            home: { session: 0.05, cb: 0.07, ucf: 0.37, icf: 0.08, mf: 0.27, pop: 0.17 },
+            home: { cb: 0.07, ucf: 0.45, icf: 0.07, mf: 0.28, pop: 0.13 },
             cold: { cb: 0.08, ucf: 0.48, icf: 0.1, mf: 0.13, pop: 0.2 },
-            product: { ctx: 0.35, cb: 0.05, ucf: 0.25, icf: 0.05, mf: 0.18, pop: 0.12 }
+            product: { ctx: 0.35, cb: 0.05, ucf: 0.29, icf: 0.05, mf: 0.18, pop: 0.08 }
         },
-        mmrLambda: 0.7,
+        mmrLambda: 0.8,
         // Quy tắc trải nghiệm: nếu người dùng vừa xem sản phẩm trong 30 phút gần nhất (đang trong phiên),
         // trọng số "session" ở trang chủ tối thiểu 0.3 để gợi ý phản ánh ý định hiện tại. Không ảnh hưởng
         // thực nghiệm offline (đánh giá theo ngày, không có phiên đang mở).
+        // Trang chủ: hệ số cho sản phẩm người dùng CHỈ mới xem (chưa giỏ/yêu thích/mua) để ưu tiên khám phá
+        // mẫu mới; 1 = tắt. Giá trị được chọn bằng thực nghiệm (xem docs/KET_QUA_THUC_NGHIEM.md).
+        viewedOnlyFactor: 0.9,
         liveSessionMinutes: 30,
         liveSessionWeight: 0.3,
         groupWeights: { type: 3, category: 1.5, gender: 2.5, color: 1.5, style: 1.5, material: 1, fit: 0.75, brand: 0.75, price: 1 }
@@ -906,8 +909,14 @@
             return {
                 user: user, context: context, candidates: candidates, normalized: norm, available: available,
                 positives: me ? me.positives : 0, taste: cb.taste, ucf: ucf, icf: icf, session: session,
-                gate: gate, genderProfile: gp, liveSession: liveSession
+                gate: gate, genderProfile: gp, liveSession: liveSession,
+                viewedOnly: viewedOnlySet(me)
             };
+        }
+        function viewedOnlySet(me) {
+            var out = new Set();
+            if (me) me.items.forEach(function (e, id) { if (e.strongest === 'view' && !e.purchased) out.add(id); });
+            return out;
         }
         function filterTo(map, candidates) {
             var out = new Map();
@@ -929,6 +938,7 @@
                     if (v) { parts[k] = w[k] * v; score += parts[k]; }
                 });
                 var g = comp.gate ? comp.gate.get(id) : undefined;
+                if (comp.context === 'home' && opts.viewedOnlyFactor < 1 && comp.viewedOnly && comp.viewedOnly.has(id)) g = (g === undefined ? 1 : g) * opts.viewedOnlyFactor;
                 if (g !== undefined) {
                     score *= g;
                     keys.forEach(function (k) { if (parts[k]) parts[k] *= g; });

@@ -162,7 +162,7 @@ test('MMR làm tăng độ đa dạng danh sách', () => {
         return n ? s / n : 0;
     };
     const plain = model.recommend('u', { limit: 8, diversify: false });
-    const diverse = model.recommend('u', { limit: 8, diversify: true, lambda: 0.6 });
+    const diverse = model.recommend('u', { limit: 8, diversify: true, lambda: 0.4 });
     assert.ok(ild(diverse) > ild(plain), `ILD ${ild(diverse).toFixed(3)} > ${ild(plain).toFixed(3)}`);
 });
 

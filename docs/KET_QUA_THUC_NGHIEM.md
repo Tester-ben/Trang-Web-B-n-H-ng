@@ -1,6 +1,6 @@
 # Kết quả thực nghiệm hệ gợi ý — THE STYLE HUB
 
-> Tự động sinh bởi `npm run evaluate` lúc 2026-11-06T05:00:20.187Z. Không sửa tay — chạy lại lệnh để cập nhật.
+> Tự động sinh bởi `npm run evaluate` lúc 2026-11-06T05:29:27.174Z. Không sửa tay — chạy lại lệnh để cập nhật.
 
 **Nguồn dữ liệu: MÔ PHỎNG** (600 người dùng × 197 sản phẩm thật, 120 ngày, 3 seed, ρ = 0.5). Dữ liệu được sinh bởi `evaluation/simulate.js` theo mô hình độ hữu dụng có cả phần thuộc tính (content) và phần "gu cụm" ẩn (collaborative). Kết quả chứng minh cài đặt đúng và so sánh tương đối giữa thuật toán **dưới giả định của bộ mô phỏng**; cần đánh giá lại trên dữ liệu thật bằng `npm run evaluate -- --data=server`.
 
@@ -16,20 +16,20 @@
 | Thuật toán | P@5 (%) | R@5 (%) | NDCG@5 | P@10 (%) | R@10 (%) | NDCG@10 | HR@10 (%) | MRR@10 | Coverage@10 (%) | ILD@10 | Novelty@10 |
 |---|---|---|---|---|---|---|---|---|---|---|---|
 | Ngẫu nhiên | 0.65 | 1.95 | 0.013 | 0.88 | 5.30 | **0.025** ± 0.007 | 8.78 | 0.022 | 100.00 | 0.816 | 4.57 |
-| Phổ biến (Popularity) | 6.82 | 23.33 | 0.162 | 5.71 | 38.64 | **0.216** ± 0.059 | 50.77 | 0.191 | 15.74 | 0.792 | 2.85 |
+| Phổ biến (Popularity) | 6.58 | 22.44 | 0.157 | 5.55 | 37.65 | **0.210** ± 0.057 | 49.40 | 0.187 | 15.74 | 0.793 | 2.85 |
 | Thuật toán cũ (v1) | 3.20 | 11.40 | 0.078 | 2.51 | 16.74 | **0.098** ± 0.005 | 23.64 | 0.092 | 83.42 | 0.443 | 4.36 |
-| Content-based (TF-IDF) | 4.66 | 16.62 | 0.121 | 4.15 | 27.83 | **0.161** ± 0.012 | 36.55 | 0.149 | 87.14 | 0.383 | 4.34 |
-| Xem gần đây (session) | 5.08 | 16.97 | 0.121 | 4.27 | 28.39 | **0.162** ± 0.009 | 37.85 | 0.146 | 95.77 | 0.391 | 4.17 |
-| User-based CF (k-NN) | 10.25 | 35.15 | 0.279 | 7.45 | 49.30 | **0.330** ± 0.044 | 61.79 | 0.322 | 54.48 | 0.755 | 3.31 |
-| Item-based CF (k-NN) | 7.76 | 26.79 | 0.180 | 6.39 | 43.46 | **0.240** ± 0.027 | 55.09 | 0.206 | 54.31 | 0.748 | 3.36 |
-| Matrix Factorization (BPR) | 9.79 | 33.96 | 0.254 | 7.09 | 48.43 | **0.306** ± 0.044 | 60.77 | 0.286 | 67.17 | 0.745 | 3.42 |
-| Hybrid v2 (trọng số ban đầu) | 8.94 | 30.23 | 0.240 | 6.56 | 44.13 | **0.290** ± 0.029 | 56.34 | 0.285 | 85.11 | 0.534 | 3.74 |
-| Hybrid v2 (tinh chỉnh) | 10.80 | 37.55 | 0.285 | 7.54 | 51.12 | **0.334** ± 0.037 | 64.37 | 0.322 | 55.67 | 0.734 | 3.29 |
-| Hybrid v2 (tinh chỉnh) + MMR | 10.25 | 35.18 | 0.276 | 6.86 | 46.25 | **0.315** ± 0.040 | 59.08 | 0.312 | 54.82 | 0.812 | 3.32 |
+| Content-based (TF-IDF) | 4.40 | 15.75 | 0.119 | 3.96 | 26.79 | **0.159** ± 0.015 | 35.13 | 0.149 | 87.48 | 0.391 | 4.36 |
+| Xem gần đây (session) | 3.24 | 11.01 | 0.068 | 2.92 | 19.48 | **0.098** ± 0.004 | 26.90 | 0.082 | 93.91 | 0.417 | 4.25 |
+| User-based CF (k-NN) | 10.20 | 34.92 | 0.278 | 7.41 | 48.98 | **0.329** ± 0.045 | 61.35 | 0.321 | 53.98 | 0.754 | 3.31 |
+| Item-based CF (k-NN) | 7.50 | 25.73 | 0.176 | 6.39 | 43.13 | **0.238** ± 0.033 | 54.43 | 0.203 | 53.98 | 0.748 | 3.36 |
+| Matrix Factorization (BPR) | 9.43 | 33.02 | 0.243 | 6.89 | 47.20 | **0.295** ± 0.043 | 60.30 | 0.275 | 66.67 | 0.746 | 3.42 |
+| Hybrid v2 (trọng số ban đầu) | 7.67 | 25.84 | 0.202 | 5.82 | 39.92 | **0.251** ± 0.033 | 51.71 | 0.246 | 84.77 | 0.531 | 3.77 |
+| Hybrid v2 (tinh chỉnh) | 10.59 | 36.78 | 0.284 | 7.56 | 51.25 | **0.335** ± 0.037 | 64.38 | 0.324 | 53.81 | 0.743 | 3.29 |
+| Hybrid v2 (tinh chỉnh) + MMR | 9.99 | 34.24 | 0.273 | 6.76 | 46.13 | **0.316** ± 0.041 | 59.77 | 0.316 | 52.96 | 0.796 | 3.31 |
 
 Số người dùng được đánh giá mỗi seed: 147, 151, 133. Lưu ý: "Thuật toán cũ (v1)" ở đây được đánh giá trong điều kiện **có lợi** — nó được thấy hành vi của toàn bộ người dùng như thể cùng một trình duyệt; trong website cũ, nó chỉ thấy các tài khoản trên cùng trình duyệt (xem mục 7).
 
-**So với thuật toán cũ:** NDCG@10 0.098 → 0.334 (+241.6%), Recall@10 16.74% → 51.12%, HitRate@10 23.64% → 64.37%, độ đa dạng ILD@10 0.443 → 0.734. Đánh đổi: độ phủ danh mục Coverage@10 83.42% → 55.67% (bản cũ phủ rộng vì gần như chỉ dựa vào nội dung nhưng độ chính xác thấp).
+**So với thuật toán cũ:** NDCG@10 0.098 → 0.335 (+242.7%), Recall@10 16.74% → 51.25%, HitRate@10 23.64% → 64.38%, độ đa dạng ILD@10 0.443 → 0.743. Đánh đổi: độ phủ danh mục Coverage@10 83.42% → 53.81% (bản cũ phủ rộng vì gần như chỉ dựa vào nội dung nhưng độ chính xác thấp).
 
 Hybrid tinh chỉnh **ngang bằng** thành phần đơn lẻ tốt nhất ở cấu hình mặc định (khác biệt không có ý nghĩa thống kê, xem bảng dưới); lợi thế của hybrid nằm ở **độ bền** khi bản chất dữ liệu thay đổi (mục 6), khi ít người dùng (mục 7) và với người dùng mới (mục 4). Trọng số giữa các thành phần cộng tác (ucf/icf/mf) dao động giữa các seed vì chúng mang thông tin tương tự nhau (đa cộng tuyến); tổng trọng số nhóm cộng tác luôn chiếm phần lớn.
 
@@ -37,18 +37,18 @@ Hybrid tinh chỉnh **ngang bằng** thành phần đơn lẻ tốt nhất ở c
 
 | So sánh | Chênh lệch TB NDCG@10 | p-value |
 |---|---|---|
-| Hybrid v2 (tinh chỉnh) vs User-based CF (k-NN) (đơn lẻ tốt nhất) | +0.0039 | 0.5517 |
-| Hybrid v2 (tinh chỉnh) vs Thuật toán cũ (v1) | +0.2349 | < 0.001 |
-| Hybrid v2 (tinh chỉnh) vs Hybrid v2 (trọng số ban đầu) | +0.0440 | < 0.001 |
+| Hybrid v2 (tinh chỉnh) vs User-based CF (k-NN) (đơn lẻ tốt nhất) | +0.0066 | 0.3093 |
+| Hybrid v2 (tinh chỉnh) vs Thuật toán cũ (v1) | +0.2360 | < 0.001 |
+| Hybrid v2 (tinh chỉnh) vs Hybrid v2 (trọng số ban đầu) | +0.0837 | < 0.001 |
 
 ### Trọng số hybrid sau tinh chỉnh (theo từng seed) và giá trị mặc định đưa vào engine
 
 | Seed | session | cb | ucf | icf | mf | pop | NDCG@10 (validation) |
 |---|---|---|---|---|---|---|---|
-| 1 | 0.05 | 0.00 | 0.45 | 0.05 | 0.35 | 0.10 | 0.377 |
-| 2 | 0.10 | 0.00 | 0.45 | 0.00 | 0.45 | 0.00 | 0.368 |
+| 1 | 0.00 | 0.00 | 0.75 | 0.00 | 0.25 | 0.00 | 0.374 |
+| 2 | 0.00 | 0.00 | 0.40 | 0.00 | 0.60 | 0.00 | 0.358 |
 | 3 | 0.00 | 0.20 | 0.20 | 0.20 | 0.00 | 0.40 | 0.377 |
-| **Mặc định người dùng cũ (trung bình)** | 0.05 | 0.07 | 0.37 | 0.08 | 0.27 | 0.17 | |
+| **Mặc định người dùng cũ (trung bình)** | 0.00 | 0.07 | 0.45 | 0.07 | 0.28 | 0.13 | |
 | cold-start seed 1 | 0.00 | 0.00 | 0.50 | 0.20 | 0.30 | 0.00 | 0.327 |
 | cold-start seed 2 | 0.00 | 0.25 | 0.15 | 0.00 | 0.00 | 0.60 | 0.289 |
 | cold-start seed 3 | 0.00 | 0.00 | 0.80 | 0.10 | 0.10 | 0.00 | 0.376 |
@@ -60,12 +60,12 @@ Ký hiệu: session = tương tự sản phẩm vừa xem, cb = content-based, u
 
 | λ | NDCG@10 | ILD@10 | Coverage@10 (%) |
 |---|---|---|---|
-| 1 | 0.377 | 0.743 | 58.88 |
-| 0.9 | 0.370 | 0.773 | 57.87 |
-| 0.8 | 0.370 | 0.802 | 57.36 |
-| 0.7 (chọn) | 0.373 | 0.822 | 58.88 |
-| 0.6 | 0.357 | 0.844 | 59.39 |
-| 0.5 | 0.346 | 0.862 | 57.36 |
+| 1 | 0.367 | 0.753 | 56.35 |
+| 0.9 | 0.364 | 0.781 | 57.87 |
+| 0.8 (chọn) | 0.363 | 0.807 | 60.41 |
+| 0.7 | 0.356 | 0.829 | 60.91 |
+| 0.6 | 0.342 | 0.851 | 60.41 |
+| 0.5 | 0.336 | 0.866 | 60.91 |
 
 Quy tắc chọn: λ cho độ đa dạng cao nhất mà NDCG@10 giảm không quá 2% so với λ = 1.
 
@@ -75,11 +75,11 @@ Quy tắc chọn: λ cho độ đa dạng cao nhất mà NDCG@10 giảm không q
 |---|---|---|---|
 | Phổ biến (Popularity) | 0.162 | 44.41 | 27.92 |
 | Thuật toán cũ (v1) | 0.059 | 16.09 | 11.22 |
-| Content-based (không quiz) | 0.187 | 43.62 | 28.15 |
-| Content-based + quiz Style DNA | 0.144 | 32.05 | 23.49 |
-| Hybrid (trọng số người dùng cũ, không switching) | 0.205 | 50.94 | 32.81 |
-| Hybrid switching (không quiz) | 0.204 | 51.02 | 32.71 |
-| Hybrid switching + quiz Style DNA | 0.241 | 56.78 | 38.97 |
+| Content-based (không quiz) | 0.175 | 43.62 | 28.15 |
+| Content-based + quiz Style DNA | 0.140 | 31.52 | 22.96 |
+| Hybrid (trọng số người dùng cũ, không switching) | 0.201 | 51.49 | 33.23 |
+| Hybrid switching (không quiz) | 0.203 | 51.02 | 32.71 |
+| Hybrid switching + quiz Style DNA | 0.242 | 56.25 | 38.79 |
 
 Giao thức: chọn ngẫu nhiên 30% người dùng có mục tiêu trong cửa sổ test, cắt lịch sử của họ còn 0 hoặc 2 sự kiện đầu tiên rồi huấn luyện lại. Số người dùng mới được đánh giá mỗi seed: 66, 63, 57. Câu trả lời quiz mô phỏng có nhiễu 20%. "Switching" = người dùng ≤ 2 tương tác dùng bộ trọng số cold-start tinh chỉnh riêng trên validation.
 
@@ -87,18 +87,29 @@ Giao thức: chọn ngẫu nhiên 30% người dùng có mục tiêu trong cửa
 
 | Cấu hình | NDCG@10 | Recall@10 (%) |
 |---|---|---|
-| Hybrid v2 — có điều chỉnh theo cảm xúc (μ = 0.3) | 0.334 | 51.12 |
-| Hybrid v2 — chỉ dùng số sao (μ = 0) | 0.332 | 51.09 |
+| Hybrid v2 — có điều chỉnh theo cảm xúc (μ = 0.3) | 0.335 | 51.25 |
+| Hybrid v2 — chỉ dùng số sao (μ = 0) | 0.328 | 50.70 |
+
+### Ablation: hệ số cho sản phẩm người dùng chỉ mới xem (trang chủ)
+
+| Hệ số | NDCG@10 | Coverage@10 (%) | Novelty@10 |
+|---|---|---|---|
+| 1 | 0.333 | 53.30 | 3.29 |
+| 0.9 (mặc định) | 0.335 | 53.81 | 3.29 |
+| 0.8 | 0.324 | 54.48 | 3.29 |
+| 0.7 | 0.322 | 54.65 | 3.30 |
+
+Mục đích trải nghiệm: không lặp lại đúng những mẫu khách vừa xem khi điểm gần bằng nhau. Chọn hệ số lớn nhất không làm giảm NDCG@10 đáng kể.
 
 ## 6. Độ nhạy theo cơ chế sinh dữ liệu (ρ = tỉ trọng "gu cụm" ẩn; seed 1)
 
 | ρ | Phổ biến | Thuật toán cũ (v1) | Content-based | User-based CF | Item-based CF | BPR | Hybrid v2 (trọng số mặc định) | Hybrid v2 (tinh chỉnh theo ρ) |
 |---|---|---|---|---|---|---|---|---|
-| 0 | 0.144 | 0.130 | 0.171 | 0.257 | 0.186 | 0.208 | 0.260 | 0.250 |
-| 0.25 | 0.263 | 0.128 | 0.163 | 0.345 | 0.254 | 0.322 | 0.353 | 0.341 |
-| 0.5 | 0.223 | 0.100 | 0.149 | 0.331 | 0.231 | 0.273 | 0.334 | 0.335 |
-| 0.75 | 0.218 | 0.114 | 0.145 | 0.445 | 0.337 | 0.411 | 0.434 | 0.440 |
-| 1 | 0.193 | 0.103 | 0.088 | 0.439 | 0.346 | 0.368 | 0.427 | 0.439 |
+| 0 | 0.143 | 0.130 | 0.156 | 0.254 | 0.180 | 0.202 | 0.248 | 0.227 |
+| 0.25 | 0.261 | 0.128 | 0.154 | 0.338 | 0.242 | 0.302 | 0.337 | 0.317 |
+| 0.5 | 0.216 | 0.100 | 0.149 | 0.331 | 0.231 | 0.266 | 0.336 | 0.338 |
+| 0.75 | 0.216 | 0.114 | 0.141 | 0.440 | 0.322 | 0.391 | 0.434 | 0.430 |
+| 1 | 0.189 | 0.103 | 0.088 | 0.436 | 0.345 | 0.370 | 0.440 | 0.436 |
 
 Giá trị là NDCG@10. ρ = 0: sở thích hoàn toàn giải thích được bằng thuộc tính (Content-based có lợi); ρ = 1: chỉ có tương quan ẩn giữa người dùng (Collaborative có lợi).
 
@@ -106,9 +117,9 @@ Trọng số tối ưu tìm được cho từng ρ (cho thấy hỗn hợp tối
 
 | ρ | session | cb | ucf | icf | mf | pop |
 |---|---|---|---|---|---|---|
-| 0 | 0.10 | 0.10 | 0.20 | 0.00 | 0.60 | 0.00 |
+| 0 | 0.00 | 0.10 | 0.05 | 0.00 | 0.75 | 0.10 |
 | 0.25 | 0.00 | 0.10 | 0.15 | 0.00 | 0.75 | 0.00 |
-| 0.5 | 0.05 | 0.00 | 0.45 | 0.05 | 0.35 | 0.10 |
+| 0.5 | 0.00 | 0.00 | 0.75 | 0.00 | 0.25 | 0.00 |
 | 0.75 | 0.00 | 0.20 | 0.60 | 0.00 | 0.20 | 0.00 |
 | 1 | 0.00 | 0.00 | 1.00 | 0.00 | 0.00 | 0.00 |
 
@@ -118,10 +129,10 @@ Trọng số tối ưu tìm được cho từng ρ (cho thấy hỗn hợp tối
 |---|---|---|---|---|---|
 | 3 | 0 | n/a | n/a | n/a | n/a |
 | 10 | 0 | n/a | n/a | n/a | n/a |
-| 50 | 9 | 0.094 | 0.155 | 0.111 | 0.115 |
-| 150 | 30 | 0.093 | 0.156 | 0.261 | 0.279 |
-| 300 | 75 | 0.123 | 0.151 | 0.352 | 0.373 |
-| 600 | 147 | 0.100 | 0.149 | 0.331 | 0.334 |
+| 50 | 9 | 0.094 | 0.153 | 0.113 | 0.109 |
+| 150 | 30 | 0.093 | 0.170 | 0.257 | 0.271 |
+| 300 | 75 | 0.123 | 0.158 | 0.349 | 0.366 |
+| 600 | 147 | 0.100 | 0.149 | 0.331 | 0.336 |
 
 Giá trị là NDCG@10 trên test. Bản cũ chỉ thấy các tài khoản trên **cùng một trình duyệt** (thường 1–3 người) nên phần cộng tác gần như không hoạt động; backend mới gom hành vi của mọi người dùng.
 
