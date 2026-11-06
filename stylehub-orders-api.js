@@ -500,8 +500,16 @@
         const totalText = cleanText(safeOrder.totalPriceFormatted || safeOrder.totalPrice || safeOrder.grandTotalFormatted || safeOrder.totalFormatted, calculateTotal(products));
         const statusText = cleanText(safeOrder.status || safeOrder.orderStatus, "Đang chờ xác nhận");
         const statusKey = cleanText(safeOrder.statusKey || safeOrder.status_key || safeOrder.orderStatusKey, getStatusKeyFromText(statusText));
+        // Giữ email TÀI KHOẢN đặt đơn (userEmail bên dưới là email giao hàng). Dùng để truy vấn đơn theo tài khoản.
+        const accountEmail = firstText([
+            safeOrder.accountEmail,
+            safeOrder.userInfo && safeOrder.userInfo.accountEmail,
+            safeOrder.userEmail,
+            safeOrder.customerEmail
+        ], "").toLowerCase();
 
         return Object.assign({}, safeOrder, {
+            accountEmail: accountEmail,
             orderId: orderId,
             createdAt: createdAt,
             updatedAt: updatedAt,
@@ -693,6 +701,8 @@
         return merged;
     }
 
+    // CHỈ DÀNH CHO TRANG ADMIN: tải toàn bộ đơn của mọi khách hàng.
+    // Trang khách hàng phải dùng getOrdersByEmail để không tải thông tin cá nhân của người khác.
     async function getAllOrders() {
         let all = getAllLocalOrders();
         if (initFirebase()) {
@@ -710,11 +720,49 @@
         return String(normalized.userEmail || normalized.customerEmail || normalized.shippingEmail || "").trim().toLowerCase();
     }
 
+    // Các trường dùng để truy vấn đơn theo email. Cần ".indexOn" tương ứng trong firebase.database.rules.json,
+    // nếu không Firebase SDK sẽ tải cả nút rồi lọc ở trình duyệt.
+    const ORDER_EMAIL_QUERY_FIELDS = ["userEmail", "accountEmail"];
+
+    function orderBelongsToEmail(order, targetEmail) {
+        if (!order || !targetEmail) return false;
+        const normalized = normalizeOrder(order);
+        return getOwnerEmail(normalized) === targetEmail ||
+            String(normalized.accountEmail || "").trim().toLowerCase() === targetEmail;
+    }
+
+    function getLocalOrdersForEmail(targetEmail) {
+        return getAllLocalOrders().filter(function (order) { return orderBelongsToEmail(order, targetEmail); });
+    }
+
+    function snapshotToOrders(snapshot) {
+        const value = (snapshot && snapshot.val()) || {};
+        return Object.keys(value).map(function (key) { return value[key]; });
+    }
+
+    async function queryCloudOrdersByEmail(targetEmail) {
+        if (!targetEmail || !initFirebase()) return [];
+        const results = await Promise.all(ORDER_EMAIL_QUERY_FIELDS.map(function (field) {
+            return firebaseDatabase.ref(DB_ROOT).orderByChild(field).equalTo(targetEmail).once("value")
+                .then(snapshotToOrders)
+                .catch(function (error) {
+                    console.warn("Không truy vấn được đơn hàng theo " + field + ":", error);
+                    return [];
+                });
+        }));
+        return results.reduce(function (all, list) { return all.concat(list); }, []);
+    }
+
+    // Chỉ lấy đơn của đúng email: truy vấn Firebase theo email + đơn lưu trên máy này.
+    // Không bao giờ tải toàn bộ đơn hàng của khách khác.
     async function getOrdersByEmail(email) {
         const targetEmail = String(email || "").trim().toLowerCase();
         if (!targetEmail) return [];
-        const allOrders = await getAllOrders();
-        return allOrders.filter(function (order) { return getOwnerEmail(order) === targetEmail; });
+        const cloudOrders = await queryCloudOrdersByEmail(targetEmail);
+        const orders = uniqueAndSort(getLocalOrdersForEmail(targetEmail).concat(cloudOrders))
+            .filter(function (order) { return orderBelongsToEmail(order, targetEmail); });
+        syncStockDeductionsFromOrders(orders);
+        return orders;
     }
 
     async function updateOrderDetails(orderId, extraPatch) {
@@ -751,7 +799,46 @@
         }
     }
 
-    function onOrdersChanged(callback) {
+    const scopedRealtimeEmails = {};
+
+    // Lắng nghe realtime CHỈ các đơn của một email (trang tài khoản khách hàng).
+    function onOrdersChangedForEmail(callback, targetEmail) {
+        if (initFirebase()) {
+            if (scopedRealtimeEmails[targetEmail]) return;
+            scopedRealtimeEmails[targetEmail] = true;
+            const cloudByField = {};
+            const emit = function () {
+                let cloudOrders = [];
+                Object.keys(cloudByField).forEach(function (field) { cloudOrders = cloudOrders.concat(cloudByField[field]); });
+                const orders = uniqueAndSort(getLocalOrdersForEmail(targetEmail).concat(cloudOrders))
+                    .filter(function (order) { return orderBelongsToEmail(order, targetEmail); });
+                syncStockDeductionsFromOrders(orders);
+                callback(orders);
+            };
+            ORDER_EMAIL_QUERY_FIELDS.forEach(function (field) {
+                firebaseDatabase.ref(DB_ROOT).orderByChild(field).equalTo(targetEmail).on("value", function (snapshot) {
+                    cloudByField[field] = snapshotToOrders(snapshot);
+                    emit();
+                }, function (error) {
+                    console.warn("Không lắng nghe được đơn hàng theo " + field + ":", error);
+                });
+            });
+        } else {
+            window.addEventListener("storage", function (event) {
+                if (event.key && event.key.indexOf("hub_orders") === 0) {
+                    getOrdersByEmail(targetEmail).then(callback);
+                }
+            });
+        }
+    }
+
+    // options.email: chỉ theo dõi đơn của email đó (trang khách hàng). Không có options => toàn bộ (trang admin).
+    function onOrdersChanged(callback, options) {
+        const scopedEmail = options && options.email ? String(options.email).trim().toLowerCase() : "";
+        if (scopedEmail) {
+            onOrdersChangedForEmail(callback, scopedEmail);
+            return;
+        }
         if (initFirebase()) {
             if (realtimeAttached) return;
             realtimeAttached = true;

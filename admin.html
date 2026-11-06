@@ -357,6 +357,10 @@
         .login-card input:focus { border-color: #60a5fa; box-shadow: 0 0 0 3px rgba(96,165,250,.12); }
         .login-card button { width: 100%; padding: 14px; border: none; border-radius: 12px; background: linear-gradient(135deg, #e0f2fe, #93c5fd); color: #0f172a; font-weight: 900; letter-spacing: 2px; text-transform: uppercase; cursor: pointer; }
         .login-error { min-height: 20px; color: #fb7185; font-size: 13px; margin-top: 12px; text-align: center; }
+        .login-mode-note { margin-top: 10px; padding: 10px 12px; border-radius: 10px; font-size: 12px; line-height: 1.5; text-align: center; color: #cbd5e1; background: rgba(148, 163, 184, .1); border: 1px solid rgba(148, 163, 184, .22); }
+        .login-mode-note.is-static { color: #fde68a; background: rgba(245, 158, 11, .1); border-color: rgba(245, 158, 11, .35); }
+        .login-mode-note.is-server { color: #bbf7d0; background: rgba(34, 197, 94, .1); border-color: rgba(34, 197, 94, .35); }
+        .login-card button:disabled { opacity: .6; cursor: wait; }
 
         .support-layout {
             display: grid;
@@ -492,10 +496,12 @@
 <section id="login-screen">
     <div class="login-card">
         <h2>Admin Login</h2>
-        <p>Nhập mật khẩu admin để vào trang quản lý cửa hàng.</p>
+        <p id="adminLoginIntro">Nhập mật khẩu admin để vào trang quản lý cửa hàng.</p>
+        <input type="email" id="adminEmail" placeholder="Email quản trị" autocomplete="username" style="display:none;">
         <input type="password" id="adminPassword" placeholder="Mật khẩu admin" autocomplete="current-password">
-        <button onclick="loginAdmin()">Đăng nhập</button>
+        <button id="adminLoginButton" onclick="loginAdmin()">Đăng nhập</button>
         <div class="login-error" id="loginError"></div>
+        <div class="login-mode-note" id="adminModeNote" role="note">Đang kiểm tra máy chủ...</div>
     </div>
 </section>
 
@@ -687,12 +693,25 @@
     </div>
 </section>
 
+<script src="stylehub-crypto.js"></script>
 <script src="product-data.js?v=admin-dashboard-20260630-stock-sync"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-database-compat.js"></script>
 <script src="stylehub-orders-api.js?v=stock-cloud-sync-20260630"></script>
 <script>
-    const ADMIN_PASSWORD = "admin123";
+    /* ĐĂNG NHẬP ADMIN
+       - Có backend (GET /api/health trả {ok:true}): đăng nhập email + mật khẩu qua POST /api/auth/login,
+         chỉ chấp nhận user.role === 'admin', token lưu ở sessionStorage 'stylehub_admin_token'.
+       - Không có backend (web tĩnh): chế độ DEMO. Mật khẩu demo (xem README) chỉ được so với bản băm
+         PBKDF2-HMAC-SHA256 dưới đây, không còn mật khẩu dạng chữ trong mã nguồn. Kiểm tra phía trình duyệt
+         KHÔNG phải bảo mật thật, chỉ dùng để trình diễn. */
+    const STATIC_DEMO_ADMIN_HASH = "pbkdf2-sha256$60000$27f9e771e52cac2714c8e440fd41591a$8add9b61b44334369dbd0f92b74ae09ca4118a7233c1ea7ea8f7061db5188668";
+    const ADMIN_API_BASE = String((typeof window.STYLEHUB_API_BASE === 'string' && window.STYLEHUB_API_BASE) || '').replace(/\/+$/, '');
+    const ADMIN_TOKEN_KEY = 'stylehub_admin_token';
+    const ADMIN_MODE_KEY = 'stylehub_admin_mode';
+    let adminAuthMode = 'detecting'; // 'server' | 'static'
+    let adminBackendProbe = null;
+    let adminLoginBusy = false;
     const CUSTOM_PRODUCTS_KEY = "stylehub_admin_products_v1";
     const INVENTORY_KEY = "stylehub_inventory_v1";
     let adminRealtimeStarted = false;
@@ -716,27 +735,190 @@
         measurementId: "G-Y53W16W4W3"
     };
 
-    function loginAdmin() {
-        const passwordInput = document.getElementById('adminPassword');
-        const errorBox = document.getElementById('loginError');
-        const password = passwordInput.value.trim();
-        if (password === ADMIN_PASSWORD) {
-            sessionStorage.setItem('stylehub_admin_logged_in', 'true');
-            errorBox.textContent = '';
-            showAdminScreen();
-        } else {
-            errorBox.textContent = 'Sai mật khẩu admin. Vui lòng nhập lại.';
-            passwordInput.value = '';
-            passwordInput.focus();
+    function fetchWithTimeout(url, options, timeoutMs) {
+        const controller = typeof AbortController !== 'undefined' ? new AbortController() : null;
+        const timer = setTimeout(function() { if (controller) controller.abort(); }, timeoutMs || 1500);
+        const finalOptions = Object.assign({ cache: 'no-store' }, options || {}, controller ? { signal: controller.signal } : {});
+        return fetch(url, finalOptions).finally(function() { clearTimeout(timer); });
+    }
+
+    // true nếu backend StyleHub đang chạy (GET /api/health trả JSON {ok:true}).
+    function detectAdminBackend() {
+        if (adminBackendProbe) return adminBackendProbe;
+        adminBackendProbe = (async function() {
+            if (typeof fetch !== 'function' || location.protocol === 'file:') return false;
+            try {
+                const response = await fetchWithTimeout(ADMIN_API_BASE + '/api/health', { headers: { 'Accept': 'application/json' } }, 1500);
+                if (!response.ok) return false;
+                const data = await response.json();
+                return !!(data && data.ok === true);
+            } catch (error) {
+                return false;
+            }
+        })();
+        return adminBackendProbe;
+    }
+
+    function applyAdminAuthModeUI() {
+        const emailInput = document.getElementById('adminEmail');
+        const intro = document.getElementById('adminLoginIntro');
+        const note = document.getElementById('adminModeNote');
+        const isServer = adminAuthMode === 'server';
+        if (emailInput) emailInput.style.display = isServer ? 'block' : 'none';
+        if (intro) intro.textContent = isServer
+            ? 'Đăng nhập bằng tài khoản quản trị (role admin) trên máy chủ StyleHub.'
+            : 'Nhập mật khẩu admin để vào trang quản lý cửa hàng.';
+        if (note) {
+            note.classList.toggle('is-server', isServer);
+            note.classList.toggle('is-static', adminAuthMode === 'static');
+            note.textContent = isServer
+                ? 'Chế độ máy chủ: mật khẩu được kiểm tra trên backend.'
+                : adminAuthMode === 'static'
+                    ? 'Chế độ demo tĩnh: mật khẩu chỉ được so với bản băm trong trình duyệt, KHÔNG phải bảo mật thật. Chạy backend để đăng nhập an toàn.'
+                    : 'Đang kiểm tra máy chủ...';
         }
     }
 
-    function logoutAdmin() {
+    async function resolveAdminAuthMode() {
+        if (adminAuthMode === 'detecting') {
+            adminAuthMode = (await detectAdminBackend()) ? 'server' : 'static';
+            applyAdminAuthModeUI();
+        }
+        return adminAuthMode;
+    }
+
+    function getAdminToken() {
+        return sessionStorage.getItem(ADMIN_TOKEN_KEY) || '';
+    }
+
+    function clearAdminSession() {
         sessionStorage.removeItem('stylehub_admin_logged_in');
+        sessionStorage.removeItem(ADMIN_TOKEN_KEY);
+        sessionStorage.removeItem(ADMIN_MODE_KEY);
+    }
+
+    function setAdminLoginBusy(busy) {
+        adminLoginBusy = busy;
+        const button = document.getElementById('adminLoginButton');
+        if (button) {
+            button.disabled = busy;
+            button.textContent = busy ? 'Đang kiểm tra...' : 'Đăng nhập';
+        }
+    }
+
+    async function loginWithServer(email, password) {
+        const response = await fetchWithTimeout(ADMIN_API_BASE + '/api/auth/login', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+            body: JSON.stringify({ email: email, password: password })
+        }, 8000);
+        let data = null;
+        try { data = await response.json(); } catch (error) { data = null; }
+        if (!response.ok || !data || data.ok !== true || !data.token || !data.user) {
+            return { ok: false, message: (data && data.message) || 'Email hoặc mật khẩu không đúng.' };
+        }
+        if (data.user.role !== 'admin') return { ok: false, message: 'Tài khoản này không có quyền quản trị.' };
+        return { ok: true, token: String(data.token) };
+    }
+
+    async function loginAdmin() {
+        if (adminLoginBusy) return;
+        const passwordInput = document.getElementById('adminPassword');
+        const emailInput = document.getElementById('adminEmail');
+        const errorBox = document.getElementById('loginError');
+        setAdminLoginBusy(true);
+        try {
+            const mode = await resolveAdminAuthMode();
+            if (mode === 'server') {
+                const email = String(emailInput.value || '').trim().toLowerCase();
+                const password = String(passwordInput.value || '');
+                if (!email || !password) {
+                    errorBox.textContent = 'Vui lòng nhập email và mật khẩu quản trị.';
+                    return;
+                }
+                const result = await loginWithServer(email, password);
+                if (!result.ok) {
+                    errorBox.textContent = result.message;
+                    passwordInput.value = '';
+                    passwordInput.focus();
+                    return;
+                }
+                sessionStorage.setItem(ADMIN_TOKEN_KEY, result.token);
+                sessionStorage.setItem(ADMIN_MODE_KEY, 'server');
+                sessionStorage.setItem('stylehub_admin_logged_in', 'true');
+                errorBox.textContent = '';
+                passwordInput.value = '';
+                showAdminScreen();
+                return;
+            }
+
+            if (!window.StyleHubCrypto || typeof StyleHubCrypto.verifyPassword !== 'function') {
+                errorBox.textContent = 'Không tải được mô-đun bảo mật (stylehub-crypto.js). Vui lòng tải lại trang.';
+                return;
+            }
+            if (StyleHubCrypto.verifyPassword(String(passwordInput.value || '').trim(), STATIC_DEMO_ADMIN_HASH)) {
+                sessionStorage.setItem(ADMIN_MODE_KEY, 'static');
+                sessionStorage.removeItem(ADMIN_TOKEN_KEY);
+                sessionStorage.setItem('stylehub_admin_logged_in', 'true');
+                errorBox.textContent = '';
+                passwordInput.value = '';
+                showAdminScreen();
+            } else {
+                errorBox.textContent = 'Sai mật khẩu admin. Vui lòng nhập lại.';
+                passwordInput.value = '';
+                passwordInput.focus();
+            }
+        } catch (error) {
+            errorBox.textContent = 'Không đăng nhập được: ' + ((error && error.message) || 'lỗi kết nối máy chủ') + '.';
+        } finally {
+            setAdminLoginBusy(false);
+        }
+    }
+
+    // 'ok' | 'invalid' | 'unknown' (backend không có /api/auth/me hoặc lỗi mạng).
+    async function verifyAdminToken(token) {
+        if (!token) return 'invalid';
+        try {
+            const response = await fetchWithTimeout(ADMIN_API_BASE + '/api/auth/me', {
+                headers: { 'Accept': 'application/json', 'Authorization': 'Bearer ' + token }
+            }, 4000);
+            if (response.status === 401 || response.status === 403) return 'invalid';
+            if (!response.ok) return 'unknown';
+            const data = await response.json();
+            const user = data && (data.user || data);
+            return user && user.role === 'admin' ? 'ok' : 'invalid';
+        } catch (error) {
+            return 'unknown';
+        }
+    }
+
+    async function restoreAdminSession() {
+        await resolveAdminAuthMode();
+        const passwordField = document.getElementById('adminPassword');
+        const emailField = document.getElementById('adminEmail');
+        if (sessionStorage.getItem('stylehub_admin_logged_in') !== 'true') {
+            if (adminAuthMode === 'server' && emailField) emailField.focus();
+            else if (passwordField) passwordField.focus();
+            return;
+        }
+        if (adminAuthMode === 'server') {
+            // Phiên demo tĩnh không có giá trị khi backend đang chạy.
+            if (sessionStorage.getItem(ADMIN_MODE_KEY) !== 'server' || (await verifyAdminToken(getAdminToken())) === 'invalid') {
+                clearAdminSession();
+                if (emailField) emailField.focus();
+                return;
+            }
+        }
+        showAdminScreen();
+    }
+
+    function logoutAdmin() {
+        clearAdminSession();
         document.getElementById('admin-screen').style.display = 'none';
         document.getElementById('login-screen').style.display = 'flex';
         document.getElementById('adminPassword').value = '';
-        document.getElementById('adminPassword').focus();
+        if (adminAuthMode === 'server') document.getElementById('adminEmail').focus();
+        else document.getElementById('adminPassword').focus();
     }
 
     function showAdminScreen() {
@@ -771,6 +953,9 @@
 
     document.getElementById('adminPassword').addEventListener('keydown', function(event) {
         if (event.key === 'Enter') loginAdmin();
+    });
+    document.getElementById('adminEmail').addEventListener('keydown', function(event) {
+        if (event.key === 'Enter') document.getElementById('adminPassword').focus();
     });
 
     function showAdminConfirm(options) {
@@ -809,6 +994,13 @@
         return String(value === undefined || value === null ? '' : value)
             .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
             .replace(/"/g, '&quot;').replace(/'/g, '&#039;');
+    }
+
+    // Tham số cho thuộc tính onclick="fn(...)": chỉ escapeHtml là CHƯA đủ vì trình duyệt giải mã &#039;
+    // thành ' trước khi chạy JavaScript (mã đơn/ID chứa dấu nháy có thể chèn mã). JSON.stringify tạo
+    // chuỗi JS hợp lệ, escapeHtml bảo vệ ranh giới thuộc tính HTML.
+    function jsArg(value) {
+        return escapeHtml(JSON.stringify(String(value === undefined || value === null ? '' : value)));
     }
 
     function normalizeText(value) {
@@ -1198,10 +1390,10 @@
                     </div>
                     <div class="total-price">TỔNG CỘNG: ${escapeHtml(displayTotal)}</div>
                     <div class="btn-group">
-                        ${isPending ? `<button class="btn btn-confirm" onclick="confirmOrder('${escapeHtml(orderId)}')">Chấp nhận đơn</button>` : ''}
-                        ${isShipping ? `<button class="btn btn-complete" onclick="completeOrder('${escapeHtml(orderId)}')">Hoàn tất đơn</button>` : ''}
+                        ${isPending ? `<button class="btn btn-confirm" onclick="confirmOrder(${jsArg(orderId)})">Chấp nhận đơn</button>` : ''}
+                        ${isShipping ? `<button class="btn btn-complete" onclick="completeOrder(${jsArg(orderId)})">Hoàn tất đơn</button>` : ''}
                         ${isDone || isCancelled ? `<button class="btn btn-disabled" disabled>${isCancelled ? 'Đã hủy' : 'Đã hoàn tất'}</button>` : ''}
-                        <button class="btn btn-delete" onclick="removeOrder('${escapeHtml(orderId)}')">Xóa đơn</button>
+                        <button class="btn btn-delete" onclick="removeOrder(${jsArg(orderId)})">Xóa đơn</button>
                     </div>
                 </article>`;
         }).join('');
@@ -1384,8 +1576,8 @@
                     <div class="product-admin-price">${escapeHtml(item.price || formatMoney(item.priceNum || 0))}</div>
                     <div class="stock-row">
                         <input class="stock-input" id="stock-${escapeHtml(id)}" type="number" min="0" value="${escapeHtml(stock.stock)}" aria-label="Số lượng tồn kho">
-                        <button class="stock-btn" onclick="saveProductStock('${escapeHtml(id)}')">Lưu</button>
-                        <button class="stock-btn out" onclick="toggleOutOfStock('${escapeHtml(id)}')">${stock.status === 'out' ? 'Mở bán' : 'Hết hàng'}</button>
+                        <button class="stock-btn" onclick="saveProductStock(${jsArg(id)})">Lưu</button>
+                        <button class="stock-btn out" onclick="toggleOutOfStock(${jsArg(id)})">${stock.status === 'out' ? 'Mở bán' : 'Hết hàng'}</button>
                     </div>
                     <div class="stock-status-line"><span>Mã: ${escapeHtml(id)}</span><span class="stock-pill ${stock.status === 'out' ? 'out' : ''}">${stock.label} · ${stock.stock}</span></div>
                 </div>
@@ -1541,15 +1733,18 @@
         return Object.keys(messages).map(function(key) { return Object.assign({ id: key }, messages[key] || {}); }).sort(function(a, b) { return Number(a.createdAt || 0) - Number(b.createdAt || 0); });
     }
 
+    // Toàn bộ chuỗi phải là base64 hợp lệ: trước đây chỉ kiểm tra tiền tố nên ảnh chứa dấu " có thể thoát
+    // khỏi thuộc tính src/href và chèn mã (XSS vào trang admin).
     function isSafeSupportImage(value) {
-        return /^data:image\/(png|jpe?g|webp|gif);base64,/i.test(String(value || ''));
+        return /^data:image\/(png|jpe?g|webp|gif);base64,[a-z0-9+/]+=*$/i.test(String(value || ''));
     }
 
     function supportMessageContentHtml(msg) {
         const text = msg && msg.text ? `<div class="support-bubble-text">${escapeHtml(msg.text)}</div>` : '';
         const hasImage = msg && isSafeSupportImage(msg.imageData);
         const imageName = msg && msg.imageName ? msg.imageName : 'Ảnh khách gửi';
-        const image = hasImage ? `<a href="${msg.imageData}" target="_blank" rel="noopener"><img class="support-attachment-image" src="${msg.imageData}" alt="${escapeHtml(imageName)}"></a><span class="support-image-caption">${escapeHtml(imageName)} · bấm ảnh để xem lớn</span>` : '';
+        const safeImage = hasImage ? escapeHtml(msg.imageData) : '';
+        const image = hasImage ? `<a href="${safeImage}" target="_blank" rel="noopener"><img class="support-attachment-image" src="${safeImage}" alt="${escapeHtml(imageName)}"></a><span class="support-image-caption">${escapeHtml(imageName)} · bấm ảnh để xem lớn</span>` : '';
         return text + image || '<div class="support-bubble-text">Không có nội dung.</div>';
     }
 
@@ -1630,7 +1825,7 @@
         }
         if (!activeSupportConversationId || !rows.some(function(item) { return item.id === activeSupportConversationId; })) activeSupportConversationId = rows[0].id;
         list.innerHTML = rows.map(function(convo) {
-            return `<button class="support-conversation-card ${convo.id === activeSupportConversationId ? 'active' : ''}" onclick="openSupportConversation('${escapeHtml(convo.id)}')">
+            return `<button class="support-conversation-card ${convo.id === activeSupportConversationId ? 'active' : ''}" onclick="openSupportConversation(${jsArg(convo.id)})">
                 <div class="support-conversation-top"><span class="support-customer-name">${escapeHtml(convo.customerName)}</span><span class="support-time">${escapeHtml(supportTime(convo.updatedAt))}</span></div>
                 <span class="support-type">${escapeHtml(convo.type)}</span>
                 <div class="support-preview">${escapeHtml(convo.lastMessage || 'Chưa có nội dung')}</div>
@@ -1678,8 +1873,8 @@
                     </div>
                 </div>
                 <div class="support-thread-actions">
-                    <button class="admin-secondary-btn" onclick="markSupportResolved('${escapeHtml(convo.id)}')">Đánh dấu đã xử lý</button>
-                    <button class="admin-secondary-btn support-danger-btn" onclick="deleteSupportConversation('${escapeHtml(convo.id)}')">Xóa cuộc trò chuyện</button>
+                    <button class="admin-secondary-btn" onclick="markSupportResolved(${jsArg(convo.id)})">Đánh dấu đã xử lý</button>
+                    <button class="admin-secondary-btn support-danger-btn" onclick="deleteSupportConversation(${jsArg(convo.id)})">Xóa cuộc trò chuyện</button>
                 </div>
             </div>
             <div class="support-thread-body" id="supportThreadBody">
@@ -1688,7 +1883,7 @@
                     return `<div class="support-message-row ${fromAdmin ? 'admin' : 'customer'}">
                         <div class="support-bubble-wrap">
                             <div class="support-bubble"><span class="support-bubble-meta">${fromAdmin ? 'THE STYLE HUB' : escapeHtml(convo.customerName)} · ${escapeHtml(supportTime(msg.createdAt))}</span>${supportMessageContentHtml(msg)}</div>
-                            <button class="support-delete-message" title="Xóa tin nhắn này" onclick="deleteSupportMessage('${escapeHtml(convo.id)}','${escapeHtml(msg.id)}')">🗑</button>
+                            <button class="support-delete-message" title="Xóa tin nhắn này" onclick="deleteSupportMessage(${jsArg(convo.id)},${jsArg(msg.id)})">🗑</button>
                         </div>
                     </div>`;
                 }).join('') : '<div class="support-empty">Chưa có nội dung tin nhắn.</div>'}
@@ -1870,8 +2065,7 @@
         }).join('') : '<div class="empty-state">Chưa có dữ liệu khách hàng.</div>';
     }
 
-    if (sessionStorage.getItem('stylehub_admin_logged_in') === 'true') showAdminScreen();
-    else document.getElementById('adminPassword').focus();
+    restoreAdminSession();
 </script>
 </body>
 </html>
