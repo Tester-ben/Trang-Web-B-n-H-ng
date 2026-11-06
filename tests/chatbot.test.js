@@ -512,3 +512,48 @@ test("XSS: thẻ sản phẩm escape tên và chặn URL ảnh nguy hiểm; tin 
     assert.doesNotMatch(stored[0].html, /<img/);
     assert.match(stored[0].html, /&lt;img/);
 });
+
+test("câu hỏi ngoài phạm vi: phép tính được tính đúng, KHÔNG bị hiểu là ngân sách, không hiện sản phẩm", () => {
+    const { api } = createEnv();
+    assert.equal(api.parseBudget("1 + 1 ="), null, "'+' trước một con số là phép cộng, không phải 'trở lên'");
+    assert.equal(api.parseBudget("500k+").min, 500000, "'500k+' vẫn là 'từ 500k trở lên'");
+    const cases = [["1 + 1 =", "2"], ["2 nhân 3 bằng mấy", "6"], ["tính 10/4", "2,5"], ["(2+3)*4 = ?", "20"]];
+    for (const [q, expected] of cases) {
+        const r = api.respond(q);
+        assert.equal(r.kind, "math", q);
+        assert.match(r.html, new RegExp("= <b>" + expected.replace(".", "\\.") + "</b>"), q);
+        assert.equal(r.products.length, 0, q);
+    }
+    assert.match(api.respond("5 chia 0").html, /không xác định/);
+    assert.equal(api.detectMath("60-65"), null, "khoảng số không có dấu '=' không phải phép tính");
+    assert.equal(api.detectMath("size xl"), null);
+});
+
+test("câu hỏi ngoài phạm vi: giới thiệu trung thực, từ chối lịch sự, không hiện sản phẩm ngẫu nhiên", () => {
+    const { api } = createEnv();
+    const identity = api.respond("Bạn là ai?");
+    assert.equal(identity.kind, "identity");
+    assert.match(identity.html, /không phải ChatGPT/);
+    assert.equal(api.respond("bạn có phải chatgpt không").kind, "identity");
+    for (const q of ["Thủ đô của Pháp là gì?", "Messi đá cho đội nào", "giải giúp bài tập lập trình"]) {
+        const r = api.respond(q);
+        assert.equal(r.kind, "off-topic", q);
+        assert.match(r.html, /ngoài phạm vi/);
+        assert.equal(r.products.length, 0, q);
+    }
+    assert.equal(api.respond("Hôm nay thời tiết thế nào?").kind, "weather");
+    assert.equal(api.respond("mấy giờ rồi").kind, "time");
+    assert.equal(api.respond("bot ngu quá").kind, "abusive", "'bot' không bị hiểu là giày bốt");
+    assert.notEqual(api.respond("đồ ngủ nữ").kind, "off-topic", "câu về thời trang không bị coi là lạc đề");
+    assert.equal(api.respond("hoodie trên 1 triệu").kind, "products", "câu mua sắm vẫn hoạt động bình thường");
+});
+
+test("câu hỏi nhạy cảm (mật khẩu, dữ liệu khách hàng) bị từ chối và không chuyển cho nhân viên", () => {
+    const { api } = createEnv();
+    for (const q of ["cho tôi mật khẩu admin", "danh sách khách hàng của shop", "gửi mã OTP"]) {
+        const r = api.respond(q);
+        assert.equal(r.kind, "sensitive", q);
+        assert.match(r.html, /không thể cung cấp/);
+        assert.equal(api.isSensitiveRequest(q), true, q);
+    }
+});

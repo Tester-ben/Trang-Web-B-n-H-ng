@@ -29,7 +29,8 @@ Tài liệu này đối chiếu từng vấn đề nêu trong bản đánh giá 
 | 14 | `README_STATIC_DEMO.txt` ghi "đã gỡ Firebase", không đúng với mã thực tế | Viết lại cho đúng hiện trạng; thêm `README.md` đầy đủ | — |
 | 15 | `stylehub-ai-chat.js` và `stylehub-ai-pro.js` giống hệt nhau | Gộp còn `stylehub-ai-chat.js`, sửa tham chiếu trong `product-detail.html` | — |
 | 16 | Commit `.DS_Store` | Xóa khỏi repo, thêm `.gitignore` | — |
-| 17 | 8 lỗi chatbot nêu trong báo cáo cũ (khớp "hi" trong "shipping", lọc giá, size giày, giày bị gán size M, báo "shop đã nhận" khi chưa gửi được, đầy bộ nhớ, ưu tiên đồ trẻ em, XSS) | Sửa toàn bộ trong `stylehub-ai-chat.js`: so khớp theo từ, lọc ngân sách cứng, luồng size giày riêng, phân biệt trạng thái gửi/chờ/cục bộ, xử lý lỗi quota | `tests/chatbot.test.js` (23 test) |
+| 17 | 8 lỗi chatbot nêu trong báo cáo cũ (khớp "hi" trong "shipping", lọc giá, size giày, giày bị gán size M, báo "shop đã nhận" khi chưa gửi được, đầy bộ nhớ, ưu tiên đồ trẻ em, XSS) | Sửa toàn bộ trong `stylehub-ai-chat.js`: so khớp theo từ, lọc ngân sách cứng, luồng size giày riêng, phân biệt trạng thái gửi/chờ/cục bộ, xử lý lỗi quota | `tests/chatbot.test.js` (26 test) |
+| 17b | Chatbot trả lời sai câu hỏi ngoài phạm vi: "1 + 1 =" bị hiểu là ngân sách "từ 1 triệu" và hiện giày | Dấu "+" chỉ là "trở lên" khi không có số phía sau; thêm lớp xử lý câu hỏi ngoài phạm vi: tính phép tính an toàn (không `eval`), giới thiệu trung thực ("không phải ChatGPT"), giờ/ngày, gợi ý đồ theo thời tiết, từ chối câu hỏi lạc đề kèm danh sách việc làm được, từ chối mật khẩu/dữ liệu khách (không chuyển cho nhân viên), đáp lại câu chửi bới | 3 test mới trong `tests/chatbot.test.js` |
 | 18 | Lỗi JS có sẵn ở `sale.html` và `womens.html` (`headerAccountLink` null) | Kiểm tra null trước khi dùng | Quét 17 trang bằng Chromium: không còn lỗi (trừ `email*.html` cần CDN EmailJS) |
 
 ## 3. Tính năng mới (điểm sáng tạo)
@@ -53,7 +54,7 @@ Tài liệu này đối chiếu từng vấn đề nêu trong bản đánh giá 
 | Kiến trúc, backend, CSDL | 2,0 | 0,6 | 1,6 | Backend REST + SQLite có schema; trừ điểm vì đơn hàng vẫn ở Firebase |
 | Thực nghiệm, số liệu | 1,5 | 0,2 | 1,2 | Đầy đủ độ đo, kiểm định; trừ điểm vì dữ liệu mô phỏng |
 | Frontend, UX | 1,5 | 1,3 | 1,4 | XAI, quiz, phối đồ, đánh giá |
-| Chất lượng mã, bảo mật | 1,0 | 0,4 | 0,8 | Hết mật khẩu chữ, XSS, 85 test; HTML inline cũ chưa tách |
+| Chất lượng mã, bảo mật | 1,0 | 0,4 | 0,8 | Hết mật khẩu chữ, XSS, 88 test; HTML inline cũ chưa tách |
 | Tài liệu, tính trung thực | 1,0 | 0,8 | 0,9 | README, API, báo cáo sinh tự động, nêu rõ hạn chế |
 | **Tổng** | **10** | **4,9** | **≈ 8,6** | Để đạt ≥ 9: thu thập dữ liệu thật và đánh giá lại; chuyển đơn hàng về backend |
 

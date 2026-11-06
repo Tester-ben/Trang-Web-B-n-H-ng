@@ -1077,7 +1077,9 @@
 
     function phraseAfter(text, phrases) {
         for (const phrase of phrases) {
-            const re = new RegExp("^\\s*(" + escapeRegExp(phrase) + ")(?![a-z0-9])");
+            // "+" chỉ mang nghĩa "trở lên" khi phía sau KHÔNG có số ("500k+" đúng; "1 + 1" là phép tính).
+            const tail = phrase === "+" ? "(?![a-z0-9])(?!\\s*[0-9(])" : "(?![a-z0-9])";
+            const re = new RegExp("^\\s*(" + escapeRegExp(phrase) + ")" + tail);
             const m = text.match(re);
             if (m) return { phrase: phrase, length: m[0].length };
         }
@@ -1960,11 +1962,157 @@
        ĐIỀU PHỐI HỘI THOẠI
        ========================================================= */
 
+    /* =========================================================
+       CÂU HỎI NGOÀI PHẠM VI SHOP (phép tính, "bạn là ai", thời tiết, giờ,
+       thông tin nhạy cảm, câu lạc đề) — trả lời trung thực, lịch sự và kéo
+       về đúng chuyên môn; KHÔNG hiển thị sản phẩm ngẫu nhiên.
+       ========================================================= */
+
+    const CAPABILITIES_HTML =
+        "<br>• Tìm sản phẩm theo loại, màu, nam/nữ/trẻ em, ngân sách — ví dụ: “hoodie đen nam dưới 5 triệu”" +
+        "<br>• Tư vấn size quần áo và size giày" +
+        "<br>• Gợi ý phối đồ, đồ đi làm / đi chơi" +
+        "<br>• Giao hàng, đổi trả, đơn hàng, gặp nhân viên hỗ trợ";
+
+    const IDENTITY_TERMS = ["bạn là ai", "bạn là gì", "mày là ai", "em là ai", "ai tạo ra bạn", "ai làm ra bạn", "ai viết ra bạn", "bạn tên gì",
+        "bạn có phải", "chatgpt", "chat gpt", "gpt", "gemini", "openai", "bạn là robot", "bạn là bot", "người thật hay", "bạn hoạt động",
+        "bạn làm được gì", "bạn giúp được gì", "who are you", "what are you", "are you a bot", "are you human"];
+    const SENSITIVE_TERMS = ["mật khẩu", "password", "pass admin", "tài khoản admin", "tài khoản quản trị", "hack", "otp", "mã otp",
+        "thông tin khách hàng", "dữ liệu khách hàng", "danh sách khách hàng", "số điện thoại của khách", "email của khách", "địa chỉ của khách",
+        "thẻ tín dụng", "số thẻ", "cvv", "token"];
+    const WEATHER_TERMS = ["thời tiết", "trời mưa", "trời nắng", "trời lạnh", "trời nóng", "nhiệt độ", "dự báo", "weather", "mùa đông", "mùa hè"];
+    const TIME_TERMS = ["mấy giờ", "giờ là", "bây giờ là", "hôm nay ngày", "hôm nay thứ", "hôm nay là ngày", "ngày mấy", "thứ mấy", "what time", "what day", "today is"];
+    const ABUSIVE_TERMS = ["đm", "đmm", "dmm", "vcl", "vkl", "clgt", "fuck", "shit", "đồ ngu", "bot ngu", "bot dở", "ngu quá", "ngu vậy", "ngu thế", "vô dụng", "dở ẹc"];
+    // Có bất kỳ từ nào sau → câu hỏi thuộc phạm vi mua sắm (chưa hiểu thì dùng FALLBACK_REPLY, không coi là lạc đề).
+    const SHOP_DOMAIN_TERMS = ["áo", "quần", "giày", "dép", "váy", "đầm", "hoodie", "tee", "thun", "polo", "sơ mi", "jean", "jeans", "short",
+        "sneaker", "boot", "size", "cỡ", "số đo", "giá", "tiền", "rẻ", "đắt", "sale", "giảm giá", "khuyến mãi", "voucher", "mã giảm",
+        "đơn", "đơn hàng", "đặt hàng", "mua", "ship", "giao", "vận chuyển", "đổi", "trả", "bảo hành", "thanh toán", "chuyển khoản", "cod",
+        "shop", "cửa hàng", "sản phẩm", "hàng", "màu", "phối", "outfit", "mặc", "style", "thời trang", "phụ kiện", "túi", "mũ", "nón",
+        "trẻ em", "bé", "kids", "men", "women", "shoe", "shoes", "dress", "essentials", "fear of god", "bag", "giỏ", "hotline", "nhân viên",
+        "nữ", "quần áo", "trang phục", "đồ ngủ", "đồ bộ", "đồ tập", "đồ bơi", "đồ đi làm", "đồ đi chơi", "đồ công sở", "bikini", "len", "nỉ", "khoác"];
+
+    function compactNumber(value) {
+        const rounded = Math.round(value * 1e10) / 1e10;
+        return String(rounded).replace(".", ",");
+    }
+
+    /** Tính biểu thức số học an toàn (đệ quy, không dùng eval): + - * / ^ và ngoặc. */
+    function evaluateMath(expr) {
+        let i = 0;
+        const s = expr.replace(/\s+/g, "");
+        function peek() { return s[i]; }
+        function number() {
+            const m = /^\d+(?:\.\d+)?/.exec(s.slice(i));
+            if (!m) throw new Error("bad");
+            i += m[0].length;
+            return Number(m[0]);
+        }
+        function factor() {
+            if (peek() === "-") { i++; return -factor(); }
+            if (peek() === "+") { i++; return factor(); }
+            let v;
+            if (peek() === "(") { i++; v = sum(); if (peek() !== ")") throw new Error("bad"); i++; }
+            else v = number();
+            if (peek() === "^") { i++; v = Math.pow(v, factor()); }
+            return v;
+        }
+        function product() {
+            let v = factor();
+            while (peek() === "*" || peek() === "/") {
+                const op = s[i++];
+                const r = factor();
+                v = op === "*" ? v * r : v / r;
+            }
+            return v;
+        }
+        function sum() {
+            let v = product();
+            while (peek() === "+" || peek() === "-") {
+                const op = s[i++];
+                const r = product();
+                v = op === "+" ? v + r : v - r;
+            }
+            return v;
+        }
+        const value = sum();
+        if (i !== s.length) throw new Error("bad");
+        return value;
+    }
+
+    /** Nhận diện câu hỏi là phép tính ("1 + 1 =", "2 nhân 3 bằng mấy", "tính 10/4"). */
+    function detectMath(text) {
+        const original = lowerNFC(text).trim();
+        if (!original || original.length > 120) return null;
+        const hasCue = /[=?]|bằng|bang|là mấy|la may|bao nhiêu|bao nhieu|tính|tinh|cộng|trừ|nhân|chia|\bcong\b|\btru\b|\bnhan\b|\bchia\b/.test(original);
+        let e = original
+            .replace(/^(cho (mình|tôi|em|minh|toi) hỏi|tính giúp|tinh giup|tính|tinh|hỏi|hoi)\s*/, "")
+            .replace(/\s*(=|bằng|bang|là|la)?\s*(mấy|may|bao nhiêu|bao nhieu|gì|gi)?\s*[?=!.\s]*$/, "")
+            .replace(/\s*(cộng|cong|plus)\s*/g, "+").replace(/\s*(trừ|tru|minus)\s*/g, "-")
+            .replace(/\s*(nhân|nhan|times)\s*/g, "*").replace(/\s*(chia cho|chia|divided by)\s*/g, "/")
+            .replace(/[×x]/g, "*").replace(/[÷:]/g, "/").replace(/,/g, ".").trim();
+        if (!/^[\d\s+\-*/^().]+$/.test(e) || !/\d/.test(e)) return null;
+        if (!/\d\s*[+\-*/^]\s*[\d(+-]/.test(e) && !/\)\s*[+\-*/^]/.test(e)) return null;
+        // "60-65" (khoảng cân nặng/giá) không phải phép tính nếu không có "=", "bằng", "tính"...
+        if (/^\s*\d+(\.\d+)?\s*-\s*\d+(\.\d+)?\s*$/.test(e) && !hasCue) return null;
+        let value;
+        try { value = evaluateMath(e); } catch (err) { return null; }
+        return { expr: e.replace(/\*/g, " × ").replace(/\//g, " ÷ ").replace(/\s*([+\-^])\s*/g, " $1 ").replace(/\s+/g, " ").trim(), value: value };
+    }
+
+    function mathReply(m) {
+        if (!Number.isFinite(m.value)) {
+            return { kind: "math", html: "Phép tính " + escapeHTML(m.expr) + " không xác định (có phép chia cho 0) 😅. Còn chuyện thời trang thì mình luôn sẵn sàng — bạn cần gợi ý outfit hay tư vấn size không?" };
+        }
+        return {
+            kind: "math",
+            html: escapeHTML(m.expr) + " = <b>" + escapeHTML(compactNumber(m.value)) + "</b> 😊<br>Phép tính thì mình giải giúp được, nhưng chuyên môn chính của mình là thời trang. Mình có thể:" + CAPABILITIES_HTML
+        };
+    }
+
+    function isSensitiveRequest(text) {
+        const a = analyzeText(text);
+        return a.tokens.length > 0 && hasAny(a, SENSITIVE_TERMS);
+    }
+
+    /** Câu hỏi ngoài phạm vi (không phải phép tính) — trả về reply hoặc null nếu thuộc phạm vi shop. */
+    function offTopicReply(a) {
+        if (!a.tokens.length) return null;
+        if (hasAny(a, SENSITIVE_TERMS)) {
+            return { kind: "sensitive", html: "Mình không thể cung cấp hay tra cứu mật khẩu, mã OTP, thông tin thẻ hoặc dữ liệu cá nhân của khách hàng — để bảo vệ quyền riêng tư của mọi người 🔒. Nếu bạn quên mật khẩu tài khoản của chính mình, hãy dùng chức năng đăng nhập/đăng ký trên website hoặc gọi hotline " + escapeHTML(SUPPORT_HOTLINE) + "." };
+        }
+        if (hasAny(a, ABUSIVE_TERMS)) {
+            return { kind: "abusive", html: "Mình xin lỗi nếu câu trả lời trước chưa đúng ý bạn 🙏. Bạn mô tả lại giúp mình nhu cầu (loại sản phẩm, màu, ngân sách, size…) để mình hỗ trợ tốt hơn, hoặc gõ “gặp nhân viên” để được người thật tư vấn nhé." };
+        }
+        if (hasAny(a, IDENTITY_TERMS)) {
+            return {
+                kind: "identity",
+                html: "Mình là <b>Stylist AI</b> của THE STYLE HUB — trợ lý tư vấn mua sắm chạy ngay trên website. Mình <b>không phải ChatGPT</b>: mình hiểu câu hỏi tiếng Việt (có dấu hoặc không dấu) bằng bộ quy tắc ngôn ngữ và tra cứu trực tiếp dữ liệu sản phẩm, tồn kho, chính sách của shop, nên chỉ trả lời các câu về mua sắm. Phần “Được chọn cho bạn” trên website do hệ gợi ý lai (Collaborative + Content-based) tạo ra từ hành vi mua sắm và đánh giá của khách hàng.<br>Mình có thể giúp bạn:" + CAPABILITIES_HTML
+            };
+        }
+        if (hasAny(a, WEATHER_TERMS)) {
+            return { kind: "weather", html: "Mình không xem được dự báo thời tiết 🌤️ nhưng có thể gợi ý trang phục theo thời tiết:<br>• Trời lạnh: hoodie, áo nỉ, áo khoác, quần nỉ<br>• Trời nóng: áo thun, áo ba lỗ, quần short<br>• Trời mưa: giày sneaker tông tối, áo khoác<br>Bạn gõ thử “hoodie nam” hoặc “áo thun nữ dưới 3 triệu” để mình tìm mẫu còn hàng nhé." };
+        }
+        const shopRelated = hasAny(a, SHOP_DOMAIN_TERMS);
+        if (!shopRelated && hasAny(a, TIME_TERMS)) {
+            const now = new Date();
+            const time = now.toLocaleTimeString("vi-VN", { hour: "2-digit", minute: "2-digit" });
+            const date = now.toLocaleDateString("vi-VN", { weekday: "long", day: "2-digit", month: "2-digit", year: "numeric" });
+            return { kind: "time", html: "Bây giờ là <b>" + escapeHTML(time) + "</b>, " + escapeHTML(date) + " (theo giờ trên thiết bị của bạn). Bạn có muốn mình gợi ý outfit cho hôm nay không?" };
+        }
+        if (!shopRelated) {
+            return { kind: "off-topic", html: "Câu này nằm ngoài phạm vi tư vấn của mình 😊 Mình là Stylist AI của THE STYLE HUB nên chỉ hỗ trợ mua sắm thời trang:" + CAPABILITIES_HTML + "<br>Bạn muốn thử câu nào?" };
+        }
+        return null;
+    }
+
     const GREETING_REPLY = "Chào bạn! Mình là Stylist AI của THE STYLE HUB. Bạn muốn xem áo, quần, giày, dress shirt hay cần tư vấn size?";
     const FALLBACK_REPLY = "Bạn muốn mình hỗ trợ gì? Mình có thể tư vấn size, gợi ý áo nam/nữ, hoodie, dress shirt, giày, sản phẩm sale (kể cả theo ngân sách, ví dụ: \"áo thun nam dưới 3 triệu\") hoặc giải đáp chính sách giao hàng / đổi trả.";
 
     function computeReply(text, ctx) {
         const original = analyzeText(text);
+        const math = detectMath(text);
+        if (math) return mathReply(math);
+        if (isSensitiveRequest(text) || hasAny(original, ABUSIVE_TERMS)) return offTopicReply(original);
         const budget = parseBudget(original.folded);
         const a = budget && budget.spans.length ? analyzeText(blankSpans(original.raw, budget.spans, original.folded.length)) : original;
         a.text = original.text;
@@ -2006,7 +2154,9 @@
             };
         }
         if (ent.thanks) return { kind: "thanks", html: "Không có gì ạ! Bạn cần thêm gợi ý sản phẩm, tư vấn size hay thông tin giao hàng/đổi trả thì cứ nhắn mình nhé." };
-        if (ent.greeting) return { kind: "greeting", html: GREETING_REPLY };
+        if (ent.greeting && !hasAny(original, IDENTITY_TERMS)) return { kind: "greeting", html: GREETING_REPLY };
+        const outside = offTopicReply(original);
+        if (outside) return outside;
         return { kind: "fallback", html: FALLBACK_REPLY };
     }
 
@@ -2528,7 +2678,8 @@
         const hasImage = !!(attachment && attachment.dataUrl);
         appendUser(text || (hasImage ? "" : text), true, attachment);
 
-        if (hasImage || shouldForwardToSupport(text)) {
+        const guarded = !hasImage && (isSensitiveRequest(text) || !!detectMath(text));
+        if (hasImage || (!guarded && shouldForwardToSupport(text))) {
             showTyping(async function () {
                 try {
                     const result = await saveCustomerSupportMessage(text, attachment);
@@ -2887,6 +3038,8 @@
         searchProducts: searchProducts,
         respond: respond,
         buildReply: buildReply,
+        detectMath: detectMath,
+        isSensitiveRequest: isSensitiveRequest,
         shoeNumberSize: shoeNumberSize,
         footLengthToEU: footLengthToEU,
         smartClothingSize: smartClothingSize,

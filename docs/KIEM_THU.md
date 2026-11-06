@@ -8,7 +8,7 @@ npm test
 
 Lệnh trên tương đương `node --test "tests/*.test.js"` và không cần cài thư viện.
 
-Kết quả tại thời điểm bàn giao: **85/85 đạt** (Node 22, Chromium headless có sẵn trong môi trường kiểm thử).
+Kết quả tại thời điểm bàn giao: **88/88 đạt** (Node 22, Chromium headless có sẵn trong môi trường kiểm thử).
 
 ## 1. Kim tự tháp kiểm thử
 
@@ -17,7 +17,7 @@ Kết quả tại thời điểm bàn giao: **85/85 đạt** (Node 22, Chromium 
 | Đơn vị — thuật toán | `tests/engine.test.js` | 17 | Suy luận thuộc tính; ma trận ưu tiên (giới hạn lượt xem, "không thích" ghi đè, bỏ yêu thích, loại sự kiện lỗi/tương lai); UserKNN dùng cả đánh giá ≥ 4★; chuẩn hóa = 1; lọc hàng đã mua/hết hàng/không ảnh/không thích; giải thích trung thực và gắn nhãn demo; cold-start + quiz; ngữ cảnh sản phẩm; MMR tăng ILD; BPR tái lập được và học được (AUC > 0,8); phối đồ đúng giới tính; Style DNA; switching + phiên đang mở; chặn giới tính; trọng số khớp `tuned-weights.json` |
 | Đơn vị — cảm xúc | `tests/sentiment.test.js` | 5 | Phủ định, nhấn mạnh, "thì… nhưng"; không dấu và âm tiết nhập nhằng; câu hỏi có/không; emoji; độ chính xác dev ≥ 90% và held-out ≥ 75% (đo được 82,5%) |
 | Đơn vị — bảo mật | `tests/security.test.js` | 26 | Vector chuẩn SHA-256/HMAC/PBKDF2; băm/kiểm tra mật khẩu; chuyển đổi tài khoản chữ thường; làm sạch sản phẩm; truy vấn đơn theo email với Firebase giả; mã nguồn không còn `admin123` |
-| Đơn vị — chatbot | `tests/chatbot.test.js` | 23 | So khớp theo từ; lọc ngân sách; luồng size giày; thêm giỏ đúng size; trạng thái gửi hỗ trợ; xử lý đầy bộ nhớ; thoát HTML |
+| Đơn vị — chatbot | `tests/chatbot.test.js` | 26 | So khớp theo từ; lọc ngân sách; luồng size giày; thêm giỏ đúng size; trạng thái gửi hỗ trợ; xử lý đầy bộ nhớ; thoát HTML; **câu hỏi ngoài phạm vi** (phép tính "1 + 1 =" không bị hiểu là ngân sách, "bạn là ai", thời tiết, giờ, câu lạc đề, câu hỏi nhạy cảm không bị chuyển cho nhân viên) |
 | Tích hợp — API | `tests/server.test.js` | 12 | Chạy trên **cả SQLite và JSON**: health, file tĩnh, chặn đọc mã/dữ liệu (kể cả `%2e%2e`); đăng ký/đăng nhập/token/415; **CF đa thiết bị** (A nhận sản phẩm B đã mua và B chấm 5★, không nhận đồ của C khác gu, `strategy=social`); đánh giá chỉ khi đã mua, cảm xúc, chống chèn HTML, ẩn danh; quiz, xóa lịch sử, thống kê admin, CORS; rate limit đăng nhập; dữ liệu demo không đăng nhập được và luôn gắn nhãn |
 | Đầu-cuối — trình duyệt | `tests/browser-e2e.test.js` | 2 | Chế độ tĩnh (gợi ý, phối đồ, chặn đánh giá, đánh giá hợp gu, trang chủ phản ánh lượt xem, quiz) và chế độ máy chủ (đăng ký → đăng nhập → liên kết → gợi ý từ máy chủ → đặt hàng → đánh giá có cảm xúc). Tự bỏ qua nếu chưa cài Playwright |
 
