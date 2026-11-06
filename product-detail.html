@@ -723,6 +723,7 @@
 /* ===== END FOOTER SOCIAL PNG EVEN ALIGN FINAL ===== */
 </style>
 
+<link rel="stylesheet" href="stylehub-premium-recommendations.css?v=2">
 </head>
 
 <body>
@@ -799,8 +800,10 @@
     <!-- SẢN PHẨM LIÊN QUAN -->
     <section class="related-products-section" id="relatedProductsSection">
         <div class="related-products-header">
-            <h2>Sản Phẩm Liên Quan</h2>
+            <span class="sh-recommend-eyebrow">STYLE MATCH / PERSONALIZED EDIT</span>
+            <h2>Gợi ý <em>dành riêng</em> cho bạn</h2>
             <div class="related-title-line"></div>
+            <p class="sh-recommend-lede">Khám phá những lựa chọn hợp gu, được gợi ý từ sở thích và hành trình mua sắm của bạn.</p>
         </div>
         <div class="related-products-grid" id="relatedProductsGrid"></div>
     </section>
@@ -903,6 +906,7 @@
 
     <!-- DATA KHO HÀNG TỔNG HỢP -->
     <script src="product-data.js?v=fix-kids-products-20260624"></script>
+    <script src="stylehub-recommendations.js?v=2-view-personalized"></script>
     <script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-database-compat.js"></script>
     <script src="stylehub-orders-api.js?v=stock-cloud-sync-20260630"></script>
@@ -942,36 +946,14 @@
             const relatedSection = document.getElementById("relatedProductsSection");
             if (!relatedGrid || typeof database === "undefined") return;
 
-            const currentCategory = getProductCategoryById(currentProductId);
-
-            const allSameCategoryIds = Object.keys(database).filter(function(id) {
-                const item = database[id];
-                return id !== currentProductId &&
-                       getProductCategoryById(id) === currentCategory &&
-                       item &&
-                       (item.mainImg || (item.images && item.images[0]));
-            });
-
-            if (allSameCategoryIds.length === 0) {
-                if (relatedSection) relatedSection.style.display = "none";
-                return;
-            }
-
-            const sortedIds = allSameCategoryIds.sort(function(a, b) {
-                const numA = parseInt(a.split("-").pop(), 10) || 0;
-                const numB = parseInt(b.split("-").pop(), 10) || 0;
-                return numA - numB;
-            });
-
-            const currentNumber = parseInt(String(currentProductId).split("-").pop(), 10) || 0;
-            const afterCurrent = sortedIds.filter(function(id) {
-                return (parseInt(id.split("-").pop(), 10) || 0) > currentNumber;
-            });
-            const beforeCurrent = sortedIds.filter(function(id) {
-                return (parseInt(id.split("-").pop(), 10) || 0) <= currentNumber;
-            });
-
-            const selectedIds = afterCurrent.concat(beforeCurrent).slice(0, 4);
+            const recommendations = window.StyleHubRecommendations
+                ? window.StyleHubRecommendations.recommend(currentProductId, 4)
+                : Object.keys(database).filter(id => id !== currentProductId && getProductCategoryById(id) === getProductCategoryById(currentProductId)).slice(0, 4).map(id => ({ id, reason: 'Phù hợp với sản phẩm bạn đang xem' }));
+            const selectedIds = recommendations.map(item => item.id);
+            const signature = JSON.stringify(recommendations.map(item => [item.id, item.reason, database[item.id]]));
+            if (relatedGrid.dataset.recommendationSignature === signature) return;
+            relatedGrid.dataset.recommendationSignature = signature;
+            if (relatedSection) relatedSection.style.display = '';
             relatedGrid.innerHTML = "";
 
             selectedIds.forEach(function(id) {
@@ -994,8 +976,18 @@
                     <p class="related-price">${item.price || ''}</p>
                 `;
 
+                const explanation = document.createElement('p');
+                explanation.className = 'sh-related-reason';
+                explanation.textContent = recommendations.find(result => result.id === id).reason;
+                card.appendChild(explanation);
                 relatedGrid.appendChild(card);
             });
+            if (!selectedIds.length) {
+                const empty = document.createElement('p');
+                empty.textContent = 'Chưa có sản phẩm phù hợp còn hàng. Bạn có thể tiếp tục khám phá các danh mục khác.';
+                relatedGrid.appendChild(empty);
+            }
+            document.dispatchEvent(new CustomEvent('stylehub-recommendations-rendered'));
         }
 
         function loadPendingReorderCart() {

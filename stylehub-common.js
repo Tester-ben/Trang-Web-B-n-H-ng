@@ -1740,6 +1740,10 @@ function searchProducts() {
 
     ready(function () {
         runAll();
+        document.addEventListener("stylehub-recommendations-rendered", function () {
+            initWishlistButtons();
+            initStockBadges();
+        });
         setTimeout(runAll, 500);
         setTimeout(runAll, 1500);
         document.addEventListener("stylehub-wishlist-change", function () {

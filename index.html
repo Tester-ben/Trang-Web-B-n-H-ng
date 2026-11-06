@@ -426,8 +426,9 @@
 /* ===== END FOOTER SOCIAL 3 ICONS LEFT ALIGN FINAL ===== */
 </style>
 
+<link rel="stylesheet" href="stylehub-premium-home.css?v=6-no-journal"/>
 </head>
-<body>
+<body class="premium-home">
 <div class="search-overlay" id="searchBox">
 <div class="search-panel">
 <button class="search-close-btn" onclick="closeSearchBox()">×</button>
@@ -526,16 +527,22 @@
 </header>
 <div class="home-notification-bell" data-stylehub-notification-bell></div>
 <div id="home-page-view">
-<section class="main-hero-banner">
-<img alt="Featured Men Suit" class="main-hero-img" src="https://fearofgod.com/cdn/shop/files/mlb_spring_desktop-v2_x1800.jpg?v=1779819182"/>
+<section class="main-hero-banner" aria-label="Bộ sưu tập nổi bật">
+<img alt="Người mẫu thời trang phong cách streetwear cao cấp" class="main-hero-img" src="https://fearofgod.com/cdn/shop/files/mlb_spring_desktop-v2_x1800.jpg?v=1779819182" fetchpriority="high"/>
 <div class="main-hero-content">
-<h2>SHOP</h2>
-<a class="main-shop-btn" href="collections.html">Xem bộ sưu tập</a>
+<h1 class="sh-visually-hidden">Thời trang THE STYLE HUB</h1>
+<p class="sh-hero-description">Từng đường nét, từng lựa chọn. Khám phá phong cách mang dấu ấn của riêng bạn.</p>
+<div class="sh-hero-actions">
+<a class="main-shop-btn" href="collections.html"><span>KHÁM PHÁ BỘ SƯU TẬP</span><span class="sh-btn-arrow" aria-hidden="true">↗</span></a>
+<a class="sh-hero-secondary" href="#sh-curated-edits">XEM LOOKBOOK</a>
 </div>
+</div>
+<a class="sh-scroll-cue" href="#sh-curated-edits">SCROLL TO EXPLORE <span aria-hidden="true">↓</span></a>
 </section>
-<section class="split-hero-container">
+<section class="split-hero-container" id="sh-curated-edits">
 <div class="hero-column">
 <div class="hero-image-wrapper">
+<div class="sh-category-overlay" aria-hidden="true"><span class="sh-category-number">01 / MENSWEAR</span><strong>Modern<br/>Essentials</strong><small>REDEFINE YOUR EVERYDAY</small></div>
 <img alt="Shop Mens Look" src="https://fearofgod.com/cdn/shop/files/LOOK_17.png?crop=center&amp;height=1280&amp;v=1759109463&amp;width=960"/>
 </div>
 <div class="hero-btn-container">
@@ -544,6 +551,7 @@
 </div>
 <div class="hero-column">
 <div class="hero-image-wrapper">
+<div class="sh-category-overlay" aria-hidden="true"><span class="sh-category-number">02 / WOMENSWEAR</span><strong>Effortlessly<br/>You</strong><small>CONFIDENTLY YOURS</small></div>
 <img alt="Shop Womens Look" src="https://fearofgod.com/cdn/shop/files/LOOK_34_769bf883-a71f-4985-8163-2d067e9fdf74.jpg?crop=center&amp;height=1280&amp;v=1776448151&amp;width=960"/>
 </div>
 <div class="hero-btn-container">
@@ -551,7 +559,12 @@
 </div>
 </div>
 </section>
-<div class="outfit-section-title">
+<section class="sh-statement sh-reveal" aria-label="Phong cách The Style Hub">
+<span class="sh-section-kicker">THE STYLE HUB PHILOSOPHY</span>
+<h2>Không chỉ là trang phục.<br/><em>Đó là cách bạn kể câu chuyện của mình.</em></h2>
+<p>Một phong cách riêng cho từng khoảnh khắc — từ công sở đến những ngày tự do.</p>
+</section>
+<div class="outfit-section-title sh-reveal">
 <a href="mens.html?cat=dress-shirt">
 <h3>BUSINESS CASUAL</h3>
 </a>
@@ -595,8 +608,12 @@
 </a>
 </div>
 </section>
+<section class="sh-personal-section sh-reveal" id="shPersonalSection" aria-labelledby="shPersonalTitle">
+<div class="sh-personal-heading"><div><span class="sh-section-kicker">THE STYLE HUB / DISCOVER</span><h2 id="shPersonalTitle">Được chọn <em>cho bạn.</em></h2><p id="shPersonalDescription" aria-live="polite">Gợi ý dựa trên sản phẩm bạn xem gần đây, kể cả khi chưa đánh giá hoặc yêu thích.</p></div><a class="sh-personal-all" href="collections.html">XEM TẤT CẢ ↗</a></div>
+<div class="sh-personal-grid" id="shPersonalGrid" aria-live="polite"></div>
+</section>
 <main class="container">
-<section class="shoes-hero">
+<section class="shoes-hero sh-reveal">
 <img alt="Men Shoes" src="https://www.gow.com.vn//backend/uploads/images/giay-da-nam-cao-cap-sneaker-sk012-E_2025_05_07_16_20_42_681b25eadfccd.jpg"/>
 <div class="shoes-hero-content">
 <h2>SHOES</h2>
@@ -604,7 +621,7 @@
 </div>
 </section>
 
-<section class="home-shoes-marquee-section" aria-label="Shoes product marquee">
+<section class="home-shoes-marquee-section sh-reveal" aria-label="Shoes product marquee">
 <div class="home-shoes-marquee-heading">
 <p>THE STYLE HUB SHOES</p>
 <h3>SHOP SHOES</h3>
@@ -858,6 +875,7 @@
 
 
 <script src="product-data.js?v=home-shoes-marquee-20260618"></script>
+    <script src="stylehub-recommendations.js?v=2-view-personalized"></script>
 <script>
         let isLoggedIn = localStorage.getItem('isLoggedInStatus') === 'true' && !!(localStorage.getItem('hub_current_user_key') || localStorage.getItem('hub_email')); 
         let userData = JSON.parse(localStorage.getItem("hub_userData")) || { firstName: "", lastName: "", email: "", password: "" };
@@ -1293,5 +1311,6 @@
 })();
 </script>
 
+<script src="stylehub-premium-home.js?v=6-no-journal" defer></script>
 </body>
 </html>
