@@ -43,7 +43,7 @@ class RecommenderService {
         const user = userId ? String(userId) : 'guest';
         return model.recommend(user, {
             context: o.context, productId: o.productId, limit: o.limit, quiz: o.quiz, recent: o.recent,
-            exclude: o.exclude, checkAvailability: false, diversify: o.diversify
+            exclude: o.exclude, checkAvailability: false, diversify: o.diversify, weights: o.weights, excludeInteracted: o.excludeInteracted
         });
     }
     outfit(productId, userId, perCategory) { return this.getModel().outfit(productId, userId ? String(userId) : null, { perCategory }); }

@@ -169,9 +169,11 @@
           const type = firstReason.slice('Vì bạn gần đây xem nhiều '.length);
           description.textContent = 'Bạn gần đây xem nhiều ' + type + '. Những thiết kế cùng loại đang được ưu tiên — không cần bấm yêu thích hay đánh giá.';
         } else if (firstReason === 'Khám phá bộ sưu tập') {
-          description.textContent = 'Khám phá vài sản phẩm để nhận gợi ý riêng theo lịch sử xem của bạn.';
+          description.textContent = 'Khám phá vài sản phẩm hoặc làm quiz Style DNA để nhận gợi ý riêng theo gu của bạn.';
+        } else if (ranked[0] && ranked[0].source === 'server') {
+          description.textContent = 'Gợi ý lai (hybrid) từ hành vi của bạn và những khách hàng có gu tương tự — mỗi thẻ ghi rõ lý do.';
         } else {
-          description.textContent = 'Gợi ý dựa trên lịch sử xem, yêu thích và các tương tác trên trình duyệt này.';
+          description.textContent = 'Gợi ý dựa trên lịch sử xem, yêu thích và các tương tác trên trình duyệt này — mỗi thẻ ghi rõ lý do.';
         }
       }
       if (selected.length < 4) {
@@ -199,6 +201,10 @@
         const link = document.createElement('a');
         link.className = 'sh-pick';
         link.href = 'product-detail.html?id=' + encodeURIComponent(key);
+        const rec = ranked.find(item => item.id === key);
+        link.setAttribute('data-rec-id', key);
+        link.setAttribute('data-rec-rank', String(index));
+        link.setAttribute('data-rec-context', 'home:' + ((rec && rec.source) || 'local'));
         link.setAttribute('aria-label', 'Xem sản phẩm ' + (product.name || key));
         const photo = document.createElement('div');
         photo.className = 'sh-pick-photo';
@@ -226,6 +232,12 @@
         price.className = 'sh-pick-price';
         price.textContent = product.price || '';
         link.append(photo, brand, name, price);
+        if (rec && rec.reason) {
+          const why = document.createElement('p');
+          why.className = 'sh-pick-reason';
+          why.textContent = rec.reason;
+          link.appendChild(why);
+        }
         stage.appendChild(link);
 
         // Touch / bàn phím: nút bên ngoài liên kết, không chặn click mở sản phẩm.
@@ -246,6 +258,9 @@
         }
         grid.appendChild(stage);
       });
+      if (recommender && typeof recommender.trackImpressions === 'function') {
+        recommender.trackImpressions(selected.map(key => ranked.find(item => item.id === key) || { id: key, source: 'fallback' }), 'home');
+      }
       // Đồng bộ nút tim & nhãn kho với các chức năng sẵn có.
       document.dispatchEvent(new Event('stylehub-recommendations-rendered'));
       registerSlides();
@@ -260,6 +275,7 @@
     window.addEventListener('pageshow', event => { if (event.persisted) drawPicks(); });
     document.addEventListener('visibilitychange', () => { if (!document.hidden) drawPicks(); });
     document.addEventListener('stylehub-preferences-change', drawPicks);
+    document.addEventListener('stylehub-recommendations-updated', drawPicks);
     document.addEventListener('stylehub-wishlist-change', drawPicks);
     window.addEventListener('stylehub-inventory-change', drawPicks);
     window.addEventListener('stylehub-products-change', drawPicks);

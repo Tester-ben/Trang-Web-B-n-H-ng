@@ -1,0 +1,379 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Nghiên cứu gợi ý | THE STYLE HUB</title>
+<meta name="robots" content="noindex">
+<style>
+    .viz-root {
+        color-scheme: light;
+        --page: #f6f2eb; --surface-1: #fcfcfb; --line: #e6e1d8; --grid: #ebe8e2;
+        --text-primary: #1d1c1a; --text-secondary: #52514e; --text-muted: #7c7a74; --accent: #9c7952;
+        --series-1: #2a78d6; --series-2: #eb6834; --series-3: #1baf7a; --series-4: #eda100;
+        --div-pos: #2a78d6; --div-mid: #d8d6d0; --div-neg: #e34948;
+    }
+    @media (prefers-color-scheme: dark) {
+        :root:where(:not([data-theme="light"])) .viz-root {
+            color-scheme: dark;
+            --page: #121211; --surface-1: #1a1a19; --line: #33322f; --grid: #2a2a28;
+            --text-primary: #f0efec; --text-secondary: #c3c2b7; --text-muted: #9a988f; --accent: #d7b78b;
+            --series-1: #3987e5; --series-2: #d95926; --series-3: #199e70; --series-4: #c98500;
+            --div-pos: #3987e5; --div-mid: #4a4945; --div-neg: #e66767;
+        }
+    }
+    :root[data-theme="dark"] .viz-root {
+        color-scheme: dark;
+        --page: #121211; --surface-1: #1a1a19; --line: #33322f; --grid: #2a2a28;
+        --text-primary: #f0efec; --text-secondary: #c3c2b7; --text-muted: #9a988f; --accent: #d7b78b;
+        --series-1: #3987e5; --series-2: #d95926; --series-3: #199e70; --series-4: #c98500;
+        --div-pos: #3987e5; --div-mid: #4a4945; --div-neg: #e66767;
+    }
+    * { box-sizing: border-box; }
+    body { margin: 0; font-family: 'Roboto', system-ui, -apple-system, 'Segoe UI', sans-serif; }
+    .viz-root { min-height: 100vh; background: var(--page); color: var(--text-primary); }
+    header.top { display: flex; justify-content: space-between; align-items: center; gap: 12px; padding: 16px 32px; background: #1b1a19; color: #fff; }
+    header.top a { color: #fff; text-decoration: none; font-size: 12px; letter-spacing: 1.5px; }
+    header.top .brand { letter-spacing: 5px; font-weight: 700; font-size: 15px; }
+    main { max-width: 1180px; margin: 0 auto; padding: 32px 16px 80px; }
+    .kicker { font-size: 10px; letter-spacing: 3px; text-transform: uppercase; color: var(--accent); font-weight: 700; }
+    h1 { font-family: Georgia, 'Times New Roman', serif; font-weight: 400; font-size: clamp(28px, 4vw, 44px); margin: 8px 0 6px; letter-spacing: -1px; }
+    h2 { font-family: Georgia, serif; font-weight: 400; font-size: 26px; margin: 40px 0 6px; }
+    h3 { font-size: 14px; margin: 0 0 4px; }
+    p.lede, p.note { color: var(--text-secondary); font-size: 14px; line-height: 1.7; max-width: 860px; }
+    p.note { font-size: 12px; color: var(--text-muted); }
+    .card { background: var(--surface-1); border: 1px solid var(--line); border-radius: 16px; padding: 20px; margin-top: 16px; }
+    .tiles { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 14px; margin-top: 16px; }
+    .tile { background: var(--surface-1); border: 1px solid var(--line); border-radius: 14px; padding: 16px 18px; }
+    .tile .label { font-size: 12px; color: var(--text-secondary); }
+    .tile .value { font-family: Georgia, serif; font-size: 34px; margin: 6px 0 2px; color: var(--text-primary); }
+    .tile .sub { font-size: 12px; color: var(--text-muted); }
+    .chart { position: relative; width: 100%; }
+    .chart svg { display: block; width: 100%; height: auto; overflow: visible; }
+    .chart text { fill: var(--text-secondary); font-size: 12px; }
+    .chart .value-label { fill: var(--text-primary); font-weight: 600; }
+    .chart .axis { stroke: var(--line); }
+    .chart .gridline { stroke: var(--grid); }
+    .tooltip { position: absolute; pointer-events: none; background: var(--surface-1); color: var(--text-primary); border: 1px solid var(--line); border-radius: 10px; padding: 8px 10px; font-size: 12px; line-height: 1.5; box-shadow: 0 8px 22px rgba(0,0,0,.12); opacity: 0; transition: opacity .12s; max-width: 280px; z-index: 5; }
+    .tooltip.on { opacity: 1; }
+    .legend { display: flex; flex-wrap: wrap; gap: 14px; margin: 4px 0 10px; font-size: 12px; color: var(--text-secondary); }
+    .legend i { display: inline-block; width: 18px; height: 4px; border-radius: 2px; margin-right: 6px; vertical-align: middle; }
+    .legend i.box { width: 12px; height: 12px; border-radius: 3px; }
+    table { width: 100%; border-collapse: collapse; font-size: 12.5px; }
+    th, td { text-align: right; padding: 7px 8px; border-bottom: 1px solid var(--line); white-space: nowrap; }
+    th:first-child, td:first-child { text-align: left; white-space: normal; }
+    th { color: var(--text-secondary); font-weight: 600; }
+    tr.hl td { font-weight: 700; }
+    .table-wrap { overflow-x: auto; }
+    details.tbl summary { cursor: pointer; font-size: 12px; color: var(--accent); margin-top: 10px; font-weight: 600; }
+    .msg { padding: 14px 16px; border-radius: 12px; border: 1px dashed var(--line); color: var(--text-secondary); font-size: 13px; background: var(--surface-1); }
+    .two { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+    @media (max-width: 860px) { .two { grid-template-columns: 1fr; } header.top { padding: 14px 16px; } }
+</style>
+</head>
+<body>
+<div class="viz-root">
+<header class="top">
+    <a class="brand" href="index.html">THE STYLE HUB</a>
+    <nav><a href="admin.html">← Trang quản trị</a></nav>
+</header>
+<main>
+    <span class="kicker">Recommender research dashboard</span>
+    <h1>Bảng nghiên cứu hệ gợi ý</h1>
+    <p class="lede">Kết quả thực nghiệm offline (so sánh thuật toán, người dùng mới, độ nhạy dữ liệu) và số liệu vận hành thật từ máy chủ (CTR khu gợi ý, cảm xúc đánh giá, độ thưa dữ liệu). Mọi biểu đồ đều có bảng số liệu đi kèm.</p>
+
+    <section aria-labelledby="offlineTitle">
+        <h2 id="offlineTitle">1. Thực nghiệm offline</h2>
+        <p class="note" id="evalMeta">Đang tải evaluation/results/latest.json…</p>
+        <div class="tiles" id="evalTiles"></div>
+        <div class="card">
+            <h3>NDCG@10 theo thuật toán (tập test, càng cao càng tốt)</h3>
+            <div class="chart" id="chartAlgos"></div>
+            <details class="tbl"><summary>Xem bảng đầy đủ các độ đo</summary><div class="table-wrap" id="tableAlgos"></div></details>
+        </div>
+        <div class="two">
+            <div class="card">
+                <h3>Người dùng mới (cold-start) — NDCG@10</h3>
+                <div class="chart" id="chartCold"></div>
+                <details class="tbl"><summary>Xem bảng</summary><div class="table-wrap" id="tableCold"></div></details>
+            </div>
+            <div class="card">
+                <h3>Độ nhạy theo bản chất dữ liệu ρ — NDCG@10</h3>
+                <div class="legend" id="legendRho"></div>
+                <div class="chart" id="chartRho"></div>
+                <details class="tbl"><summary>Xem bảng</summary><div class="table-wrap" id="tableRho"></div></details>
+            </div>
+        </div>
+        <p class="note">Báo cáo đầy đủ (giao thức, kiểm định thống kê, hạn chế): <code>docs/KET_QUA_THUC_NGHIEM.md</code>. Chạy lại: <code>npm run evaluate</code>.</p>
+    </section>
+
+    <section aria-labelledby="liveTitle">
+        <h2 id="liveTitle">2. Số liệu vận hành (máy chủ)</h2>
+        <div id="liveBody"><div class="msg">Đang kiểm tra máy chủ…</div></div>
+    </section>
+</main>
+</div>
+<script>
+(function () {
+    'use strict';
+    var NS = 'http://www.w3.org/2000/svg';
+    var API_BASE = String(window.STYLEHUB_API_BASE || '').replace(/\/+$/, '');
+    function el(tag, attrs, text) {
+        var e = document.createElement(tag);
+        Object.keys(attrs || {}).forEach(function (k) { e.setAttribute(k, attrs[k]); });
+        if (text !== undefined) e.textContent = text;
+        return e;
+    }
+    function svgEl(tag, attrs) { var e = document.createElementNS(NS, tag); Object.keys(attrs || {}).forEach(function (k) { e.setAttribute(k, attrs[k]); }); return e; }
+    var f3 = function (x) { return (x === null || x === undefined || isNaN(x)) ? '—' : Number(x).toFixed(3); };
+    var pct = function (x) { return (x === null || x === undefined || isNaN(x)) ? '—' : (Number(x) * 100).toFixed(1) + '%'; };
+
+    function tooltipFor(container) {
+        var tip = container.querySelector('.tooltip');
+        if (!tip) { tip = el('div', { class: 'tooltip', role: 'status' }); container.appendChild(tip); }
+        return {
+            show: function (html, x, y) {
+                tip.replaceChildren();
+                html.forEach(function (line, i) { var d = el('div', null, line); if (i === 0) d.style.fontWeight = '700'; tip.appendChild(d); });
+                var w = container.clientWidth;
+                tip.style.left = Math.min(Math.max(0, x + 12), w - 220) + 'px';
+                tip.style.top = Math.max(0, y - 10) + 'px';
+                tip.classList.add('on');
+            },
+            hide: function () { tip.classList.remove('on'); }
+        };
+    }
+
+    /* Biểu đồ cột ngang một chuỗi (độ lớn) — nhãn giá trị trực tiếp, tooltip khi rê chuột/chạm. */
+    function barChart(container, rows, opts) {
+        container.replaceChildren();
+        var width = Math.max(280, container.clientWidth || 640);
+        // Màn hình hẹp: nhãn nằm phía trên thanh để không bị cắt.
+        var stacked = width < 560;
+        var labelW = stacked ? 0 : Math.min(260, Math.max(150, width * 0.36));
+        var labelRow = stacked ? 16 : 0;
+        var barH = stacked ? 16 : 22, gap = 10, top = 6, right = 56;
+        var height = top + rows.length * (barH + gap + labelRow);
+        var max = Math.max.apply(null, rows.map(function (r) { return r.value; }).concat([0.0001]));
+        var plotW = width - labelW - right;
+        var svg = svgEl('svg', { viewBox: '0 0 ' + width + ' ' + height, role: 'img', 'aria-label': opts.title });
+        var tip = tooltipFor(container);
+        rows.forEach(function (r, i) {
+            var rowTop = top + i * (barH + gap + labelRow);
+            var y = rowTop + labelRow;
+            var w = Math.max(2, r.value / max * plotW);
+            var name = stacked ? svgEl('text', { x: 0, y: rowTop + 11 }) : svgEl('text', { x: labelW - 10, y: y + barH / 2 + 4, 'text-anchor': 'end' });
+            name.textContent = r.label.length > (stacked ? 52 : 38) ? r.label.slice(0, stacked ? 51 : 37) + '…' : r.label;
+            if (r.highlight) name.setAttribute('font-weight', '700');
+            svg.appendChild(name);
+            // Cạnh dữ liệu bo 4px, neo về gốc 0 (vẽ path để chỉ bo đầu thanh).
+            var x0 = labelW, x1 = labelW + w, rad = Math.min(4, w / 2);
+            var path = svgEl('path', { d: 'M' + x0 + ',' + y + 'H' + (x1 - rad) + 'Q' + x1 + ',' + y + ' ' + x1 + ',' + (y + rad) + 'V' + (y + barH - rad) + 'Q' + x1 + ',' + (y + barH) + ' ' + (x1 - rad) + ',' + (y + barH) + 'H' + x0 + 'Z', fill: 'var(--series-1)', opacity: r.highlight ? 1 : 0.72 });
+            svg.appendChild(path);
+            var val = svgEl('text', { x: x1 + 6, y: y + barH / 2 + 4, class: 'value-label' });
+            val.textContent = f3(r.value);
+            svg.appendChild(val);
+            var hit = svgEl('rect', { x: 0, y: rowTop - gap / 2, width: width, height: barH + gap + labelRow, fill: 'transparent', tabindex: 0, 'aria-label': r.label + ': ' + f3(r.value) });
+            var show = function (evt) {
+                var box = container.getBoundingClientRect();
+                var cx = evt && evt.clientX ? evt.clientX - box.left : labelW + w;
+                tip.show([r.label].concat(r.details || []), cx, (y / height) * container.clientHeight);
+                path.setAttribute('opacity', 1);
+            };
+            var hide = function () { tip.hide(); path.setAttribute('opacity', r.highlight ? 1 : 0.72); };
+            hit.addEventListener('mousemove', show);
+            hit.addEventListener('mouseleave', hide);
+            hit.addEventListener('focus', show);
+            hit.addEventListener('blur', hide);
+            svg.appendChild(hit);
+        });
+        container.appendChild(svg);
+    }
+
+    /* Biểu đồ đường nhiều chuỗi (<= 4) — chú giải + nhãn cuối đường + đường dóng và tooltip. */
+    function lineChart(container, legend, xs, series, opts) {
+        container.replaceChildren();
+        legend.replaceChildren();
+        series.forEach(function (s) { var item = el('span'); var sw = el('i'); sw.style.background = s.color; item.append(sw, document.createTextNode(s.name)); legend.appendChild(item); });
+        var width = Math.max(280, container.clientWidth || 520), height = 260;
+        var narrow = width < 480;
+        var m = { l: 40, r: narrow ? 96 : 120, t: 10, b: 30 };
+        var all = []; series.forEach(function (s) { all = all.concat(s.values); });
+        var maxY = Math.max.apply(null, all) * 1.08, minY = 0;
+        var px = function (i) { return m.l + i / (xs.length - 1) * (width - m.l - m.r); };
+        var py = function (v) { return m.t + (1 - (v - minY) / (maxY - minY)) * (height - m.t - m.b); };
+        var svg = svgEl('svg', { viewBox: '0 0 ' + width + ' ' + height, role: 'img', 'aria-label': opts.title });
+        [0, 0.25, 0.5, 0.75, 1].forEach(function (t) {
+            var v = minY + t * (maxY - minY);
+            svg.appendChild(svgEl('line', { x1: m.l, x2: width - m.r, y1: py(v), y2: py(v), class: 'gridline' }));
+            var lab = svgEl('text', { x: m.l - 6, y: py(v) + 4, 'text-anchor': 'end' }); lab.textContent = v.toFixed(2); svg.appendChild(lab);
+        });
+        xs.forEach(function (x, i) { var t = svgEl('text', { x: px(i), y: height - 8, 'text-anchor': 'middle' }); t.textContent = narrow ? String(x) : 'ρ = ' + x; svg.appendChild(t); });
+        if (narrow) { var axisT = svgEl('text', { x: width - m.r + 8, y: height - 8 }); axisT.textContent = '← ρ'; svg.appendChild(axisT); }
+        var ends = [];
+        series.forEach(function (s) {
+            var d = s.values.map(function (v, i) { return (i ? 'L' : 'M') + px(i) + ',' + py(v); }).join('');
+            svg.appendChild(svgEl('path', { d: d, fill: 'none', stroke: s.color, 'stroke-width': 2, 'stroke-linejoin': 'round' }));
+            s.values.forEach(function (v, i) { svg.appendChild(svgEl('circle', { cx: px(i), cy: py(v), r: 4, fill: s.color, stroke: 'var(--surface-1)', 'stroke-width': 2 })); });
+            ends.push({ y: py(s.values[s.values.length - 1]), name: s.name, color: s.color });
+        });
+        // Nhãn cuối đường, tách nhau tối thiểu 14px để không chồng chữ.
+        ends.sort(function (a, b) { return a.y - b.y; });
+        for (var i = 1; i < ends.length; i++) if (ends[i].y - ends[i - 1].y < 14) ends[i].y = ends[i - 1].y + 14;
+        ends.forEach(function (e) { var t = svgEl('text', { x: width - m.r + 8, y: e.y + 4 }); t.textContent = e.name; svg.appendChild(t); });
+        var cross = svgEl('line', { x1: 0, x2: 0, y1: m.t, y2: height - m.b, stroke: 'var(--text-muted)', 'stroke-dasharray': '3 3', opacity: 0 });
+        svg.appendChild(cross);
+        var tip = tooltipFor(container);
+        var overlay = svgEl('rect', { x: m.l, y: m.t, width: width - m.l - m.r, height: height - m.t - m.b, fill: 'transparent' });
+        overlay.addEventListener('mousemove', function (evt) {
+            var box = svg.getBoundingClientRect();
+            var x = (evt.clientX - box.left) / box.width * width;
+            var i = Math.round((x - m.l) / (width - m.l - m.r) * (xs.length - 1));
+            i = Math.max(0, Math.min(xs.length - 1, i));
+            cross.setAttribute('x1', px(i)); cross.setAttribute('x2', px(i)); cross.setAttribute('opacity', 1);
+            tip.show(['ρ = ' + xs[i]].concat(series.map(function (s) { return s.name + ': ' + f3(s.values[i]); })), px(i) / width * container.clientWidth, 10);
+        });
+        overlay.addEventListener('mouseleave', function () { cross.setAttribute('opacity', 0); tip.hide(); });
+        svg.appendChild(overlay);
+        container.appendChild(svg);
+    }
+
+    function table(container, head, rows, highlight) {
+        var t = el('table'); var thead = el('thead'); var tr = el('tr');
+        head.forEach(function (h) { tr.appendChild(el('th', { scope: 'col' }, h)); });
+        thead.appendChild(tr); t.appendChild(thead);
+        var tb = el('tbody');
+        rows.forEach(function (r) { var row = el('tr', highlight && highlight(r) ? { class: 'hl' } : null); r.forEach(function (c) { row.appendChild(el('td', null, c)); }); tb.appendChild(row); });
+        t.appendChild(tb);
+        container.replaceChildren(t);
+    }
+    function tile(parent, label, value, sub) {
+        var d = el('div', { class: 'tile' });
+        d.append(el('div', { class: 'label' }, label), el('div', { class: 'value' }, value), el('div', { class: 'sub' }, sub || ''));
+        parent.appendChild(d);
+    }
+
+    /* ---------------- 1. Thực nghiệm offline ---------------- */
+    var evalData = null;
+    function renderEval() {
+        var R = evalData;
+        if (!R) return;
+        document.getElementById('evalMeta').textContent = 'Nguồn dữ liệu: ' + (R.dataKind === 'simulated' ? 'MÔ PHỎNG (' + R.config.users + ' người dùng × ' + R.config.items + ' sản phẩm thật, ' + R.config.seeds + ' seed)' : 'THẬT') +
+            ' · cập nhật ' + new Date(R.generatedAt).toLocaleString('vi-VN') + ' · thời gian chạy ' + R.runtimeSeconds + 's';
+        var main = R.main, names = Object.keys(main);
+        var hyb = main['Hybrid v2 (tinh chỉnh)'], leg = main['Thuật toán cũ (v1)'];
+        var tiles = document.getElementById('evalTiles'); tiles.replaceChildren();
+        if (hyb) tile(tiles, 'NDCG@10 — Hybrid v2 (tinh chỉnh)', f3(hyb.n10.mean), '± ' + f3(hyb.n10.std) + ' giữa các seed');
+        if (hyb && leg && leg.n10.mean > 0) tile(tiles, 'So với thuật toán cũ', '+' + ((hyb.n10.mean / leg.n10.mean - 1) * 100).toFixed(0) + '%', 'NDCG@10: ' + f3(leg.n10.mean) + ' → ' + f3(hyb.n10.mean));
+        if (hyb) tile(tiles, 'HitRate@10', pct(hyb.hr10.mean), 'tỉ lệ người dùng có ≥ 1 gợi ý đúng');
+        var sig = (R.significance || []).find(function (s) { return /Thuật toán cũ/.test(s.label); });
+        if (sig) tile(tiles, 'Ý nghĩa thống kê (vs bản cũ)', sig.pValue < 0.001 ? 'p < 0.001' : 'p = ' + sig.pValue.toFixed(3), 'paired permutation test, 10.000 hoán vị');
+        var rows = names.map(function (n) {
+            var m = main[n];
+            return { label: n, value: m.n10.mean, highlight: /tinh chỉnh\)$/.test(n) || /cũ/.test(n),
+                details: ['NDCG@10 ' + f3(m.n10.mean) + ' ± ' + f3(m.n10.std), 'Recall@10 ' + pct(m.r10.mean) + ' · HR@10 ' + pct(m.hr10.mean), 'Coverage@10 ' + pct(m.coverage10.mean) + ' · ILD@10 ' + f3(m.ild10.mean)] };
+        }).sort(function (a, b) { return b.value - a.value; });
+        barChart(document.getElementById('chartAlgos'), rows, { title: 'NDCG@10 theo thuật toán' });
+        table(document.getElementById('tableAlgos'), ['Thuật toán', 'P@10', 'R@10', 'NDCG@10', 'HR@10', 'MRR@10', 'Coverage@10', 'ILD@10', 'Novelty@10'],
+            names.map(function (n) { var m = main[n]; return [n, pct(m.p10.mean), pct(m.r10.mean), f3(m.n10.mean) + ' ± ' + f3(m.n10.std), pct(m.hr10.mean), f3(m.mrr10.mean), pct(m.coverage10.mean), f3(m.ild10.mean), m.nov10.mean.toFixed(2)]; }),
+            function (r) { return /tinh chỉnh\)$/.test(r[0]); });
+        if (R.coldStart) {
+            var cold = R.coldStart.results;
+            barChart(document.getElementById('chartCold'), Object.keys(cold).map(function (n) { return { label: n, value: cold[n].n10.mean, highlight: /switching \+ quiz/.test(n), details: ['HR@10 ' + pct(cold[n].hr10.mean), 'Recall@10 ' + pct(cold[n].r10.mean)] }; }).sort(function (a, b) { return b.value - a.value; }), { title: 'Cold-start NDCG@10' });
+            table(document.getElementById('tableCold'), ['Thuật toán', 'NDCG@10', 'HR@10', 'Recall@10'], Object.keys(cold).map(function (n) { return [n, f3(cold[n].n10.mean), pct(cold[n].hr10.mean), pct(cold[n].r10.mean)]; }));
+        }
+        if (R.rho) {
+            var pick = ['Content-based', 'User-based CF', 'BPR', 'Hybrid v2 (tinh chỉnh theo ρ)'];
+            var colors = ['var(--series-1)', 'var(--series-2)', 'var(--series-3)', 'var(--series-4)'];
+            var series = pick.filter(function (n) { return R.rho[0].results[n] !== undefined; }).map(function (n, i) { return { name: n.replace(' (tinh chỉnh theo ρ)', ''), color: colors[i], values: R.rho.map(function (r) { return r.results[n]; }) }; });
+            lineChart(document.getElementById('chartRho'), document.getElementById('legendRho'), R.rho.map(function (r) { return r.rho; }), series, { title: 'NDCG@10 theo ρ' });
+            var allNames = Object.keys(R.rho[0].results);
+            table(document.getElementById('tableRho'), ['ρ'].concat(allNames), R.rho.map(function (r) { return [String(r.rho)].concat(allNames.map(function (n) { return f3(r.results[n]); })); }));
+        }
+    }
+    fetch('evaluation/results/latest.json', { cache: 'no-store' }).then(function (r) { if (!r.ok) throw new Error(r.status); return r.json(); })
+        .then(function (d) { evalData = d; renderEval(); })
+        .catch(function () { document.getElementById('evalMeta').textContent = 'Không đọc được evaluation/results/latest.json (hãy mở trang qua máy chủ web, ví dụ npm start hoặc Live Server, rồi chạy npm run evaluate).'; });
+    var resizeTimer = null;
+    window.addEventListener('resize', function () { clearTimeout(resizeTimer); resizeTimer = setTimeout(function () { renderEval(); if (liveData) renderLive(liveData); }, 150); });
+
+    /* ---------------- 2. Số liệu vận hành ---------------- */
+    var liveData = null;
+    function renderLive(d) {
+        var body = document.getElementById('liveBody');
+        body.replaceChildren();
+        var st = d.stats, model = d.model;
+        var tiles = el('div', { class: 'tiles' });
+        tile(tiles, 'Người dùng', String(st.users.total), st.users.demo + ' tài khoản demo (mô phỏng) · ' + st.users.active + ' có hành vi');
+        var totalEvents = Object.keys(st.interactions).reduce(function (s, k) { return s + st.interactions[k].real + st.interactions[k].demo; }, 0);
+        tile(tiles, 'Tương tác đã ghi nhận', totalEvents.toLocaleString('vi-VN'), 'xem, giỏ, yêu thích, mua, đánh giá, hiển thị/nhấp gợi ý');
+        tile(tiles, 'Độ thưa ma trận', pct(model.sparsity), model.users + ' người dùng × ' + model.items + ' sản phẩm · tin cậy cộng đồng ' + model.communityConfidence);
+        tile(tiles, 'Đánh giá sau mua', String(st.reviews.total), st.reviews.average ? 'trung bình ' + st.reviews.average + '★ · ' + st.reviews.verified + ' đã xác minh mua' : 'chưa có');
+        body.appendChild(tiles);
+        var two = el('div', { class: 'two' });
+        var ctrCard = el('div', { class: 'card' });
+        ctrCard.appendChild(el('h3', null, 'CTR khu gợi ý theo vị trí (người dùng đã đăng nhập)'));
+        var ctrWrap = el('div', { class: 'table-wrap' });
+        var ctxNames = { home: 'Trang chủ — Được chọn cho bạn', product: 'Trang sản phẩm — Gợi ý dành cho bạn', social: 'Trang chủ — Khách có gu giống bạn', outfit: 'Phối cùng sản phẩm' };
+        var ctrRows = Object.keys(st.recommendationCtr || {}).map(function (k) { var c = st.recommendationCtr[k]; return [ctxNames[k] || k, String(c.impressions), String(c.clicks), c.impressions ? pct(c.clicks / c.impressions) : '—']; });
+        if (ctrRows.length) table(ctrWrap, ['Khu gợi ý', 'Lượt hiển thị', 'Lượt nhấp', 'CTR'], ctrRows);
+        else ctrWrap.appendChild(el('p', { class: 'note' }, 'Chưa có dữ liệu hiển thị/nhấp. Đăng nhập và duyệt website để bắt đầu đo.'));
+        ctrCard.appendChild(ctrWrap);
+        two.appendChild(ctrCard);
+        var sentiCard = el('div', { class: 'card' });
+        sentiCard.appendChild(el('h3', null, 'Cảm xúc bình luận (phân tích tiếng Việt)'));
+        var s = st.reviews.sentiment || {}, pos = s.positive || 0, neu = s.neutral || 0, neg = s.negative || 0, tot = pos + neu + neg;
+        var legend = el('div', { class: 'legend' });
+        [['Tích cực', 'var(--div-pos)', pos], ['Trung lập', 'var(--div-mid)', neu], ['Tiêu cực', 'var(--div-neg)', neg]].forEach(function (x) {
+            var item = el('span'); var sw = el('i', { class: 'box' }); sw.style.background = x[1];
+            item.append(sw, document.createTextNode(x[0] + ': ' + x[2] + (tot ? ' (' + pct(x[2] / tot) + ')' : '')));
+            legend.appendChild(item);
+        });
+        sentiCard.appendChild(legend);
+        if (tot) {
+            var w = 600, h = 26, x = 0;
+            var svg = svgEl('svg', { viewBox: '0 0 ' + w + ' ' + h, role: 'img', 'aria-label': 'Phân bố cảm xúc: tích cực ' + pos + ', trung lập ' + neu + ', tiêu cực ' + neg });
+            [[pos, 'var(--div-pos)'], [neu, 'var(--div-mid)'], [neg, 'var(--div-neg)']].forEach(function (seg) {
+                if (!seg[0]) return;
+                var sw = seg[0] / tot * w;
+                svg.appendChild(svgEl('rect', { x: x + (x ? 1 : 0), y: 0, width: Math.max(1, sw - (x ? 2 : 1)), height: h, rx: 4, fill: seg[1] }));
+                x += sw;
+            });
+            var chart = el('div', { class: 'chart' }); chart.appendChild(svg); sentiCard.appendChild(chart);
+        } else sentiCard.appendChild(el('p', { class: 'note' }, 'Chưa có đánh giá.'));
+        two.appendChild(sentiCard);
+        body.appendChild(two);
+        var top = el('div', { class: 'card' });
+        top.appendChild(el('h3', null, 'Sản phẩm xu hướng (độ phổ biến có suy giảm thời gian)'));
+        var topWrap = el('div', { class: 'table-wrap' });
+        table(topWrap, ['Sản phẩm', 'Điểm xu hướng', 'Số người tương tác'], (d.topProducts || []).map(function (p) { return [p.name || p.id, String(p.score), String(p.users)]; }));
+        top.appendChild(topWrap);
+        top.appendChild(el('p', { class: 'note' }, 'Mô hình dựng lại sau ' + model.buildMs + ' ms · BPR ' + (model.mfTrained ? 'đã huấn luyện (' + model.mfUsers + ' người dùng)' : 'chưa đủ dữ liệu') + ' · lưu trữ: ' + d.store + '. Số liệu tài khoản demo được tách riêng và ghi rõ ở mọi nơi hiển thị.'));
+        body.appendChild(top);
+    }
+    function loadLive() {
+        var body = document.getElementById('liveBody');
+        var token = sessionStorage.getItem('stylehub_admin_token');
+        fetch(API_BASE + '/api/health', { cache: 'no-store' }).then(function (r) { return r.ok ? r.json() : null; }).catch(function () { return null; }).then(function (h) {
+            if (!h || h.ok !== true) { body.replaceChildren(el('div', { class: 'msg' }, 'Không có máy chủ gợi ý (đang mở ở chế độ tĩnh). Chạy "npm start" rồi mở http://localhost:3000/research-dashboard.html để xem số liệu vận hành.')); return; }
+            if (!token) {
+                var m = el('div', { class: 'msg' });
+                m.append(document.createTextNode('Cần đăng nhập tài khoản quản trị (chế độ máy chủ) để xem số liệu vận hành. '));
+                var a = el('a', { href: 'admin.html' }, 'Đăng nhập trang quản trị'); m.appendChild(a);
+                body.replaceChildren(m);
+                return;
+            }
+            fetch(API_BASE + '/api/admin/stats', { headers: { Authorization: 'Bearer ' + token }, cache: 'no-store' })
+                .then(function (r) { return r.json().then(function (d) { return { status: r.status, d: d }; }); })
+                .then(function (res) {
+                    if (res.status !== 200 || !res.d.ok) { body.replaceChildren(el('div', { class: 'msg' }, res.d.message || 'Phiên quản trị đã hết hạn — hãy đăng nhập lại.')); return; }
+                    liveData = res.d;
+                    renderLive(liveData);
+                });
+        });
+    }
+    loadLive();
+})();
+</script>
+</body>
+</html>

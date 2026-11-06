@@ -231,9 +231,15 @@ function createApp(ctx) {
             return catalog[id] ? { item: id, ts: Number(ts) || Date.now() } : null;
         }).filter(Boolean);
         const exclude = String(q.get('exclude') || '').split(',').filter((id) => catalog[id]).slice(0, 200);
-        const items = service.recommend(user ? user.id : null, { context, productId, limit, quiz: quiz || undefined, recent: recent.length ? recent : undefined, exclude, diversify: q.get('diversify') !== '0' });
+        // strategy=social: CHỈ User-based CF — "khách có gu giống bạn đã mua / đánh giá cao" (đúng yêu cầu đề tài).
+        const social = q.get('strategy') === 'social';
+        let items = service.recommend(user ? user.id : null, {
+            context, productId, limit, quiz: quiz || undefined, recent: recent.length ? recent : undefined, exclude,
+            diversify: social ? false : q.get('diversify') !== '0', weights: social ? { ucf: 1 } : undefined, excludeInteracted: social
+        });
+        if (social) items = items.filter((x) => x.explanation && x.explanation.type === 'ucf');
         const st = service.stats();
-        return { ok: true, source: 'server', personalized: !!user, context, items, meta: { activeUsers: st.activeUsers, interactions: st.interactions, communityConfidence: st.communityConfidence, mfTrained: st.mfTrained } };
+        return { ok: true, source: 'server', personalized: !!user, context, strategy: social ? 'social' : 'hybrid', items, meta: { activeUsers: st.activeUsers, interactions: st.interactions, communityConfidence: st.communityConfidence, mfTrained: st.mfTrained } };
     });
 
     route('GET', /^\/api\/recommendations\/outfit$/, (req, url) => {

@@ -1,0 +1,144 @@
+/* =============================================================================
+   THE STYLE HUB — Giao diện các thành phần gợi ý v2: "Vì sao gợi ý?", phối đồ,
+   đánh giá sau mua, quiz Style DNA, hồ sơ phong cách. Cùng ngôn ngữ thiết kế kem/đen.
+   ========================================================================== */
+:root {
+    --sh-ink: #201f1e; --sh-muted: #77726d; --sh-line: #eae8e3; --sh-cream: #f7f3ec; --sh-gold: #9c7952; --sh-gold-soft: #d9ccbc;
+    --sh-pos: #2f7a4b; --sh-neu: #7a7468; --sh-neg: #b0413e;
+}
+
+/* ---------- Vì sao gợi ý? ---------- */
+.sh-why { margin: 8px 7px 0; font-size: 11px; color: var(--sh-muted); }
+.sh-why summary { cursor: pointer; list-style: none; font-weight: 700; letter-spacing: .4px; color: var(--sh-gold); }
+.sh-why summary::-webkit-details-marker { display: none; }
+.sh-why summary::before { content: "ⓘ "; }
+.sh-why[open] summary { margin-bottom: 6px; }
+.sh-why-row { display: grid; grid-template-columns: 1fr 52px 30px; gap: 6px; align-items: center; margin: 4px 0; line-height: 1.3; }
+.sh-why-bar { height: 5px; background: #f0ece4; border-radius: 3px; overflow: hidden; }
+.sh-why-bar i, .sh-dist-bar i, .sh-dna-bar i { display: block; height: 100%; background: linear-gradient(90deg, #b8936a, #8c6a45); border-radius: inherit; }
+.sh-why-row b { text-align: right; font-weight: 700; color: var(--sh-ink); }
+.sh-why small { display: block; margin-top: 6px; font-size: 10px; color: #9a948c; }
+.sh-pick-reason { font-size: 11px; line-height: 1.45; color: var(--sh-muted); margin: 6px 0 0; }
+
+/* ---------- Phối đồ ---------- */
+.sh-outfit-section, .sh-reviews-section { max-width: 1340px; margin: 0 auto 80px; padding: 0 36px; }
+.sh-outfit-head, .sh-reviews-head { text-align: center; margin-bottom: 26px; }
+.sh-outfit-head .sh-recommend-eyebrow, .sh-reviews-head .sh-recommend-eyebrow, .sh-dna-head .sh-recommend-eyebrow, .sh-quiz .sh-recommend-eyebrow {
+    display: inline-block; font-size: 10px; letter-spacing: 3.3px; color: #95754d; font-weight: 700; text-transform: uppercase; margin-bottom: 10px; }
+.sh-outfit-head h2, .sh-reviews-head h2 { font-family: Georgia, 'Times New Roman', serif; font-weight: 400; font-size: clamp(26px, 3.4vw, 40px); letter-spacing: -1px; margin: 0; color: var(--sh-ink); text-transform: none; }
+.sh-outfit-lede { color: var(--sh-muted); font-size: 13px; margin: 10px 0 0; }
+.sh-outfit-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 260px)); justify-content: center; gap: 22px; }
+.sh-outfit-card { display: block; text-decoration: none; color: inherit; border: 1px solid var(--sh-line); border-radius: 14px; background: #fff; padding: 10px 10px 16px; transition: transform .3s, box-shadow .3s; }
+.sh-outfit-card:hover { transform: translateY(-6px); box-shadow: 0 16px 34px rgba(0, 0, 0, .08); }
+.sh-outfit-card img { width: 100%; aspect-ratio: 4 / 5; object-fit: cover; border-radius: 10px; background: var(--sh-cream); }
+.sh-outfit-cat { display: inline-block; margin: 10px 0 4px; font-size: 10px; letter-spacing: 2px; text-transform: uppercase; color: var(--sh-gold); font-weight: 700; }
+.sh-outfit-name { font-size: 13px; font-weight: 600; margin: 0 0 4px; color: var(--sh-ink); }
+.sh-outfit-price { font-size: 13px; margin: 0; color: var(--sh-ink); }
+.sh-outfit-reason { font-size: 11px; color: var(--sh-muted); margin: 8px 0 0; padding-top: 8px; border-top: 1px solid #f0eee9; line-height: 1.5; }
+
+/* ---------- Khách có gu giống bạn (CF) ---------- */
+.sh-social-section { max-width: 1350px; margin: 0 auto; padding: 60px 40px 70px; box-sizing: border-box; }
+.sh-social-head { margin-bottom: 22px; }
+.sh-social-head .sh-recommend-eyebrow { display: inline-block; font-size: 10px; letter-spacing: 3.3px; color: #95754d; font-weight: 700; text-transform: uppercase; margin-bottom: 10px; }
+.sh-social-head h2 { font-family: Georgia, 'Times New Roman', serif; font-weight: 400; font-size: clamp(26px, 3.4vw, 40px); letter-spacing: -1px; margin: 0; color: var(--sh-ink); text-transform: none; }
+.sh-social-lede { color: var(--sh-muted); font-size: 13px; margin: 10px 0 0; max-width: 720px; line-height: 1.7; }
+.sh-social-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 22px; }
+.sh-social-reason { color: #6b5233; font-weight: 600; }
+.sh-social-empty { color: var(--sh-muted); font-size: 13px; margin: 0; }
+.sh-social-empty:empty { display: none; }
+
+/* ---------- Đánh giá ---------- */
+.sh-reviews-summary { display: grid; grid-template-columns: 170px 1fr 1fr; gap: 26px; align-items: center; padding: 24px; border: 1px solid var(--sh-line); border-radius: 18px; background: linear-gradient(125deg, #f5f1e9, #fbfaf7); margin-bottom: 20px; }
+.sh-reviews-avg { text-align: center; }
+.sh-reviews-avg strong { display: block; font-family: Georgia, serif; font-size: 46px; font-weight: 400; color: var(--sh-ink); line-height: 1; }
+.sh-stars { color: #c99a52; letter-spacing: 2px; font-size: 15px; }
+.sh-reviews-avg small { display: block; color: var(--sh-muted); font-size: 12px; margin-top: 4px; }
+.sh-dist-row { display: grid; grid-template-columns: 30px 1fr 28px; gap: 8px; align-items: center; font-size: 12px; color: var(--sh-muted); margin: 3px 0; }
+.sh-dist-bar { height: 7px; background: #ece7de; border-radius: 4px; overflow: hidden; }
+.sh-dist-row b { text-align: right; color: var(--sh-ink); }
+.sh-reviews-senti { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+.sh-senti-title { width: 100%; font-size: 11px; letter-spacing: 1.6px; text-transform: uppercase; color: var(--sh-gold); font-weight: 700; }
+.sh-sentiment { display: inline-block; padding: 3px 9px; border-radius: 999px; font-size: 11px; font-weight: 700; border: 1px solid currentColor; }
+.sh-sentiment.is-pos { color: var(--sh-pos); background: #eef7f1; }
+.sh-sentiment.is-neu { color: var(--sh-neu); background: #f4f2ee; }
+.sh-sentiment.is-neg { color: var(--sh-neg); background: #fbefee; }
+.sh-review-form { border: 1px solid var(--sh-line); border-radius: 16px; padding: 18px 20px; margin-bottom: 20px; background: #fff; }
+.sh-review-form-title { font-weight: 700; margin: 0 0 8px; color: var(--sh-ink); }
+.sh-review-gate { margin: 0; color: var(--sh-muted); font-size: 13px; }
+.sh-review-stars { display: flex; gap: 4px; margin-bottom: 10px; }
+.sh-review-star { border: 0; background: none; font-size: 26px; color: #d8d2c8; cursor: pointer; padding: 2px; line-height: 1; }
+.sh-review-star.is-on { color: #c99a52; }
+.sh-review-star:focus-visible, .sh-quiz-chip:focus-visible, .sh-dna-btn:focus-visible, .sh-why summary:focus-visible { outline: 2px solid var(--sh-gold); outline-offset: 2px; }
+.sh-review-form textarea { width: 100%; box-sizing: border-box; border: 1px solid #ddd6cb; border-radius: 10px; padding: 10px 12px; font: inherit; font-size: 13px; resize: vertical; }
+.sh-sentiment-preview { font-size: 12px; color: var(--sh-muted); margin: 8px 0; display: flex; gap: 6px; align-items: center; flex-wrap: wrap; }
+.sh-review-submit, .sh-dna-btn, .sh-quiz-save { border: 1px solid var(--sh-ink); background: var(--sh-ink); color: #fff; padding: 10px 18px; border-radius: 999px; font-size: 11px; letter-spacing: 1.6px; text-transform: uppercase; font-weight: 700; cursor: pointer; }
+.sh-review-submit:disabled { opacity: .5; cursor: wait; }
+.sh-review-status { font-size: 12px; color: var(--sh-muted); margin: 8px 0 0; min-height: 1em; }
+.sh-reviews-list { display: grid; gap: 12px; }
+.sh-review { border-bottom: 1px solid var(--sh-line); padding: 12px 2px; }
+.sh-review-top { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; font-size: 12px; color: var(--sh-muted); }
+.sh-review-top strong { color: var(--sh-ink); }
+.sh-review-top time { margin-left: auto; }
+.sh-badge-verified { color: var(--sh-pos); font-weight: 700; font-size: 11px; }
+.sh-badge-demo { background: #fff4dc; color: #8a6420; border-radius: 999px; padding: 2px 8px; font-size: 10px; font-weight: 700; }
+.sh-review-text { margin: 8px 0 0; font-size: 13px; line-height: 1.6; color: var(--sh-ink); white-space: pre-line; overflow-wrap: anywhere; }
+.sh-review-delete { margin-top: 6px; border: 0; background: none; color: var(--sh-neg); font-size: 11px; cursor: pointer; padding: 0; text-decoration: underline; }
+.sh-reviews-empty, .sh-reviews-note { color: var(--sh-muted); font-size: 12px; }
+.sh-reviews-note { margin-top: 14px; }
+
+/* ---------- Quiz Style DNA ---------- */
+.sh-quiz-overlay { position: fixed; inset: 0; z-index: 100000; background: rgba(24, 22, 20, .55); display: none; align-items: center; justify-content: center; padding: 16px; }
+.sh-quiz-overlay.is-open { display: flex; }
+body.sh-quiz-lock { overflow: hidden; }
+.sh-quiz { position: relative; width: min(640px, 100%); max-height: calc(100vh - 32px); overflow: auto; background: #fbfaf7; border-radius: 20px; padding: 28px 26px 22px; box-shadow: 0 30px 80px rgba(0, 0, 0, .25); }
+.sh-quiz h3 { font-family: Georgia, serif; font-weight: 400; font-size: 26px; margin: 0 0 6px; color: var(--sh-ink); text-transform: none; letter-spacing: -.5px; }
+.sh-quiz-lede { color: var(--sh-muted); font-size: 13px; margin: 0 0 14px; }
+.sh-quiz-close { position: absolute; top: 14px; right: 14px; width: 36px; height: 36px; border-radius: 50%; border: 1px solid var(--sh-line); background: #fff; cursor: pointer; font-size: 15px; }
+.sh-quiz-group { border: 0; margin: 0 0 14px; padding: 0; }
+.sh-quiz-group legend { font-weight: 700; font-size: 13px; color: var(--sh-ink); margin-bottom: 8px; }
+.sh-quiz-chips { display: flex; flex-wrap: wrap; gap: 8px; }
+.sh-quiz-chip { border: 1px solid #d9d1c4; background: #fff; color: var(--sh-ink); padding: 8px 14px; border-radius: 999px; font-size: 12px; cursor: pointer; transition: background .2s, color .2s; }
+.sh-quiz-chip.is-on { background: var(--sh-ink); color: #fff; border-color: var(--sh-ink); }
+.sh-quiz-save { width: 100%; padding: 13px; margin-top: 4px; }
+.sh-quiz-status { text-align: center; font-size: 12px; color: var(--sh-muted); min-height: 1em; margin: 8px 0 0; }
+
+/* ---------- Hồ sơ phong cách ---------- */
+/* Căn cùng lề với .sh-personal-grid (max-width 1350px, đệm 40px; mobile 18px). */
+.sh-dna-home { max-width: 1350px; margin: 0 auto 26px; padding: 0 40px; box-sizing: border-box; }
+.sh-dna-home > * { box-sizing: border-box; }
+.sh-dna-home .sh-dna-cta, .sh-dna-home .sh-dna-head { padding-top: 2px; }
+.sh-dna-home { background: none; }
+.sh-dna-home::before { content: none; }
+#shStyleDnaHome { position: relative; }
+#shStyleDnaHome > div:first-child, #shStyleDnaHome > .sh-dna-cta { margin-top: 0; }
+.sh-dna-home-card, #shStyleDnaHome > .sh-dna-cta { padding: 16px 20px; border: 1px solid #e3dacb; border-radius: 16px; background: linear-gradient(125deg, #faf7f1, #fff); }
+.sh-dna-head h3 { font-family: Georgia, serif; font-weight: 400; font-size: 22px; margin: 0; color: var(--sh-ink); text-transform: none; }
+.sh-dna-meta { font-size: 12px; color: var(--sh-muted); margin: 4px 0 10px; }
+.sh-dna-chips { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 10px; }
+.sh-dna-chip { background: #fff; border: 1px solid var(--sh-gold-soft); color: var(--sh-ink); padding: 4px 10px; border-radius: 999px; font-size: 11px; }
+.sh-dna-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 18px; margin: 12px 0 16px; }
+.sh-dna-group h4 { margin: 0 0 8px; font-size: 11px; letter-spacing: 1.6px; text-transform: uppercase; color: var(--sh-gold); }
+.sh-dna-row { display: grid; grid-template-columns: 1fr 90px 38px; gap: 8px; align-items: center; font-size: 12px; margin: 5px 0; color: var(--sh-ink); }
+.sh-dna-bar { height: 7px; background: #ece7de; border-radius: 4px; overflow: hidden; }
+.sh-dna-row b { text-align: right; }
+.sh-dna-empty { font-size: 12px; color: var(--sh-muted); margin: 0; }
+.sh-dna-actions { display: flex; flex-wrap: wrap; gap: 8px; }
+.sh-dna-btn.ghost { background: #fff; color: var(--sh-ink); }
+.sh-dna-btn.danger { background: #fff; color: var(--sh-neg); border-color: var(--sh-neg); }
+.sh-dna-cta strong { display: block; font-family: Georgia, serif; font-size: 19px; font-weight: 400; color: var(--sh-ink); }
+.sh-dna-cta p { font-size: 13px; color: var(--sh-muted); margin: 6px 0 12px; }
+.sh-dna-sync { font-size: 12px; color: var(--sh-muted); margin: 0 0 12px; }
+.sh-dna-account { padding: 6px 0; }
+
+@media (max-width: 760px) {
+    .sh-dna-home { padding: 0 18px; }
+    .sh-social-section { padding: 44px 18px 50px; }
+    .sh-social-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
+    .sh-outfit-section, .sh-reviews-section { padding: 0 16px; margin-bottom: 56px; }
+    .sh-reviews-summary { grid-template-columns: 1fr; gap: 14px; padding: 18px; }
+    .sh-outfit-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
+    .sh-review-top time { margin-left: 0; width: 100%; }
+    .sh-dna-row { grid-template-columns: 1fr 70px 34px; }
+    .sh-quiz { padding: 22px 16px 16px; }
+}
+@media (prefers-reduced-motion: reduce) { .sh-outfit-card, .sh-quiz-chip { transition: none !important; } }

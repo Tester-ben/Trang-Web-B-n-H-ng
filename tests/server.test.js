@@ -104,6 +104,13 @@ for (const kind of STORES) {
             assert.ok(loved, 'sản phẩm B chấm 5 sao phải được gợi ý cho A');
             assert.ok(recs.body.items.some((x) => x.explanation.type === 'ucf' && /người có gu giống bạn/.test(x.reason)), JSON.stringify(recs.body.items.map((x) => x.reason)));
             assert.ok(ids.indexOf('bottoms-8') < (ids.indexOf('dress-2') < 0 ? 99 : ids.indexOf('dress-2')), 'đồ của người có gu khác (C) xếp sau');
+            const social = await t.api('GET', '/api/recommendations?context=home&strategy=social&limit=8', undefined, A);
+            assert.equal(social.body.strategy, 'social');
+            assert.ok(social.body.items.length >= 2);
+            assert.ok(social.body.items.every((x) => x.explanation.type === 'ucf' && /người có gu giống bạn/.test(x.reason)));
+            assert.ok(social.body.items.some((x) => x.id === 'bottoms-8') && social.body.items.some((x) => x.id === 'shoe-14'));
+            assert.ok(!social.body.items.some((x) => x.id === 'dress-2'), 'không lấy đồ của người khác gu');
+            assert.ok(!social.body.items.some((x) => ['hoodies-1', 'hoodies-7', 'tops-1'].includes(x.id)), 'không gợi ý lại sản phẩm A đã xem');
             // Khách chưa đăng nhập vẫn nhận gợi ý từ dữ liệu cộng đồng + sản phẩm vừa xem.
             const guest = await t.api('GET', '/api/recommendations?context=home&limit=4&recent=hoodies-9:' + (now - 1000));
             assert.equal(guest.body.personalized, false);

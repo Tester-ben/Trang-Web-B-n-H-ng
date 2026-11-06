@@ -812,7 +812,9 @@
                     var e = me.items.get(id);
                     if (e && e.disliked) return false;
                     if (e && e.purchased && o.excludePurchased !== false) return false;
+                    if (e && o.excludeInteracted) return false; // chỉ gợi ý thứ người dùng CHƯA tương tác
                 }
+                if (o.excludeInteracted && Array.isArray(o.recent) && o.recent.some(function (r) { return r && r.item === id; })) return false;
                 return true;
             });
         }
