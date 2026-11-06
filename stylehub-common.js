@@ -1938,7 +1938,8 @@ function initStyleHubBlackFooterFinal() {
         html body footer.site-footer,
         html body .footer,
         html body footer,
-        html body [class*="footer"] {
+        html body footer [class*="footer"],
+        html body .site-footer [class*="footer"] {
             background: #050505 !important;
             background-color: #050505 !important;
             background-image: none !important;
@@ -1948,8 +1949,10 @@ function initStyleHubBlackFooterFinal() {
         html body .site-footer::after,
         html body footer::before,
         html body footer::after,
-        html body [class*="footer"]::before,
-        html body [class*="footer"]::after {
+        html body footer [class*="footer"]::before,
+        html body footer [class*="footer"]::after,
+        html body .site-footer [class*="footer"]::before,
+        html body .site-footer [class*="footer"]::after {
             background: #050505 !important;
             background-color: #050505 !important;
             background-image: none !important;
