@@ -271,23 +271,31 @@
         userKnn: { k: 25, significance: 4, minSim: 0.01 },
         itemKnn: { k: 30, shrink: 3 },
         mf: { enabled: true, factors: 16, epochs: 100, learningRate: 0.05, regularization: 0.01, seed: 42, minPositives: 10 },
-        confidenceKappa: 3,
+        confidenceKappa: 3,                               // tin cậy CF theo số tương tác của người dùng: n/(n+κ)
+        communityKappa: 30,                               // tin cậy CF theo quy mô cộng đồng: U/(U+κc)
+        coldStartThreshold: 2,                            // <= 2 tương tác dương -> dùng trọng số cold-start (switching hybrid)
+        genderMismatchFactor: 0.35,                       // giảm điểm sản phẩm khác giới tính khi biết chắc giới tính người dùng
+        genderConfidence: 0.8,
         quizWeight: 1,
         // Trọng số hybrid. Giá trị "home" được tinh chỉnh bằng grid search trên tập validation
         // (evaluation/run-evaluation.js -> recommender/tuned-weights.json). Xem docs/KET_QUA_THUC_NGHIEM.md.
         weights: {
-            home: { session: 0.25, cb: 0.25, ucf: 0.2, icf: 0.15, mf: 0.1, pop: 0.05 },
-            product: { ctx: 0.35, cb: 0.15, ucf: 0.2, icf: 0.15, mf: 0.1, pop: 0.05 }
+            home: { session: 0.05, cb: 0.07, ucf: 0.37, icf: 0.08, mf: 0.27, pop: 0.17 },
+            cold: { cb: 0.08, ucf: 0.48, icf: 0.1, mf: 0.13, pop: 0.2 },
+            product: { ctx: 0.35, cb: 0.05, ucf: 0.25, icf: 0.05, mf: 0.18, pop: 0.12 }
         },
-        mmrLambda: 0.8,
+        mmrLambda: 0.7,
         groupWeights: { type: 3, category: 1.5, gender: 2.5, color: 1.5, style: 1.5, material: 1, fit: 0.75, brand: 0.75, price: 1 }
     };
 
+    // Bộ trọng số hybrid được THAY THẾ nguyên khối (không trộn với mặc định) để cấu hình rõ ràng.
+    var REPLACE_KEYS = { home: 1, cold: 1, product: 1 };
     function mergeOptions(base, extra) {
         var out = {};
         Object.keys(base).forEach(function (k) {
             var b = base[k], e = extra ? extra[k] : undefined;
-            if (b && typeof b === 'object' && !Array.isArray(b)) out[k] = mergeOptions(b, e && typeof e === 'object' ? e : {});
+            if (REPLACE_KEYS[k] && e && typeof e === 'object') out[k] = Object.assign({}, e);
+            else if (b && typeof b === 'object' && !Array.isArray(b)) out[k] = mergeOptions(b, e && typeof e === 'object' ? e : {});
             else out[k] = e !== undefined ? e : b;
         });
         if (extra) Object.keys(extra).forEach(function (k) { if (out[k] === undefined) out[k] = extra[k]; });
@@ -598,6 +606,10 @@
             });
         });
 
+        var activeUsers = 0;
+        users.forEach(function (u) { if (u.positives > 0) activeUsers++; });
+        var communityConfidence = activeUsers / (activeUsers + (opts.communityKappa || 0) || 1);
+
         // BPR
         var mf = null;
         if (opts.mf && opts.mf.enabled) mf = trainBPR(users, itemIds, opts.mf);
@@ -788,9 +800,13 @@
             return out;
         }
 
-        /** Trọng số hybrid thích ứng theo lượng dữ liệu của người dùng. */
+        /**
+         * Trọng số hybrid thích ứng theo lượng dữ liệu: CF được nhân độ tin cậy của người dùng
+         * (số tương tác) và của cộng đồng (số người dùng có dữ liệu) — ít dữ liệu thì dựa nhiều
+         * hơn vào nội dung/xu hướng.
+         */
         function adaptiveWeights(base, positives, available) {
-            var c = positives / (positives + opts.confidenceKappa);
+            var c = positives / (positives + opts.confidenceKappa) * communityConfidence;
             var w = {}, sum = 0;
             Object.keys(base).forEach(function (k) {
                 if (!available[k] || !(base[k] > 0)) return;
@@ -804,6 +820,30 @@
             return w;
         }
 
+        /**
+         * Hồ sơ giới tính của người dùng: lấy từ quiz, hoặc suy ra khi >= 80% sản phẩm (không unisex)
+         * người dùng tương tác thuộc cùng một giới tính (tối thiểu 3 sản phẩm).
+         */
+        function genderProfile(user, quiz) {
+            if (quiz && (quiz.gender === 'men' || quiz.gender === 'women' || quiz.gender === 'kids')) return { gender: quiz.gender, source: 'quiz' };
+            var me = users.get(user);
+            if (!me) return null;
+            var weight = {}, total = 0, count = 0;
+            me.items.forEach(function (e, item) {
+                var g = attributes[item] && attributes[item].gender;
+                if (e.score <= 0 || !g || g === 'unisex') return;
+                weight[g] = (weight[g] || 0) + e.score; total += e.score; count++;
+            });
+            if (count < 3 || !total) return null;
+            var best = Object.keys(weight).sort(function (a, b) { return weight[b] - weight[a]; })[0];
+            return weight[best] / total >= opts.genderConfidence ? { gender: best, source: 'history' } : null;
+        }
+        function genderCompatibleWith(profileGender, itemGender) {
+            if (!profileGender || !itemGender) return true;
+            if (profileGender === 'kids' || itemGender === 'kids') return profileGender === itemGender;
+            return itemGender === 'unisex' || itemGender === profileGender;
+        }
+
         /** Tính điểm từng thành phần (dùng cho recommend và cho thực nghiệm). */
         function componentScores(user, o) {
             o = o || {};
@@ -811,7 +851,16 @@
             var context = o.context || (o.productId ? 'product' : 'home');
             var candidates = o.candidates || candidateItems(user, o);
             var me = users.get(user);
-            var cb = contentScores(user, candidates, o.quiz);
+            var quiz = o.quiz || (profiles[user] && profiles[user].quiz);
+            var cb = contentScores(user, candidates, quiz);
+            var gp = genderProfile(user, quiz);
+            if (!gp && context === 'product' && attributes[o.productId] && attributes[o.productId].gender !== 'unisex') {
+                gp = { gender: attributes[o.productId].gender, source: 'product' };
+            }
+            var gate = new Map();
+            if (gp) candidates.forEach(function (id) {
+                if (!genderCompatibleWith(gp.gender, attributes[id].gender)) gate.set(id, opts.genderMismatchFactor);
+            });
             var ucf = userCFScores(user), icf = itemCFScores(user);
             var raw = {
                 cb: cb.scores,
@@ -827,7 +876,8 @@
             Object.keys(raw).forEach(function (k) { norm[k] = normalizeMap(raw[k]); available[k] = norm[k].size > 0; });
             return {
                 user: user, context: context, candidates: candidates, normalized: norm, available: available,
-                positives: me ? me.positives : 0, taste: cb.taste, ucf: ucf, icf: icf, session: session
+                positives: me ? me.positives : 0, taste: cb.taste, ucf: ucf, icf: icf, session: session,
+                gate: gate, genderProfile: gp
             };
         }
         function filterTo(map, candidates) {
@@ -836,18 +886,34 @@
             return out;
         }
 
+        /**
+         * Xếp hạng hybrid: tổng có trọng số các thành phần đã chuẩn hóa, nhân hệ số giới tính,
+         * hòa điểm thì ưu tiên sản phẩm phổ biến hơn (cũng là cách lấp chỗ trống khi thiếu tín hiệu).
+         */
         function rankFromComponents(comp, weights) {
             var w = adaptiveWeights(weights, comp.positives, comp.available);
+            var keys = Object.keys(w);
             var ranked = comp.candidates.map(function (id) {
                 var score = 0, parts = {};
-                Object.keys(w).forEach(function (k) {
+                keys.forEach(function (k) {
                     var v = comp.normalized[k].get(id) || 0;
                     if (v) { parts[k] = w[k] * v; score += parts[k]; }
                 });
-                return { id: id, score: score, parts: parts };
+                var g = comp.gate ? comp.gate.get(id) : undefined;
+                if (g !== undefined) {
+                    score *= g;
+                    keys.forEach(function (k) { if (parts[k]) parts[k] *= g; });
+                }
+                return { id: id, score: score, parts: parts, pop: (popularity.get(id) || 0) * (g !== undefined ? g : 1) };
             });
-            ranked.sort(function (a, b) { return b.score - a.score || (a.id < b.id ? -1 : 1); });
+            ranked.sort(function (a, b) { return b.score - a.score || b.pop - a.pop || (a.id < b.id ? -1 : 1); });
             return { ranked: ranked, weights: w };
+        }
+
+        /** Switching hybrid: người dùng mới (ít tương tác) ở trang chủ dùng bộ trọng số cold-start. */
+        function weightsFor(comp) {
+            if (comp.context === 'home' && comp.positives <= opts.coldStartThreshold && opts.weights.cold) return opts.weights.cold;
+            return opts.weights[comp.context] || opts.weights.home;
         }
 
         /** Đa dạng hóa bằng Maximal Marginal Relevance. */
@@ -943,14 +1009,14 @@
             o = o || {};
             var limit = Math.max(1, Math.min(50, Number(o.limit) || 4));
             var comp = componentScores(user, o);
-            var weights = o.weights || opts.weights[comp.context] || opts.weights.home;
+            var weights = o.weights || weightsFor(comp);
             var ranking = rankFromComponents(comp, weights);
             var ranked = ranking.ranked;
             if (!ranked.length) return [];
             var anySignal = ranked[0].score > 0;
             var list;
             if (!anySignal) {
-                list = exploreList(comp.candidates, limit);
+                list = exploreList(comp.candidates.filter(function (id) { return !comp.gate.has(id); }).concat(comp.candidates.filter(function (id) { return comp.gate.has(id); })), limit);
                 return list.map(function (id) {
                     return { id: id, score: 0, reason: 'Khám phá bộ sưu tập', explanation: { type: 'explore', text: 'Khám phá bộ sưu tập', evidence: {}, shares: {} } };
                 });
@@ -964,7 +1030,8 @@
 
         /** Danh sách khám phá khi chưa có tín hiệu: đa dạng loại sản phẩm, ưu tiên phổ biến. */
         function exploreList(candidates, limit) {
-            var sorted = candidates.slice().sort(function (a, b) { return (popularity.get(b) || 0) - (popularity.get(a) || 0) || (a < b ? -1 : 1); });
+            var order = new Map(candidates.map(function (id, i) { return [id, i]; }));
+            var sorted = candidates.slice().sort(function (a, b) { return (popularity.get(b) || 0) - (popularity.get(a) || 0) || order.get(a) - order.get(b); });
             var out = [], seenTypes = {};
             sorted.forEach(function (id) {
                 var t = attributes[id].type;
@@ -1018,7 +1085,7 @@
             var personal = new Map();
             if (user !== undefined && user !== null) {
                 var comp = componentScores(String(user), { context: 'home', checkAvailability: true });
-                var r = rankFromComponents(comp, opts.weights.home);
+                var r = rankFromComponents(comp, weightsFor(comp));
                 var maxS = r.ranked.length ? r.ranked[0].score : 0;
                 if (maxS > 0) r.ranked.forEach(function (x) { personal.set(x.id, x.score / maxS); });
             }
@@ -1096,7 +1163,8 @@
                 users: users.size, items: itemIds.length, interactions: interactions,
                 density: possible ? Number((interactions / possible).toFixed(4)) : 0,
                 sparsity: possible ? Number((1 - interactions / possible).toFixed(4)) : 1,
-                mfTrained: !!mf, mfUsers: mf ? mf.users : 0
+                mfTrained: !!mf, mfUsers: mf ? mf.users : 0,
+                activeUsers: activeUsers, communityConfidence: Number(communityConfidence.toFixed(3))
             };
         }
 
@@ -1113,6 +1181,7 @@
             popularityCount: function (id) { return popCount.get(id) || 0; },
             componentScores: componentScores,
             rankFromComponents: rankFromComponents,
+            weightsFor: weightsFor,
             adaptiveWeights: adaptiveWeights,
             mmr: mmr,
             recommend: recommend,

@@ -115,11 +115,8 @@ test('Hybrid: lọc hàng đã mua, hết hàng, không có ảnh, không thích
 });
 
 test('Giải thích trung thực: số người trong lời giải thích khớp bằng chứng thật', () => {
-    const model = engine.createModel({
-        catalog: CATALOG, events: socialScenario(), now: NOW,
-        options: { mf: { enabled: false }, weights: { home: { ucf: 1 } } }
-    });
-    const recs = model.recommend('A', { limit: 3, diversify: false });
+    const model = engine.createModel({ catalog: CATALOG, events: socialScenario(), now: NOW, options: { mf: { enabled: false } } });
+    const recs = model.recommend('A', { limit: 3, diversify: false, weights: { ucf: 1 } });
     const pants = recs.find(r => r.id === 'pants-black');
     assert.ok(pants, 'quần đen phải nằm trong top 3');
     assert.equal(pants.explanation.type, 'ucf');
@@ -131,11 +128,8 @@ test('Giải thích trung thực: số người trong lời giải thích khớp
 });
 
 test('Dữ liệu demo được ghi rõ trong lời giải thích', () => {
-    const model = engine.createModel({
-        catalog: CATALOG, events: socialScenario(), now: NOW, demoUsers: ['B'],
-        options: { mf: { enabled: false }, weights: { home: { ucf: 1 } } }
-    });
-    const pants = model.recommend('A', { limit: 3, diversify: false }).find(r => r.id === 'pants-black');
+    const model = engine.createModel({ catalog: CATALOG, events: socialScenario(), now: NOW, demoUsers: ['B'], options: { mf: { enabled: false } } });
+    const pants = model.recommend('A', { limit: 3, diversify: false, weights: { ucf: 1 } }).find(r => r.id === 'pants-black');
     assert.match(pants.reason, /dữ liệu demo/);
 });
 
@@ -217,4 +211,26 @@ test('Style DNA phản ánh loại và màu chiếm ưu thế', () => {
     assert.equal(dna.types[0].key, 'hoodie');
     assert.ok(dna.persona);
     assert.ok(dna.interactions >= 2);
+});
+
+test('Switching hybrid: người dùng ít tương tác dùng bộ trọng số cold-start', () => {
+    const model = engine.createModel({ catalog: CATALOG, events: [ev('n', 'tee-black', 'view', 1)], now: NOW, options: { mf: { enabled: false } } });
+    const comp = model.componentScores('n', { context: 'home' });
+    assert.equal(model.weightsFor(comp), model.options.weights.cold);
+    const custom = engine.createModel({ catalog: CATALOG, events: [], now: NOW, options: { weights: { home: { ucf: 1 } } } });
+    assert.deepEqual(custom.options.weights.home, { ucf: 1 }, 'bộ trọng số được thay thế, không trộn với mặc định');
+});
+
+test('Chặn giới tính mềm: quiz "nam" không đẩy sản phẩm nữ/trẻ em lên đầu', () => {
+    const model = engine.createModel({ catalog: CATALOG, events: [], now: NOW, options: { mf: { enabled: false } } });
+    const recs = model.recommend('m', { limit: 5, quiz: { gender: 'men', styles: ['smart'], colors: ['pink'] } });
+    assert.ok(recs.slice(0, 3).every(r => ['men', 'unisex'].includes(model.attributes[r.id].gender)), recs.map(r => r.id).join(','));
+});
+
+test('Trọng số mặc định của engine khớp kết quả tinh chỉnh (recommender/tuned-weights.json)', () => {
+    const tuned = require('../recommender/tuned-weights.json');
+    const strip = (w) => Object.fromEntries(Object.entries(w).filter(([, v]) => v > 0));
+    assert.deepEqual(strip(engine.DEFAULTS.weights.home), strip(tuned.home));
+    assert.deepEqual(strip(engine.DEFAULTS.weights.cold), strip(tuned.cold));
+    assert.equal(engine.DEFAULTS.mmrLambda, tuned.mmrLambda);
 });
