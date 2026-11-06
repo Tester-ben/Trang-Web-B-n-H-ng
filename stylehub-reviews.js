@@ -84,7 +84,7 @@
             empty.appendChild(el('span', 'sh-stars sh-stars-muted', '☆☆☆☆☆'));
             var txt = el('div', 'sh-reviews-emptytext');
             txt.appendChild(el('strong', null, 'Sản phẩm này chưa có đánh giá'));
-            txt.appendChild(el('p', null, 'Chỉ khách đã mua mới có thể đánh giá, để mọi nhận xét ở đây đều đáng tin cậy. Bình luận sẽ được AI phân tích cảm xúc (tích cực / trung lập / tiêu cực).'));
+            txt.appendChild(el('p', null, 'Đánh giá chỉ đến từ khách hàng đã mua sản phẩm, giúp bạn có thông tin đáng tin cậy nhất.'));
             empty.appendChild(txt);
             root.appendChild(empty);
             root.appendChild(renderForm());
@@ -112,7 +112,7 @@
         var labels = { positive: 0, neutral: 0, negative: 0 };
         state.reviews.forEach(function (r) { labels[r.sentimentLabel || 'neutral'] = (labels[r.sentimentLabel || 'neutral'] || 0) + 1; });
         var senti = el('div', 'sh-reviews-senti');
-        senti.appendChild(el('span', 'sh-senti-title', 'Cảm xúc bình luận (AI)'));
+        senti.appendChild(el('span', 'sh-senti-title', 'Cảm nhận của khách hàng'));
         ['positive', 'neutral', 'negative'].forEach(function (k) { var c = sentimentChip(k); c.textContent += ' · ' + labels[k]; senti.appendChild(c); });
         summary.appendChild(senti);
         root.appendChild(summary);
@@ -146,8 +146,8 @@
 
     function modeNote() {
         return state.source === 'server'
-            ? 'Đánh giá được lưu trên máy chủ và chỉ nhận từ tài khoản có đơn hàng chứa sản phẩm này.'
-            : 'Website đang chạy không có máy chủ: đánh giá được lưu trên trình duyệt này và chỉ tài khoản đã đặt sản phẩm này trên trình duyệt này mới đánh giá được.';
+            ? 'Chỉ khách hàng có đơn mua sản phẩm này mới có thể đánh giá.'
+            : 'Đánh giá của bạn được lưu trên thiết bị này.';
     }
 
     function gate(box, message, action) {
@@ -202,9 +202,9 @@
         preview.setAttribute('aria-live', 'polite');
         function updatePreview() {
             var analyzer = S();
-            if (!analyzer || !area.value.trim()) { preview.textContent = 'AI sẽ nhận diện cảm xúc bình luận khi bạn nhập.'; return; }
+            if (!analyzer || !area.value.trim()) { preview.textContent = 'Hệ thống sẽ phân tích cảm xúc bình luận khi bạn nhập.'; return; }
             var r = analyzer.analyze(area.value);
-            preview.replaceChildren(el('span', null, 'AI nhận diện cảm xúc: '), sentimentChip(r.label), el('small', null, ' (điểm ' + r.score.toFixed(2) + ')'));
+            preview.replaceChildren(el('span', null, 'Phân tích cảm xúc: '), sentimentChip(r.label));
         }
         area.addEventListener('input', updatePreview);
         updatePreview();
@@ -241,7 +241,7 @@
         if (window.StyleHubRecommendations) { window.StyleHubRecommendations.markDirty(); }
         state = localState();
         render();
-        return Promise.resolve(ok ? 'Đã lưu đánh giá trên trình duyệt này.' : 'Không lưu được (bộ nhớ trình duyệt bị chặn hoặc đầy).');
+        return Promise.resolve(ok ? 'Cảm ơn bạn! Đánh giá đã được lưu.' : 'Chưa lưu được đánh giá. Vui lòng thử lại.');
     }
 
     function removeMine() {

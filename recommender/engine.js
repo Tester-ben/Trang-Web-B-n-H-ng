@@ -992,9 +992,6 @@
                 .map(function (x) { return featureLabel(x[0]); });
         }
 
-        function describeAction(action) {
-            return { purchase: 'đã mua', rating: 'đánh giá cao', wishlist: 'đã yêu thích', cart: 'đã thêm vào giỏ', view: 'đã xem' }[action] || 'quan tâm';
-        }
 
         function explain(item, comp, productId) {
             var parts = item.parts, keys = Object.keys(parts);
@@ -1013,19 +1010,19 @@
                 var carted = count(function (x) { return x.strongest === 'cart'; });
                 var demoOnly = ev.length > 0 && ev.every(function (x) { return x.demo; });
                 evidence = { neighbors: ev.length, purchases: purchases, highRatings: rated, wishlists: wished, carts: carted, demoOnly: demoOnly };
-                if (purchases) text = purchases + ' người có gu giống bạn đã mua';
-                else if (rated) text = rated + ' người có gu giống bạn đánh giá ≥4★';
-                else if (wished) text = wished + ' người có gu giống bạn đã yêu thích';
-                else if (carted) text = carted + ' người có gu giống bạn đã thêm vào giỏ';
-                else text = 'Người có gu giống bạn đã xem sản phẩm này';
+                if (purchases) text = purchases + ' khách hàng cùng phong cách đã mua';
+                else if (rated) text = rated + ' khách hàng cùng phong cách đánh giá cao';
+                else if (wished) text = wished + ' khách hàng cùng phong cách đã yêu thích';
+                else if (carted) text = carted + ' khách hàng cùng phong cách đang quan tâm';
+                else text = 'Được khách hàng cùng phong cách quan tâm';
                 if (demoOnly) text += ' (dữ liệu demo)';
             } else if (main === 'icf') {
                 var anchor = comp.icf.anchors.get(item.id);
-                if (anchor) { text = 'Thường được chọn cùng ' + name(anchor.item) + ' bạn ' + describeAction(anchor.action); evidence = { anchor: anchor.item }; }
-                else text = 'Khách hàng có hành vi giống bạn cũng chọn';
+                if (anchor) { text = 'Thường được mua cùng ' + name(anchor.item); evidence = { anchor: anchor.item, action: anchor.action }; }
+                else text = 'Khách hàng cùng phong cách cũng chọn';
             } else if (main === 'cb') {
                 var feats = topSharedFeatures(comp.taste || {}, itemVec[item.id] || {}, 3, { brand: 1, category: 1, price: 0 });
-                text = feats.length ? 'Hợp gu của bạn: ' + feats.join(' · ') : 'Phù hợp với sở thích của bạn';
+                text = feats.length ? 'Hợp phong cách của bạn: ' + feats.join(' · ') : 'Phù hợp với sở thích của bạn';
                 evidence = { features: feats };
             } else if (main === 'ctx' && productId) {
                 var shared = topSharedFeatures(itemVec[productId] || {}, itemVec[item.id] || {}, 3, { category: 1, brand: 1, price: 1 });
@@ -1036,10 +1033,10 @@
                 text = sa ? 'Vì bạn vừa xem ' + name(sa.item) : 'Dựa trên các sản phẩm bạn vừa xem';
                 evidence = sa ? { anchor: sa.item } : {};
             } else if (main === 'mf') {
-                text = 'Mô hình học máy BPR dự đoán bạn sẽ thích';
+                text = 'Phù hợp với xu hướng mua sắm của khách hàng giống bạn';
             } else if (main === 'pop') {
                 var c = communityCount(item.id, comp.user);
-                text = c >= 2 ? 'Đang được nhiều khách quan tâm (' + c + ' người)' : 'Sản phẩm nổi bật để bạn khám phá';
+                text = c >= 2 ? 'Đang được nhiều khách hàng quan tâm' : 'Thiết kế nổi bật dành cho bạn';
                 evidence = { users: c };
             }
             return { type: main || 'explore', text: text, evidence: evidence, shares: shares };

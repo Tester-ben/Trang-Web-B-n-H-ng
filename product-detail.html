@@ -946,11 +946,15 @@
             return "mens.html";
         }
 
-        // Nhãn thành phần thuật toán cho phần "Vì sao gợi ý?" (giải thích minh bạch - XAI).
+        // Nhãn thành phần thuật toán cho phần "Vì sao bạn thấy sản phẩm này?" (giải thích minh bạch - XAI).
         const STYLEHUB_COMPONENT_LABELS = {
-            ucf: 'Người có gu giống bạn (User-based CF)', icf: 'Thường được chọn cùng nhau (Item-based CF)',
-            mf: 'Mô hình học máy BPR', cb: 'Hợp thuộc tính bạn thích (Content-based)', ctx: 'Tương tự sản phẩm đang xem',
-            session: 'Sản phẩm bạn vừa xem', pop: 'Xu hướng cộng đồng'
+            ucf: 'Khách hàng cùng phong cách', icf: 'Thường được mua cùng', mf: 'Xu hướng mua sắm chung',
+            cb: 'Phong cách bạn yêu thích', ctx: 'Tương tự sản phẩm đang xem', session: 'Sản phẩm bạn vừa xem', pop: 'Đang thịnh hành'
+        };
+        // Tên kỹ thuật hiện khi rê chuột (phục vụ trình bày đồ án), không hiển thị trực tiếp cho khách.
+        const STYLEHUB_COMPONENT_TECH = {
+            ucf: 'User-based Collaborative Filtering', icf: 'Item-based Collaborative Filtering', mf: 'Matrix Factorization (BPR)',
+            cb: 'Content-based (TF-IDF)', ctx: 'Content + Item similarity', session: 'Session-based', pop: 'Popularity'
         };
 
         function renderRelatedProducts(currentProductId) {
@@ -1006,12 +1010,12 @@
                     details.className = 'sh-why';
                     details.addEventListener('click', function(event) { event.stopPropagation(); });
                     const summary = document.createElement('summary');
-                    summary.textContent = 'Vì sao gợi ý?';
+                    summary.textContent = 'Vì sao bạn thấy sản phẩm này?';
                     summary.addEventListener('click', function(event) { event.preventDefault(); event.stopPropagation(); details.open = !details.open; });
                     details.appendChild(summary);
                     shares.forEach(function(pair) {
                         const row = document.createElement('div'); row.className = 'sh-why-row';
-                        const label = document.createElement('span'); label.textContent = STYLEHUB_COMPONENT_LABELS[pair[0]] || pair[0];
+                        const label = document.createElement('span'); label.textContent = STYLEHUB_COMPONENT_LABELS[pair[0]] || pair[0]; label.title = STYLEHUB_COMPONENT_TECH[pair[0]] || '';
                         const bar = document.createElement('span'); bar.className = 'sh-why-bar';
                         const fill = document.createElement('i'); fill.style.width = Math.max(4, pair[1]) + '%';
                         bar.appendChild(fill);
@@ -1020,7 +1024,7 @@
                         details.appendChild(row);
                     });
                     const src = document.createElement('small');
-                    src.textContent = rec.source === 'server' ? 'Tính trên máy chủ từ hành vi của toàn bộ khách hàng' : 'Tính trên trình duyệt này (chế độ không có máy chủ)';
+                    src.textContent = 'Mức độ ảnh hưởng của từng yếu tố đến gợi ý này.';
                     details.appendChild(src);
                     card.appendChild(details);
                 }

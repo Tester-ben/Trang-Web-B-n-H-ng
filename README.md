@@ -111,12 +111,12 @@ Chế độ tĩnh: mở `index.html` bằng Live Server như trước. Mật kh�
 ## 3. Kịch bản demo khi bảo vệ (khoảng 7 phút)
 
 1. `npm run seed:demo -- --users=150`, rồi `npm start`, mở http://localhost:3000.
-2. **Cold-start:** ở trang chủ, khối "Mới đến THE STYLE HUB?" mời làm **quiz Style DNA**. Chọn Nữ / Tối giản / Đen / Áo thun, rồi xem "Được chọn cho bạn" đổi ngay theo gu.
-3. **Đăng ký và đăng nhập** bằng form có sẵn. Tài khoản tự liên kết với máy chủ (trang Tài khoản → tab *Style DNA* hiện "Đã đồng bộ với máy chủ gợi ý").
-4. Xem 3–4 hoodie thể thao. Ở trang chi tiết, mục "Gợi ý dành riêng cho bạn" có lý do cho từng thẻ, và nút **"Vì sao gợi ý?"** hiện tỉ lệ đóng góp của từng thuật toán (XAI). Bên dưới có **"Phối cùng sản phẩm này"** (quần + giày, theo quy tắc phối màu).
-5. Về trang chủ, hàng **"Khách có gu giống bạn đã chọn"** chỉ dùng User-based CF và ghi bằng chứng cụ thể, ví dụ "3 người có gu giống bạn đã mua (dữ liệu demo)". Đây là phần đáp ứng trực tiếp yêu cầu đề tài.
+2. **Cold-start:** ở trang chủ, khối **"Khám phá phong cách của bạn"** mở quiz Style DNA (5 câu hỏi). Chọn Nữ / Tối giản / Đen / Áo thun, rồi xem "Được chọn cho bạn" đổi ngay theo gu.
+3. **Đăng ký và đăng nhập** bằng form có sẵn. Tài khoản tự liên kết với máy chủ (trang Tài khoản → tab *Style Profile* hiện "Hồ sơ phong cách của bạn được đồng bộ trên mọi thiết bị").
+4. Xem 3–4 hoodie thể thao. Ở trang chi tiết, mục "Gợi ý dành riêng cho bạn" có lý do cho từng thẻ, và nút **"Vì sao bạn thấy sản phẩm này?"** hiện tỉ lệ đóng góp của từng yếu tố (XAI; rê chuột để xem tên thuật toán). Bên dưới có **"Hoàn thiện set đồ"** (quần + giày, theo quy tắc phối màu).
+5. Về trang chủ, hàng **"Khách hàng cùng phong cách cũng chọn"** chỉ dùng User-based CF và ghi bằng chứng cụ thể, ví dụ "3 khách hàng cùng phong cách đã mua (dữ liệu demo)". Hàng này tự ẩn khi chưa tìm được khách hàng tương tự. Đây là phần đáp ứng trực tiếp yêu cầu đề tài.
 6. Mở trình duyệt khác hoặc cửa sổ ẩn danh (mô phỏng **thiết bị thứ hai**), đăng nhập cùng tài khoản: gợi ý giống nhau vì dữ liệu nằm trên máy chủ.
-7. **Mua hàng rồi đánh giá:** đặt một sản phẩm, quay lại trang sản phẩm, ô đánh giá mở ra. Khi gõ "Áo đẹp, vải mềm", AI nhận diện "Tích cực". Đánh giá có huy hiệu "Đã mua hàng".
+7. **Mua hàng rồi đánh giá:** đặt một sản phẩm, quay lại trang sản phẩm, ô đánh giá mở ra. Khi gõ "Áo đẹp, vải mềm", hệ thống phân tích cảm xúc là "Tích cực". Đánh giá có huy hiệu "Đã mua hàng".
 8. Đăng nhập admin, vào **Nghiên cứu gợi ý** (`research-dashboard.html`): biểu đồ so sánh thuật toán, cold-start, độ nhạy ρ, cùng số liệu sống (CTR khu gợi ý, phân bố cảm xúc, độ thưa ma trận).
 
 ## 4. Thuật toán (`recommender/engine.js`)

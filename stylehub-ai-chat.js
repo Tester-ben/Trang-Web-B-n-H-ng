@@ -2086,7 +2086,7 @@
         if (hasAny(a, IDENTITY_TERMS)) {
             return {
                 kind: "identity",
-                html: "Mình là <b>Stylist AI</b> của THE STYLE HUB — trợ lý tư vấn mua sắm chạy ngay trên website. Mình <b>không phải ChatGPT</b>: mình hiểu câu hỏi tiếng Việt (có dấu hoặc không dấu) bằng bộ quy tắc ngôn ngữ và tra cứu trực tiếp dữ liệu sản phẩm, tồn kho, chính sách của shop, nên chỉ trả lời các câu về mua sắm. Phần “Được chọn cho bạn” trên website do hệ gợi ý lai (Collaborative + Content-based) tạo ra từ hành vi mua sắm và đánh giá của khách hàng.<br>Mình có thể giúp bạn:" + CAPABILITIES_HTML
+                html: "Mình là <b>Stylist AI</b> của THE STYLE HUB — trợ lý tư vấn mua sắm chạy ngay trên website. Mình <b>không phải ChatGPT</b>: mình hiểu câu hỏi tiếng Việt (có dấu hoặc không dấu) bằng bộ quy tắc ngôn ngữ và tra cứu trực tiếp dữ liệu sản phẩm, tồn kho, chính sách của shop, nên chỉ trả lời các câu về mua sắm. Các gợi ý “Được chọn cho bạn” trên website được cá nhân hóa từ hành vi mua sắm và đánh giá của khách hàng.<br>Mình có thể giúp bạn:" + CAPABILITIES_HTML
             };
         }
         if (hasAny(a, WEATHER_TERMS)) {

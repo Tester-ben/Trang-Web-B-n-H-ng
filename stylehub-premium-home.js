@@ -169,11 +169,11 @@
           const type = firstReason.slice('Vì bạn gần đây xem nhiều '.length);
           description.textContent = 'Bạn gần đây xem nhiều ' + type + '. Những thiết kế cùng loại đang được ưu tiên — không cần bấm yêu thích hay đánh giá.';
         } else if (firstReason === 'Khám phá bộ sưu tập') {
-          description.textContent = 'Khám phá vài sản phẩm hoặc làm quiz Style DNA để nhận gợi ý riêng theo gu của bạn.';
+          description.textContent = 'Những thiết kế được yêu thích nhất mùa này — lựa chọn sẽ được cá nhân hóa theo phong cách của bạn.';
         } else if (ranked[0] && ranked[0].source === 'server') {
-          description.textContent = 'Gợi ý lai (hybrid) từ hành vi của bạn và những khách hàng có gu tương tự — mỗi thẻ ghi rõ lý do.';
+          description.textContent = 'Tuyển chọn riêng cho bạn từ phong cách và những thiết kế bạn đã quan tâm.';
         } else {
-          description.textContent = 'Gợi ý dựa trên lịch sử xem, yêu thích và các tương tác trên trình duyệt này — mỗi thẻ ghi rõ lý do.';
+          description.textContent = 'Tuyển chọn riêng cho bạn từ phong cách và những thiết kế bạn đã quan tâm.';
         }
       }
       if (selected.length < 4) {

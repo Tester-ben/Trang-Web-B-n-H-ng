@@ -102,12 +102,12 @@ for (const kind of STORES) {
             assert.ok(bought, 'sản phẩm B đã mua phải được gợi ý cho A: ' + ids.join(','));
             const loved = recs.body.items.find((x) => x.id === 'shoe-14');
             assert.ok(loved, 'sản phẩm B chấm 5 sao phải được gợi ý cho A');
-            assert.ok(recs.body.items.some((x) => x.explanation.type === 'ucf' && /người có gu giống bạn/.test(x.reason)), JSON.stringify(recs.body.items.map((x) => x.reason)));
+            assert.ok(recs.body.items.some((x) => x.explanation.type === 'ucf' && /khách hàng cùng phong cách/.test(x.reason)), JSON.stringify(recs.body.items.map((x) => x.reason)));
             assert.ok(ids.indexOf('bottoms-8') < (ids.indexOf('dress-2') < 0 ? 99 : ids.indexOf('dress-2')), 'đồ của người có gu khác (C) xếp sau');
             const social = await t.api('GET', '/api/recommendations?context=home&strategy=social&limit=8', undefined, A);
             assert.equal(social.body.strategy, 'social');
             assert.ok(social.body.items.length >= 2);
-            assert.ok(social.body.items.every((x) => x.explanation.type === 'ucf' && /người có gu giống bạn/.test(x.reason)));
+            assert.ok(social.body.items.every((x) => x.explanation.type === 'ucf' && /khách hàng cùng phong cách/.test(x.reason)));
             assert.ok(social.body.items.some((x) => x.id === 'bottoms-8') && social.body.items.some((x) => x.id === 'shoe-14'));
             assert.ok(!social.body.items.some((x) => x.id === 'dress-2'), 'không lấy đồ của người khác gu');
             assert.ok(!social.body.items.some((x) => ['hoodies-1', 'hoodies-7', 'tops-1'].includes(x.id)), 'không gợi ý lại sản phẩm A đã xem');

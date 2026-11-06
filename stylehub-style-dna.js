@@ -35,9 +35,9 @@
         modal.replaceChildren();
         var box = el('div', 'sh-quiz');
         var close = el('button', 'sh-quiz-close', '✕'); close.type = 'button'; close.setAttribute('aria-label', 'Đóng'); close.addEventListener('click', closeQuiz);
-        var title = el('h3', null, 'Style DNA — 30 giây để hiểu gu của bạn'); title.id = 'shQuizTitle';
-        box.append(close, el('span', 'sh-recommend-eyebrow', 'COLD-START QUIZ'), title,
-            el('p', 'sh-quiz-lede', 'Câu trả lời chỉ dùng để cá nhân hóa gợi ý. Bạn có thể làm lại hoặc xóa bất cứ lúc nào.'));
+        var title = el('h3', null, 'Phong cách của bạn là gì?'); title.id = 'shQuizTitle';
+        box.append(close, el('span', 'sh-recommend-eyebrow', 'PERSONAL STYLE'), title,
+            el('p', 'sh-quiz-lede', 'Chỉ 5 câu hỏi, khoảng 30 giây. Câu trả lời giúp chúng tôi tuyển chọn những thiết kế phù hợp với bạn — bạn có thể thay đổi bất cứ lúc nào.'));
         var answers = {};
         QUESTIONS.forEach(function (q) {
             var pre = current[q.key];
@@ -64,12 +64,12 @@
             setTimeout(function () { chips.querySelectorAll('.sh-quiz-chip').forEach(function (c) { c.classList.toggle('is-on', c._sel()); c.setAttribute('aria-pressed', String(c._sel())); }); }, 0);
         });
         var status = el('p', 'sh-quiz-status'); status.setAttribute('role', 'status');
-        var save = el('button', 'sh-quiz-save', 'Lưu & xem gợi ý hợp gu'); save.type = 'button';
+        var save = el('button', 'sh-quiz-save', 'Xem gợi ý dành cho tôi'); save.type = 'button';
         save.addEventListener('click', function () {
             var quiz = { gender: answers.gender || undefined, styles: answers.styles, colors: answers.colors, types: answers.types, budget: answers.budget || undefined };
             if (!quiz.gender && !quiz.styles.length && !quiz.colors.length && !quiz.types.length && !quiz.budget) { status.textContent = 'Hãy chọn ít nhất một câu trả lời.'; return; }
             if (R()) R().saveQuiz(quiz);
-            status.textContent = 'Đã lưu Style DNA!';
+            status.textContent = 'Đã cập nhật phong cách của bạn.';
             setTimeout(function () { closeQuiz(); renderAll(); }, 350);
         });
         box.append(save, status);
@@ -84,7 +84,7 @@
     function bars(title, list) {
         var wrap = el('div', 'sh-dna-group');
         wrap.appendChild(el('h4', null, title));
-        if (!list || !list.length) { wrap.appendChild(el('p', 'sh-dna-empty', 'Chưa đủ dữ liệu')); return wrap; }
+        if (!list || !list.length) { wrap.appendChild(el('p', 'sh-dna-empty', 'Chưa có dữ liệu')); return wrap; }
         list.forEach(function (x) {
             var row = el('div', 'sh-dna-row');
             row.appendChild(el('span', null, x.label));
@@ -101,17 +101,18 @@
         container.replaceChildren();
         if (!hasSignal(dna)) {
             var cta = el('div', 'sh-dna-cta');
-            cta.append(el('strong', null, 'Mới đến THE STYLE HUB?'),
-                el('p', null, 'Làm quiz Style DNA 30 giây để nhận gợi ý đúng gu ngay từ lần đầu — không cần chờ hệ thống học từ lịch sử xem.'));
-            var start = el('button', 'sh-dna-btn', 'Làm quiz Style DNA'); start.type = 'button'; start.addEventListener('click', openQuiz);
+            cta.append(el('strong', null, 'Khám phá phong cách của bạn'),
+                el('p', null, 'Trả lời 5 câu hỏi ngắn để nhận những gợi ý phù hợp với bạn ngay hôm nay.'));
+            var start = el('button', 'sh-dna-btn', 'Khám phá ngay'); start.type = 'button'; start.addEventListener('click', openQuiz);
             cta.appendChild(start);
             container.appendChild(cta);
             return;
         }
         var head = el('div', 'sh-dna-head');
-        head.append(el('span', 'sh-recommend-eyebrow', 'YOUR STYLE DNA'), el('h3', null, dna.persona));
-        var meta = el('p', 'sh-dna-meta', (dna.fromQuiz ? 'Từ quiz' : 'Từ hành vi') + (dna.interactions ? ' · ' + dna.interactions + ' sản phẩm đã tương tác' : '') +
-            ' · độ tin cậy ' + Math.round((dna.confidence || 0) * 100) + '%' + (opts.source ? ' · ' + opts.source : ''));
+        head.append(el('span', 'sh-recommend-eyebrow', 'YOUR STYLE PROFILE'), el('h3', null, dna.persona));
+        var basis = dna.fromQuiz && dna.interactions ? 'Dựa trên câu trả lời của bạn và ' + dna.interactions + ' thiết kế bạn đã quan tâm'
+            : dna.fromQuiz ? 'Dựa trên câu trả lời của bạn' : 'Dựa trên ' + dna.interactions + ' thiết kế bạn đã quan tâm';
+        var meta = el('p', 'sh-dna-meta', basis);
         head.appendChild(meta);
         container.appendChild(head);
         if (opts.compact) {
@@ -124,12 +125,12 @@
             container.appendChild(grid);
         }
         var actions = el('div', 'sh-dna-actions');
-        var redo = el('button', 'sh-dna-btn ghost', dna.fromQuiz ? 'Làm lại quiz' : 'Làm quiz để tinh chỉnh'); redo.type = 'button'; redo.addEventListener('click', openQuiz);
+        var redo = el('button', 'sh-dna-btn ghost', dna.fromQuiz ? 'Cập nhật phong cách' : 'Tinh chỉnh phong cách'); redo.type = 'button'; redo.addEventListener('click', openQuiz);
         actions.appendChild(redo);
         if (opts.allowClear) {
-            var clear = el('button', 'sh-dna-btn danger', 'Xóa lịch sử gợi ý'); clear.type = 'button';
+            var clear = el('button', 'sh-dna-btn danger', 'Xóa dữ liệu cá nhân hóa'); clear.type = 'button';
             clear.addEventListener('click', function () {
-                if (!window.confirm('Xóa toàn bộ lịch sử xem, đánh giá hợp gu và quiz dùng cho gợi ý? (Đơn hàng và đánh giá sản phẩm không bị xóa)')) return;
+                if (!window.confirm('Xóa lịch sử xem, đánh giá sở thích và câu trả lời phong cách dùng để cá nhân hóa gợi ý? Đơn hàng và đánh giá sản phẩm sẽ được giữ nguyên.')) return;
                 var p = R() ? R().clearHistory() : Promise.resolve();
                 Promise.resolve(p).then(function () { renderAll(); });
             });
@@ -142,11 +143,11 @@
 
     function renderInto(container, opts) {
         var local = localDNA();
-        renderDNA(container, local, Object.assign({}, opts, { source: 'trên trình duyệt' }));
+        renderDNA(container, local, opts);
         var a = api();
         if (a && a.isConnected()) {
             a.getStyleDNA().then(function (data) {
-                if (data && data.dna && hasSignal(data.dna)) renderDNA(container, data.dna, Object.assign({}, opts, { source: 'đồng bộ máy chủ' }));
+                if (data && data.dna && hasSignal(data.dna)) renderDNA(container, data.dna, opts);
             });
         }
     }
@@ -172,10 +173,10 @@
         var status = document.getElementById('shStyleDnaSync');
         if (status) {
             var a = api();
-            if (!a) { status.textContent = 'Chế độ tĩnh: gợi ý tính trên trình duyệt này.'; return; }
+            if (!a) { status.textContent = 'Hồ sơ phong cách được lưu trên thiết bị này.'; return; }
             a.available().then(function (up) {
-                status.textContent = !up ? 'Không có máy chủ gợi ý — đang dùng dữ liệu trên trình duyệt này.'
-                    : a.isConnected() ? 'Đã đồng bộ với máy chủ gợi ý: hành vi của bạn được dùng trên mọi thiết bị.' : 'Máy chủ gợi ý sẵn sàng — hãy đăng nhập lại để đồng bộ tài khoản.';
+                status.textContent = !up ? 'Hồ sơ phong cách được lưu trên thiết bị này.'
+                    : a.isConnected() ? 'Hồ sơ phong cách của bạn được đồng bộ trên mọi thiết bị.' : 'Đăng nhập lại để đồng bộ hồ sơ phong cách trên mọi thiết bị.';
             });
         }
     }

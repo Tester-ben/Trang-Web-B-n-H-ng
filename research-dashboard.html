@@ -314,7 +314,7 @@
         var ctrCard = el('div', { class: 'card' });
         ctrCard.appendChild(el('h3', null, 'CTR khu gợi ý theo vị trí (người dùng đã đăng nhập)'));
         var ctrWrap = el('div', { class: 'table-wrap' });
-        var ctxNames = { home: 'Trang chủ — Được chọn cho bạn', product: 'Trang sản phẩm — Gợi ý dành cho bạn', social: 'Trang chủ — Khách có gu giống bạn', outfit: 'Phối cùng sản phẩm' };
+        var ctxNames = { home: 'Trang chủ — Được chọn cho bạn', product: 'Trang sản phẩm — Gợi ý dành cho bạn', social: 'Trang chủ — Khách hàng cùng phong cách cũng chọn', outfit: 'Trang sản phẩm — Hoàn thiện set đồ' };
         var ctrRows = Object.keys(st.recommendationCtr || {}).map(function (k) { var c = st.recommendationCtr[k]; return [ctxNames[k] || k, String(c.impressions), String(c.clicks), c.impressions ? pct(c.clicks / c.impressions) : '—']; });
         if (ctrRows.length) table(ctrWrap, ['Khu gợi ý', 'Lượt hiển thị', 'Lượt nhấp', 'CTR'], ctrRows);
         else ctrWrap.appendChild(el('p', { class: 'note' }, 'Chưa có dữ liệu hiển thị/nhấp. Đăng nhập và duyệt website để bắt đầu đo.'));

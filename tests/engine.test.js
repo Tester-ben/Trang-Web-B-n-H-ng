@@ -121,10 +121,10 @@ test('Giải thích trung thực: số người trong lời giải thích khớp
     assert.ok(pants, 'quần đen phải nằm trong top 3');
     assert.equal(pants.explanation.type, 'ucf');
     assert.equal(pants.explanation.evidence.purchases, 1);
-    assert.match(pants.reason, /^1 người có gu giống bạn đã mua/);
+    assert.match(pants.reason, /^1 khách hàng cùng phong cách đã mua/);
     const jeans = recs.find(r => r.id === 'jeans-blue');
     assert.ok(jeans);
-    assert.match(jeans.reason, /đánh giá ≥4★/);
+    assert.match(jeans.reason, /khách hàng cùng phong cách đánh giá cao/);
 });
 
 test('Dữ liệu demo được ghi rõ trong lời giải thích', () => {

@@ -185,7 +185,7 @@
             .map(function (r) { return Object.assign({}, r, { source: 'local' }); });
     }
 
-    /* ---------------- "Khách có gu giống bạn đã chọn" (chỉ User-based CF) ---------------- */
+    /* ---------------- "Khách hàng cùng phong cách cũng chọn" (chỉ User-based CF) ---------------- */
     var socialCache = {}, socialPending = {};
     function recommendSocial(limit) {
         limit = Math.max(1, Math.min(12, Number(limit) || 4));
@@ -220,10 +220,10 @@
             section.className = 'sh-social-section';
             section.setAttribute('aria-labelledby', 'shSocialTitle');
             var head = document.createElement('div'); head.className = 'sh-social-head';
-            var kicker = document.createElement('span'); kicker.className = 'sh-recommend-eyebrow'; kicker.textContent = 'COLLABORATIVE FILTERING';
-            var title = document.createElement('h2'); title.id = 'shSocialTitle'; title.textContent = 'Khách có gu giống bạn đã chọn';
+            var kicker = document.createElement('span'); kicker.className = 'sh-recommend-eyebrow'; kicker.textContent = 'CUSTOMERS LIKE YOU';
+            var title = document.createElement('h2'); title.id = 'shSocialTitle'; title.textContent = 'Khách hàng cùng phong cách cũng chọn';
             var lede = document.createElement('p'); lede.className = 'sh-social-lede';
-            lede.textContent = 'Tìm những khách hàng có hành vi xem, mua, đánh giá tương tự bạn (cosine k-NN) và gợi ý sản phẩm họ đã mua hoặc đánh giá ≥ 4★ mà bạn chưa xem.';
+            lede.textContent = 'Những thiết kế được khách hàng có phong cách tương đồng với bạn mua và đánh giá cao.';
             head.append(kicker, title, lede);
             var grid = document.createElement('div'); grid.className = 'sh-social-grid'; grid.id = 'shSocialGrid';
             var empty = document.createElement('p'); empty.className = 'sh-social-empty'; empty.id = 'shSocialEmpty';
@@ -235,8 +235,7 @@
         if (grid2.dataset.signature === signature) return;
         grid2.dataset.signature = signature;
         grid2.replaceChildren();
-        document.getElementById('shSocialEmpty').textContent = items.length ? '' :
-            'Chưa tìm thấy khách hàng có gu tương tự. Hãy xem thêm vài sản phẩm, yêu thích hoặc đánh giá — hệ thống sẽ ghép bạn với những người có sở thích giống nhất.';
+        section.hidden = !items.length;
         items.forEach(function (rec, rank) {
             var item = catalog()[rec.id];
             var card = document.createElement('a');
@@ -342,9 +341,9 @@
             var head = document.createElement('div');
             head.className = 'sh-outfit-head';
             var kicker = document.createElement('span'); kicker.className = 'sh-recommend-eyebrow'; kicker.textContent = 'COMPLETE THE LOOK';
-            var title = document.createElement('h2'); title.id = 'shOutfitTitle'; title.textContent = 'Phối cùng sản phẩm này';
+            var title = document.createElement('h2'); title.id = 'shOutfitTitle'; title.textContent = 'Hoàn thiện set đồ';
             var lede = document.createElement('p'); lede.className = 'sh-outfit-lede';
-            lede.textContent = 'Gợi ý trọn bộ theo quy tắc phối màu, phong cách, mức giá và gu của bạn.';
+            lede.textContent = 'Những thiết kế được chọn để kết hợp cùng sản phẩm này.';
             head.append(kicker, title, lede);
             var grid = document.createElement('div'); grid.className = 'sh-outfit-grid'; grid.id = 'shOutfitGrid';
             section.append(head, grid);
@@ -433,7 +432,7 @@
                 '  <div class="sh-rating-caption"><strong id="shRatingLabel">Bạn chưa đánh giá</strong><span id="shRatingHint">Hãy chọn từ 1 đến 5 sao</span></div>',
                 '</div>',
                 '<div class="sh-rating-foot">',
-                '  <span class="sh-rating-foot-note" id="shRatingSourceNote">Sở thích được lưu trên trình duyệt này</span>',
+                '  <span class="sh-rating-foot-note" id="shRatingSourceNote">Sở thích của bạn được lưu trên thiết bị này</span>',
                 '  <div class="sh-rating-foot-actions">',
                 '    <select id="stylehubPreferenceRating" aria-label="Mức độ yêu thích sản phẩm đang xem">',
                 '      <option value="0">Chưa đánh giá</option>',
@@ -461,7 +460,7 @@
                 controls.querySelector('#shRatingLabel').textContent = labels[n];
                 controls.querySelector('#shRatingHint').textContent = n ? n + '/5 sao · Đã ghi nhận sở thích' : 'Hãy chọn từ 1 đến 5 sao';
                 var note = controls.querySelector('#shRatingSourceNote');
-                if (note) note.textContent = api() && api().isConnected() ? 'Sở thích được đồng bộ với máy chủ gợi ý (dùng trên mọi thiết bị)' : 'Sở thích được lưu trên trình duyệt này';
+                if (note) note.textContent = api() && api().isConnected() ? 'Sở thích của bạn được đồng bộ trên mọi thiết bị' : 'Sở thích của bạn được lưu trên thiết bị này';
             };
             controls.querySelectorAll('.sh-rating-star').forEach(function (button) {
                 button.addEventListener('click', function () {
