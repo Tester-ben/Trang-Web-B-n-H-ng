@@ -671,9 +671,10 @@
         renderProfileData();
         renderOrdersData();
         if (window.StyleHubOrders && typeof StyleHubOrders.onOrdersChanged === 'function') {
+            // Chỉ lắng nghe đơn của email đang đăng nhập (không tải đơn của khách khác).
             StyleHubOrders.onOrdersChanged(function() {
                 renderOrdersData();
-            });
+            }, { email: getCurrentUserEmail() });
         } else {
             window.addEventListener('storage', function(event) {
                 if (event.key && event.key.indexOf('hub_orders') === 0) {
@@ -986,22 +987,11 @@
         async function getOrdersForCurrentUser() {
             const email = getCurrentUserEmail();
             const currentName = String(localStorage.getItem('hub_name') || '').trim().toLowerCase();
-            let cloudOrders = [];
+            // BẢO MẬT: trang khách hàng KHÔNG tải toàn bộ đơn của mọi khách (getAllOrders chỉ dành cho admin)
+            // và không dò đơn cloud theo tên (trùng tên sẽ lộ đơn của người khác). Chỉ truy vấn theo email.
             let matchedCloudByEmail = [];
             let matchedCloudByName = [];
             let matchedDirectEmail = [];
-
-            try {
-                if (window.StyleHubOrders && typeof StyleHubOrders.getAllOrders === 'function') {
-                    cloudOrders = await StyleHubOrders.getAllOrders();
-                }
-            } catch (error) {
-                console.error('Không lấy được toàn bộ đơn cloud:', error);
-            }
-
-            if (email && cloudOrders.length > 0) {
-                matchedCloudByEmail = cloudOrders.filter(order => getOrderOwnerEmail(order) === email);
-            }
 
             if (email) {
                 try {
@@ -1013,16 +1003,6 @@
                 }
             }
 
-            // Nếu email bị mất sau khi đăng xuất/đăng nhập lại, dò đơn theo tên khách.
-            if (currentName && cloudOrders.length > 0) {
-                matchedCloudByName = cloudOrders.filter(order => getOrderCustomerName(order) === currentName);
-                const firstEmail = matchedCloudByName.map(getOrderOwnerEmail).find(Boolean);
-                if (firstEmail && !email) {
-                    localStorage.setItem('hub_email', firstEmail);
-                    localStorage.setItem('hub_current_user_key', firstEmail);
-                    rememberAccountEmailForName(localStorage.getItem('hub_name'), firstEmail);
-                }
-            }
 
             const resolvedEmail = email || String(localStorage.getItem('hub_current_user_key') || localStorage.getItem('hub_email') || '').trim().toLowerCase();
             const userNameKey = `hub_orders_${normalizeAccountKey(localStorage.getItem('hub_name') || '')}`;
@@ -1767,6 +1747,7 @@
 <div class="footer-bottom">© 2026 THE STYLE HUB. UI/UX Interface Design Project.</div>
 <script src="stylehub-notifications.js?v=notification-bell-fixed-all-pages-20260616"></script>
 <script src="stylehub-responsive-nav.js?v=kids-bottoms-3-products-20260618"></script>
+<script src="stylehub-crypto.js"></script>
 <script src="stylehub-common.js?v=account-restore-full-20260701"></script>
 
 <script src="stylehub-ai-chat.js"></script>

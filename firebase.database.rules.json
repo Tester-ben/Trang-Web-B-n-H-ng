@@ -1,0 +1,84 @@
+{
+  "rules": {
+    ".read": false,
+    ".write": false,
+    "stylehub_orders": {
+      "orders": {
+        ".read": true,
+        ".indexOn": ["userEmail", "accountEmail", "createdAt"],
+        "$orderId": {
+          ".write": "$orderId.matches(/^[A-Za-z0-9_-]{1,64}$/)",
+          ".validate": "newData.hasChildren(['orderId', 'createdAt']) && newData.child('orderId').val() === $orderId",
+          "orderId": { ".validate": "newData.isString() && newData.val().matches(/^[A-Za-z0-9_-]{1,64}$/)" },
+          "userEmail": { ".validate": "newData.isString() && newData.val().length <= 254 && !newData.val().contains('<')" },
+          "accountEmail": { ".validate": "newData.isString() && newData.val().length <= 254 && !newData.val().contains('<')" },
+          "customerEmail": { ".validate": "newData.isString() && newData.val().length <= 254" },
+          "shippingEmail": { ".validate": "newData.isString() && newData.val().length <= 254" },
+          "status": { ".validate": "newData.isString() && newData.val().length <= 80" },
+          "statusKey": { ".validate": "newData.isString() && newData.val().length <= 40" },
+          "createdAt": { ".validate": "newData.isNumber() && newData.val() >= 0 && newData.val() <= now + 86400000" },
+          "updatedAt": { ".validate": "newData.isNumber()" },
+          "totalPriceFormatted": { ".validate": "newData.isString() && newData.val().length <= 64" },
+          "userInfo": {
+            "name": { ".validate": "newData.isString() && newData.val().length <= 200" },
+            "phone": { ".validate": "newData.isString() && newData.val().length <= 40" },
+            "email": { ".validate": "newData.isString() && newData.val().length <= 254" },
+            "address": { ".validate": "newData.isString() && newData.val().length <= 500" }
+          },
+          "orderedProductsList": {
+            "$index": {
+              "key": { ".validate": "newData.isString() && newData.val().length <= 120 && !newData.val().matches(/[<>\"']/)" },
+              "name": { ".validate": "newData.isString() && newData.val().length <= 300" },
+              "qty": { ".validate": "(newData.isNumber() && newData.val() >= 0 && newData.val() <= 999) || (newData.isString() && newData.val().length <= 4)" }
+            }
+          }
+        }
+      },
+      "inventory": {
+        ".read": true,
+        ".write": true,
+        "$productId": {
+          ".validate": "$productId.matches(/^[A-Za-z0-9_-]{1,80}$/)",
+          "stock": { ".validate": "newData.isNumber() && newData.val() >= 0 && newData.val() <= 100000" },
+          "outOfStock": { ".validate": "newData.isBoolean()" },
+          "updatedAt": { ".validate": "newData.isNumber()" }
+        }
+      },
+      "admin_products": {
+        ".read": true,
+        ".write": true,
+        "$productId": {
+          ".validate": "$productId.matches(/^[A-Za-z0-9_-]{1,80}$/) && newData.hasChildren(['name'])",
+          "key": { ".validate": "newData.isString() && newData.val() === $productId" },
+          "name": { ".validate": "newData.isString() && newData.val().length <= 300 && !newData.val().matches(/[<>]/)" },
+          "brand": { ".validate": "newData.isString() && newData.val().length <= 120 && !newData.val().matches(/[<>]/)" },
+          "price": { ".validate": "newData.isString() && newData.val().length <= 64 && !newData.val().matches(/[<>]/)" },
+          "priceNum": { ".validate": "newData.isNumber() && newData.val() >= 0" },
+          "description": { ".validate": "newData.isString() && newData.val().length <= 2000 && !newData.val().matches(/[<>]/)" },
+          "mainImg": { ".validate": "newData.isString() && newData.val().length <= 2000000 && (newData.val().beginsWith('https://') || newData.val().beginsWith('http://') || newData.val().beginsWith('data:image/') || !newData.val().contains(':'))" },
+          "images": {
+            "$i": { ".validate": "newData.isString() && newData.val().length <= 2000000 && (newData.val().beginsWith('https://') || newData.val().beginsWith('http://') || newData.val().beginsWith('data:image/') || !newData.val().contains(':'))" }
+          }
+        }
+      },
+      "support_conversations": {
+        ".read": true,
+        "$conversationId": {
+          ".write": "$conversationId.matches(/^[A-Za-z0-9_-]{1,80}$/)",
+          "customerName": { ".validate": "newData.isString() && newData.val().length <= 200" },
+          "customerEmail": { ".validate": "newData.isString() && newData.val().length <= 254" },
+          "customerPhone": { ".validate": "newData.isString() && newData.val().length <= 40" },
+          "lastMessage": { ".validate": "newData.isString() && newData.val().length <= 4000" },
+          "messages": {
+            "$messageId": {
+              ".validate": "$messageId.matches(/^[A-Za-z0-9_-]{1,80}$/)",
+              "text": { ".validate": "newData.isString() && newData.val().length <= 4000" },
+              "imageName": { ".validate": "newData.isString() && newData.val().length <= 200" },
+              "imageData": { ".validate": "newData.isString() && newData.val().length <= 3000000 && newData.val().matches(/^data:image\\/(png|jpe?g|webp|gif);base64,[A-Za-z0-9+\\/]+=*$/)" }
+            }
+          }
+        }
+      }
+    }
+  }
+}
