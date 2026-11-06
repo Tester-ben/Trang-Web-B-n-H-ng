@@ -78,6 +78,20 @@
         head.appendChild(h);
         root.appendChild(head);
 
+        // Chưa có đánh giá: hiển thị gọn một dòng thay vì cả khối số 0 (trông như lỗi).
+        if (!state.stats.count) {
+            var empty = el('div', 'sh-reviews-emptybox');
+            empty.appendChild(el('span', 'sh-stars sh-stars-muted', '☆☆☆☆☆'));
+            var txt = el('div', 'sh-reviews-emptytext');
+            txt.appendChild(el('strong', null, 'Sản phẩm này chưa có đánh giá'));
+            txt.appendChild(el('p', null, 'Chỉ khách đã mua mới có thể đánh giá, để mọi nhận xét ở đây đều đáng tin cậy. Bình luận sẽ được AI phân tích cảm xúc (tích cực / trung lập / tiêu cực).'));
+            empty.appendChild(txt);
+            root.appendChild(empty);
+            root.appendChild(renderForm());
+            if (state.loggedIn) root.appendChild(el('p', 'sh-reviews-note', modeNote()));
+            return;
+        }
+
         var summary = el('div', 'sh-reviews-summary');
         var avg = el('div', 'sh-reviews-avg');
         avg.appendChild(el('strong', null, state.stats.average ? state.stats.average.toFixed(1) : '—'));
@@ -127,16 +141,36 @@
             list.appendChild(item);
         });
         root.appendChild(list);
-        root.appendChild(el('p', 'sh-reviews-note', state.source === 'server'
+        if (state.loggedIn) root.appendChild(el('p', 'sh-reviews-note', modeNote()));
+    }
+
+    function modeNote() {
+        return state.source === 'server'
             ? 'Đánh giá được lưu trên máy chủ và chỉ nhận từ tài khoản có đơn hàng chứa sản phẩm này.'
-            : 'Chế độ không có máy chủ: đánh giá được lưu trên trình duyệt này, chỉ tài khoản đã đặt sản phẩm này trên trình duyệt mới đánh giá được.'));
+            : 'Website đang chạy không có máy chủ: đánh giá được lưu trên trình duyệt này và chỉ tài khoản đã đặt sản phẩm này trên trình duyệt này mới đánh giá được.';
+    }
+
+    function gate(box, message, action) {
+        var row = el('div', 'sh-review-gate-row');
+        row.appendChild(el('p', 'sh-review-gate', message));
+        if (action) {
+            var btn = el('button', 'sh-review-gate-btn', action.label);
+            btn.type = 'button';
+            btn.addEventListener('click', action.run);
+            row.appendChild(btn);
+        }
+        box.appendChild(row);
+        return box;
     }
 
     function renderForm() {
         var box = el('div', 'sh-review-form');
-        if (!state.loggedIn) { box.appendChild(el('p', 'sh-review-gate', 'Đăng nhập và mua sản phẩm để chia sẻ đánh giá của bạn.')); return box; }
-        if (state.source === 'server' && !state.connected) { box.appendChild(el('p', 'sh-review-gate', 'Đang kết nối tài khoản với máy chủ… Hãy đăng nhập lại nếu thông báo này không biến mất.')); return box; }
-        if (!state.canReview) { box.appendChild(el('p', 'sh-review-gate', 'Chỉ khách đã mua sản phẩm này mới có thể đánh giá. Sau khi đặt hàng, bạn sẽ thấy ô đánh giá tại đây.')); return box; }
+        if (!state.loggedIn) {
+            return gate(box, 'Đã mua sản phẩm này? Đăng nhập để chia sẻ đánh giá của bạn.',
+                typeof window.toggleAuthModal === 'function' ? { label: 'Đăng nhập', run: function () { window.toggleAuthModal(true); } } : null);
+        }
+        if (state.source === 'server' && !state.connected) return gate(box, 'Đang kết nối tài khoản với máy chủ… Hãy đăng nhập lại nếu thông báo này không biến mất.');
+        if (!state.canReview) return gate(box, 'Bạn chưa mua sản phẩm này. Sau khi đặt hàng, ô đánh giá sẽ xuất hiện tại đây.');
         var mine = state.myReview;
         var rating = mine ? mine.rating : 0;
         box.appendChild(el('p', 'sh-review-form-title', mine ? 'Cập nhật đánh giá của bạn' : 'Viết đánh giá của bạn'));
@@ -223,6 +257,11 @@
     function start() {
         if (!catalog()[productId]) return;
         load();
+        var lastEmail = email();
+        var recheck = function () { var now = email(); if (now !== lastEmail) { lastEmail = now; load(); } };
+        document.addEventListener('click', function () { setTimeout(recheck, 400); });
+        document.addEventListener('submit', function () { setTimeout(recheck, 600); }, true);
+        window.addEventListener('focus', recheck);
         document.addEventListener('stylehub-api-auth-change', function () { load(); });
         document.addEventListener('stylehub-api-synced', function () { if (state && state.source === 'server' && !state.canReview) load(); });
     }

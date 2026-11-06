@@ -62,6 +62,13 @@
 .sh-sentiment.is-pos { color: var(--sh-pos); background: #eef7f1; }
 .sh-sentiment.is-neu { color: var(--sh-neu); background: #f4f2ee; }
 .sh-sentiment.is-neg { color: var(--sh-neg); background: #fbefee; }
+.sh-reviews-emptybox { display: flex; gap: 18px; align-items: center; padding: 18px 22px; border: 1px solid var(--sh-line); border-radius: 16px; background: linear-gradient(125deg, #f5f1e9, #fbfaf7); margin-bottom: 14px; }
+.sh-stars-muted { font-size: 22px; color: #d5c7b2; letter-spacing: 3px; white-space: nowrap; }
+.sh-reviews-emptytext strong { display: block; font-size: 15px; color: var(--sh-ink); margin-bottom: 4px; }
+.sh-reviews-emptytext p { margin: 0; font-size: 13px; line-height: 1.6; color: var(--sh-muted); }
+.sh-review-gate-row { display: flex; align-items: center; justify-content: space-between; gap: 14px; flex-wrap: wrap; }
+.sh-review-gate-btn { border: 1px solid var(--sh-ink); background: var(--sh-ink); color: #fff; padding: 9px 18px; border-radius: 999px; font-size: 11px; letter-spacing: 1.6px; text-transform: uppercase; font-weight: 700; cursor: pointer; }
+.sh-review-gate-btn:focus-visible { outline: 2px solid var(--sh-gold); outline-offset: 2px; }
 .sh-review-form { border: 1px solid var(--sh-line); border-radius: 16px; padding: 18px 20px; margin-bottom: 20px; background: #fff; }
 .sh-review-form-title { font-weight: 700; margin: 0 0 8px; color: var(--sh-ink); }
 .sh-review-gate { margin: 0; color: var(--sh-muted); font-size: 13px; }
@@ -136,6 +143,7 @@ body.sh-quiz-lock { overflow: hidden; }
     .sh-social-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
     .sh-outfit-section, .sh-reviews-section { padding: 0 16px; margin-bottom: 56px; }
     .sh-reviews-summary { grid-template-columns: 1fr; gap: 14px; padding: 18px; }
+    .sh-reviews-emptybox { flex-direction: column; align-items: flex-start; gap: 8px; padding: 16px; }
     .sh-outfit-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
     .sh-review-top time { margin-left: 0; width: 100%; }
     .sh-dna-row { grid-template-columns: 1fr 70px 34px; }
