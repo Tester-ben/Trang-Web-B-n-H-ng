@@ -427,6 +427,7 @@
 </style>
 
 <link rel="stylesheet" href="stylehub-premium-home.css?v=6-no-journal"/>
+<link rel="stylesheet" href="stylehub-recommender-ui.css?v=1"/>
 </head>
 <body class="premium-home">
 <div class="search-overlay" id="searchBox">
@@ -875,7 +876,11 @@
 
 
 <script src="product-data.js?v=home-shoes-marquee-20260618"></script>
-    <script src="stylehub-recommendations.js?v=2-view-personalized"></script>
+    <script src="recommender/product-attributes.js?v=2"></script>
+    <script src="recommender/sentiment-vi.js?v=2"></script>
+    <script src="recommender/engine.js?v=2"></script>
+    <script src="stylehub-api.js?v=2"></script>
+    <script src="stylehub-recommendations.js?v=3-hybrid-v2"></script>
 <script>
         let isLoggedIn = localStorage.getItem('isLoggedInStatus') === 'true' && !!(localStorage.getItem('hub_current_user_key') || localStorage.getItem('hub_email')); 
         let userData = JSON.parse(localStorage.getItem("hub_userData")) || { firstName: "", lastName: "", email: "", password: "" };
@@ -1277,6 +1282,7 @@
 <script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-database-compat.js"></script>
 <script src="stylehub-orders-api.js?v=stock-cloud-sync-20260630"></script>
+<script src="stylehub-crypto.js"></script>
 <script src="stylehub-common.js?v=stock-cloud-sync-20260630"></script>
 
 <script src="stylehub-ai-chat.js"></script>
@@ -1312,5 +1318,6 @@
 </script>
 
 <script src="stylehub-premium-home.js?v=6-no-journal" defer></script>
+<script src="stylehub-style-dna.js?v=1" defer></script>
 </body>
 </html>

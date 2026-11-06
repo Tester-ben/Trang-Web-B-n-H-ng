@@ -1,0 +1,7 @@
+{
+  "_ghi_chu": "Sửa tay các thuộc tính mà quy tắc tự động suy luận sai do dữ liệu nguồn (tên/ảnh) thiếu hoặc lệch. Chạy lại: npm run attributes",
+  "sale-1": { "colors": ["grey"], "_ly_do": "Ảnh gốc là hoodie Knicks (dữ liệu nguồn lệch); dùng màu của mẫu tương ứng womens-1 (Heather Stone/Iron Grey)" },
+  "tops-9": { "colors": [], "_ly_do": "Ảnh gốc trùng với tops-8 (White Sox), không suy ra được màu thật" },
+  "tops-18": { "type": "tee", "colors": ["black"], "_ly_do": "Tên 'Seasonal Relaxed Top - Black'" },
+  "shoe-13": { "colors": [], "_ly_do": "Không có thông tin màu" }
+}

@@ -861,6 +861,7 @@
 <script>
         document.addEventListener("DOMContentLoaded", function() {
             const accountLink = document.getElementById('headerAccountLink');
+            if (!accountLink) return; // trang này không có phần tử headerAccountLink (header do stylehub-common.js đồng bộ)
             if (localStorage.getItem('isLoggedInStatus') === 'true' && (localStorage.getItem('hub_current_user_key') || localStorage.getItem('hub_email'))) {
                 const savedName = localStorage.getItem('hub_name') || "ACCOUNT";
                 accountLink.innerText = savedName.toUpperCase();
@@ -1234,7 +1235,11 @@ document.addEventListener("DOMContentLoaded", function () {
 })();
 </script>
 <script src="product-data.js?v=property-la-visible-final-20260618"></script>
-    <script src="stylehub-recommendations.js?v=1"></script>
+    <script src="recommender/product-attributes.js?v=2"></script>
+    <script src="recommender/sentiment-vi.js?v=2"></script>
+    <script src="recommender/engine.js?v=2"></script>
+    <script src="stylehub-api.js?v=2"></script>
+    <script src="stylehub-recommendations.js?v=3-hybrid-v2"></script>
 
 
 <script>
@@ -1357,6 +1362,7 @@ document.addEventListener("click", function(e) {
 <script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-database-compat.js"></script>
 <script src="stylehub-orders-api.js?v=stock-cloud-sync-20260630"></script>
+<script src="stylehub-crypto.js"></script>
 <script src="stylehub-common.js?v=stock-cloud-sync-20260630"></script>
 
 <script src="stylehub-ai-chat.js"></script>

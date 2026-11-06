@@ -1,0 +1,1646 @@
+<!DOCTYPE html>
+
+<html lang="vi">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>The Style Hub - Mens Collection</title>
+<link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&amp;display=swap" rel="stylesheet"/>
+<link href="style.css" rel="stylesheet"/>
+<style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { font-family: 'Roboto', sans-serif; background-color: #ffffff; color: #111111; overflow-x: hidden; }
+        
+        .main-header { position: fixed; top: 0; left: 0; width: 100%; height: 57px; background-color: #000000; color: #ffffff; z-index: 1000; }
+        .nav-container { max-width: 1440px; margin: 0 auto; height: 100%; display: flex; justify-content: space-between; align-items: center; padding: 0 40px; }
+        .nav-left, .nav-right { display: flex; gap: 16px; align-items: center; }
+        .logo { font-size: 16px; font-weight: 700; letter-spacing: 4px; text-align: center; }
+        .nav-container a { color: #ffffff; text-decoration: none; font-size: 11px; letter-spacing: 1.5px; text-transform: uppercase; cursor: pointer; }
+
+        /* FIX LỖI KHOẢNG CÁCH GIAO DIỆN PHÍA TRÊN */
+        .sub-filter-bar { margin-top: 57px; padding: 20px 40px 15px 40px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #f2f2f2; background-color: #ffffff; }
+        .filter-left-group { display: flex; gap: 15px; }
+        .filter-tag { font-size: 11px; letter-spacing: 1px; text-transform: uppercase; font-weight: 500; cursor: pointer; color: #777; transition: color 0.2s; }
+        .filter-tag.active, .filter-tag:hover { color: #111; }
+        .filter-right-sort { font-size: 11px; letter-spacing: 1px; text-transform: uppercase; font-weight: 500; color: #111; }
+
+        .product-gallery-container { max-width: 1440px; margin: 0 auto; padding: 40px; }
+        .mens-product-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 40px 24px; }
+        
+        .mens-card { display: flex; flex-direction: column; text-decoration: none; color: inherit; }
+        .mens-thumb-box { width: 100%; aspect-ratio: 3 / 4; overflow: hidden; background-color: #f7f7f7; margin-bottom: 15px; position: relative; }
+        
+        .mens-thumb-box img { width: 100%; height: 100%; object-fit: cover; object-position: center top; position: absolute; top: 0; left: 0; transition: opacity 0.4s ease, transform 0.4s ease; }
+        .img-back { opacity: 0; }
+        
+        .mens-card:hover .img-front { opacity: 0; }
+        .mens-card:hover .img-back { opacity: 1; transform: scale(1.01); }
+
+        .mens-details { text-align: left; }
+        .tag-brand { font-size: 10px; letter-spacing: 1.5px; color: #777; text-transform: uppercase; margin-bottom: 4px; }
+        .item-name { font-size: 13px; color: #111; margin-bottom: 4px; font-weight: 400; line-height: 1.4; }
+        .item-price { font-size: 12px; color: #111; font-weight: 500; }
+
+        .hide-item { display: none !important; }
+
+        .tops-pagination { display: none; justify-content: center; align-items: center; gap: 38px; margin: 52px 0 18px; font-size: 18px; color: #111; }
+        .tops-pagination.show { display: flex; }
+        .tops-pagination a, .tops-pagination button { border: none; background: transparent; color: #111; text-decoration: none; font-size: 18px; letter-spacing: 1px; cursor: pointer; padding: 8px 10px; line-height: 1; transition: opacity 0.2s ease, transform 0.2s ease; }
+        .tops-pagination button { font-size: 32px; padding: 4px 12px; }
+        .tops-pagination a.active { font-weight: 700; border-bottom: 2px solid #111; }
+        .tops-pagination a:hover, .tops-pagination button:hover { opacity: 0.55; transform: translateY(-1px); }
+
+        /* ==================== TOAST NOTIFICATION LUXURY ==================== */
+        .toast-notification { position: fixed; bottom: -100px; left: 50%; transform: translateX(-50%); background-color: #111111; color: #ffffff; padding: 14px 30px; font-size: 12px; letter-spacing: 1px; text-transform: uppercase; z-index: 3000; box-shadow: 0 5px 15px rgba(0,0,0,0.15); transition: bottom 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); pointer-events: none; }
+        .toast-notification.show { bottom: 40px; }
+        #fwCanvas { position: fixed; top: 0; left: 0; width: 100%; height: 100vh; pointer-events: none; z-index: 9999; display: none; }
+    </style>
+
+
+
+
+
+<style>
+/* ===== FOOTER CATEGORY ALIGN FIX ===== */
+@media (min-width: 769px) {
+    .site-footer .footer-categories {
+        transform: translateX(34px) !important;
+    }
+}
+
+@media (max-width: 768px) {
+    .site-footer .footer-categories {
+        transform: none !important;
+        margin-left: 0 !important;
+    }
+}
+/* ===== END FOOTER CATEGORY ALIGN FIX ===== */
+</style>
+
+
+
+
+<style>
+/* ===== FOOTER SOCIAL 3 ICONS LEFT ALIGN FINAL ===== */
+.site-footer .social-links,
+.site-footer .footer-social-links {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: flex-start !important;
+    gap: 24px !important;
+    margin-top: 26px !important;
+    margin-left: 0 !important;
+    padding-left: 0 !important;
+    flex-wrap: nowrap !important;
+    width: 100% !important;
+    max-width: 260px !important;
+}
+
+.site-footer .footer-social-icon {
+    width: 42px !important;
+    height: 42px !important;
+    min-width: 42px !important;
+    max-width: 42px !important;
+    min-height: 42px !important;
+    max-height: 42px !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    border: none !important;
+    outline: none !important;
+    border-radius: 0 !important;
+    background: transparent !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    text-decoration: none !important;
+    overflow: visible !important;
+    box-shadow: none !important;
+    line-height: 1 !important;
+    transition: transform 0.25s ease, opacity 0.25s ease !important;
+}
+
+.site-footer .footer-social-icon:hover {
+    transform: translateY(-2px) scale(1.08) !important;
+    opacity: 0.9 !important;
+}
+
+.site-footer .footer-social-icon img {
+    width: 38px !important;
+    height: 38px !important;
+    max-width: 38px !important;
+    max-height: 38px !important;
+    display: block !important;
+    object-fit: contain !important;
+    object-position: center !important;
+    border: 0 !important;
+    outline: none !important;
+    border-radius: 0 !important;
+    background: transparent !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    box-shadow: none !important;
+}
+
+@media (max-width: 768px) {
+    .site-footer .social-links,
+    .site-footer .footer-social-links {
+        justify-content: flex-start !important;
+        gap: 22px !important;
+        max-width: 230px !important;
+        margin-left: 0 !important;
+        padding-left: 0 !important;
+    }
+
+    .site-footer .footer-social-icon {
+        width: 38px !important;
+        height: 38px !important;
+        min-width: 38px !important;
+        max-width: 38px !important;
+        min-height: 38px !important;
+        max-height: 38px !important;
+    }
+
+    .site-footer .footer-social-icon img {
+        width: 34px !important;
+        height: 34px !important;
+        max-width: 34px !important;
+        max-height: 34px !important;
+    }
+}
+/* ===== END FOOTER SOCIAL 3 ICONS LEFT ALIGN FINAL ===== */
+</style>
+
+</head>
+<body>
+
+<div class="search-overlay" id="searchBox">
+    <div class="search-panel">
+        <button class="search-close-btn" onclick="closeSearchBox()">×</button>
+        <input class="search-input" id="searchInput" onkeyup="searchProducts()" placeholder="SEARCH FOR PRODUCTS..." type="text">
+        <div class="search-results" id="searchResults"></div>
+    </div>
+</div>
+
+<canvas id="fwCanvas"></canvas>
+<div class="toast-notification" id="toastMessage">Đăng nhập thành công!</div>
+<header class="main-header">
+<div class="nav-container">
+<div class="nav-left">
+<div class="menu-item-has-mega">
+<a class="nav-link-featured" href="index.html">FEATURED</a>
+<div class="mega-menu-dropdown">
+<div class="mega-menu-container">
+<div class="mega-links-col">
+<a href="collections.html">NEW ARRIVALS</a>
+<a href="mens.html">MLB SPRING 2026</a>
+<a href="womens.html">COLLECTION NINE WOMENSWEAR</a>
+<a href="mens.html">ESSENTIALS CLASSIC STYLES</a>
+<a href="mens.html">ATHLETICS &amp; TEAM APPAREL</a>
+<a href="mens.html">ESSENTIALS</a>
+<a href="mens.html">FEAR OF GOD</a>
+<a href="sale.html">SALE</a>
+
+<a href="exchange-warranty-policy.html">CHÍNH SÁCH ĐỔI HÀNG & BẢO HÀNH</a>
+<a href="privacy-policy.html">CHÍNH SÁCH BẢO MẬT</a>
+<a href="shipping-policy.html">CHÍNH SÁCH GIAO HÀNG</a></div>
+<div class="mega-images-col">
+<a class="mega-img-card" href="womens.html">
+<img alt="Collection Nine Womenswear" src="https://fearofgod.com/cdn/shop/files/LOOK_36_26241979-d8f6-4a59-81bf-798c81a576b9.jpg?v=1758565392&amp;width=1200"/>
+<span>COLLECTION NINE WOMENSWEAR</span>
+</a>
+<a class="mega-img-card" href="mens.html">
+<img alt="Collection Nine Menswear" src="https://fearofgod.com/cdn/shop/files/LOOK_29.png?v=1774904924&amp;width=1200"/>
+<span>COLLECTION NINE MENSWEAR</span>
+</a>
+</div>
+</div>
+</div>
+</div>
+<div class="menu-item-has-dropdown">
+    <a class="active" href="mens.html">MENS</a>
+<div class="nav-dropdown">
+<a href="mens.html">ALL PRODUCTS</a>
+<a href="mens.html?cat=tops">TOPS</a>
+<a href="mens.html?cat=hoodies">HOODIES</a>
+<a href="mens.html?cat=dress-shirt">DRESS SHIRT</a>
+<a href="mens.html?cat=bottoms">BOTTOMS</a>
+</div>
+</div>
+<div class="menu-item-has-dropdown">
+<a class="" href="womens.html">WOMENS</a>
+<div class="nav-dropdown">
+<a href="womens.html">ALL PRODUCTS</a>
+<a href="womens.html?cat=tops">TOPS</a>
+<a href="womens.html?cat=jackets">JACKETS &amp; OUTERWEAR</a>
+<a href="womens.html?cat=bottoms">BOTTOMS</a>
+</div>
+</div>
+<div class="menu-item-has-dropdown">
+<a class="" href="kids.html">KIDS</a>
+<div class="nav-dropdown">
+<a href="kids.html">ALL KIDS</a>
+<a href="kids.html?cat=tops">TOPS</a>
+<a href="kids.html?cat=jackets">JACKETS &amp; OUTERWEAR</a>
+<a href="kids.html?cat=bottoms">BOTTOMS</a>
+</div>
+</div>
+<div class="menu-item-has-dropdown">
+<a class="" href="sale.html">SALE</a>
+<div class="nav-dropdown">
+<a href="sale.html">ALL SALE ITEMS</a>
+<a href="sale.html?cat=tops">TOPS</a>
+<a href="sale.html?cat=jackets">JACKETS &amp; OUTERWEAR</a>
+</div>
+</div>
+<div class="menu-item-has-dropdown">
+<a class="" href="shoes.html">SHOES</a>
+<div class="nav-dropdown">
+<a href="shoes.html">ALL SHOES</a>
+</div>
+</div>
+</div>
+<div class="logo"><a href="index.html">THE STYLE HUB</a></div>
+<div class="nav-right">
+<a href="#" id="search-trigger">SEARCH</a>
+<a href="#" id="account-trigger">ACCOUNT</a>
+<a href="admin.html" target="_blank" rel="noopener" class="admin-nav-link">ADMIN</a>
+<a href="#" id="bag-trigger">BAG (<span id="cart-count">0</span>)</a>
+</div>
+</div>
+</header>
+<div class="sub-filter-bar">
+<div class="filter-left-group">
+<span class="filter-tag active" id="filter-all" onclick="filterCategory('all', this)">All Products</span>
+<span class="filter-tag" onclick="filterCategory('tops', this)">Tops</span>
+<span class="filter-tag" onclick="filterCategory('hoodies', this)">Hoodies</span>
+<span class="filter-tag" id="filter-dress-shirt" onclick="filterCategory('dress-shirt', this)">Dress Shirt</span>
+<span class="filter-tag" id="filter-bottoms" onclick="filterCategory('bottoms', this)">Bottoms</span>
+</div>
+<div class="filter-right-sort" data-stylehub-notification-bell></div>
+</div>
+<div class="product-gallery-container">
+<div class="mens-product-grid">
+<a class="mens-card" data-cat="hoodies" href="product-detail.html?id=tops-1">
+<div class="mens-thumb-box">
+<img class="img-front" src="https://fearofgod.com/cdn/shop/files/RW00210_MLB_RAGLAN_SPORT_HOODIE-OAT_2_x800.jpg?v=1777998692"/>
+<img class="img-back" src="https://fearofgod.com/cdn/shop/files/RW00210_MLB_RAGLAN_SPORT_HOODIE-OAT_1_900x.jpg?v=1777998692"/>
+</div>
+<div class="mens-details">
+<p class="tag-brand">Essentials</p>
+<h4 class="item-name">MLB Raglan Sport Hoodie - Oat Heather</h4>
+<p class="item-price">4.883.000 ₫</p>
+</div>
+</a>
+<a class="mens-card" data-cat="tops" href="product-detail.html?id=tops-2">
+<div class="mens-thumb-box">
+<img class="img-front" src="https://fearofgod.com/cdn/shop/files/RW00213_DODGERS_RAGLAN_HALF_ZIP_SPORT_HOODIE-ESTATE_BLUE_SEAL_1_x800.jpg?v=1777998961"/>
+<img class="img-back" src="https://fearofgod.com/cdn/shop/files/RW00213_DODGERS_RAGLAN_HALF_ZIP_SPORT_HOODIE-ESTATE_BLUE_SEAL_2_900x.jpg?v=1777998961"/>
+</div>
+<div class="mens-details">
+<p class="tag-brand">Essentials</p>
+<h4 class="item-name">Dodgers Raglan Half Zip Sport Hoodie</h4>
+<p class="item-price">5.162.000 ₫</p>
+</div>
+</a>
+<a class="mens-card" data-cat="tops" href="product-detail.html?id=tops-3">
+<div class="mens-thumb-box">
+<img class="img-front" src="https://fearofgod.com/cdn/shop/files/RW00233_DODGERS-HALF_ZIP_PULLOVER-ESTATE_BLUE_SEAL_RIB_1_x800.jpg?v=1778000092"/>
+<img class="img-back" src="https://fearofgod.com/cdn/shop/files/RW00233_DODGERS-HALF_ZIP_PULLOVER-ESTATE_BLUE_SEAL_RIB_2_900x.jpg?v=1778000092"/>
+</div>
+<div class="mens-details">
+<p class="tag-brand">Essentials</p>
+<h4 class="item-name">Dodgers Half Zip Pullover Jacket</h4>
+<p class="item-price">6.976.000 ₫</p>
+</div>
+</a>
+<a class="mens-card" data-cat="tops" href="product-detail.html?id=tops-4">
+<div class="mens-thumb-box">
+<img class="img-front" src="https://fearofgod.com/cdn/shop/files/RW00190_DODGERS_MERCH_TEE-CONCRETE_HEATHER_1_x800.jpg?v=1777996041"/>
+<img class="img-back" src="https://fearofgod.com/cdn/shop/files/RW00190_DODGERS_MERCH_TEE-CONCRETE_HEATHER_2_900x.jpg?v=1777996041"/>
+</div>
+<div class="mens-details">
+<p class="tag-brand">Essentials</p>
+<h4 class="item-name">Dodgers Heavyweight Merch T-Shirt</h4>
+<p class="item-price">2.512.000 ₫</p>
+</div>
+</a>
+<a class="mens-card" data-cat="hoodies" href="product-detail.html?id=tops-5">
+<div class="mens-thumb-box">
+<img class="img-front" src="https://fearofgod.com/cdn/shop/files/RW00202_DODGERS_SPORT_HOODIE-OAT_1_x800.jpg?v=1777998047"/>
+<img class="img-back" src="https://fearofgod.com/cdn/shop/files/RW00202_DODGERS_SPORT_HOODIE-OAT_2_900x.jpg?v=1777998047"/>
+</div>
+<div class="mens-details">
+<p class="tag-brand">Essentials</p>
+<h4 class="item-name">Dodgers Classic Logo Sport Hoodie</h4>
+<p class="item-price">3.070.000 ₫</p>
+</div>
+</a>
+<a class="mens-card" data-cat="tops" href="product-detail.html?id=tops-6">
+<div class="mens-thumb-box">
+<img class="img-front" src="https://fearofgod.com/cdn/shop/files/RW00199_MLB_BOXY_LONG_SLEEVE_TEE-BLACK_1_x800.jpg?v=1777997642"/>
+<img class="img-back" src="https://fearofgod.com/cdn/shop/files/RW00199_MLB_BOXY_LONG_SLEEVE_TEE-BLACK_2_900x.jpg?v=1777997641"/>
+</div>
+<div class="mens-details">
+<p class="tag-brand">Essentials</p>
+<h4 class="item-name">MLB Boxy Oversized Long Sleeve Tee</h4>
+<p class="item-price">2.791.000 ₫</p>
+</div>
+</a>
+<a class="mens-card" data-cat="tops" href="product-detail.html?id=tops-7">
+<div class="mens-thumb-box">
+<img class="img-front" src="https://fearofgod.com/cdn/shop/files/RW00189_WHITE_SOX_MERCH_TEE-CONCRETE_HEATHER_2_x800.jpg?v=1778003846"/>
+<img class="img-back" src="https://fearofgod.com/cdn/shop/files/RW00189_WHITE_SOX_MERCH_TEE-CONCRETE_HEATHER_1_900x.jpg?v=1778003847"/>
+</div>
+<div class="mens-details">
+<p class="tag-brand">Essentials</p>
+<h4 class="item-name">White Sox Premium Crewneck Merch Tee</h4>
+<p class="item-price">2.550.000 ₫</p>
+</div>
+</a>
+<a class="mens-card" data-cat="hoodies" href="product-detail.html?id=tops-8">
+<div class="mens-thumb-box">
+<img class="img-front" src="https://fearofgod.com/cdn/shop/files/RW00201_WHITE_SOX_SPORT_HOODIE-OATMEAL_HEATHER_W_BLACK_PINSTRIPES_1_x800.jpg?v=1777997926"/>
+<img class="img-back" src="https://fearofgod.com/cdn/shop/files/RW00201_WHITE_SOX_SPORT_HOODIE-OATMEAL_HEATHER_W_BLACK_PINSTRIPES_2_900x.jpg?v=1777997926"/>
+</div>
+<div class="mens-details">
+<p class="tag-brand">Essentials</p>
+<h4 class="item-name">White Sox Pinstripe Heavyweight Hoodie</h4>
+<p class="item-price">5.400.000 ₫</p>
+</div>
+</a>
+<a class="mens-card" data-cat="tops" href="product-detail.html?id=tops-11">
+<div class="mens-thumb-box">
+<img class="img-front" src="https://fearofgod.com/cdn/shop/files/125SP264593F_SIGNATURE_90S_SHORT_SLEEVE_TEE-IVORY_1.jpg?v=1770680287&width=1600"/>
+<img class="img-back" src="https://fearofgod.com/cdn/shop/files/125SP264593F_SIGNATURE_90S_SHORT_SLEEVE_TEE-IVORY_2.jpg?v=1770680287&width=1600"/>
+</div>
+<div class="mens-details">
+<p class="tag-brand">Essentials</p>
+<h4 class="item-name">Signature 90s Short Sleeve Tee - Ivory</h4>
+<p class="item-price">2.150.000 ₫</p>
+</div>
+</a>
+<a class="mens-card" data-cat="tops" href="product-detail.html?id=tops-12">
+<div class="mens-thumb-box">
+<img class="img-front" src="https://fearofgod.com/cdn/shop/files/125SP264181F_SIGNATURE_ESSENTIAL_TANK-VINTAGE_BLACK_1.jpg?v=1770659417&width=1600"/>
+<img class="img-back" src="https://fearofgod.com/cdn/shop/files/125SP264181F_SIGNATURE_ESSENTIAL_TANK-VINTAGE_BLACK_2.jpg?v=1770659417&width=1600"/>
+</div>
+<div class="mens-details">
+<p class="tag-brand">Essentials</p>
+<h4 class="item-name">Signature Essential Tank - Vintage Black</h4>
+<p class="item-price">1.950.000 ₫</p>
+</div>
+</a>
+<a class="mens-card" data-cat="tops" href="product-detail.html?id=tops-13">
+<div class="mens-thumb-box">
+<img class="img-front" src="https://fearofgod.com/cdn/shop/files/192SP264373F_SIGNATURE_90S_POLO_SWEATSHIRT-CONCRETE_HEATHER_DARK_CONCRETE_HEATHER_1.jpg?v=1771604784&width=1600"/>
+<img class="img-back" src="https://fearofgod.com/cdn/shop/files/192SP264373F_SIGNATURE_90S_POLO_SWEATSHIRT-CONCRETE_HEATHER_DARK_CONCRETE_HEATHER_2.jpg?v=1771604784&width=1600"/>
+</div>
+<div class="mens-details">
+<p class="tag-brand">Essentials</p>
+<h4 class="item-name">Signature 90s Polo Sweatshirt - Concrete Heather</h4>
+<p class="item-price">3.950.000 ₫</p>
+</div>
+</a>
+<a class="mens-card" data-cat="tops" href="product-detail.html?id=tops-14">
+<div class="mens-thumb-box">
+<img class="img-front" src="https://fearofgod.com/cdn/shop/files/125SP264182F_SIGNATURE_ESSENTIAL_TANK-SEAL_1.jpg?v=1770659480&width=1600"/>
+<img class="img-back" src="https://fearofgod.com/cdn/shop/files/125SP264182F_SIGNATURE_ESSENTIAL_TANK-SEAL_2.jpg?v=1770659480&width=1600"/>
+</div>
+<div class="mens-details">
+<p class="tag-brand">Essentials</p>
+<h4 class="item-name">Signature Essential Tank - Seal</h4>
+<p class="item-price">1.950.000 ₫</p>
+</div>
+</a>
+<a class="mens-card" data-cat="tops" href="product-detail.html?id=tops-15">
+<div class="mens-thumb-box">
+<img class="img-front" src="https://fearofgod.com/cdn/shop/files/125SP264183F_SIGNATURE_ESSENTIAL_TANK-IVORY_1_895b397f-789b-442b-aad6-c2ec84d8c200.jpg?v=1770659609&width=1600"/>
+<img class="img-back" src="https://fearofgod.com/cdn/shop/files/125SP264183F_SIGNATURE_ESSENTIAL_TANK-IVORY_2_8a215b25-3684-4bfc-bdc5-217687d7ada5.jpg?v=1770659609&width=1600"/>
+</div>
+<div class="mens-details">
+<p class="tag-brand">Essentials</p>
+<h4 class="item-name">Signature Essential Tank - Ivory</h4>
+<p class="item-price">1.950.000 ₫</p>
+</div>
+</a>
+<a class="mens-card" data-cat="tops" href="product-detail.html?id=tops-16">
+<div class="mens-thumb-box">
+<img class="img-front" src="https://fearofgod.com/cdn/shop/files/192SP266951F_OVERSHIRT-VINTAGE_BLACK_1.jpg?v=1772254896&width=1600"/>
+<img class="img-back" src="https://fearofgod.com/cdn/shop/files/192SP266951F_OVERSHIRT-VINTAGE_BLACK_2.jpg?v=1772254896&width=1600"/>
+</div>
+<div class="mens-details">
+<p class="tag-brand">Essentials</p>
+<h4 class="item-name">Overshirt - Vintage Black</h4>
+<p class="item-price">5.950.000 ₫</p>
+</div>
+</a>
+<a class="mens-card" data-cat="tops" href="product-detail.html?id=tops-17">
+<div class="mens-thumb-box">
+<img class="img-front" src="https://fearofgod.com/cdn/shop/files/192SP266953F_OVERSHIRT-DUNE_1.jpg?v=1772736807&width=1600"/>
+<img class="img-back" src="https://fearofgod.com/cdn/shop/files/192SP266953F_OVERSHIRT-DUNE_2.jpg?v=1772736808&width=1600"/>
+</div>
+<div class="mens-details">
+<p class="tag-brand">Essentials</p>
+<h4 class="item-name">Overshirt - Dune</h4>
+<p class="item-price">5.950.000 ₫</p>
+</div>
+</a>
+<a class="mens-card" data-cat="tops" href="product-detail.html?id=tops-18">
+<div class="mens-thumb-box">
+<img class="img-front" src="https://fearofgod.com/cdn/shop/files/ZkAmBwHA.jpg?v=1762283268&width=2560"/>
+<img class="img-back" src="https://fearofgod.com/cdn/shop/files/9Wq0X_aw.jpg?v=1762283268&width=1600"/>
+</div>
+<div class="mens-details">
+<p class="tag-brand">Fear of God</p>
+<h4 class="item-name">Seasonal Relaxed Top - Black</h4>
+<p class="item-price">4.250.000 ₫</p>
+</div>
+</a>
+<a class="mens-card" data-cat="tops" href="product-detail.html?id=tops-19">
+<div class="mens-thumb-box">
+<img class="img-front" src="https://fearofgod.com/cdn/shop/files/90S_SHORT_SLEEVE_TEE-SMOKE_GREY_1.jpg?v=1761168360&width=1600"/>
+<img class="img-back" src="https://fearofgod.com/cdn/shop/files/125HO254471F_90S_SHORT_SLEEVE_TEE-SMOKE_GREY_2.jpg?v=1761168360&width=1600"/>
+</div>
+<div class="mens-details">
+<p class="tag-brand">Essentials</p>
+<h4 class="item-name">90s Short Sleeve Tee - Smoke Grey</h4>
+<p class="item-price">2.150.000 ₫</p>
+</div>
+</a>
+<a class="mens-card" data-cat="tops" href="product-detail.html?id=tops-20">
+<div class="mens-thumb-box">
+<img class="img-front" src="https://fearofgod.com/cdn/shop/files/FG9M20-206DKLW_CREW_NECK_SWEATER-CREAM_1.jpg?v=1772217959&width=2560"/>
+<img class="img-back" src="https://fearofgod.com/cdn/shop/files/FG9M20-206DKLW_CREW_NECK_SWEATER-CREAM_2.jpg?v=1772217959&width=1600"/>
+</div>
+<div class="mens-details">
+<p class="tag-brand">Fear of God</p>
+<h4 class="item-name">Crew Neck Sweater - Cream</h4>
+<p class="item-price">6.450.000 ₫</p>
+</div>
+</a>
+
+<a class="mens-card" data-cat="tops" data-page="2" href="product-detail.html?id=tops-21">
+<div class="mens-thumb-box">
+<img class="img-front" src="https://fearofgod.com/cdn/shop/files/FG9M10-9959HWJ_FEAR_OF_GOD_43_SS_TEE-DARK_BROWN_1.jpg?v=1774387968&width=2560"/>
+<img class="img-back" src="https://fearofgod.com/cdn/shop/files/FG9M10-9959HWJ_FEAR_OF_GOD_43_SS_TEE-DARK_BROWN_2.jpg?v=1774387968&width=1600"/>
+</div>
+<div class="mens-details">
+<p class="tag-brand">Fear of God</p>
+<h4 class="item-name">43 Short Sleeve Tee - Dark Brown</h4>
+<p class="item-price">2.950.000 ₫</p>
+</div>
+</a>
+<a class="mens-card" data-cat="tops" data-page="2" href="product-detail.html?id=tops-22">
+<div class="mens-thumb-box">
+<img class="img-front" src="https://fearofgod.com/cdn/shop/files/FG9M10-9958HWJ_26_SS_TEE-BLACK_1.jpg?v=1772205609&width=1600"/>
+<img class="img-back" src="https://fearofgod.com/cdn/shop/files/FG9M10-9958HWJ_26_SS_TEE-BLACK_2.jpg?v=1772205609&width=1600"/>
+</div>
+<div class="mens-details">
+<p class="tag-brand">Fear of God</p>
+<h4 class="item-name">26 Short Sleeve Tee - Black</h4>
+<p class="item-price">2.950.000 ₫</p>
+</div>
+</a>
+<a class="mens-card" data-cat="tops" data-page="2" href="product-detail.html?id=tops-23">
+<div class="mens-thumb-box">
+<img class="img-front" src="https://fearofgod.com/cdn/shop/files/FG9M10-9928CRY_COTTON_RAYON_43_SS_TEE-DUNE_PEARL_1.jpg?v=1772206147&width=2560"/>
+<img class="img-back" src="https://fearofgod.com/cdn/shop/files/FG9M10-9928CRY_COTTON_RAYON_43_SS_TEE-DUNE_PEARL_2.jpg?v=1772206147&width=1600"/>
+</div>
+<div class="mens-details">
+<p class="tag-brand">Fear of God</p>
+<h4 class="item-name">Cotton Rayon 43 Short Sleeve Tee - Dune Pearl</h4>
+<p class="item-price">3.150.000 ₫</p>
+</div>
+</a>
+<a class="mens-card" data-cat="tops" data-page="2" href="product-detail.html?id=tops-24">
+<div class="mens-thumb-box">
+<img class="img-front" src="https://fearofgod.com/cdn/shop/files/FG9M10-9950HWJ_FG_9_LS_TEE-DUNE_PEARL_1.jpg?v=1772220169&width=2560"/>
+<img class="img-back" src="https://fearofgod.com/cdn/shop/files/FG9M10-9950HWJ_FG_9_LS_TEE-DUNE_PEARL_2.jpg?v=1772220169&width=1600"/>
+</div>
+<div class="mens-details">
+<p class="tag-brand">Fear of God</p>
+<h4 class="item-name">FG 9 Long Sleeve Tee - Dune Pearl</h4>
+<p class="item-price">3.450.000 ₫</p>
+</div>
+</a>
+<a class="mens-card" data-cat="tops" data-page="2" href="product-detail.html?id=tops-25">
+<div class="mens-thumb-box">
+<img class="img-front" src="https://fearofgod.com/cdn/shop/files/FG9M12-9934BHF_BASEBALL_CLASSIC_FIT_HALF_RAGLAN_SWEATSHIRT-SKY_1.jpg?v=1772207038&width=1600"/>
+<img class="img-back" src="https://fearofgod.com/cdn/shop/files/FG9M12-9934BHF_BASEBALL_CLASSIC_FIT_HALF_RAGLAN_SWEATSHIRT-SKY_2.jpg?v=1772207038&width=1600"/>
+</div>
+<div class="mens-details">
+<p class="tag-brand">Fear of God</p>
+<h4 class="item-name">Baseball Classic Fit Half Raglan Sweatshirt - Sky</h4>
+<p class="item-price">5.950.000 ₫</p>
+</div>
+</a>
+<a class="mens-card" data-cat="tops" data-page="2" href="product-detail.html?id=tops-26">
+<div class="mens-thumb-box">
+<img class="img-front" src="https://fearofgod.com/cdn/shop/files/FG9M10-9952HWJ_F_OF_G_43_LS_TEE-SKY_1.jpg?v=1774387272&width=2560"/>
+<img class="img-back" src="https://fearofgod.com/cdn/shop/files/FG9M10-9952HWJ_F_OF_G_43_LS_TEE-SKY_2.jpg?v=1774387272&width=1600"/>
+</div>
+<div class="mens-details">
+<p class="tag-brand">Fear of God</p>
+<h4 class="item-name">F of G 43 Long Sleeve Tee - Sky</h4>
+<p class="item-price">3.450.000 ₫</p>
+</div>
+</a>
+<a class="mens-card" data-cat="tops" data-page="2" href="product-detail.html?id=tops-27">
+<div class="mens-thumb-box">
+<img class="img-front" src="https://fearofgod.com/cdn/shop/files/FG9M10-9930CRY_CLEAN_NECK_SS_TEE-DIRTY_IVORY_1.jpg?v=1772063622&width=1600"/>
+<img class="img-back" src="https://fearofgod.com/cdn/shop/files/FG9M10-9930CRY_CLEAN_NECK_SS_TEE-DIRTY_IVORY_2.jpg?v=1772063623&width=1600"/>
+</div>
+<div class="mens-details">
+<p class="tag-brand">Fear of God</p>
+<h4 class="item-name">Clean Neck Short Sleeve Tee - Dirty Ivory</h4>
+<p class="item-price">2.950.000 ₫</p>
+</div>
+</a>
+<a class="mens-card" data-cat="tops" data-page="2" href="product-detail.html?id=tops-28">
+<div class="mens-thumb-box">
+<img class="img-front" src="https://fearofgod.com/cdn/shop/files/FG9M10-9928CRY_COTTON_RAYON_43_SS_TEE-BLACK_1.jpg?v=1772076946&width=1600"/>
+<img class="img-back" src="https://fearofgod.com/cdn/shop/files/FG9M10-9928CRY_COTTON_RAYON_43_SS_TEE-BLACK_2.jpg?v=1772076946&width=1600"/>
+</div>
+<div class="mens-details">
+<p class="tag-brand">Fear of God</p>
+<h4 class="item-name">Cotton Rayon 43 Short Sleeve Tee - Black</h4>
+<p class="item-price">3.150.000 ₫</p>
+</div>
+</a>
+<a class="mens-card" data-cat="tops" data-page="2" href="product-detail.html?id=tops-29">
+<div class="mens-thumb-box">
+<img class="img-front" src="https://fearofgod.com/cdn/shop/files/FG9M12-9970TER_BASEBALL_CUT_SLEEVE_SWEATSHIRT-BLACK_1.jpg?v=1774381844&width=1600"/>
+<img class="img-back" src="https://fearofgod.com/cdn/shop/files/FG9M12-9970TER_BASEBALL_CUT_SLEEVE_SWEATSHIRT-BLACK_2.jpg?v=1774381844&width=1600"/>
+</div>
+<div class="mens-details">
+<p class="tag-brand">Fear of God</p>
+<h4 class="item-name">Baseball Cut Sleeve Sweatshirt - Black</h4>
+<p class="item-price">4.950.000 ₫</p>
+</div>
+</a>
+<a class="mens-card" data-cat="tops" data-page="2" href="product-detail.html?id=tops-30">
+<div class="mens-thumb-box">
+<img class="img-front" src="https://fearofgod.com/cdn/shop/files/FG9M20-210LMS_HENLEY_SWEATER-BLACK_1.jpg?v=1772218467&width=1600"/>
+<img class="img-back" src="https://fearofgod.com/cdn/shop/files/FG9M20-210LMS_HENLEY_SWEATER-BLACK_2.jpg?v=1772218467&width=1600"/>
+</div>
+<div class="mens-details">
+<p class="tag-brand">Fear of God</p>
+<h4 class="item-name">Henley Sweater - Black</h4>
+<p class="item-price">6.450.000 ₫</p>
+</div>
+</a>
+<a class="mens-card" data-cat="hoodies" href="product-detail.html?id=hoodies-1">
+<div class="mens-thumb-box">
+<img class="img-front" src="https://fearofgod.com/cdn/shop/files/RW00215_CUBS_RAGLAN_HALF_ZIP_SPORT_HOODIE-ESTATE_BLUE_STONE_RED_1_900x.jpg?v=1777999153"/>
+<img class="img-back" src="https://fearofgod.com/cdn/shop/files/RW00215_CUBS_RAGLAN_HALF_ZIP_SPORT_HOODIE-ESTATE_BLUE_STONE_RED_2_900x.jpg?v=1777999153"/>
+</div>
+<div class="mens-details">
+<p class="tag-brand">Essentials</p>
+<h4 class="item-name">Cubs Raglan Half Zip Sport Hoodie - Estate Blue</h4>
+<p class="item-price">5.250.000 ₫</p>
+</div>
+</a>
+<a class="mens-card" data-cat="hoodies" href="product-detail.html?id=hoodies-2">
+<div class="mens-thumb-box">
+<img class="img-front" src="https://fearofgod.com/cdn/shop/files/192AS262072F_CLASSIC_FIT_FLEECE_ZIP_UP_HOODIE-HOMESTEAD_HEATHER_1_cd3fa6c0-d0da-4f0d-9968-90422fccfa56_900x.jpg?v=1776264814"/>
+<img class="img-back" src="https://fearofgod.com/cdn/shop/files/192AS262072F_CLASSIC_FIT_FLEECE_ZIP_UP_HOODIE-HOMESTEAD_HEATHER_2_7b3f75ef-2bbe-4f95-b9f6-372b18cc951a_900x.jpg?v=1776264814"/>
+</div>
+<div class="mens-details">
+<p class="tag-brand">Essentials</p>
+<h4 class="item-name">Classic Fit Fleece Zip Up Hoodie - Homestead</h4>
+<p class="item-price">4.650.000 ₫</p>
+</div>
+</a>
+<a class="mens-card" data-cat="hoodies" href="product-detail.html?id=hoodies-3">
+<div class="mens-thumb-box">
+<img class="img-front" src="https://fearofgod.com/cdn/shop/files/192AS262071F_CLASSIC_FIT_FLEECE_ZIP_UP_HOODIE-VINTAGE_BLACK_WHITE_1_900x.jpg?v=1770738701"/>
+<img class="img-back" src="https://fearofgod.com/cdn/shop/files/192AS262071F_CLASSIC_FIT_FLEECE_ZIP_UP_HOODIE-VINTAGE_BLACK_WHITE_2_900x.jpg?v=1770738701"/>
+</div>
+<div class="mens-details">
+<p class="tag-brand">Essentials</p>
+<h4 class="item-name">Classic Fit Fleece Zip Up Hoodie - Vintage Black</h4>
+<p class="item-price">4.650.000 ₫</p>
+</div>
+</a>
+<a class="mens-card" data-cat="hoodies" href="product-detail.html?id=hoodies-4">
+<div class="mens-thumb-box">
+<img class="img-front" src="https://fearofgod.com/cdn/shop/files/192AS264732F_CLASSIC_HOODIE-VINTAGE_BLACK_1_900x.jpg?v=1770739042"/>
+<img class="img-back" src="https://fearofgod.com/cdn/shop/files/192AS264732F_CLASSIC_HOODIE-VINTAGE_BLACK_2_900x.jpg?v=1770739042"/>
+</div>
+<div class="mens-details">
+<p class="tag-brand">Essentials</p>
+<h4 class="item-name">Classic Pullover Hoodie - Vintage Black Edition</h4>
+<p class="item-price">4.350.000 ₫</p>
+</div>
+</a>
+<a class="mens-card" data-cat="hoodies" href="product-detail.html?id=hoodies-5">
+<div class="mens-thumb-box">
+<img class="img-front" src="https://fearofgod.com/cdn/shop/files/192AS252050F_CLASSIC_FIT_FLEECE_HOODIE-JET_BLACK_1_40acfdfb-65df-488b-9f36-9785c301d705.jpg?v=1776264999&width=2560"/>
+<img class="img-back" src="https://fearofgod.com/cdn/shop/files/192AS252050F_CLASSIC_FIT_FLEECE_HOODIE-JET_BLACK_2_5d3cfa26-d328-43bb-bbcc-69563031644d.jpg?v=1776264999&width=1600"/>
+</div>
+<div class="mens-details">
+<p class="tag-brand">Essentials</p>
+<h4 class="item-name">Classic Fit Fleece Hoodie - Jet Black</h4>
+<p class="item-price">4.650.000 ₫</p>
+</div>
+</a>
+<a class="mens-card" data-cat="hoodies" href="product-detail.html?id=hoodies-6">
+<div class="mens-thumb-box">
+<img class="img-front" src="https://fearofgod.com/cdn/shop/files/192AS262072F_CLASSIC_FIT_FLEECE_ZIP_UP_HOODIE-HOMESTEAD_HEATHER_1_cd3fa6c0-d0da-4f0d-9968-90422fccfa56.jpg?v=1776264814&width=2560"/>
+<img class="img-back" src="https://fearofgod.com/cdn/shop/files/MARCH26_M_L40_P_5105_f4180bd9-8ec8-4c60-9e9e-7baf637ff74f.jpg?v=1776264814&width=1600"/>
+</div>
+<div class="mens-details">
+<p class="tag-brand">Essentials</p>
+<h4 class="item-name">Classic Fit Fleece Zip Up Hoodie - Homestead Heather</h4>
+<p class="item-price">4.650.000 ₫</p>
+</div>
+</a>
+<a class="mens-card" data-cat="hoodies" href="product-detail.html?id=hoodies-7">
+<div class="mens-thumb-box">
+<img class="img-front" src="https://fearofgod.com/cdn/shop/files/RW00211_YANKEES_RAGLAN_HALF_ZIP_SPORT_HOODIE-DARK_SAPPHIRE_OVERLAND_1.jpg?v=1777998869&width=1600"/>
+<img class="img-back" src="https://fearofgod.com/cdn/shop/files/MARCH26_W_L04_P_0642.jpg?v=1778010120&width=1600"/>
+</div>
+<div class="mens-details">
+<p class="tag-brand">Essentials</p>
+<h4 class="item-name">Yankees Raglan Half Zip Sport Hoodie - Dark Sapphire</h4>
+<p class="item-price">5.162.000 ₫</p>
+</div>
+</a>
+<a class="mens-card" data-cat="hoodies" href="product-detail.html?id=hoodies-8">
+<div class="mens-thumb-box">
+<img class="img-front" src="https://fearofgod.com/cdn/shop/files/MARCH26_M_L05_P_0823.jpg?v=1778089732&width=1600"/>
+<img class="img-back" src="https://fearofgod.com/cdn/shop/files/MARCH26_M_L05_P_0803.jpg?v=1778089732&width=1600"/>
+</div>
+<div class="mens-details">
+<p class="tag-brand">Essentials</p>
+<h4 class="item-name">Yankees Sport Hoodie - Oatmeal Pinstripe</h4>
+<p class="item-price">4.883.000 ₫</p>
+</div>
+</a>
+<a class="mens-card" data-cat="hoodies" href="product-detail.html?id=hoodies-9">
+<div class="mens-thumb-box">
+<img class="img-front" src="https://fearofgod.com/cdn/shop/files/RW00212_WHITE_SOX_RAGLAN_HALF_ZIP_SPORT_HOODIE-BLACK_1.jpg?v=1777998907&width=2560"/>
+<img class="img-back" src="https://fearofgod.com/cdn/shop/files/MARCH26_M_L14_P_1876.jpg?v=1778084566&width=1600"/>
+</div>
+<div class="mens-details">
+<p class="tag-brand">Essentials</p>
+<h4 class="item-name">White Sox Raglan Half Zip Sport Hoodie - Black</h4>
+<p class="item-price">5.162.000 ₫</p>
+</div>
+</a>
+<a class="mens-card" data-cat="hoodies" href="product-detail.html?id=hoodies-10">
+<div class="mens-thumb-box">
+<img class="img-front" src="https://fearofgod.com/cdn/shop/files/RW00207_REDS_SPORT_HOODIE-OAT_WITH_RED_PINSTRIPES_1.jpg?v=1777998386&width=1600"/>
+<img class="img-back" src="https://fearofgod.com/cdn/shop/files/MARCH26_M_L16_P_2131.jpg?v=1778084425&width=1600"/>
+</div>
+<div class="mens-details">
+<p class="tag-brand">Essentials</p>
+<h4 class="item-name">Reds Sport Hoodie - Oat with Red Pinstripes</h4>
+<p class="item-price">4.883.000 ₫</p>
+</div>
+</a>
+<a class="mens-card" data-cat="hoodies" href="product-detail.html?id=hoodies-11">
+<div class="mens-thumb-box">
+<img class="img-front" src="https://fearofgod.com/cdn/shop/files/RW00206_ASTROS_SPORT_HOODIE-HEATHER_STONE_W_BLACK_PINSTRIPES_1.jpg?v=1778003211&width=1600"/>
+<img class="img-back" src="https://fearofgod.com/cdn/shop/files/RW00206_ASTROS_SPORT_HOODIE-HEATHER_STONE_W_BLACK_PINSTRIPES_2.jpg?v=1778003211&width=1600"/>
+</div>
+<div class="mens-details">
+<p class="tag-brand">Essentials</p>
+<h4 class="item-name">Astros Sport Hoodie - Heather Stone Pinstripe</h4>
+<p class="item-price">4.883.000 ₫</p>
+</div>
+</a>
+<a class="mens-card" data-cat="hoodies" href="product-detail.html?id=hoodies-12">
+<div class="mens-thumb-box">
+<img class="img-front" src="https://fearofgod.com/cdn/shop/files/RW00205_BLUE_JAYS_SPORT_HOODIE-OAT_1.jpg?v=1777998247&width=1600"/>
+<img class="img-back" src="https://fearofgod.com/cdn/shop/files/RW00205_BLUE_JAYS_SPORT_HOODIE-OAT_2.jpg?v=1777998248&width=1600"/>
+</div>
+<div class="mens-details">
+<p class="tag-brand">Essentials</p>
+<h4 class="item-name">Blue Jays Sport Hoodie - Oat</h4>
+<p class="item-price">4.883.000 ₫</p>
+</div>
+</a>
+<a class="mens-card" data-cat="hoodies" href="product-detail.html?id=hoodies-13">
+<div class="mens-thumb-box">
+<img class="img-front" src="https://fearofgod.com/cdn/shop/files/RW00209_DIAMONDBACKS_SPORT_HOODIE-OATMEAL_HEATHER_LIGHT_HEATHER_RIB_1.jpg?v=1778625558&width=1600"/>
+<img class="img-back" src="https://fearofgod.com/cdn/shop/files/RW00209_DIAMONDBACKS_SPORT_HOODIE-OATMEAL_HEATHER_LIGHT_HEATHER_RIB_2_6c959403-1305-41de-88d4-673dccd702be.jpg?v=1778625559&width=1600"/>
+</div>
+<div class="mens-details">
+<p class="tag-brand">Essentials</p>
+<h4 class="item-name">Diamondbacks Sport Hoodie - Oatmeal Heather</h4>
+<p class="item-price">4.883.000 ₫</p>
+</div>
+</a>
+<a class="mens-card" data-cat="hoodies" href="product-detail.html?id=hoodies-14">
+<div class="mens-thumb-box">
+<img class="img-front" src="https://fearofgod.com/cdn/shop/files/SP26_F_L15-P_1575_168a6c8a-75e4-4d7b-84b2-735d3a7ace28.jpg?v=1770328180&width=1600"/>
+<img class="img-back" src="https://fearofgod.com/cdn/shop/files/192SP266911F_PROPERTY_LOUNGE_HALF_ZIP_HOODIE-BLACK_1.jpg?v=1773003056&width=1600"/>
+</div>
+<div class="mens-details">
+<p class="tag-brand">Fear of God</p>
+<h4 class="item-name">Property Lounge Half Zip Hoodie - Black</h4>
+<p class="item-price">5.950.000 ₫</p>
+</div>
+</a>
+<a class="mens-card" data-cat="hoodies" data-page="2" href="product-detail.html?id=hoodies-15">
+<div class="mens-thumb-box">
+<img class="img-front" src="https://fearofgod.com/cdn/shop/files/192AS266581F_CLASSIC_FIT_FLEECE_ZIP_UP_HOODIE-VINTAGE_BLACK_1.jpg?v=1772736182&amp;width=1600"/>
+<img class="img-back" src="https://fearofgod.com/cdn/shop/files/192AS266581F_CLASSIC_FIT_FLEECE_ZIP_UP_HOODIE-VINTAGE_BLACK_2.jpg?v=1772736182&amp;width=1600"/>
+</div>
+<div class="mens-details">
+<p class="tag-brand">Essentials</p>
+<h4 class="item-name">Classic Fit Fleece Zip Up Hoodie - Vintage Black</h4>
+<p class="item-price">4.650.000 ₫</p>
+</div>
+</a>
+<a class="mens-card" data-cat="hoodies" data-page="2" href="product-detail.html?id=hoodies-16">
+<div class="mens-thumb-box">
+<img class="img-front" src="https://fearofgod.com/cdn/shop/files/192SP262053F_SIGNATURE_CLASSIC_HOODIE-CONCRETE_HEATHER_DARK_CONCRETE_HEATHER_1.jpg?v=1772212354&amp;width=1600"/>
+<img class="img-back" src="https://fearofgod.com/cdn/shop/files/192SP262053F_SIGNATURE_CLASSIC_HOODIE-CONCRETE_HEATHER_DARK_CONCRETE_HEATHER_2.jpg?v=1772212354&amp;width=1600"/>
+</div>
+<div class="mens-details">
+<p class="tag-brand">Essentials</p>
+<h4 class="item-name">Signature Classic Hoodie - Concrete Heather</h4>
+<p class="item-price">4.950.000 ₫</p>
+</div>
+</a>
+<a class="mens-card" data-cat="hoodies" data-page="2" href="product-detail.html?id=hoodies-17">
+<div class="mens-thumb-box">
+<img class="img-front" src="https://fearofgod.com/cdn/shop/files/192SP262054F_SIGNATURE_CLASSIC_HOODIE-OATMEAL_HEATHER_LIGHT_HEATHER_1.jpg?v=1770831844&amp;width=1600"/>
+<img class="img-back" src="https://fearofgod.com/cdn/shop/files/SP26_F_L32-P_3205.jpg?v=1770329953&amp;width=1600"/>
+</div>
+<div class="mens-details">
+<p class="tag-brand">Essentials</p>
+<h4 class="item-name">Signature Classic Hoodie - Oatmeal Heather</h4>
+<p class="item-price">4.950.000 ₫</p>
+</div>
+</a>
+<a class="mens-card" data-cat="hoodies" data-page="2" href="product-detail.html?id=hoodies-18">
+<div class="mens-thumb-box">
+<img class="img-front" src="https://fearofgod.com/cdn/shop/files/SP26_F_L23-P_2294_5b816fc7-ef7a-4b32-a5f7-f204d0ff6fe2.jpg?v=1770328816&amp;width=1600"/>
+<img class="img-back" src="https://fearofgod.com/cdn/shop/files/192SP264462F_TRAINING_90S_HOODIE-FADED_DUNE_1.jpg?v=1771440529&amp;width=2560"/>
+</div>
+<div class="mens-details">
+<p class="tag-brand">Essentials</p>
+<h4 class="item-name">Training 90s Hoodie - Faded Dune</h4>
+<p class="item-price">4.200.000 ₫</p>
+</div>
+</a>
+<a class="mens-card" data-cat="hoodies" data-page="2" href="product-detail.html?id=hoodies-19">
+<div class="mens-thumb-box">
+<img class="img-front" src="https://fearofgod.com/cdn/shop/files/192SP264463F_TRAINING_90S_HOODIE-FADED_SEAL_1.jpg?v=1771440623&amp;width=1600"/>
+<img class="img-back" src="https://fearofgod.com/cdn/shop/files/192SP264463F_TRAINING_90S_HOODIE-FADED_SEAL_2.jpg?v=1771440623&amp;width=1600"/>
+</div>
+<div class="mens-details">
+<p class="tag-brand">Essentials</p>
+<h4 class="item-name">Training 90s Hoodie - Faded Seal</h4>
+<p class="item-price">4.200.000 ₫</p>
+</div>
+</a>
+<a class="mens-card" data-cat="hoodies" data-page="2" href="product-detail.html?id=hoodies-20">
+<div class="mens-thumb-box">
+<img class="img-front" src="https://fearofgod.com/cdn/shop/files/192SP264461F_TRAINING_90S_HOODIE-FADED_BLACK_1.jpg?v=1771440103&amp;width=1600"/>
+<img class="img-back" src="https://fearofgod.com/cdn/shop/files/192SP264461F_TRAINING_90S_HOODIE-FADED_BLACK_2.jpg?v=1771440103&amp;width=1600"/>
+</div>
+<div class="mens-details">
+<p class="tag-brand">Essentials</p>
+<h4 class="item-name">Training 90s Hoodie - Faded Black</h4>
+<p class="item-price">4.200.000 ₫</p>
+</div>
+</a>
+<a class="mens-card" data-cat="hoodies" data-page="2" href="product-detail.html?id=hoodies-21">
+<div class="mens-thumb-box">
+<img class="img-front" src="https://fearofgod.com/cdn/shop/files/FG9M12-9936BHF_26_CLASSIC_FIT_HALF_RAGLAN_HOODIE-FADED_BROWN_1.jpg?v=1772231721&amp;width=2560"/>
+<img class="img-back" src="https://fearofgod.com/cdn/shop/files/0088_9CS26_L11_B_0087.jpg?v=1772231721&amp;width=1600"/>
+</div>
+<div class="mens-details">
+<p class="tag-brand">Fear of God</p>
+<h4 class="item-name">26 Classic Fit Half Raglan Hoodie - Faded Brown</h4>
+<p class="item-price">5.450.000 ₫</p>
+</div>
+</a>
+<a class="mens-card" data-cat="hoodies" data-page="2" href="product-detail.html?id=hoodies-22">
+<div class="mens-thumb-box">
+<img class="img-front" src="https://fearofgod.com/cdn/shop/files/FG9M12-9938BHF_F_OF_G_CLASSIC_FIT_HALF_RAGLAN_HOODIE_WITH_POCKET-DARK_BROWN_1.jpg?v=1774387421&amp;width=2560"/>
+<img class="img-back" src="https://fearofgod.com/cdn/shop/files/0113_9CS26_L18_1094.jpg?v=1774387421&amp;width=1600"/>
+</div>
+<div class="mens-details">
+<p class="tag-brand">Fear of God</p>
+<h4 class="item-name">F Of G Classic Fit Half Raglan Hoodie With Pocket - Dark Brown</h4>
+<p class="item-price">5.650.000 ₫</p>
+</div>
+</a>
+<a class="mens-card" data-cat="hoodies" data-page="2" href="product-detail.html?id=hoodies-23">
+<div class="mens-thumb-box">
+<img class="img-front" src="https://fearofgod.com/cdn/shop/files/FG9M12-9937BHF_CLASSIC_FIT_HALF_RAGLAN_HOODIE-DIRTY_IVORY_1_3.jpg?v=1777313834&amp;width=2560"/>
+<img class="img-back" src="https://fearofgod.com/cdn/shop/files/0249_9CS26_L79_6704_c2587f52-15bf-43b5-92db-1718cc332ff5.jpg?v=1773033412&amp;width=1600"/>
+</div>
+<div class="mens-details">
+<p class="tag-brand">Fear of God</p>
+<h4 class="item-name">Classic Fit Half Raglan Hoodie - Dirty Ivory</h4>
+<p class="item-price">5.450.000 ₫</p>
+</div>
+</a>
+<a class="mens-card" data-cat="hoodies" data-page="2" href="product-detail.html?id=hoodies-24">
+<div class="mens-thumb-box">
+<img class="img-front" src="https://fearofgod.com/cdn/shop/files/FG9M12-9943BHF_FEAR_OF_GOD_CLASSIC_FIT_HOODIE-SKY_1.jpg?v=1774387335&amp;width=2560"/>
+<img class="img-back" src="https://fearofgod.com/cdn/shop/files/0156_9CS26_L35_B_4334.jpg?v=1774387335&amp;width=1600"/>
+</div>
+<div class="mens-details">
+<p class="tag-brand">Fear of God</p>
+<h4 class="item-name">Fear of God Classic Fit Hoodie - Sky</h4>
+<p class="item-price">5.750.000 ₫</p>
+</div>
+</a>
+<!-- MENS BOTTOMS 15 PRODUCTS START -->
+<a class="mens-card" data-cat="bottoms" href="product-detail.html?id=bottoms-1">
+<div class="mens-thumb-box">
+<img class="img-front" src="https://fearofgod.com/cdn/shop/files/MARCH26_M_L50_P_6623.jpg?v=1776265380&width=832"/>
+<img class="img-back" src="https://fearofgod.com/cdn/shop/files/MARCH26_M_L50_P_6557.jpg?v=1776265380&width=832"/>
+</div>
+<div class="mens-details">
+<p class="tag-brand">Essentials</p>
+<h4 class="item-name">Classic Short - Vintage Black</h4>
+<p class="item-price">3.250.000 ₫</p>
+</div>
+</a>
+<a class="mens-card" data-cat="bottoms" href="product-detail.html?id=bottoms-2">
+<div class="mens-thumb-box">
+<img class="img-front" src="https://fearofgod.com/cdn/shop/files/MARCH26_M_L33_4207.jpg?v=1776264706&width=832"/>
+<img class="img-back" src="https://fearofgod.com/cdn/shop/files/MARCH26_M_L40_P_5105.jpg?v=1776264729&width=832"/>
+</div>
+<div class="mens-details">
+<p class="tag-brand">Essentials</p>
+<h4 class="item-name">Soccer Fleece Shorts - Homestead Heather</h4>
+<p class="item-price">3.450.000 ₫</p>
+</div>
+</a>
+<a class="mens-card" data-cat="bottoms" href="product-detail.html?id=bottoms-3">
+<div class="mens-thumb-box">
+<img class="img-front" src="https://fearofgod.com/cdn/shop/files/SP26_F_L34-P_3378.jpg?v=1770330088&width=832"/>
+<img class="img-back" src="https://fearofgod.com/cdn/shop/files/160SP262004F_SIGNATURE_CLASSIC_SHORT-OATMEAL_HEATHER_LIGHT_HEATHER_1_3c5c2f9c-4727-4cfe-b9e6-3b442463dc0d.jpg?v=1770844559&width=832"/>
+</div>
+<div class="mens-details">
+<p class="tag-brand">Essentials</p>
+<h4 class="item-name">Signature Classic Short - Oatmeal Heather</h4>
+<p class="item-price">3.250.000 ₫</p>
+</div>
+</a>
+<a class="mens-card" data-cat="bottoms" href="product-detail.html?id=bottoms-4">
+<div class="mens-thumb-box">
+<img class="img-front" src="https://fearofgod.com/cdn/shop/files/130AS262022F_CLASSIC_SWEATPANT-OATMEAL_HEATHER_LIGHT_HEATHER_1.jpg?v=1770738042&width=832"/>
+<img class="img-back" src="https://fearofgod.com/cdn/shop/files/130AS262022F_CLASSIC_SWEATPANT-OATMEAL_HEATHER_LIGHT_HEATHER_2.jpg?v=1770738043&width=832"/>
+</div>
+<div class="mens-details">
+<p class="tag-brand">Essentials</p>
+<h4 class="item-name">Classic Sweatpant - Oatmeal Heather</h4>
+<p class="item-price">4.950.000 ₫</p>
+</div>
+</a>
+<a class="mens-card" data-cat="bottoms" href="product-detail.html?id=bottoms-5">
+<div class="mens-thumb-box">
+<img class="img-front" src="https://fearofgod.com/cdn/shop/files/130SP268544F_SIGNATURE_FLARE_SWEATPANT-OATMEAL_HEATHER_LIGHT_HEATHER_1.jpg?v=1770831085&width=832"/>
+<img class="img-back" src="https://fearofgod.com/cdn/shop/files/130SP268544F_SIGNATURE_FLARE_SWEATPANT-OATMEAL_HEATHER_LIGHT_HEATHER_2.jpg?v=1770831085&width=832"/>
+</div>
+<div class="mens-details">
+<p class="tag-brand">Essentials</p>
+<h4 class="item-name">Signature Flare Sweatpant - Oatmeal Heather</h4>
+<p class="item-price">4.950.000 ₫</p>
+</div>
+</a>
+<a class="mens-card" data-cat="bottoms" href="product-detail.html?id=bottoms-6">
+<div class="mens-thumb-box">
+<img class="img-front" src="https://fearofgod.com/cdn/shop/files/RW00228_DODGERS_90S_SWEATSHORT-OATMEAL_HEATHER_W_DARK_SAPPHIRE_PINESTRIPES_1.jpg?v=1777999258&width=832"/>
+<img class="img-back" src="https://fearofgod.com/cdn/shop/files/RW00228_DODGERS_90S_SWEATSHORT-OATMEAL_HEATHER_W_DARK_SAPPHIRE_PINESTRIPES_2.jpg?v=1777999258&width=832"/>
+</div>
+<div class="mens-details">
+<p class="tag-brand">Essentials</p>
+<h4 class="item-name">Dodgers 90s Sweatshort - Oatmeal Heather</h4>
+<p class="item-price">3.950.000 ₫</p>
+</div>
+</a>
+<a class="mens-card" data-cat="bottoms" href="product-detail.html?id=bottoms-7">
+<div class="mens-thumb-box">
+<img class="img-front" src="https://fearofgod.com/cdn/shop/files/RW00225_WHITE_SOX_90S_SWEATSHORT-IRON_HEATHER_W_WHITE_PINSTRIPES_1.jpg?v=1778002945&width=832"/>
+<img class="img-back" src="https://fearofgod.com/cdn/shop/files/RW00225_WHITE_SOX_90S_SWEATSHORT-IRON_HEATHER_W_WHITE_PINSTRIPES_2.jpg?v=1778002946&width=832"/>
+</div>
+<div class="mens-details">
+<p class="tag-brand">Essentials</p>
+<h4 class="item-name">White Sox 90s Sweatshort - Iron Heather</h4>
+<p class="item-price">3.950.000 ₫</p>
+</div>
+</a>
+<a class="mens-card" data-cat="bottoms" href="product-detail.html?id=bottoms-8">
+<div class="mens-thumb-box">
+<img class="img-front" src="https://fearofgod.com/cdn/shop/files/RW00339_MLB_RELAXED_TRACK_PANT-BLACK_1.jpg?v=1781545758&width=832"/>
+<img class="img-back" src="https://fearofgod.com/cdn/shop/files/RW00339_MLB_RELAXED_TRACK_PANT-BLACK_2.jpg?v=1778002480&width=832"/>
+</div>
+<div class="mens-details">
+<p class="tag-brand">Essentials</p>
+<h4 class="item-name">MLB Relaxed Track Pant - Black</h4>
+<p class="item-price">5.950.000 ₫</p>
+</div>
+</a>
+<a class="mens-card" data-cat="bottoms" href="product-detail.html?id=bottoms-9">
+<div class="mens-thumb-box">
+<img class="img-front" src="https://fearofgod.com/cdn/shop/files/RW00219_MLB_90S_SWEATSHORT-SEAL_HEATHER_W_BLACK_PINSTRIPES_1.jpg?v=1778002716&width=832"/>
+<img class="img-back" src="https://fearofgod.com/cdn/shop/files/RW00219_MLB_90S_SWEATSHORT-SEAL_HEATHER_W_BLACK_PINSTRIPES_2.jpg?v=1778002717&width=832"/>
+</div>
+<div class="mens-details">
+<p class="tag-brand">Essentials</p>
+<h4 class="item-name">MLB 90s Sweatshort - Seal Heather</h4>
+<p class="item-price">3.950.000 ₫</p>
+</div>
+</a>
+<a class="mens-card" data-cat="bottoms" href="product-detail.html?id=bottoms-10">
+<div class="mens-thumb-box">
+<img class="img-front" src="https://fearofgod.com/cdn/shop/files/SP26_F_L51-P_2075copy.jpg?v=1770331723&width=832"/>
+<img class="img-back" src="https://fearofgod.com/cdn/shop/files/130SP268653F_TRAINING_CLASSIC_FIT_FLARE_SWEATPANT-FADED_SEAL_1.jpg?v=1771521614&width=832"/>
+</div>
+<div class="mens-details">
+<p class="tag-brand">Essentials</p>
+<h4 class="item-name">Training Classic Fit Flare Sweatpant - Faded Seal</h4>
+<p class="item-price">4.950.000 ₫</p>
+</div>
+</a>
+<a class="mens-card" data-cat="bottoms" href="product-detail.html?id=bottoms-11">
+<div class="mens-thumb-box">
+<img class="img-front" src="https://fearofgod.com/cdn/shop/files/130SP268651F_TRAINING_CLASSIC_FIT_FLARE_SWEATPANT-FADED_BLACK_1.jpg?v=1771439886&width=832"/>
+<img class="img-back" src="https://fearofgod.com/cdn/shop/files/130SP268651F_TRAINING_CLASSIC_FIT_FLARE_SWEATPANT-FADED_BLACK_2.jpg?v=1771439887&width=832"/>
+</div>
+<div class="mens-details">
+<p class="tag-brand">Essentials</p>
+<h4 class="item-name">Training Classic Fit Flare Sweatpant - Faded Black</h4>
+<p class="item-price">4.950.000 ₫</p>
+</div>
+</a>
+<a class="mens-card" data-cat="bottoms" href="product-detail.html?id=bottoms-12">
+<div class="mens-thumb-box">
+<img class="img-front" src="https://fearofgod.com/cdn/shop/files/130AS264271F_FLARE_SWEATPANT-VINTAGE_BLACK_1_328008f9-9eb1-4285-a20f-5043a303a1cc.jpg?v=1772146330&width=832"/>
+<img class="img-back" src="https://fearofgod.com/cdn/shop/files/130AS264271F_FLARE_SWEATPANT-VINTAGE_BLACK_2_3fc7c100-ff2b-4416-a91a-8d441fac610f.jpg?v=1772146330&width=832"/>
+</div>
+<div class="mens-details">
+<p class="tag-brand">Essentials</p>
+<h4 class="item-name">Flare Sweatpant - Vintage Black</h4>
+<p class="item-price">5.250.000 ₫</p>
+</div>
+</a>
+<a class="mens-card" data-cat="bottoms" href="product-detail.html?id=bottoms-13">
+<div class="mens-thumb-box">
+<img class="img-front" src="https://fearofgod.com/cdn/shop/files/130AS262031F_CLASSIC_FIT_FLEECE_SWEATPANT-JET_BLACK_1_edit.jpg?v=1770755192&width=832"/>
+<img class="img-back" src="https://fearofgod.com/cdn/shop/files/130AS252021F_CLASSIC_FIT_FLEECE_SWEATPANT-JET_BLACK_2_d3923243-b5ab-422c-a21b-d27d2f530c04.jpg?v=1764612164&width=832"/>
+</div>
+<div class="mens-details">
+<p class="tag-brand">Essentials</p>
+<h4 class="item-name">Classic Fit Fleece Sweatpant - Jet Black</h4>
+<p class="item-price">4.950.000 ₫</p>
+</div>
+</a>
+<a class="mens-card" data-cat="bottoms" href="product-detail.html?id=bottoms-14">
+<div class="mens-thumb-box">
+<img class="img-front" src="https://fearofgod.com/cdn/shop/files/0041_HO25_F_L36_P10_0313_5f93f927-e924-4537-9c47-d177bddc4df5.jpg?v=1762299968&width=832"/>
+<img class="img-back" src="https://fearofgod.com/cdn/shop/files/0040_HO25_F_L36_P10_0331_1a0bf20a-822a-4986-9266-09df31874cca.jpg?v=1762299968&width=832"/>
+</div>
+<div class="mens-details">
+<p class="tag-brand">Fear of God</p>
+<h4 class="item-name">Relaxed Trouser - Black</h4>
+<p class="item-price">6.500.000 ₫</p>
+</div>
+</a>
+<a class="mens-card" data-cat="bottoms" href="product-detail.html?id=bottoms-15">
+<div class="mens-thumb-box">
+<img class="img-front" src="https://fearofgod.com/cdn/shop/files/0012_HO25_F_L51_2068_a022c094-d594-441e-909b-7e9a908175da.jpg?v=1762538163&width=832"/>
+<img class="img-back" src="https://fearofgod.com/cdn/shop/files/130HO258411F_FLARE_SWEATPANT-CHARCOAL_HEATHER_1_96d57567-c041-42d2-ab36-6bbfbe975bc1.jpg?v=1762542159&width=832"/>
+</div>
+<div class="mens-details">
+<p class="tag-brand">Essentials</p>
+<h4 class="item-name">Flare Sweatpant - Charcoal Heather</h4>
+<p class="item-price">5.250.000 ₫</p>
+</div>
+</a>
+<!-- MENS BOTTOMS 15 PRODUCTS END -->
+<a class="mens-card" data-cat="dress-shirt" href="product-detail.html?id=dress-1">
+<div class="mens-thumb-box">
+<img class="img-front" src="https://yame.vn/cdn/shop/files/ao-s-mi-tay-dai-the-ceo-009-tr-ng-1187130533.jpg?v=1760792739&amp;width=713"/>
+<img class="img-back" src="https://yame.vn/cdn/shop/files/ao-s-mi-tay-dai-the-ceo-009-tr-ng-1187130529.jpg?v=1760792740&amp;width=713"/>
+</div>
+<div class="mens-details">
+<p class="tag-brand">The CEO</p>
+<h4 class="item-name">Long Sleeve Dress Shirt - Pure White Luxe</h4>
+<p class="item-price">680.000 ₫</p>
+</div>
+</a>
+<a class="mens-card" data-cat="dress-shirt" href="product-detail.html?id=dress-2">
+<div class="mens-thumb-box">
+<img class="img-front" src="https://yame.vn/cdn/shop/files/ao-s-mi-non-iron-01-tr-ng-1174884279.jpg?v=1760775029&amp;width=713"/>
+<img class="img-back" src="https://yame.vn/cdn/shop/files/ao-s-mi-non-iron-01-tr-ng-1174884317.jpg?v=1766140039&amp;width=713"/>
+</div>
+<div class="mens-details">
+<p class="tag-brand">The CEO</p>
+<h4 class="item-name">Premium Non-Iron Executive Shirt - White</h4>
+<p class="item-price">750.000 ₫</p>
+</div>
+</a>
+<a class="mens-card" data-cat="dress-shirt" href="product-detail.html?id=dress-3">
+<div class="mens-thumb-box">
+<img class="img-front" src="https://yame.vn/cdn/shop/files/ao-s-mi-non-iron-01-xam-nh-t-1174884314.jpg?v=1760775066&amp;width=713"/>
+<img class="img-back" src="https://yame.vn/cdn/shop/files/ao-s-mi-non-iron-01-xam-nh-t-1174884310.jpg?v=1766140275&amp;width=713"/>
+</div>
+<div class="mens-details">
+<p class="tag-brand">The CEO</p>
+<h4 class="item-name">Premium Non-Iron Executive Shirt - Light Grey</h4>
+<p class="item-price">750.000 ₫</p>
+</div>
+</a>
+<a class="mens-card" data-cat="dress-shirt" href="product-detail.html?id=dress-4">
+<div class="mens-thumb-box">
+<img class="img-front" src="https://yame.vn/cdn/shop/files/ao-polo-non-branded-45-be-1174885323.jpg?v=1760774521&amp;width=713"/>
+<img class="img-back" src="https://yame.vn/cdn/shop/files/ao-polo-non-branded-45-be-1174885325.jpg?v=1773915623&amp;width=713"/>
+</div>
+<div class="mens-details">
+<p class="tag-brand">The Minimalist</p>
+<h4 class="item-name">Knit Tailored Polo Shirt - Elegant Beige</h4>
+<p class="item-price">540.000 ₫</p>
+</div>
+</a>
+</div>
+<div class="tops-pagination" id="topsPagination" aria-label="Mens tops pagination">
+    <button type="button" aria-label="Previous mens tops page" onclick="goToTopsPage(1)">←</button>
+    <a href="mens.html?cat=tops&page=1" id="topsPageOne" onclick="goToTopsPage(1); return false;">1</a>
+    <a href="mens.html?cat=tops&page=2" id="topsPageTwo" onclick="goToTopsPage(2); return false;">2</a>
+    <button type="button" aria-label="Next mens tops page" onclick="goToTopsPage(2)">→</button>
+</div>
+<div class="tops-pagination" id="hoodiesPagination" aria-label="Mens hoodies pagination">
+    <button type="button" aria-label="Previous mens hoodies page" onclick="goToHoodiesPage(1)">←</button>
+    <a href="mens.html?cat=hoodies&page=1" id="hoodiesPageOne" onclick="goToHoodiesPage(1); return false;">1</a>
+    <a href="mens.html?cat=hoodies&page=2" id="hoodiesPageTwo" onclick="goToHoodiesPage(2); return false;">2</a>
+    <button type="button" aria-label="Next mens hoodies page" onclick="goToHoodiesPage(2)">→</button>
+</div>
+</div>
+<div class="modal-overlay" id="search-modal" style="display:none;">
+<div class="search-modal-content">
+<span class="close-modal" id="close-search">×</span>
+<input id="search-input" placeholder="SEARCH FOR PRODUCTS..." type="text"/>
+<div id="search-results"></div>
+</div>
+</div>
+<div class="modal-overlay" id="account-modal" style="display:none;">
+<div class="account-box">
+<span class="close-modal" id="close-account">×</span>
+<div id="login-form-container">
+<h3>LOGIN</h3>
+<form onsubmit="event.preventDefault(); handleLogin();">
+<input id="login-email" placeholder="EMAIL" required="" type="email"/>
+<input id="login-pass" placeholder="PASSWORD" required="" type="password"/>
+<button class="auth-submit-btn" type="submit">SIGN IN</button>
+</form>
+<p class="switch-form-text">Don't have an account? <span onclick="toggleAuthForm('register')">CREATE ACCOUNT</span></p>
+</div>
+<div id="register-form-container" style="display:none;">
+<h3>CREATE ACCOUNT</h3>
+<form onsubmit="event.preventDefault(); handleRegister();">
+<input id="reg-fname" placeholder="FIRST NAME" required="" type="text"/>
+<input id="reg-lname" placeholder="LAST NAME" required="" type="text"/>
+<input id="reg-email" placeholder="EMAIL ADDRESS" required="" type="email"/>
+<input id="reg-pass" placeholder="PASSWORD" required="" type="password"/>
+<button class="auth-submit-btn" type="submit">CREATE</button>
+</form>
+<p class="switch-form-text">Already have an account? <span onclick="toggleAuthForm('login')">RETURN TO LOGIN</span></p>
+</div>
+</div>
+</div>
+<div class="modal-overlay" id="bag-modal" style="display:none;">
+<div class="bag-sidebar">
+<div class="bag-header">
+<h3>SHOPPING BAG</h3>
+<span class="close-modal" id="close-bag">×</span>
+</div>
+<div id="cart-items-container">
+<p class="empty-cart-msg">Your bag is empty.</p>
+</div>
+<div class="bag-footer">
+<div class="total-row">
+<span>TOTAL:</span>
+<span id="cart-total-price">0 ₫</span>
+</div>
+<button class="checkout-btn" onclick="alert('Proceeding to checkout!')">CHECKOUT</button>
+</div>
+</div>
+</div>
+<script>
+        let isLoggedIn = localStorage.getItem('isLoggedInStatus') === 'true' && !!(localStorage.getItem('hub_current_user_key') || localStorage.getItem('hub_email')); 
+        let userData = JSON.parse(localStorage.getItem("hub_userData") || "{}") || {};
+
+        // Cập nhật đúng tên tài khoản đang đăng nhập, không dùng tên demo mặc định
+        function checkGlobalLoginStatus() {
+            const accountLink = document.getElementById('headerAccountLink');
+            if (accountLink) {
+                if (localStorage.getItem('isLoggedInStatus') === 'true' && (localStorage.getItem('hub_current_user_key') || localStorage.getItem('hub_email'))) {
+                    isLoggedIn = true;
+                    const savedName = localStorage.getItem('hub_name') || "ACCOUNT";
+                    accountLink.innerText = savedName.toUpperCase();
+                } else {
+                    isLoggedIn = false;
+                    accountLink.innerText = "ACCOUNT";
+                }
+            }
+        }
+
+        document.addEventListener("DOMContentLoaded", function() {
+            checkGlobalLoginStatus();
+
+            // Nhận diện lệnh truyền lọc từ trang chủ sang qua URL (?cat=dress-shirt)
+            const urlParams = new URLSearchParams(window.location.search);
+            const categoryParam = urlParams.get('cat');
+            
+            if (categoryParam === 'dress-shirt') {
+                const dressShirtBtn = document.getElementById('filter-dress-shirt');
+                if (dressShirtBtn) {
+                    filterCategory('dress-shirt', dressShirtBtn);
+                }
+            }
+        });
+
+        const searchModal = document.getElementById('search-modal');
+        const accountModal = document.getElementById('account-modal');
+        const bagModal = document.getElementById('bag-modal');
+        const accountTrigger = document.getElementById('headerAccountLink');
+
+        if(accountTrigger) {
+            accountTrigger.onclick = function() {
+                if (isLoggedIn) { window.location.href = 'account.html'; } 
+                else { accountModal.style.display = 'block'; }
+            };
+        }
+
+        if(document.getElementById('search-trigger')) document.getElementById('search-trigger').onclick = () => searchModal.style.display = 'block';
+        if(document.getElementById('bag-trigger')) document.getElementById('bag-trigger').onclick = () => bagModal.style.display = 'block';
+        if(document.getElementById('close-search')) document.getElementById('close-search').onclick = () => searchModal.style.display = 'none';
+        if(document.getElementById('close-account')) document.getElementById('close-account').onclick = () => accountModal.style.display = 'none';
+        if(document.getElementById('close-bag')) document.getElementById('close-bag').onclick = () => bagModal.style.display = 'none';
+
+        window.onclick = function(event) {
+            if (event.target == searchModal) searchModal.style.display = 'none';
+            if (event.target == accountModal) accountModal.style.display = 'none';
+            if (event.target == bagModal) bagModal.style.display = 'none';
+        }
+
+        function toggleAuthForm(target) {
+            const loginForm = document.getElementById('login-form-container');
+            const regForm = document.getElementById('register-form-container');
+            if(target === 'register') {
+                loginForm.style.display = 'none';
+                regForm.style.display = 'block';
+            } else {
+                loginForm.style.display = 'block';
+                regForm.style.display = 'none';
+            }
+        }
+
+        function showToast(textMsg) {
+            const toast = document.getElementById('toastMessage');
+            if(toast) {
+                toast.innerText = textMsg;
+                toast.classList.add('show');
+                setTimeout(() => { toast.classList.remove('show'); }, 2800);
+            }
+        }
+
+        function handleRegister() {
+            const firstName = document.getElementById('reg-fname').value.trim();
+            const lastName = document.getElementById('reg-lname').value.trim();
+            const email = document.getElementById('reg-email').value.trim();
+            const password = document.getElementById('reg-pass').value;
+
+            const result = window.StyleHubAuth
+                ? window.StyleHubAuth.register({ firstName, lastName, email, password })
+                : { ok: false, message: "Hệ thống tài khoản chưa sẵn sàng. Vui lòng tải lại trang." };
+
+            showToast(result.message);
+            if (!result.ok) return;
+
+            userData = result.user;
+            toggleAuthForm('login');
+        }
+
+        function handleLogin() {
+            const emailInput = document.getElementById('login-email').value.trim();
+            const passwordInput = document.getElementById('login-pass').value;
+            const result = window.StyleHubAuth
+                ? window.StyleHubAuth.login(emailInput, passwordInput)
+                : { ok: false, message: "Hệ thống tài khoản chưa sẵn sàng. Vui lòng tải lại trang." };
+
+            showToast(result.message);
+            if (!result.ok) return;
+
+            isLoggedIn = true;
+            userData = result.user;
+            const fullDisplayName = result.user.name || result.user.email.split('@')[0];
+            checkGlobalLoginStatus();
+            accountModal.style.display = 'none';
+            if (typeof triggerFireworkCelebration === 'function') triggerFireworkCelebration(fullDisplayName);
+        }
+
+        function getPagedCategoryPageFromUrl(categoryName) {
+            const params = new URLSearchParams(window.location.search);
+            if (params.get('cat') === categoryName && params.get('page') === '2') return 2;
+            return 1;
+        }
+
+        function getTopsPageFromUrl() {
+            return getPagedCategoryPageFromUrl('tops');
+        }
+
+        function getHoodiesPageFromUrl() {
+            return getPagedCategoryPageFromUrl('hoodies');
+        }
+
+        function updateMensPagination(categoryName, pageNumber) {
+            const groups = [
+                { category: 'tops', pagination: 'topsPagination', one: 'topsPageOne', two: 'topsPageTwo' },
+                { category: 'hoodies', pagination: 'hoodiesPagination', one: 'hoodiesPageOne', two: 'hoodiesPageTwo' }
+            ];
+
+            groups.forEach(group => {
+                const pagination = document.getElementById(group.pagination);
+                const pageOne = document.getElementById(group.one);
+                const pageTwo = document.getElementById(group.two);
+                if (!pagination) return;
+
+                const isActiveCategory = categoryName === group.category;
+                pagination.classList.toggle('show', isActiveCategory);
+
+                if (pageOne && pageTwo) {
+                    pageOne.classList.toggle('active', isActiveCategory && pageNumber === 1);
+                    pageTwo.classList.toggle('active', isActiveCategory && pageNumber === 2);
+                }
+            });
+        }
+
+        function updateTopsPagination(categoryName, pageNumber) {
+            updateMensPagination(categoryName, pageNumber);
+        }
+
+        function goToMensCategoryPage(categoryName, pageNumber) {
+            const page = pageNumber === 2 ? 2 : 1;
+            const url = new URL(window.location.href);
+            url.searchParams.set('cat', categoryName);
+            url.searchParams.set('page', String(page));
+            window.history.pushState({}, '', url);
+
+            const targetBtn = document.querySelector(`.filter-tag[onclick*="${categoryName}"]`);
+            filterCategory(categoryName, targetBtn, page);
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        function goToTopsPage(pageNumber) {
+            goToMensCategoryPage('tops', pageNumber);
+        }
+
+        function goToHoodiesPage(pageNumber) {
+            goToMensCategoryPage('hoodies', pageNumber);
+        }
+
+        function filterCategory(categoryName, element, pageOverride) {
+            document.querySelectorAll('.filter-tag').forEach(tag => tag.classList.remove('active'));
+            if (element) element.classList.add('active');
+
+            const isPagedCategory = categoryName === 'tops' || categoryName === 'hoodies';
+            const activePage = isPagedCategory ? (pageOverride || getPagedCategoryPageFromUrl(categoryName)) : 1;
+
+            document.querySelectorAll('.mens-card').forEach(card => {
+                const itemCat = card.getAttribute('data-cat');
+                const itemPage = card.getAttribute('data-page') || '1';
+                let shouldShow = false;
+
+                if (categoryName === 'all') {
+                    // ALL PRODUCTS hiện toàn bộ Mens, gồm cả Tops/Hoodies trang 1 + trang 2.
+                    shouldShow = true;
+                } else if (isPagedCategory) {
+                    shouldShow = itemCat === categoryName && itemPage === String(activePage);
+                } else {
+                    shouldShow = itemCat === categoryName;
+                }
+
+                card.classList.toggle('hide-item', !shouldShow);
+            });
+
+            updateMensPagination(categoryName, activePage);
+        }
+
+
+        function getActiveMensCategory() {
+            const activeTag = document.querySelector('.filter-tag.active');
+            if (!activeTag) return 'all';
+            const label = activeTag.textContent.trim().toLowerCase();
+            if (label.includes('tops')) return 'tops';
+            if (label.includes('hoodies')) return 'hoodies';
+            if (label.includes('dress')) return 'dress-shirt';
+            if (label.includes('bottom')) return 'bottoms';
+            return 'all';
+        }
+
+        function getActiveCategoryPage(categoryName) {
+            const pageTwoId = categoryName === 'tops' ? 'topsPageTwo' : 'hoodiesPageTwo';
+            const pageTwo = document.getElementById(pageTwoId);
+            if (pageTwo && pageTwo.classList.contains('active')) return 2;
+            return getPagedCategoryPageFromUrl(categoryName);
+        }
+
+        function getActiveTopsPage() {
+            return getActiveCategoryPage('tops');
+        }
+
+        function getActiveHoodiesPage() {
+            return getActiveCategoryPage('hoodies');
+        }
+
+        function buildMensReturnUrl() {
+            const category = getActiveMensCategory();
+            const url = new URL('mens.html', window.location.href);
+            url.search = '';
+            if (category !== 'all') {
+                url.searchParams.set('cat', category);
+                if (category === 'tops' || category === 'hoodies') {
+                    url.searchParams.set('page', String(getActiveCategoryPage(category)));
+                }
+            }
+            return url.pathname.split('/').pop() + url.search;
+        }
+
+        function rememberMensReturnPosition(card) {
+            const productUrl = new URL(card.getAttribute('href'), window.location.href);
+            const productId = productUrl.searchParams.get('id') || '';
+            const returnUrl = buildMensReturnUrl();
+
+            sessionStorage.setItem('stylehub_collection_return', JSON.stringify({
+                url: returnUrl,
+                scrollY: window.scrollY || window.pageYOffset || 0,
+                productId: productId,
+                savedAt: Date.now()
+            }));
+
+            productUrl.searchParams.set('from', returnUrl);
+            return productUrl.pathname.split('/').pop() + productUrl.search;
+        }
+
+        function setupMensProductReturnLinks() {
+            document.querySelectorAll('.mens-card').forEach(card => {
+                if (card.dataset.returnBound === '1') return;
+                card.dataset.returnBound = '1';
+                card.addEventListener('click', function(event) {
+                    if (event.defaultPrevented || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey || event.button !== 0) return;
+                    event.preventDefault();
+                    window.location.href = rememberMensReturnPosition(this);
+                });
+            });
+        }
+
+        function restoreMensReturnPosition() {
+            if (sessionStorage.getItem('stylehub_collection_restore') !== '1') return;
+            sessionStorage.removeItem('stylehub_collection_restore');
+
+            let saved = null;
+            try {
+                saved = JSON.parse(sessionStorage.getItem('stylehub_collection_return') || 'null');
+            } catch (error) {
+                saved = null;
+            }
+            if (!saved) return;
+
+            const scrollToSavedSpot = function() {
+                if (typeof saved.scrollY === 'number') {
+                    window.scrollTo(0, saved.scrollY);
+                    return;
+                }
+                if (saved.productId) {
+                    const targetCard = document.querySelector(`.mens-card[href*="id=${CSS.escape(saved.productId)}"]`);
+                    if (targetCard) targetCard.scrollIntoView({ block: 'center' });
+                }
+            };
+
+            setTimeout(scrollToSavedSpot, 80);
+            setTimeout(scrollToSavedSpot, 450);
+            setTimeout(scrollToSavedSpot, 900);
+        }
+
+        // --- HIỆU ỨNG PHÁO HOA ĐỒNG BỘ CHẠY MUỢT MÀ ---
+        const canvas = document.getElementById('fwCanvas');
+        const ctx = canvas.getContext('2d');
+        let particles = [];
+
+        function triggerFireworkCelebration(displayName) {
+            canvas.style.display = 'block';
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+            createExplosion(canvas.width * 0.5, canvas.height * 0.4);
+            
+            function loop() {
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+                for (let i = 0; i < particles.length; i++) {
+                    let p = particles[i];
+                    p.x += p.vx; p.y += p.vy; p.vy += 0.12; p.alpha -= 0.014;
+                    ctx.save(); ctx.globalAlpha = p.alpha; ctx.fillStyle = p.color;
+                    ctx.beginPath(); ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2); ctx.fill(); ctx.restore();
+                    if (p.alpha <= 0) { particles.splice(i, 1); i--; }
+                }
+                if (particles.length > 0) { requestAnimationFrame(loop); } 
+                else { canvas.style.display = 'none'; showToast(`XIN CHÀO ${displayName.toUpperCase()}!`); }
+            }
+            loop();
+        }
+
+        function createExplosion(x, y) {
+            for (let i = 0; i < 40; i++) {
+                const angle = Math.random() * Math.PI * 2;
+                const speed = Math.random() * 4 + 2;
+                particles.push({ x, y, vx: Math.cos(angle) * speed, vy: Math.sin(angle) * speed, size: Math.random() * 2 + 1, color: '#111', alpha: 1 });
+            }
+        }
+    </script>
+<script>
+/* AUTO FILTER FROM NAVBAR QUERY (?cat=...) */
+document.addEventListener("DOMContentLoaded", function () {
+    const params = new URLSearchParams(window.location.search);
+    const cat = params.get("cat");
+
+    if (cat && typeof filterCategory === "function") {
+        const target = document.querySelector(`.filter-tag[onclick*="'${cat}'"], .filter-tag[onclick*='"${cat}"']`);
+        if (target) {
+            const page = (cat === 'tops' || cat === 'hoodies') && params.get('page') === '2' ? 2 : 1;
+            filterCategory(cat, target, page);
+        }
+    } else if (typeof filterCategory === "function") {
+        const allBtn = document.getElementById("filter-all");
+        if (allBtn) filterCategory("all", allBtn);
+    }
+
+    if (typeof setupMensProductReturnLinks === "function") setupMensProductReturnLinks();
+    if (typeof restoreMensReturnPosition === "function") restoreMensReturnPosition();
+});
+</script><script src="product-data.js?v=property-la-visible-final-20260618"></script>
+    <script src="recommender/product-attributes.js?v=2"></script>
+    <script src="recommender/sentiment-vi.js?v=2"></script>
+    <script src="recommender/engine.js?v=2"></script>
+    <script src="stylehub-api.js?v=2"></script>
+    <script src="stylehub-recommendations.js?v=3-hybrid-v2"></script>
+
+
+<script>
+function openSearchBox() {
+    const box = document.getElementById("searchBox");
+    const input = document.getElementById("searchInput");
+    if (box) box.style.display = "block";
+    if (input) setTimeout(() => input.focus(), 80);
+}
+function closeSearchBox() {
+    const box = document.getElementById("searchBox");
+    const results = document.getElementById("searchResults");
+    const input = document.getElementById("searchInput");
+    if (box) box.style.display = "none";
+    if (results) results.innerHTML = "";
+    if (input) input.value = "";
+}
+function searchProducts() {
+    const input = document.getElementById("searchInput");
+    const resultsBox = document.getElementById("searchResults");
+    if (!input || !resultsBox || typeof database === "undefined") return;
+    const keyword = input.value.trim().toLowerCase();
+    resultsBox.innerHTML = "";
+    if (!keyword) return;
+    const results = Object.keys(database).filter(id => {
+        const item = database[id] || {};
+        const text = `${item.name || ""} ${item.brand || ""} ${item.key || ""}`.toLowerCase();
+        return text.includes(keyword);
+    }).slice(0, 12);
+    if (results.length === 0) {
+        resultsBox.innerHTML = `<p class="search-empty">No products found.</p>`;
+        return;
+    }
+    results.forEach(id => {
+        const item = database[id];
+        resultsBox.innerHTML += `
+            <div class="search-result-item" onclick="window.location.href='product-detail.html?id=${id}'">
+                <img src="${item.mainImg || (item.images && item.images[0]) || ''}" alt="${item.name || ''}">
+                <div>
+                    <strong>${item.name || ''}</strong>
+                    <span>${item.price || ''}</span>
+                </div>
+            </div>`;
+    });
+}
+document.addEventListener("DOMContentLoaded", function () {
+    const trigger = document.getElementById("search-trigger");
+    if (trigger) {
+        trigger.addEventListener("click", function(e) {
+            e.preventDefault();
+            openSearchBox();
+        });
+    }
+});
+document.addEventListener("keydown", function(e) {
+    if (e.key === "Escape") closeSearchBox();
+    if (e.key === "Enter" && document.activeElement && document.activeElement.id === "searchInput") {
+        const first = document.querySelector(".search-result-item");
+        if (first) first.click();
+    }
+});
+document.addEventListener("click", function(e) {
+    const box = document.getElementById("searchBox");
+    if (box && e.target === box) closeSearchBox();
+});
+</script>
+
+<footer class="site-footer support-footer">
+    <div class="footer-col footer-brand">
+        <h3>THE STYLE HUB</h3>
+        <p>Modern fashion store for menswear, womenswear, kidswear, shoes and seasonal sale collections.</p>
+        <div class="social-links footer-social-links">
+            <a class="footer-social-icon footer-fb-icon" href="#" aria-label="Facebook"><img src="images/fb.png" alt="Facebook"></a>
+            <a class="footer-social-icon footer-zalo-icon" href="#" aria-label="Zalo"><img src="images/zalo.png" alt="Zalo"></a>
+            <a class="footer-social-icon footer-instagram-icon" href="#" aria-label="Instagram"><img src="images/instagram.png" alt="Instagram"></a>
+        </div>
+    </div>
+
+    <div class="footer-col footer-categories">
+        <h4>DANH MỤC</h4>
+        <a href="collections.html">ALL PRODUCTS</a>
+        <a href="mens.html">MENS</a>
+        <a href="womens.html">WOMENS</a>
+        <a href="kids.html">KIDS</a>
+        <a href="sale.html">SALE</a>
+        <a href="shoes.html">SHOES</a>
+        <a href="account.html" id="account-trigger">ACCOUNT</a>
+    </div>
+
+    <div class="footer-col footer-support">
+        <h4>HỖ TRỢ KHÁCH HÀNG</h4>
+        <a href="exchange-warranty-policy.html">Chính sách đổi hàng & bảo hành</a>
+        <a href="privacy-policy.html">Chính sách bảo mật</a>
+        <a href="shipping-policy.html">Chính sách giao hàng</a>
+    </div>
+
+    <div class="footer-col footer-store">
+        <h4>HỆ THỐNG CỬA HÀNG</h4>
+        <p><strong>HỒ CHÍ MINH</strong><br>15 Nguyễn Huệ, P. Bến Nghé, Quận 1</p>
+        <p><strong>HỒ CHÍ MINH</strong><br>236 Cách Mạng Tháng Tám, P. 10, Quận 3</p>
+        <div class="payment-icons" aria-label="Phương thức thanh toán">
+            <img src="images/tienmat.png" alt="Tiền mặt">
+            <img src="images/internet-banking.png" alt="Internet Banking">
+            <img src="images/visa.png" alt="Visa">
+            <img src="images/mastercard.png" alt="Mastercard">
+            <img src="images/jcb.png" alt="JCB">
+        </div>
+        <div class="footer-badges">
+        
+            <img src="images/dathongbao.png" alt="Đã thông báo">
+        
+            <span>DMCA PROTECTED</span>
+        
+        </div>
+    </div>
+</footer>
+<div class="footer-bottom">© 2026 THE STYLE HUB. UI/UX Interface Design Project.</div>
+<script src="stylehub-notifications.js?v=notification-bell-fixed-all-pages-20260616"></script>
+<script src="stylehub-responsive-nav.js?v=kids-bottoms-3-products-20260618"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-database-compat.js"></script>
+<script src="stylehub-orders-api.js?v=stock-cloud-sync-20260630"></script>
+<script src="stylehub-crypto.js"></script>
+<script src="stylehub-common.js?v=stock-cloud-sync-20260630"></script>
+
+<script src="stylehub-ai-chat.js"></script>
+<script src="stylehub-cart-sync.js?v=bag-merge-remove-20260701"></script>
+
+<script>
+/* PROPERTY OF LA IMAGE FALLBACK */
+(function () {
+    const fallbackUrl = "https://fearofgod.com/cdn/shop/files/RW00201_WHITE_SOX_SPORT_HOODIE-OATMEAL_HEATHER_W_BLACK_PINSTRIPES_1_x800.jpg?v=1777997926";
+
+    function fixBrokenPropertyLAImages() {
+        const productNameText = document.body.innerText || "";
+        if (!productNameText.includes("Property Of LA Crewneck Sweatshirt")) return;
+
+        document.querySelectorAll("img").forEach(function(img) {
+            const altText = (img.getAttribute("alt") || "").toLowerCase();
+            const srcText = (img.getAttribute("src") || "").toLowerCase();
+
+            if (
+                altText.includes("property of la") ||
+                srcText.includes("property_of_la") ||
+                srcText.includes("rw00184")
+            ) {
+                img.onerror = null;
+                img.src = fallbackUrl;
+            }
+        });
+    }
+
+    document.addEventListener("DOMContentLoaded", fixBrokenPropertyLAImages);
+    window.addEventListener("load", fixBrokenPropertyLAImages);
+})();
+</script>
+
+</body>
+</html>

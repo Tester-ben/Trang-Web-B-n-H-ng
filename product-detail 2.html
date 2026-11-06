@@ -1,0 +1,2752 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Product Detail - The Style Hub</title>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+
+    <!-- EmailJS: gửi mail xác nhận đơn hàng -->
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
+    <script type="text/javascript">
+        window.STYLEHUB_EMAILJS_PUBLIC_KEY = "MB1m-Q2_ueI82N8Xo";
+        window.STYLEHUB_EMAILJS_SERVICE_ID = "service_xjsmniq";
+        // Template cũ của trang thanh toán đang hoạt động là template_f4bnal4.
+        // Giữ thêm template_1v0d3yr làm dự phòng để không bị mất email nếu ID template thay đổi.
+        window.STYLEHUB_EMAILJS_TEMPLATE_ID = "template_f4bnal4";
+        window.STYLEHUB_EMAILJS_FALLBACK_TEMPLATE_IDS = ["template_1v0d3yr"];
+
+        (function () {
+            if (window.emailjs && typeof window.emailjs.init === "function") {
+                window.emailjs.init(window.STYLEHUB_EMAILJS_PUBLIC_KEY);
+            }
+        })();
+    </script>
+<style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { font-family: 'Roboto', sans-serif; background-color: #ffffff; color: #111111; overflow-x: hidden; }
+        
+        /* --- STICKY HEADER ĐỒNG BỘ --- */
+        .main-header { position: fixed; top: 0; left: 0; width: 100%; height: 57px; background-color: #000000; color: #ffffff; z-index: 1000; }
+        .nav-container { max-width: 1300px; margin: 0 auto; height: 100%; display: table; width: 100%; padding: 0 40px; }
+        .nav-left, .logo, .nav-right { display: table-cell; vertical-align: middle; }
+        .nav-left { text-align: left; width: 30%; } .logo { text-align: center; font-size: 16px; font-weight: 700; letter-spacing: 4px; } .nav-right { text-align: right; width: 30%; }
+        .nav-container a { color: #ffffff; text-decoration: none; font-size: 12px; text-transform: uppercase; cursor: pointer; }
+        .nav-right { text-align: right; width: 30%; white-space: nowrap; }
+        .nav-right a { display: inline-block !important; margin-left: 18px !important; white-space: nowrap; }
+        .nav-right a:first-child { margin-left: 0 !important; margin-right: 0 !important; }
+        
+        /* --- BỐ CỤC CHI TIẾT SẢN PHẨM --- */
+        .product-detail-container { max-width: 1300px; margin: 0 auto; padding: 97px 40px 60px 40px; }
+        .detail-table-layout { display: table; width: 100%; border-spacing: 60px 0; }
+        .detail-column { display: table-cell; vertical-align: top; width: 50%; }
+        
+        .image-scroll-gallery { width: 100%; }
+        .product-image-item { width: 100%; aspect-ratio: 3 / 4; background-color: #f7f7f7; margin-bottom: 20px; overflow: hidden; }
+        .product-image-item img { width: 100%; height: 100%; object-fit: cover; object-position: center top; display: block; }
+        
+        .info-sticky-panel { position: sticky; top: 97px; padding-left: 20px; }
+        .brand-name { font-size: 11px; text-transform: uppercase; letter-spacing: 2px; color: #777; margin-bottom: 8px; }
+        .product-name { font-size: 24px; font-weight: 400; margin-bottom: 12px; line-height: 1.3; }
+        .product-price { font-size: 16px; font-weight: 500; margin-bottom: 30px; padding-bottom: 20px; border-bottom: 1px solid #eee; }
+        
+        .size-selector-section { margin-bottom: 30px; }
+        .selector-label { font-size: 11px; text-transform: uppercase; letter-spacing: 1.5px; font-weight: 500; margin-bottom: 14px; }
+        .size-button { background: #fff; border: 1px solid #ddd; padding: 12px 24px; font-size: 12px; font-weight: 500; cursor: pointer; margin-right: 10px; min-width: 60px; display: inline-block; transition: all 0.2s ease; }
+        .size-button:hover { border-color: #111; }
+        .size-button.selected { background-color: #111; border-color: #111; color: #fff; }
+
+        .quantity-selector-section { margin: 24px 0 8px; }
+        .quantity-control {
+            display: inline-flex;
+            align-items: center;
+            height: 46px;
+            border: 1px solid #ddd;
+            background: #fff;
+        }
+        .quantity-btn {
+            width: 46px;
+            height: 44px;
+            border: none;
+            background: #fff;
+            color: #111;
+            font-size: 18px;
+            line-height: 1;
+            cursor: pointer;
+        }
+        .quantity-btn:hover { background: #f7f7f7; }
+        .quantity-input {
+            width: 62px;
+            height: 44px;
+            border: none;
+            border-left: 1px solid #eee;
+            border-right: 1px solid #eee;
+            text-align: center;
+            font-size: 13px;
+            font-weight: 500;
+            outline: none;
+            appearance: textfield;
+            -moz-appearance: textfield;
+        }
+        .quantity-input::-webkit-outer-spin-button,
+        .quantity-input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+        .quantity-note {
+            display: inline-block;
+            margin-left: 12px;
+            color: #777;
+            font-size: 11px;
+            letter-spacing: .5px;
+        }
+        
+        .cta-buttons-group { margin-top: 28px; margin-bottom: 45px; }
+        .btn-action { display: block; width: 100%; padding: 16px; font-size: 11px; letter-spacing: 2px; text-transform: uppercase; font-weight: 500; cursor: pointer; text-align: center; margin-bottom: 12px; }
+        .btn-add-to-bag { background-color: #fff; border: 1px solid #111; color: #111; }
+        .btn-add-to-bag:hover { background-color: #f8f8f8; }
+        .btn-order-now { background-color: #111; border: 1px solid #111; color: #fff; }
+        .btn-order-now:hover { background-color: #222; }
+        
+        .specs-details-section { border-top: 1px solid #eee; padding-top: 30px; }
+        .specs-heading { font-size: 12px; text-transform: uppercase; letter-spacing: 1.5px; font-weight: 500; margin-bottom: 15px; }
+        .specs-ul { list-style: none; } .specs-ul li { font-size: 12px; color: #555; line-height: 1.8; margin-bottom: 10px; padding-left: 15px; position: relative; }
+        .specs-ul li::before { content: "•"; position: absolute; left: 0; color: #999; }
+        
+        /* ==================== DRAWER GIỎ HÀNG CẠNH PHẢI ==================== */
+        .cart-drawer-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100vh; background-color: rgba(0, 0, 0, 0.4); opacity: 0; visibility: hidden; z-index: 2000; transition: all 0.35s ease; }
+        .cart-drawer-overlay.open { opacity: 1; visibility: visible; }
+        .cart-side-panel { position: fixed; top: 0; right: -450px; width: 420px; height: 100vh; background-color: #ffffff; z-index: 2001; padding: 40px; box-shadow: -5px 0 15px rgba(0,0,0,0.08); display: flex; flex-direction: column; transition: right 0.35s ease; }
+        .cart-drawer-overlay.open .cart-side-panel { right: 0; }
+        
+        .cart-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #eee; padding-bottom: 20px; }
+        .cart-header h2 { font-size: 15px; font-weight: 600; letter-spacing: 1.5px; text-transform: uppercase; }
+        .close-cart-btn { background: none; border: none; font-size: 18px; cursor: pointer; color: #111; padding: 5px; }
+        .cart-body { flex: 1; overflow-y: auto; padding: 25px 0; }
+        .empty-cart-text { font-size: 13px; color: #777; text-align: center; margin-top: 40px; display: block; }
+        .empty-cart-text.hidden { display: none; }
+        
+        .cart-product-row { display: flex; gap: 15px; margin-bottom: 24px; padding-bottom: 15px; border-bottom: 1px solid #f9f9f9; position: relative; }
+        .cart-item-img { width: 75px; aspect-ratio: 3 / 4; background-color: #f7f7f7; object-fit: cover; }
+        .cart-item-info { flex: 1; padding-right: 20px; }
+        .cart-item-title { font-size: 12px; font-weight: 500; color: #111; margin-bottom: 4px; line-height: 1.4; }
+        .cart-item-meta { font-size: 11px; color: #666; margin-bottom: 6px; }
+        .cart-item-price { font-size: 12px; font-weight: 500; color: #222; }
+        .remove-item-btn { position: absolute; top: 0; right: 0; background: none; border: none; font-size: 11px; color: #999; cursor: pointer; text-transform: uppercase; }
+        .remove-item-btn:hover { color: #ff0000; text-decoration: underline; }
+        
+        .cart-footer { border-top: 1px solid #eee; padding-top: 20px; }
+        .cart-side-panel,
+        .checkout-side-panel {
+            box-sizing: border-box;
+        }
+        .cart-drawer-overlay,
+        .checkout-drawer-overlay {
+            overflow: hidden;
+        }
+        .cart-side-panel > .cart-footer {
+            background: #fff !important;
+            color: #111 !important;
+            position: relative;
+            z-index: 3;
+            flex-shrink: 0;
+            padding-top: 18px;
+        }
+        .cart-side-panel > .cart-footer .cart-total-row,
+        .cart-side-panel > .cart-footer .cart-total-row span {
+            color: #111 !important;
+            opacity: 1 !important;
+        }
+        .cart-side-panel > .cart-footer .discount-row span:last-child {
+            color: #c00000 !important;
+        }
+        .cart-side-panel > .cart-footer .btn-checkout {
+            background: #111 !important;
+            color: #fff !important;
+            border-color: #111 !important;
+            position: relative;
+            z-index: 4;
+        }
+        body.stylehub-cart-open .tsh-ai-toggle,
+        body.stylehub-cart-open .tsh-ai-box,
+        body.stylehub-checkout-open .tsh-ai-toggle,
+        body.stylehub-checkout-open .tsh-ai-box,
+        body.stylehub-auth-open .tsh-ai-toggle,
+        body.stylehub-auth-open .tsh-ai-box,
+        body.stylehub-cart-open .pd-notification-bell,
+        body.stylehub-checkout-open .pd-notification-bell,
+        body.stylehub-auth-open .pd-notification-bell {
+            display: none !important;
+            visibility: hidden !important;
+            opacity: 0 !important;
+            pointer-events: none !important;
+        }
+        .cart-total-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 13px;
+            font-weight: 500;
+            margin-bottom: 10px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            gap: 18px;
+        }
+        .cart-total-row span:last-child {
+            min-width: 115px;
+            text-align: right;
+            white-space: nowrap;
+        }
+        .cart-total-row.discount-row span:last-child { color: #c00000; }
+        .cart-total-row.grand-total-row {
+            border-top: 1px solid #eee;
+            padding-top: 12px;
+            margin-top: 12px;
+            margin-bottom: 20px;
+            font-weight: 700;
+        }
+        .btn-checkout { display: block; width: 100%; background-color: #111; color: #fff; border: 1px solid #111; padding: 15px; font-size: 11px; letter-spacing: 2px; text-transform: uppercase; font-weight: 500; cursor: pointer; text-align: center; }
+
+        .checkout-side-panel > .cart-footer .btn-checkout {
+            display: flex !important;
+            align-items: center !important;
+            justify-content: center !important;
+            min-height: 56px !important;
+            padding: 0 18px !important;
+            line-height: 1 !important;
+            text-align: center !important;
+            white-space: nowrap !important;
+        }
+        .checkout-side-panel > .cart-footer {
+            background: #fff !important;
+            flex-shrink: 0 !important;
+        }
+
+        /* ==================== FORM ĐIỀN ĐỊA CHỈ GIAO HÀNG (CHECKOUT DRAWER) ==================== */
+        .checkout-drawer-overlay { position: fixed; inset: 0; width: 100%; height: 100vh; background-color: rgba(0, 0, 0, 0.42); opacity: 0; visibility: hidden; z-index: 2147483600; transition: all 0.35s ease; }
+        .checkout-drawer-overlay.open { opacity: 1; visibility: visible; }
+        .checkout-side-panel { position: fixed; top: 0; right: -400px; width: min(380px, 90vw); max-width: min(380px, 90vw); height: 100vh; max-height: 100vh; background-color: #ffffff; z-index: 2147483601; padding: 30px 28px 24px; display: flex; flex-direction: column; box-sizing: border-box; box-shadow: -14px 0 34px rgba(0,0,0,0.14); transition: right 0.35s ease; overflow: hidden; }
+        .checkout-drawer-overlay.open .checkout-side-panel { right: 0; }
+        .checkout-side-panel .cart-header { padding-bottom: 16px; flex-shrink: 0; }
+        .checkout-side-panel .cart-header h2 { font-size: 14px; letter-spacing: 2px; line-height: 1.2; }
+        .checkout-side-panel .cart-body { padding: 18px 0; flex: 1 1 auto; min-height: 0; overflow-y: auto; }
+        .checkout-side-panel .cart-footer { padding-top: 16px; flex-shrink: 0; }
+        .checkout-side-panel .form-group { margin-bottom: 14px; }
+        .checkout-side-panel .form-group input,
+        .checkout-side-panel .form-group textarea { padding: 11px 12px; font-size: 12px; }
+        .checkout-side-panel .form-group textarea { min-height: 70px; }
+        .checkout-side-panel .btn-checkout { min-height: 54px !important; height: 54px !important; line-height: 1 !important; }
+        
+        .form-group { margin-bottom: 20px; }
+        .form-group label { display: block; font-size: 11px; text-transform: uppercase; letter-spacing: 1px; font-weight: 500; color: #333; margin-bottom: 8px; }
+        .form-group input, .form-group textarea { width: 100%; padding: 12px; border: 1px solid #ddd; font-family: inherit; font-size: 13px; color: #111; outline: none; transition: border 0.2s; }
+        .form-group input:focus, .form-group textarea:focus { border-color: #111; }
+        
+        /* Cải tiến phong cách cho placeholder mờ ẩn sang trọng */
+        .form-group input::placeholder, .form-group textarea::placeholder { color: #aaaaaa; font-style: normal; opacity: 1; }
+
+        /* ==================== TOAST NOTIFICATION SANG TRỌNG ==================== */
+        .toast-notification { position: fixed; bottom: -100px; left: 50%; transform: translateX(-50%); background-color: #111111; color: #ffffff; padding: 14px 30px; font-size: 12px; letter-spacing: 1px; text-transform: uppercase; z-index: 3000; box-shadow: 0 5px 15px rgba(0,0,0,0.15); transition: bottom 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); pointer-events: none; }
+        .toast-notification.show { bottom: 40px; }
+        #fwCanvas { position: fixed; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 9999; display: none; }
+
+
+        /* ==================== ORDER SUCCESS DRAWER ==================== */
+        .stylehub-order-success-overlay {
+            position: fixed;
+            inset: 0;
+            width: 100%;
+            height: 100vh;
+            background: rgba(0, 0, 0, 0.42);
+            opacity: 0;
+            visibility: hidden;
+            z-index: 2147483605;
+            transition: opacity 0.35s ease, visibility 0.35s ease;
+        }
+        .stylehub-order-success-overlay.open {
+            opacity: 1;
+            visibility: visible;
+        }
+        .stylehub-order-success-panel {
+            position: fixed;
+            top: 0;
+            right: -400px;
+            width: min(380px, 90vw);
+            max-width: min(380px, 90vw);
+            height: 100vh;
+            max-height: 100vh;
+            background: #fff;
+            color: #111;
+            z-index: 2147483606;
+            padding: 30px 28px 24px;
+            box-sizing: border-box;
+            box-shadow: -14px 0 34px rgba(0, 0, 0, 0.14);
+            display: flex;
+            flex-direction: column;
+            transition: right 0.35s ease;
+            overflow: hidden;
+        }
+        .stylehub-order-success-overlay.open .stylehub-order-success-panel {
+            right: 0;
+        }
+        .stylehub-order-success-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid #eee;
+            padding-bottom: 16px;
+            flex-shrink: 0;
+        }
+        .stylehub-order-success-header h2 {
+            margin: 0;
+            font-size: 14px;
+            font-weight: 700;
+            letter-spacing: 3px;
+            line-height: 1.2;
+            text-transform: uppercase;
+        }
+        .stylehub-order-success-close {
+            width: 34px;
+            height: 34px;
+            border: 0;
+            background: transparent;
+            color: #111;
+            cursor: pointer;
+            font-size: 30px;
+            line-height: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .stylehub-order-success-body {
+            flex: 1 1 auto;
+            min-height: 0;
+            overflow-y: auto;
+            padding: 18px 0;
+        }
+        .stylehub-order-success-note {
+            margin: 0 0 18px;
+            font-size: 12px;
+            line-height: 1.65;
+            color: #007a3d;
+        }
+        .stylehub-order-success-summary {
+            border-bottom: 1px solid #eee;
+            padding-bottom: 16px;
+        }
+        .stylehub-order-success-row {
+            display: flex;
+            justify-content: space-between;
+            gap: 18px;
+            margin-bottom: 10px;
+            font-size: 12px;
+            line-height: 1.4;
+        }
+        .stylehub-order-success-row span:first-child {
+            color: #333;
+        }
+        .stylehub-order-success-row span:last-child {
+            color: #111;
+            font-weight: 700;
+            text-align: right;
+            word-break: break-word;
+        }
+        .stylehub-order-success-footer {
+            border-top: 1px solid #eee;
+            padding-top: 16px;
+            flex-shrink: 0;
+            background: #fff;
+        }
+        .stylehub-order-success-done {
+            width: 100%;
+            height: 56px;
+            min-height: 56px;
+            border: 1px solid #111;
+            background: #111;
+            color: #fff;
+            cursor: pointer;
+            font-family: inherit;
+            font-size: 11px;
+            font-weight: 500;
+            letter-spacing: 3px;
+            text-transform: uppercase;
+            display: grid !important;
+            place-items: center !important;
+            text-align: center !important;
+            line-height: 1 !important;
+            padding: 0 !important;
+            margin: 0 !important;
+            box-sizing: border-box !important;
+            appearance: none;
+            -webkit-appearance: none;
+            overflow: hidden;
+        }
+        .stylehub-order-success-done span {
+            display: block !important;
+            width: 100% !important;
+            margin: 0 !important;
+            padding: 0 !important;
+            line-height: 1 !important;
+            text-align: center !important;
+            white-space: nowrap !important;
+            transform: none !important;
+            pointer-events: none;
+        }
+        .stylehub-order-success-done:hover {
+            background: #1c1c1c;
+            border-color: #1c1c1c;
+        }
+        body.stylehub-order-success-open .tsh-ai-toggle,
+        body.stylehub-order-success-open .tsh-ai-box,
+        body.stylehub-order-success-open .pd-notification-bell {
+            display: none !important;
+            visibility: hidden !important;
+            opacity: 0 !important;
+            pointer-events: none !important;
+        }
+
+        /* ==================== POPUP MODAL ĐĂNG NHẬP / ĐĂNG KÝ ĐỘNG ==================== */
+        .auth-popup-modal { position: fixed; top: 0; left: 0; width: 100%; height: 100vh; background-color: rgba(0, 0, 0, 0.5); display: flex; justify-content: center; align-items: center; z-index: 2800; opacity: 0; visibility: hidden; transition: all 0.3s ease; }
+        .auth-popup-modal.open { opacity: 1; visibility: visible; }
+        .auth-box-content { background-color: #ffffff; width: 400px; padding: 40px; box-shadow: 0 10px 30px rgba(0,0,0,0.15); text-align: center; position: relative; }
+        .close-auth-modal { position: absolute; top: 15px; right: 20px; font-size: 20px; cursor: pointer; color: #777; }
+        .auth-box-content h3 { font-size: 14px; font-weight: 600; letter-spacing: 2px; text-transform: uppercase; margin-bottom: 20px; color: #111; }
+        .auth-input-field { width: 100%; padding: 12px; margin-bottom: 15px; border: 1px solid #ddd; outline: none; font-family: inherit; font-size: 13px; }
+        .auth-input-field:focus { border-color: #111; }
+        .btn-auth-submit { width: 100%; background-color: #111; color: #fff; border: 1px solid #111; padding: 14px; font-size: 11px; letter-spacing: 2px; font-weight: 500; text-transform: uppercase; cursor: pointer; margin-top: 10px; }
+        .switch-form-prompt { font-size: 11px; color: #666; margin-top: 20px; letter-spacing: 0.5px; }
+        .switch-form-link { color: #111; text-decoration: underline; font-weight: 600; cursor: pointer; }
+        .hidden-auth-block { display: none !important; }
+
+
+        /* ==================== RELATED PRODUCTS ==================== */
+        .related-products-section {
+            max-width: 1300px;
+            margin: 20px auto 80px auto;
+            padding: 0 40px;
+        }
+
+        .related-products-header {
+            text-align: center;
+            margin-bottom: 34px;
+        }
+
+        .related-products-header h2 {
+            font-size: 24px;
+            font-weight: 400;
+            letter-spacing: 1.5px;
+            text-transform: capitalize;
+            margin-bottom: 14px;
+        }
+
+        .related-title-line {
+            width: 120px;
+            height: 4px;
+            background-color: #e6e9ec;
+            margin: 0 auto;
+            border-radius: 999px;
+            position: relative;
+        }
+
+        .related-title-line::after {
+            content: "";
+            width: 44px;
+            height: 4px;
+            background-color: #111;
+            border-radius: 999px;
+            position: absolute;
+            left: 50%;
+            top: 0;
+            transform: translateX(-50%);
+        }
+
+        .related-products-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 32px;
+        }
+
+        .related-product-card {
+            color: #111;
+            text-decoration: none;
+            display: block;
+        }
+
+        .related-image-box {
+            width: 100%;
+            aspect-ratio: 3 / 4;
+            background-color: #f6f6f6;
+            position: relative;
+            overflow: hidden;
+            margin-bottom: 14px;
+        }
+
+        .related-image-box img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+            object-position: center;
+            display: block;
+            transition: opacity 0.3s ease, transform 0.3s ease;
+        }
+
+        .related-image-box .related-img-hover {
+            position: absolute;
+            top: 0;
+            left: 0;
+            opacity: 0;
+        }
+
+        .related-product-card:hover .related-img-main {
+            opacity: 0;
+        }
+
+        .related-product-card:hover .related-img-hover {
+            opacity: 1;
+            transform: scale(1.02);
+        }
+
+        .related-brand {
+            font-size: 10px;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            color: #888;
+            margin-bottom: 6px;
+        }
+
+        .related-name {
+            font-size: 13px;
+            line-height: 1.45;
+            margin-bottom: 6px;
+            color: #111;
+        }
+
+        .related-price {
+            font-size: 13px;
+            color: #222;
+        }
+
+
+        /* --- SIZE GIÀY RENDER TRỰC TIẾP, KHÔNG HIỆN S/M/L/XL TRƯỚC --- */
+        .shoe-size-panel {
+            display: flex;
+            flex-direction: column;
+            gap: 28px;
+            margin-top: 14px;
+            margin-bottom: 30px;
+        }
+        .shoe-size-row {
+            display: grid;
+            grid-template-columns: 90px 1fr;
+            gap: 18px;
+            align-items: start;
+        }
+        .shoe-size-label {
+            font-size: 12px;
+            font-weight: 700;
+            letter-spacing: 1.2px;
+            padding-top: 14px;
+            white-space: nowrap;
+        }
+        .shoe-size-options {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px 12px;
+            max-width: 420px;
+        }
+        .shoe-number-size {
+            min-width: 48px !important;
+            height: 42px !important;
+            margin: 0 !important;
+            padding: 0 !important;
+        }
+        @media(max-width: 768px) {
+            .shoe-size-row {
+                grid-template-columns: 1fr;
+                gap: 10px;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .detail-table-layout, .detail-column { display: block; width: 100%; }
+            .product-detail-container { padding: 80px 20px 40px 20px; }
+            .detail-table-layout { border-spacing: 0; }
+            .info-sticky-panel { position: static; padding-left: 0; margin-top: 30px; }
+            .cart-side-panel, .account-side-panel { width: 100%; right: -100%; padding: 25px; }
+            .checkout-side-panel { width: min(360px, 92vw); max-width: min(360px, 92vw); right: -380px; padding: 28px 22px 22px; }
+            .related-products-section { padding: 0 20px; margin-bottom: 50px; }
+            .related-products-grid { grid-template-columns: repeat(2, 1fr); gap: 22px; }
+            .related-products-header h2 { font-size: 22px; }
+        }
+    </style>
+
+
+
+
+
+<style>
+/* ===== FOOTER CATEGORY ALIGN FIX ===== */
+@media (min-width: 769px) {
+    .site-footer .footer-categories {
+        transform: translateX(34px) !important;
+    }
+}
+
+@media (max-width: 768px) {
+    .site-footer .footer-categories {
+        transform: none !important;
+        margin-left: 0 !important;
+    }
+}
+/* ===== END FOOTER CATEGORY ALIGN FIX ===== */
+</style>
+
+
+<style>
+/* ===== FOOTER SOCIAL PNG EVEN ALIGN FINAL ===== */
+.site-footer .social-links,
+.site-footer .footer-social-links {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: flex-start !important;
+    gap: 24px !important;
+    margin-top: 26px !important;
+    flex-wrap: nowrap !important;
+    width: 100% !important;
+    max-width: 430px !important;
+}
+
+.site-footer .footer-social-icon {
+    width: 42px !important;
+    height: 42px !important;
+    min-width: 42px !important;
+    max-width: 42px !important;
+    min-height: 42px !important;
+    max-height: 42px !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    border: none !important;
+    outline: none !important;
+    border-radius: 0 !important;
+    background: transparent !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    text-decoration: none !important;
+    overflow: visible !important;
+    box-shadow: none !important;
+    line-height: 1 !important;
+    transition: transform 0.25s ease, opacity 0.25s ease !important;
+}
+
+.site-footer .footer-social-icon:hover {
+    transform: translateY(-2px) scale(1.07) !important;
+    opacity: 0.9 !important;
+}
+
+.site-footer .footer-social-icon img {
+    display: block !important;
+    object-fit: contain !important;
+    object-position: center !important;
+    border: 0 !important;
+    outline: none !important;
+    border-radius: 0 !important;
+    background: transparent !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    box-shadow: none !important;
+}
+
+/* 3 logo đầu giữ kích thước chuẩn */
+.site-footer .footer-fb-icon img,
+.site-footer .footer-zalo-icon img,
+.site-footer .footer-instagram-icon img {
+    width: 36px !important;
+    height: 36px !important;
+    max-width: 36px !important;
+    max-height: 36px !important;
+}
+
+/* YouTube và Shopee lấy đúng ảnh PNG mới của bạn, canh đều với các icon còn lại */
+.site-footer .footer-youtube-icon img {
+    width: 37px !important;
+    height: 37px !important;
+    max-width: 37px !important;
+    max-height: 37px !important;
+}
+
+.site-footer .footer-shopee-icon img {
+    width: 38px !important;
+    height: 38px !important;
+    max-width: 38px !important;
+    max-height: 38px !important;
+}
+
+@media (max-width: 768px) {
+    .site-footer .social-links,
+    .site-footer .footer-social-links {
+        gap: 18px !important;
+        max-width: 340px !important;
+        flex-wrap: nowrap !important;
+    }
+
+    .site-footer .footer-social-icon {
+        width: 36px !important;
+        height: 36px !important;
+        min-width: 36px !important;
+        max-width: 36px !important;
+        min-height: 36px !important;
+        max-height: 36px !important;
+    }
+
+    .site-footer .footer-fb-icon img,
+    .site-footer .footer-zalo-icon img,
+    .site-footer .footer-instagram-icon img {
+        width: 32px !important;
+        height: 32px !important;
+        max-width: 32px !important;
+        max-height: 32px !important;
+    }
+
+    .site-footer .footer-youtube-icon img {
+        width: 33px !important;
+        height: 33px !important;
+        max-width: 33px !important;
+        max-height: 33px !important;
+    }
+
+    .site-footer .footer-shopee-icon img {
+        width: 34px !important;
+        height: 34px !important;
+        max-width: 34px !important;
+        max-height: 34px !important;
+    }
+}
+/* ===== END FOOTER SOCIAL PNG EVEN ALIGN FINAL ===== */
+</style>
+
+<link rel="stylesheet" href="stylehub-premium-recommendations.css?v=2">
+<link rel="stylesheet" href="stylehub-recommender-ui.css?v=1">
+</head>
+
+<body>
+
+<div class="search-overlay" id="searchBox">
+    <div class="search-panel">
+        <button class="search-close-btn" onclick="closeSearchBox()">×</button>
+        <input class="search-input" id="searchInput" onkeyup="searchProducts()" placeholder="SEARCH FOR PRODUCTS..." type="text">
+        <div class="search-results" id="searchResults"></div>
+    </div>
+</div>
+
+
+    <canvas id="fwCanvas"></canvas>
+    <div class="toast-notification" id="toastMessage">Đã thêm vào giỏ hàng thành công</div>
+
+    <!-- HEADER SYSTEM CHÍNH -->
+    <header class="main-header">
+        <div class="nav-container">
+            <div class="nav-left"><a id="back-link-target" href="mens.html">← Collection</a></div>
+            <div class="logo"><a href="index.html">THE STYLE HUB</a></div>
+            <div class="nav-right">
+                <a href="account.html" id="account-trigger" class="pd-account-link">ACCOUNT</a>
+<a href="admin.html" target="_blank" rel="noopener" class="admin-nav-link">ADMIN</a>
+                <a href="#" class="pd-bag-link" onclick="event.preventDefault(); toggleCartDrawer(true)">BAG (<span id="bag-count">0</span>)</a>
+            </div>
+        </div>
+    </header>
+<div class="pd-notification-bell" data-stylehub-notification-bell></div>
+<!-- CHI TIẾT SẢN PHẨM -->
+    <div class="product-detail-container">
+        <div class="detail-table-layout">
+            <div class="detail-column">
+                <div class="image-scroll-gallery" id="gallery-target"></div>
+            </div>
+            <div class="detail-column">
+                <div class="info-sticky-panel">
+                    <p class="brand-name" id="brand-name-target">Essentials</p>
+                    <h1 class="product-name" id="product-name-target">Product Title</h1>
+                    <p class="product-price" id="product-price-target">0 ₫</p>
+
+                    <div class="size-selector-section">
+                        <p class="selector-label">Select Size:</p>
+                        <div class="size-buttons-group" id="size-buttons-target"></div>
+                    </div>
+
+                    <div class="quantity-selector-section">
+                        <p class="selector-label">Số lượng:</p>
+                        <div class="quantity-control" aria-label="Chọn số lượng sản phẩm">
+                            <button type="button" class="quantity-btn" onclick="changePurchaseQuantity(-1)">−</button>
+                            <input id="purchaseQtyInput" class="quantity-input" type="number" min="1" value="1" inputmode="numeric" onchange="setPurchaseQuantity(this.value)" oninput="setPurchaseQuantity(this.value, true)">
+                            <button type="button" class="quantity-btn" onclick="changePurchaseQuantity(1)">+</button>
+                        </div>
+                        <span id="purchaseQtyNote" class="quantity-note"></span>
+                    </div>
+
+                    <div class="cta-buttons-group">
+                        <button class="btn-action btn-add-to-bag" onclick="addBag()">Add to Bag</button>
+                        <button class="btn-action btn-order-now" onclick="openCheckoutDirectly()">Order Now</button>
+                    </div>
+
+                    <div class="specs-details-section">
+                        <h3 class="specs-heading">Product Specifications</h3>
+                        <ul class="specs-ul">
+                            <li><strong>Chất liệu vải:</strong> Cotton premium mềm mại, dệt mật độ cao thoáng khí, giữ phom cực tốt.</li>
+                            <li><strong>Kiểu dáng:</strong> Thiết kế phom dáng thoải mái tôn dáng hiện đại, dễ dàng phối hợp nhiều layout.</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- SẢN PHẨM LIÊN QUAN -->
+    <section class="related-products-section" id="relatedProductsSection">
+        <div class="related-products-header">
+            <span class="sh-recommend-eyebrow">STYLE MATCH / PERSONALIZED EDIT</span>
+            <h2>Gợi ý <em>dành riêng</em> cho bạn</h2>
+            <div class="related-title-line"></div>
+            <p class="sh-recommend-lede">Khám phá những lựa chọn hợp gu, được gợi ý từ sở thích và hành trình mua sắm của bạn.</p>
+        </div>
+        <div class="related-products-grid" id="relatedProductsGrid"></div>
+    </section>
+
+
+    <!-- ==================== SIDEBAR DRAWER PANEL ==================== -->
+    <div class="cart-drawer-overlay" id="cartOverlay" onclick="toggleCartDrawer(false)">
+        <div class="cart-side-panel" onclick="event.stopPropagation()">
+            <div class="cart-header"><h2>Your Bag</h2><button class="close-cart-btn" onclick="toggleCartDrawer(false)">✕</button></div>
+            <div class="cart-body">
+                <span class="empty-cart-text" id="emptyCartMessage">Your bag is currently empty.</span>
+                <div id="cartItemsContainer"></div>
+            </div>
+            <div class="cart-footer">
+                <div class="cart-total-row"><span>Tạm tính:</span><span id="cartSubtotalTarget">0 ₫</span></div>
+                <div class="cart-total-row"><span>Phí ship:</span><span id="cartShippingTarget">0 ₫</span></div>
+                <div class="cart-total-row discount-row"><span>Giảm giá:</span><span id="cartDiscountTarget">-0 ₫</span></div>
+                <div class="cart-total-row grand-total-row"><span>Tổng cộng:</span><span id="cartTotalTarget">0 ₫</span></div>
+                <button class="btn-checkout" onclick="openCheckoutFromCart()">Đặt Hàng</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="checkout-drawer-overlay" id="checkoutOverlay" onclick="toggleCheckoutDrawer(false)">
+        <div class="checkout-side-panel" onclick="event.stopPropagation()">
+            <div class="cart-header"><h2>Shipping Information</h2><button class="close-cart-btn" onclick="toggleCheckoutDrawer(false)">✕</button></div>
+            <div class="cart-body">
+                <form id="shippingForm">
+                    <div class="form-group">
+                        <label>Họ và tên người nhận</label>
+                        <input type="text" id="cusName" required placeholder="Nhập tên đầy đủ...">
+                    </div>
+                    <div class="form-group">
+                        <label>Số điện thoại</label>
+                        <input type="tel" id="cusPhone" required placeholder="Chưa cập nhật">
+                    </div>
+                    <div class="form-group vn-address-group">
+                        <label>Địa chỉ nhận hàng</label>
+
+                        <select id="cusProvince" class="vn-address-select" required>
+                            <option value="">Chọn Tỉnh/Thành phố</option>
+                        </select>
+
+                        <select id="cusDistrict" class="vn-address-select" required disabled>
+                            <option value="">Chọn Quận/Huyện</option>
+                        </select>
+
+                        <select id="cusWard" class="vn-address-select" required disabled>
+                            <option value="">Chọn Phường/Xã</option>
+                        </select>
+
+                        <input type="text" id="cusStreet" class="vn-address-input" required placeholder="Nhập số nhà, tên đường...">
+
+                        <textarea id="cusAddress" rows="3" required readonly placeholder="Địa chỉ đầy đủ sẽ tự tạo sau khi bạn chọn đầy đủ thông tin"></textarea>
+                        <small class="address-hint">Chọn Tỉnh/Thành phố → Quận/Huyện → Phường/Xã, sau đó nhập số nhà và tên đường.</small>
+                    </div>
+                    <div class="form-group">
+                        <label>Email</label>
+                        <input type="email" id="cusEmail" required 
+                               placeholder="Ví dụ: khachhang@gmail.com"
+                               pattern="[a-z0-9._%+-]+@[a-z0-9.-]+\.com$" 
+                               title="Email phải có định dạng hợp lệ và kết thúc bằng .com (Ví dụ: abc@domain.com)">
+                    </div>
+                </form>
+            </div>
+            <div class="cart-footer"><button class="btn-checkout" onclick="submitFinalOrder()">Xác Nhận Đặt Hàng</button></div>
+        </div>
+    </div>
+
+    <!-- ==================== POPUP MODAL ĐĂNG NHẬP / ĐĂNG KÝ HỢP NHẤT ==================== -->
+    <div class="auth-popup-modal" id="authModal" onclick="toggleAuthModal(false)">
+        <div class="auth-box-content" onclick="event.stopPropagation()">
+            <span class="close-auth-modal" onclick="toggleAuthModal(false)">&times;</span>
+            
+            <div id="auth-login-block">
+                <h3>Bắt buộc đăng nhập</h3>
+                <p style="font-size: 12px; color: #666; margin-bottom: 20px;">Vui lòng xác thực tài khoản để tiếp tục mua hàng.</p>
+                <form onsubmit="event.preventDefault(); handleImmediateLogin();">
+                    <input type="email" id="authEmail" class="auth-input-field" placeholder="EMAIL ADDRESS" required>
+                    <input type="password" id="authPass" class="auth-input-field" placeholder="PASSWORD" required>
+                    <button type="submit" class="btn-auth-submit">Đăng Nhập & Tiếp Tục</button>
+                </form>
+                <p class="switch-form-prompt">Don't have an account? <span class="switch-form-link" onclick="toggleAuthView('register')">CREATE ACCOUNT</span></p>
+            </div>
+
+            <div id="auth-register-block" class="hidden-auth-block">
+                <h3>Tạo tài khoản mới</h3>
+                <p style="font-size: 12px; color: #666; margin-bottom: 20px;">Đăng ký nhanh để hoàn tất thủ tục thanh toán đơn hàng.</p>
+                <form onsubmit="event.preventDefault(); handleImmediateRegister();">
+                    <input type="text" id="regNewName" class="auth-input-field" placeholder="YOUR FULL NAME" required>
+                    <input type="email" id="regNewEmail" class="auth-input-field" placeholder="EMAIL ADDRESS" required>
+                    <input type="password" id="regNewPass" class="auth-input-field" placeholder="PASSWORD" required minlength="6">
+                    <button type="submit" class="btn-auth-submit">Đăng Ký & Thanh Toán</button>
+                </form>
+                <p class="switch-form-prompt">Already have an account? <span class="switch-form-link" onclick="toggleAuthView('login')">RETURN TO LOGIN</span></p>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- DATA KHO HÀNG TỔNG HỢP -->
+    <script src="product-data.js?v=fix-kids-products-20260624"></script>
+    <script src="recommender/product-attributes.js?v=2"></script>
+    <script src="recommender/sentiment-vi.js?v=2"></script>
+    <script src="recommender/engine.js?v=2"></script>
+    <script src="stylehub-api.js?v=2"></script>
+    <script src="stylehub-recommendations.js?v=3-hybrid-v2"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-database-compat.js"></script>
+    <script src="stylehub-orders-api.js?v=stock-cloud-sync-20260630"></script>
+    
+    <script>
+        
+
+
+        let currentItem = null;
+        let selectedSizeText = "";
+        let cartMemoryArray = [];
+        window.cartMemoryArray = cartMemoryArray;
+        let styleHubOrderSubmitLocked = false;
+        let isUserLoggedIn = localStorage.getItem('isLoggedInStatus') === 'true' && !!(localStorage.getItem('hub_current_user_key') || localStorage.getItem('hub_email')); 
+        let pendingCheckoutAction = false; 
+
+
+        function getProductCategoryById(productId) {
+            if (!productId) return "mens";
+            if (productId.startsWith("womens")) return "womens";
+            if (productId.startsWith("kids")) return "kids";
+            if (productId.startsWith("sale")) return "sale";
+            if (productId.startsWith("shoe")) return "shoes";
+            return "mens";
+        }
+
+        function getRelatedBackPage(category) {
+            if (category === "womens") return "womens.html";
+            if (category === "kids") return "kids.html";
+            if (category === "sale") return "sale.html";
+            if (category === "shoes") return "shoes.html";
+            return "mens.html";
+        }
+
+        // Nhãn thành phần thuật toán cho phần "Vì sao bạn thấy sản phẩm này?" (giải thích minh bạch - XAI).
+        const STYLEHUB_COMPONENT_LABELS = {
+            ucf: 'Khách hàng cùng phong cách', icf: 'Thường được mua cùng', mf: 'Xu hướng mua sắm chung',
+            cb: 'Phong cách bạn yêu thích', ctx: 'Tương tự sản phẩm đang xem', session: 'Sản phẩm bạn vừa xem', pop: 'Đang thịnh hành'
+        };
+        // Tên kỹ thuật hiện khi rê chuột (phục vụ trình bày đồ án), không hiển thị trực tiếp cho khách.
+        const STYLEHUB_COMPONENT_TECH = {
+            ucf: 'User-based Collaborative Filtering', icf: 'Item-based Collaborative Filtering', mf: 'Matrix Factorization (BPR)',
+            cb: 'Content-based (TF-IDF)', ctx: 'Content + Item similarity', session: 'Session-based', pop: 'Popularity'
+        };
+
+        function renderRelatedProducts(currentProductId) {
+            const relatedGrid = document.getElementById("relatedProductsGrid");
+            const relatedSection = document.getElementById("relatedProductsSection");
+            if (!relatedGrid || typeof database === "undefined") return;
+
+            const recommendations = window.StyleHubRecommendations
+                ? window.StyleHubRecommendations.recommend(currentProductId, 4)
+                : Object.keys(database).filter(id => id !== currentProductId && getProductCategoryById(id) === getProductCategoryById(currentProductId)).slice(0, 4).map(id => ({ id, reason: 'Phù hợp với sản phẩm bạn đang xem' }));
+            const valid = recommendations.filter(item => item && database[item.id]);
+            const signature = JSON.stringify(valid.map(item => [item.id, item.reason, item.source, database[item.id].price, database[item.id].stock]));
+            if (relatedGrid.dataset.recommendationSignature === signature) return;
+            relatedGrid.dataset.recommendationSignature = signature;
+            if (relatedSection) relatedSection.style.display = '';
+            relatedGrid.replaceChildren();
+
+            // Dựng thẻ bằng DOM + textContent: tên/thương hiệu sản phẩm (có thể do admin nhập) không bao giờ được chèn như HTML.
+            valid.forEach(function(rec, rank) {
+                const id = rec.id;
+                const item = database[id];
+                const mainImage = item.mainImg || (item.images && item.images[0]) || "";
+                const hoverImage = (item.images && item.images[1]) ? item.images[1] : mainImage;
+
+                const card = document.createElement("a");
+                card.className = "related-product-card";
+                card.href = "product-detail.html?id=" + encodeURIComponent(id);
+                card.setAttribute('data-rec-id', id);
+                card.setAttribute('data-rec-rank', String(rank));
+                card.setAttribute('data-rec-context', 'product:' + (rec.source || 'local'));
+
+                const box = document.createElement('div');
+                box.className = 'related-image-box';
+                [['related-img-main', mainImage], ['related-img-hover', hoverImage]].forEach(function(pair) {
+                    const img = document.createElement('img');
+                    img.className = pair[0];
+                    img.src = pair[1];
+                    img.alt = item.name || '';
+                    img.loading = 'lazy';
+                    box.appendChild(img);
+                });
+                const brand = document.createElement('p'); brand.className = 'related-brand'; brand.textContent = item.brand || 'ESSENTIALS';
+                const name = document.createElement('p'); name.className = 'related-name'; name.textContent = item.name || '';
+                const price = document.createElement('p'); price.className = 'related-price'; price.textContent = item.price || '';
+                const explanation = document.createElement('p');
+                explanation.className = 'sh-related-reason';
+                explanation.textContent = rec.reason || 'Gợi ý dành cho bạn';
+                card.append(box, brand, name, price, explanation);
+
+                const shares = rec.explanation && rec.explanation.shares ? Object.entries(rec.explanation.shares).filter(x => x[1] > 0).sort((a, b) => b[1] - a[1]) : [];
+                if (shares.length) {
+                    const details = document.createElement('details');
+                    details.className = 'sh-why';
+                    details.addEventListener('click', function(event) { event.stopPropagation(); });
+                    const summary = document.createElement('summary');
+                    summary.textContent = 'Vì sao bạn thấy sản phẩm này?';
+                    summary.addEventListener('click', function(event) { event.preventDefault(); event.stopPropagation(); details.open = !details.open; });
+                    details.appendChild(summary);
+                    shares.forEach(function(pair) {
+                        const row = document.createElement('div'); row.className = 'sh-why-row';
+                        const label = document.createElement('span'); label.textContent = STYLEHUB_COMPONENT_LABELS[pair[0]] || pair[0]; label.title = STYLEHUB_COMPONENT_TECH[pair[0]] || '';
+                        const bar = document.createElement('span'); bar.className = 'sh-why-bar';
+                        const fill = document.createElement('i'); fill.style.width = Math.max(4, pair[1]) + '%';
+                        bar.appendChild(fill);
+                        const pct = document.createElement('b'); pct.textContent = pair[1] + '%';
+                        row.append(label, bar, pct);
+                        details.appendChild(row);
+                    });
+                    const src = document.createElement('small');
+                    src.textContent = 'Mức độ ảnh hưởng của từng yếu tố đến gợi ý này.';
+                    details.appendChild(src);
+                    card.appendChild(details);
+                }
+                relatedGrid.appendChild(card);
+            });
+            if (!valid.length) {
+                const empty = document.createElement('p');
+                empty.textContent = 'Chưa có sản phẩm phù hợp còn hàng. Bạn có thể tiếp tục khám phá các danh mục khác.';
+                relatedGrid.appendChild(empty);
+            }
+            if (window.StyleHubRecommendations && window.StyleHubRecommendations.trackImpressions) {
+                window.StyleHubRecommendations.trackImpressions(valid, 'product');
+            }
+            document.dispatchEvent(new CustomEvent('stylehub-recommendations-rendered'));
+        }
+
+        function loadPendingReorderCart() {
+            const rawCart = localStorage.getItem('stylehub_reorder_cart');
+            if (!rawCart) return;
+
+            try {
+                const savedItems = JSON.parse(rawCart);
+                if (!Array.isArray(savedItems) || savedItems.length === 0) return;
+
+                cartMemoryArray = savedItems.map(function(item) {
+                    const product = item.key && typeof database !== 'undefined' ? database[item.key] : null;
+                    const priceText = item.price || (product && product.price) || '';
+                    const priceNum = Number(item.priceNum) || parseInt(String(priceText).replace(/[^\d]/g, ''), 10) || 0;
+                    return {
+                        key: item.key || '',
+                        name: item.name || (product && product.name) || 'Sản phẩm',
+                        price: priceText,
+                        priceNum: priceNum,
+                        mainImg: item.mainImg || (product && (product.mainImg || (product.images && product.images[0]))) || '',
+                        size: item.size || 'M',
+                        qty: Number(item.qty || item.quantity || 1)
+                    };
+                }).filter(function(item) { return item.name; });
+
+                localStorage.removeItem('stylehub_reorder_cart');
+                renderCartUI();
+
+                if (cartMemoryArray.length > 0) {
+                    setTimeout(function() {
+                        showToastNotification('Đã thêm lại đơn hàng vào BAG!');
+                        toggleCartDrawer(true);
+                    }, 250);
+                }
+            } catch (error) {
+                console.error('Không thể tải lại đơn hàng đã hủy:', error);
+                localStorage.removeItem('stylehub_reorder_cart');
+            }
+        }
+
+
+        function isShoeProductId(productId) {
+            return String(productId || "").toLowerCase().startsWith("shoe");
+        }
+
+        function isKidsProductId(productId) {
+            const id = String(productId || "").toLowerCase();
+            return id.startsWith("kids");
+        }
+
+        function renderProductSizeSelector(productId) {
+            const group = document.getElementById("size-buttons-target") || document.querySelector(".size-buttons-group");
+            if (!group) return;
+
+            if (isShoeProductId(productId)) {
+                group.setAttribute("data-size-type", "shoes");
+                group.innerHTML = `
+                    <div class="shoe-size-panel">
+                        <div class="shoe-size-row">
+                            <div class="shoe-size-label">SIZE NAM</div>
+                            <div class="shoe-size-options">
+                                ${Array.from({ length: 8 }, (_, i) => 37 + i)
+                                    .map(n => `<button type="button" class="size-button shoe-number-size" data-size="${n}" onclick="changeSize(this)">${n}</button>`)
+                                    .join("")}
+                            </div>
+                        </div>
+
+                        <div class="shoe-size-row">
+                            <div class="shoe-size-label">SIZE NỮ</div>
+                            <div class="shoe-size-options">
+                                ${Array.from({ length: 6 }, (_, i) => 37 + i)
+                                    .map(n => `<button type="button" class="size-button shoe-number-size" data-size="${n}" onclick="changeSize(this)">${n}</button>`)
+                                    .join("")}
+                            </div>
+                        </div>
+                    </div>
+                `;
+
+                const first = group.querySelector(".shoe-number-size");
+                if (first) changeSize(first);
+                return;
+            }
+
+            if (isKidsProductId(productId)) {
+                group.setAttribute("data-size-type", "kids-clothing");
+                group.innerHTML = `
+                    <button type="button" class="size-button" onclick="changeSize(this)">XS</button>
+                    <button type="button" class="size-button" onclick="changeSize(this)">S</button>
+                    <button type="button" class="size-button selected" onclick="changeSize(this)">M</button>
+                    <button type="button" class="size-button" onclick="changeSize(this)">L</button>
+                `;
+                selectedSizeText = "M";
+                window.selectedSizeText = "M";
+                window.selectedSize = "M";
+                return;
+            }
+
+            group.setAttribute("data-size-type", "clothing");
+            group.innerHTML = `
+                <button type="button" class="size-button" onclick="changeSize(this)">S</button>
+                <button type="button" class="size-button selected" onclick="changeSize(this)">M</button>
+                <button type="button" class="size-button" onclick="changeSize(this)">L</button>
+                <button type="button" class="size-button" onclick="changeSize(this)">XL</button>
+            `;
+            selectedSizeText = "M";
+            window.selectedSizeText = "M";
+            window.selectedSize = "M";
+        }
+
+        document.addEventListener("DOMContentLoaded", function() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const productId = urlParams.get('id') || 'tops-1';
+            renderProductSizeSelector(productId);
+            if (typeof database !== 'undefined' && database) {
+                currentItem = database[productId];
+            }
+
+            // Nếu product-data.js bị cache hoặc chưa cập nhật, báo rõ thay vì hiện Product Title / 0đ.
+            if (!currentItem) {
+                console.warn('Không tìm thấy sản phẩm trong product-data.js:', productId);
+            }
+            
+            const backLink = document.getElementById('back-link-target');
+
+            function isSafeLocalCollectionUrl(urlValue) {
+                if (!urlValue) return false;
+                try {
+                    const parsed = new URL(urlValue, window.location.href);
+                    if (parsed.origin !== window.location.origin) return false;
+                    return /^(mens|womens|kids|sale|shoes|collections)\.html$/.test(parsed.pathname.split('/').pop());
+                } catch (error) {
+                    return false;
+                }
+            }
+
+            function getSavedCollectionReturnUrl(id) {
+                try {
+                    const saved = JSON.parse(sessionStorage.getItem('stylehub_collection_return') || 'null');
+                    if (!saved || !saved.url) return '';
+                    if (saved.productId && saved.productId !== id) return '';
+                    if (saved.savedAt && Date.now() - saved.savedAt > 24 * 60 * 60 * 1000) return '';
+                    return saved.url;
+                } catch (error) {
+                    return '';
+                }
+            }
+
+            function inferCollectionUrlFromProduct(id) {
+                if (id.startsWith('womens-bottoms')) {
+                    const bottomsNumber = parseInt(id.replace('womens-bottoms-', ''), 10);
+                    return bottomsNumber >= 16 ? 'womens.html?cat=bottoms&page=2' : 'womens.html?cat=bottoms&page=1';
+                }
+                if (id.startsWith('womens')) {
+                    const numberPart = parseInt(id.replace('womens-', ''), 10);
+                    if (numberPart >= 22 && numberPart <= 24) return 'womens.html?cat=tops&page=2';
+                    if (numberPart >= 17 && numberPart <= 21) return 'womens.html?cat=tops&page=1';
+                    return 'womens.html';
+                }
+                if (id.startsWith('kids-bottoms')) return 'kids.html?cat=bottoms';
+                if (id.startsWith('kids')) return 'kids.html';
+                if (id.startsWith('sale')) return 'sale.html';
+                if (id.startsWith('shoe')) return 'shoes.html';
+                if (id.startsWith('dress')) return 'mens.html?cat=dress-shirt';
+                if (id.startsWith('bottoms')) return 'mens.html?cat=bottoms';
+                if (id.startsWith('hoodies')) return 'mens.html?cat=hoodies';
+                if (id.startsWith('tops-')) {
+                    const numberPart = parseInt(id.replace('tops-', ''), 10);
+                    if (numberPart >= 21) return 'mens.html?cat=tops&page=2';
+                    return 'mens.html?cat=tops&page=1';
+                }
+                return 'index.html';
+            }
+
+            const fromParam = urlParams.get('from');
+            const savedReturnUrl = getSavedCollectionReturnUrl(productId);
+            let collectionBackUrl = inferCollectionUrlFromProduct(productId);
+
+            if (isSafeLocalCollectionUrl(fromParam)) {
+                collectionBackUrl = fromParam;
+            } else if (isSafeLocalCollectionUrl(savedReturnUrl)) {
+                collectionBackUrl = savedReturnUrl;
+            }
+
+            if (backLink) {
+                backLink.href = collectionBackUrl;
+                backLink.addEventListener('click', function() {
+                    sessionStorage.setItem('stylehub_collection_restore', '1');
+                    sessionStorage.setItem('stylehub_collection_back_clicked_at', String(Date.now()));
+                });
+            }
+            
+            if (!currentItem) {
+                document.getElementById('brand-name-target').innerText = 'THE STYLE HUB';
+                document.getElementById('product-name-target').innerText = 'Không tìm thấy sản phẩm';
+                document.getElementById('product-price-target').innerText = '';
+                const galleryTarget = document.getElementById('gallery-target');
+                if (galleryTarget) {
+                    galleryTarget.innerHTML = '<div style="padding:80px 20px;text-align:center;color:#777;">Sản phẩm này chưa có trong product-data.js. Hãy thay file product-data.js mới và tải lại trang.</div>';
+                }
+                return;
+            }
+
+            if (currentItem) {
+                document.getElementById('brand-name-target').innerText = currentItem.brand || "Essentials";
+                document.getElementById('product-name-target').innerText = currentItem.name;
+                document.getElementById('product-price-target').innerText = currentItem.price;
+                const galleryTarget = document.getElementById('gallery-target');
+                galleryTarget.innerHTML = '';
+                
+                currentItem.images.forEach(imgUrl => {
+                    const imgContainer = document.createElement('div');
+                    imgContainer.className = 'product-image-item';
+                    const imgElement = document.createElement('img');
+                    imgElement.src = imgUrl;
+                    imgContainer.appendChild(imgElement);
+                    galleryTarget.appendChild(imgContainer);
+                });
+            }
+
+            renderRelatedProducts(productId);
+            refreshPurchaseQuantityControl();
+            
+            loadStyleHubCartIntoMemory();
+            renderCartUI();
+            forceStyleHubCartSyncNow();
+
+            loadSavedShippingInfo();
+            bindShippingFormPersistence();
+            updateHeaderAccountUI();
+            loadPendingReorderCart();
+        });
+
+        function changeSize(el) { 
+            document.querySelectorAll('.size-button').forEach(b => b.classList.remove('selected')); 
+            el.classList.add('selected');
+            selectedSizeText = el.dataset.size || el.innerText.trim();
+            window.selectedSizeText = selectedSizeText;
+            window.selectedSize = selectedSizeText;
+        }
+        
+        function toggleCartDrawer(isOpen) {
+            if (isOpen) {
+                loadStyleHubCartIntoMemory();
+                renderCartUI();
+            }
+            document.body.classList.toggle('stylehub-cart-open', !!isOpen);
+            document.getElementById('cartOverlay').classList.toggle('open', isOpen);
+        }
+        function toggleCheckoutDrawer(isOpen) {
+            if (isOpen) {
+                loadSavedShippingInfo();
+                forceStyleHubCartSyncNow();
+                if (typeof window.StyleHubRenderCheckoutTotals === "function") {
+                    setTimeout(window.StyleHubRenderCheckoutTotals, 120);
+                    setTimeout(window.StyleHubRenderCheckoutTotals, 450);
+                }
+            }
+
+            document.body.classList.toggle('stylehub-checkout-open', !!isOpen);
+            document.getElementById('checkoutOverlay').classList.toggle('open', isOpen);
+
+            // Nếu khách bấm Order Now rồi đóng form, khôi phục lại BAG cũ.
+            if (!isOpen && typeof restoreStyleHubOrderNowCart === "function" && !styleHubOrderNowSubmitting) {
+                restoreStyleHubOrderNowCart();
+            }
+        }
+        function toggleAuthModal(isOpen) {
+            document.body.classList.toggle('stylehub-auth-open', !!isOpen);
+            document.getElementById('authModal').classList.toggle('open', isOpen);
+        }
+
+        function toggleAuthView(targetBlock) {
+            const loginBlock = document.getElementById('auth-login-block');
+            const registerBlock = document.getElementById('auth-register-block');
+            if(targetBlock === 'register') {
+                loginBlock.classList.add('hidden-auth-block');
+                registerBlock.classList.remove('hidden-auth-block');
+            } else {
+                registerBlock.classList.add('hidden-auth-block');
+                loginBlock.classList.remove('hidden-auth-block');
+            }
+        }
+
+        function showToastNotification(textMsg) {
+            const toast = document.getElementById('toastMessage');
+            toast.innerText = textMsg;
+            toast.classList.add('show');
+            setTimeout(() => { toast.classList.remove('show'); }, 2800);
+        }
+
+
+
+        function escapeStyleHubText(value) {
+            return String(value == null ? '' : value).replace(/[&<>"]|'/g, function(char) {
+                return ({
+                    '&': '&amp;',
+                    '<': '&lt;',
+                    '>': '&gt;',
+                    '"': '&quot;',
+                    "'": '&#39;'
+                })[char];
+            });
+        }
+
+        function ensureStyleHubOrderSuccessDrawer() {
+            let overlay = document.getElementById('stylehubOrderSuccessOverlay');
+            if (overlay) return overlay;
+
+            overlay = document.createElement('div');
+            overlay.id = 'stylehubOrderSuccessOverlay';
+            overlay.className = 'stylehub-order-success-overlay';
+            overlay.addEventListener('click', function(event) {
+                if (event.target === overlay) {
+                    closeStyleHubOrderSuccessDrawer(true);
+                }
+            });
+            document.body.appendChild(overlay);
+            return overlay;
+        }
+
+        function showStyleHubOrderSuccessDrawer(orderObject) {
+            const overlay = ensureStyleHubOrderSuccessDrawer();
+            const safeOrder = orderObject || {};
+            const safeUser = safeOrder.userInfo || {};
+
+            overlay.innerHTML = `
+                <aside class="stylehub-order-success-panel" role="dialog" aria-modal="true" aria-label="Order Success" onclick="event.stopPropagation()">
+                    <div class="stylehub-order-success-header">
+                        <h2>Order Success</h2>
+                        <button type="button" class="stylehub-order-success-close" aria-label="Đóng" onclick="closeStyleHubOrderSuccessDrawer(true)">&times;</button>
+                    </div>
+                    <div class="stylehub-order-success-body">
+                        <p class="stylehub-order-success-note">Đặt hàng thành công. Đơn hàng của bạn đang chờ xác nhận.</p>
+                        <div class="stylehub-order-success-summary">
+                            <div class="stylehub-order-success-row"><span>Mã đơn</span><span>${escapeStyleHubText(safeOrder.orderId || '')}</span></div>
+                            <div class="stylehub-order-success-row"><span>Khách hàng</span><span>${escapeStyleHubText(safeUser.name || '')}</span></div>
+                            <div class="stylehub-order-success-row"><span>Số điện thoại</span><span>${escapeStyleHubText(safeUser.phone || '')}</span></div>
+                            <div class="stylehub-order-success-row"><span>Email</span><span>${escapeStyleHubText(safeUser.email || safeOrder.shippingEmail || safeOrder.customerEmail || safeOrder.userEmail || '')}</span></div>
+                            <div class="stylehub-order-success-row"><span>Địa chỉ</span><span>${escapeStyleHubText(safeUser.address || safeOrder.shippingAddress || '')}</span></div>
+                            <div class="stylehub-order-success-row"><span>Tổng cộng</span><span>${escapeStyleHubText(safeOrder.totalPriceFormatted || '')}</span></div>
+                        </div>
+                    </div>
+                    <div class="stylehub-order-success-footer">
+                        <button type="button" class="stylehub-order-success-done" onclick="closeStyleHubOrderSuccessDrawer(true)"><span>Đóng</span></button>
+                    </div>
+                </aside>
+            `;
+
+            document.body.classList.add('stylehub-order-success-open');
+            overlay.classList.add('open');
+        }
+
+        function closeStyleHubOrderSuccessDrawer(withFirework) {
+            const overlay = document.getElementById('stylehubOrderSuccessOverlay');
+            if (overlay) overlay.classList.remove('open');
+            document.body.classList.remove('stylehub-order-success-open');
+
+            if (withFirework && typeof triggerFireworkCelebration === 'function') {
+                setTimeout(function() {
+                    triggerFireworkCelebration();
+                }, 180);
+            }
+        }
+
+
+        /* ==================== BAG PERSISTENCE ACROSS PAGES ==================== */
+        const STYLEHUB_CART_STORAGE_KEY = "stylehub_cart_memory_v1";
+        const STYLEHUB_CART_COMPAT_KEYS = ["stylehub_cart_memory_v1", "stylehub_cart", "hub_cart", "cartMemoryArray", "the_style_hub_cart", "cart"];
+        const STYLEHUB_ORDER_NOW_FLAG_KEY = "stylehub_order_now_active_v1";
+        const STYLEHUB_ORDER_NOW_BACKUP_KEY = "stylehub_order_now_backup_cart_v1";
+        let styleHubOrderNowSubmitting = false;
+
+        function normalizeStyleHubCartItem(item) {
+            if (!item) return null;
+            const product = item.key && typeof database !== 'undefined' ? database[item.key] : null;
+            const priceText = item.price || item.itemPrice || item.productPrice || (product && product.price) || "";
+            const priceNum = Number(item.priceNum) || parseInt(String(priceText).replace(/[^\d]/g, ""), 10) || 0;
+            const qty = Number(item.qty || item.quantity || item.amount || 1);
+
+            return {
+                key: item.key || item.id || "",
+                name: item.name || item.productName || (product && product.name) || "Sản phẩm",
+                price: priceText || (priceNum ? priceNum.toLocaleString("vi-VN") + " ₫" : ""),
+                priceNum: priceNum,
+                mainImg: item.mainImg || item.image || item.img || (product && (product.mainImg || (product.images && product.images[0]))) || "",
+                size: item.size || item.selectedSize || "M",
+                qty: Number.isNaN(qty) || qty < 1 ? 1 : qty
+            };
+        }
+
+        function getStyleHubCartMergeKey(item) {
+            const normalized = normalizeStyleHubCartItem(item);
+            if (!normalized) return "";
+            return [
+                String(normalized.key || "").trim().toLowerCase(),
+                String(normalized.name || "").trim().toLowerCase(),
+                String(normalized.size || "").trim().toLowerCase(),
+                Number(normalized.priceNum || 0),
+                String(normalized.mainImg || "").trim()
+            ].join("||");
+        }
+
+        function mergeStyleHubCartDuplicates(cart) {
+            const merged = [];
+            const indexByKey = {};
+
+            (Array.isArray(cart) ? cart : []).forEach(function(rawItem) {
+                const item = normalizeStyleHubCartItem(rawItem);
+                if (!item) return;
+                const mergeKey = getStyleHubCartMergeKey(item);
+                if (!mergeKey) return;
+
+                if (Object.prototype.hasOwnProperty.call(indexByKey, mergeKey)) {
+                    const existing = merged[indexByKey[mergeKey]];
+                    existing.qty = getStyleHubItemQuantity(existing) + getStyleHubItemQuantity(item);
+                } else {
+                    indexByKey[mergeKey] = merged.length;
+                    merged.push(item);
+                }
+            });
+
+            return merged;
+        }
+
+        window.StyleHubSetProductDetailCartMemory = function(nextCart) {
+            cartMemoryArray = mergeStyleHubCartDuplicates(nextCart || []);
+            window.cartMemoryArray = cartMemoryArray;
+            updateStyleHubCartBadges(cartMemoryArray);
+            return cartMemoryArray;
+        };
+
+        function readStyleHubCartFromStorage() {
+            for (const key of STYLEHUB_CART_COMPAT_KEYS) {
+                try {
+                    const raw = localStorage.getItem(key);
+                    if (!raw) continue;
+                    const parsed = JSON.parse(raw);
+                    if (!Array.isArray(parsed) || parsed.length === 0) continue;
+                    const normalized = parsed.map(normalizeStyleHubCartItem).filter(Boolean);
+                    const merged = mergeStyleHubCartDuplicates(normalized);
+                    if (merged.length !== normalized.length) {
+                        const data = JSON.stringify(merged);
+                        STYLEHUB_CART_COMPAT_KEYS.forEach(function(storageKey) {
+                            localStorage.setItem(storageKey, data);
+                        });
+                    }
+                    return merged;
+                } catch (error) {
+                    console.warn("Không đọc được giỏ hàng từ", key, error);
+                }
+            }
+            return [];
+        }
+
+        function saveStyleHubCartToStorage() {
+            try {
+                const cleanCart = mergeStyleHubCartDuplicates((cartMemoryArray || []).map(normalizeStyleHubCartItem).filter(Boolean));
+                cartMemoryArray = cleanCart;
+                window.cartMemoryArray = cartMemoryArray;
+                const data = JSON.stringify(cleanCart);
+                localStorage.setItem(STYLEHUB_CART_STORAGE_KEY, data);
+                localStorage.setItem("stylehub_cart", data);
+                localStorage.setItem("hub_cart", data);
+                localStorage.setItem("cartMemoryArray", data);
+                localStorage.setItem("the_style_hub_cart", data);
+                localStorage.setItem("cart", data);
+
+                if (window.StyleHubCartSync && typeof window.StyleHubCartSync.update === "function") {
+                    window.StyleHubCartSync.update(cleanCart);
+                } else {
+                    updateStyleHubCartBadges(cleanCart);
+                }
+            } catch (error) {
+                console.error("Không lưu được giỏ hàng:", error);
+            }
+        }
+
+        function clearStyleHubCartStorage() {
+            cartMemoryArray = [];
+            window.cartMemoryArray = cartMemoryArray;
+
+            STYLEHUB_CART_COMPAT_KEYS.forEach(function(key) {
+                localStorage.removeItem(key);
+                localStorage.setItem(key, "[]");
+            });
+
+            localStorage.removeItem("stylehub_active_voucher");
+            updateStyleHubCartBadges([]);
+        }
+
+        window.clearStyleHubCartStorage = clearStyleHubCartStorage;
+
+        window.StyleHubResetProductDetailCartMemory = function() {
+            cartMemoryArray = [];
+            window.cartMemoryArray = cartMemoryArray;
+            clearStyleHubCartStorage();
+            updateStyleHubCartBadges([]);
+        };
+
+        function updateStyleHubCartBadges(cartItems) {
+            const items = Array.isArray(cartItems) ? cartItems : readStyleHubCartFromStorage();
+            const totalQty = items.reduce(function(total, item) {
+                return total + getStyleHubItemQuantity(item);
+            }, 0);
+
+            // Update spans first
+            document.querySelectorAll("#bag-count, #cart-count, [data-stylehub-cart-count]").forEach(function(el) {
+                el.textContent = String(totalQty);
+            });
+
+            // For BAG links without a span, rebuild them safely.
+            document.querySelectorAll("a, #bag-trigger, .pd-bag-link").forEach(function(el) {
+                const text = (el.textContent || "").trim().toUpperCase();
+                if (!text.startsWith("BAG")) return;
+
+                if (!el.querySelector("#bag-count") && !el.querySelector("#cart-count") && !el.querySelector("[data-stylehub-cart-count]")) {
+                    el.innerHTML = 'BAG (<span id="bag-count" data-stylehub-cart-count>' + totalQty + '</span>)';
+                }
+            });
+        }
+
+
+        function forceStyleHubCartSyncNow() {
+            const cleanCart = mergeStyleHubCartDuplicates((cartMemoryArray || []).map(normalizeStyleHubCartItem).filter(Boolean));
+            cartMemoryArray = cleanCart;
+            window.cartMemoryArray = cartMemoryArray;
+            const data = JSON.stringify(cleanCart);
+
+            localStorage.setItem("stylehub_cart_memory_v1", data);
+            localStorage.setItem("stylehub_cart", data);
+            localStorage.setItem("hub_cart", data);
+            localStorage.setItem("cartMemoryArray", data);
+            localStorage.setItem("the_style_hub_cart", data);
+
+            updateStyleHubCartBadges(cleanCart);
+
+            if (window.StyleHubCartSync && typeof window.StyleHubCartSync.save === "function") {
+                window.StyleHubCartSync.save(cleanCart);
+            }
+        }
+
+        function loadStyleHubCartIntoMemory() {
+            const savedCart = readStyleHubCartFromStorage();
+            return window.StyleHubSetProductDetailCartMemory(savedCart);
+        }
+
+        function isStyleHubOrderNowActive() {
+            return sessionStorage.getItem(STYLEHUB_ORDER_NOW_FLAG_KEY) === "1";
+        }
+
+        function getStyleHubOrderNowBackupCart() {
+            try {
+                const backup = JSON.parse(sessionStorage.getItem(STYLEHUB_ORDER_NOW_BACKUP_KEY) || "[]");
+                return Array.isArray(backup) ? backup.map(normalizeStyleHubCartItem).filter(Boolean) : [];
+            } catch (error) {
+                return [];
+            }
+        }
+
+        function getStyleHubCurrentProductStockLimit() {
+            const productId = new URLSearchParams(window.location.search).get('id') || (currentItem && (currentItem.key || currentItem.id)) || '';
+            let inventory = {};
+            try {
+                inventory = JSON.parse(localStorage.getItem('stylehub_inventory_v1') || '{}');
+            } catch (error) {
+                inventory = {};
+            }
+
+            if (window.StyleHubProductAdmin && typeof window.StyleHubProductAdmin.applyAdminProductsToDatabase === 'function') {
+                try { window.StyleHubProductAdmin.applyAdminProductsToDatabase(); } catch (error) {}
+            }
+
+            if (window.StyleHubProductAdmin && typeof window.StyleHubProductAdmin.getAdminStockInfo === 'function') {
+                try {
+                    const info = window.StyleHubProductAdmin.getAdminStockInfo(productId);
+                    if (info && info.status === 'out') return 0;
+                    if (info && Number.isFinite(Number(info.qty))) return Math.max(0, Number(info.qty));
+                } catch (error) {}
+            }
+
+            const inv = productId ? inventory[productId] : null;
+            if (inv) {
+                const stock = Math.max(0, Number(inv.stock || 0));
+                return inv.outOfStock || stock <= 0 ? 0 : stock;
+            }
+
+            const fallbackStock = currentItem && currentItem.stock !== undefined ? Number(currentItem.stock) : 20;
+            if (currentItem && currentItem.outOfStock) return 0;
+            return Math.max(0, Number.isFinite(fallbackStock) ? fallbackStock : 20);
+        }
+
+        function getPurchaseQuantityInput() {
+            return document.getElementById('purchaseQtyInput');
+        }
+
+        function refreshPurchaseQuantityControl() {
+            const input = getPurchaseQuantityInput();
+            const note = document.getElementById('purchaseQtyNote');
+            if (!input) return;
+
+            const maxStock = getStyleHubCurrentProductStockLimit();
+            input.max = String(Math.max(1, maxStock || 1));
+            input.disabled = maxStock <= 0;
+
+            const currentQty = Math.max(1, Number(input.value || 1) || 1);
+            if (maxStock > 0 && currentQty > maxStock) input.value = String(maxStock);
+            if (maxStock <= 0) input.value = '1';
+
+            if (note) {
+                note.textContent = maxStock > 0 ? `Tối đa ${maxStock} sản phẩm` : 'Sản phẩm đang hết hàng';
+            }
+        }
+
+        function setPurchaseQuantity(value, isTyping) {
+            const input = getPurchaseQuantityInput();
+            if (!input) return 1;
+
+            const maxStock = getStyleHubCurrentProductStockLimit();
+            if (maxStock <= 0) {
+                input.value = '1';
+                return 1;
+            }
+
+            let nextQty = parseInt(String(value || '').replace(/[^0-9]/g, ''), 10);
+            if (!Number.isFinite(nextQty) || nextQty < 1) {
+                if (isTyping && String(value || '') === '') return 1;
+                nextQty = 1;
+            }
+
+            nextQty = Math.min(nextQty, maxStock);
+            input.value = String(nextQty);
+            return nextQty;
+        }
+
+        function changePurchaseQuantity(step) {
+            const input = getPurchaseQuantityInput();
+            const currentQty = input ? Number(input.value || 1) || 1 : 1;
+            return setPurchaseQuantity(currentQty + Number(step || 0));
+        }
+
+        function getSelectedPurchaseQuantity() {
+            return setPurchaseQuantity((getPurchaseQuantityInput() || {}).value || 1);
+        }
+
+        window.setPurchaseQuantity = setPurchaseQuantity;
+        window.changePurchaseQuantity = changePurchaseQuantity;
+
+        function clearStyleHubOrderNowState() {
+            sessionStorage.removeItem(STYLEHUB_ORDER_NOW_FLAG_KEY);
+            sessionStorage.removeItem(STYLEHUB_ORDER_NOW_BACKUP_KEY);
+        }
+
+        function buildStyleHubCurrentProductCartItem() {
+            if (!currentItem) return null;
+
+            if (!selectedSizeText) {
+                const selectedButton = document.querySelector(".size-button.selected");
+                selectedSizeText = selectedButton ? (selectedButton.dataset.size || selectedButton.innerText.trim()) : "M";
+            }
+
+            return normalizeStyleHubCartItem({
+                key: new URLSearchParams(window.location.search).get('id') || currentItem.key || currentItem.id || '',
+                name: currentItem.name,
+                price: currentItem.price,
+                priceNum: Number(currentItem.priceNum) || getStyleHubItemPriceNumber(currentItem),
+                mainImg: currentItem.mainImg || (currentItem.images && currentItem.images[0]) || "",
+                size: selectedSizeText,
+                qty: getSelectedPurchaseQuantity()
+            });
+        }
+
+        function startStyleHubOrderNowCheckout() {
+            const backupCart = readStyleHubCartFromStorage();
+            const directItem = buildStyleHubCurrentProductCartItem();
+            if (!directItem) return false;
+
+            sessionStorage.setItem(STYLEHUB_ORDER_NOW_FLAG_KEY, "1");
+            sessionStorage.setItem(STYLEHUB_ORDER_NOW_BACKUP_KEY, JSON.stringify(backupCart));
+
+            cartMemoryArray = [directItem];
+            window.cartMemoryArray = cartMemoryArray;
+            forceStyleHubCartSyncNow();
+            renderCartUI();
+
+            if (typeof window.StyleHubRenderCheckoutTotals === "function") {
+                setTimeout(window.StyleHubRenderCheckoutTotals, 60);
+                setTimeout(window.StyleHubRenderCheckoutTotals, 250);
+            }
+
+            return true;
+        }
+
+        function restoreStyleHubOrderNowCart() {
+            if (!isStyleHubOrderNowActive()) return;
+
+            cartMemoryArray = getStyleHubOrderNowBackupCart();
+            window.cartMemoryArray = cartMemoryArray;
+            forceStyleHubCartSyncNow();
+            renderCartUI();
+            clearStyleHubOrderNowState();
+        }
+
+
+
+        /* ==================== ACCOUNT-SPECIFIC SHIPPING INFO ==================== */
+        function getStyleHubCurrentAccountEmail() {
+            return (
+                localStorage.getItem('hub_current_user_key') ||
+                localStorage.getItem('hub_email') ||
+                ''
+            ).trim().toLowerCase();
+        }
+
+        function getStyleHubShippingProfileKey(accountEmail) {
+            return 'stylehub_shipping_profile_' + String(accountEmail || '').trim().toLowerCase();
+        }
+
+        function readStyleHubShippingProfile(accountEmail) {
+            const email = String(accountEmail || getStyleHubCurrentAccountEmail() || '').trim().toLowerCase();
+            if (!email) return {};
+            try {
+                const profile = JSON.parse(localStorage.getItem(getStyleHubShippingProfileKey(email)) || '{}');
+                return profile && typeof profile === 'object' ? profile : {};
+            } catch (error) {
+                return {};
+            }
+        }
+
+        function saveStyleHubShippingProfile(profileData) {
+            const accountEmail = getStyleHubCurrentAccountEmail();
+            if (!accountEmail) return;
+
+            const oldProfile = readStyleHubShippingProfile(accountEmail);
+            const nextProfile = Object.assign({}, oldProfile, profileData || {}, {
+                accountEmail: accountEmail,
+                updatedAt: Date.now()
+            });
+
+            localStorage.setItem(getStyleHubShippingProfileKey(accountEmail), JSON.stringify(nextProfile));
+            localStorage.setItem('stylehub_last_shipping_profile_key', getStyleHubShippingProfileKey(accountEmail));
+
+            // Compat keys có hậu tố tài khoản để không lẫn sang account khác.
+            const safeKey = normalizeHubAccountKey(accountEmail);
+            if (nextProfile.email) localStorage.setItem('hub_shipping_email_' + safeKey, nextProfile.email);
+            if (nextProfile.phone) localStorage.setItem('hub_phone_' + safeKey, nextProfile.phone);
+            if (nextProfile.address) localStorage.setItem('hub_address_' + safeKey, nextProfile.address);
+            if (nextProfile.name) localStorage.setItem('hub_name_' + safeKey, nextProfile.name);
+        }
+
+
+        function bindShippingFormPersistence() {
+            const fields = [
+                { id: "cusName", profileKey: "name" },
+                { id: "cusPhone", profileKey: "phone" },
+                { id: "cusAddress", profileKey: "address" },
+                { id: "cusEmail", profileKey: "email", lower: true }
+            ];
+
+            fields.forEach(function(field) {
+                const el = document.getElementById(field.id);
+                if (!el || el.dataset.stylehubPersistenceBound === "1") return;
+                el.dataset.stylehubPersistenceBound = "1";
+
+                el.addEventListener("input", function() {
+                    const value = field.lower ? el.value.trim().toLowerCase() : el.value.trim();
+                    const patch = {};
+                    patch[field.profileKey] = value;
+                    saveStyleHubShippingProfile(patch);
+
+                    // Chỉ cập nhật tên hiển thị global của account đang đăng nhập.
+                    if (field.id === "cusName") {
+                        localStorage.setItem("hub_name", value);
+                    }
+                });
+            });
+        }
+
+
+        function normalizeHubAccountKey(value) {
+            return String(value || '').trim().toLowerCase().replace(/\s+/g, '_');
+        }
+
+        function rememberHubLoginIdentity(name, email) {
+            const cleanName = String(name || '').trim();
+            const cleanEmail = String(email || '').trim().toLowerCase();
+            if (!cleanEmail) return;
+            localStorage.setItem('hub_email', cleanEmail);
+            localStorage.setItem('hub_current_user_key', cleanEmail);
+            localStorage.setItem('hub_last_user_email', cleanEmail);
+            if (cleanName) localStorage.setItem('hub_account_email_' + normalizeHubAccountKey(cleanName), cleanEmail);
+        }
+
+        function isStyleHubUserAuthenticated() {
+            const valid = window.StyleHubAuth
+                ? !!window.StyleHubAuth.getCurrentUser()
+                : (localStorage.getItem('isLoggedInStatus') === 'true' && !!(localStorage.getItem('hub_current_user_key') || localStorage.getItem('hub_email')));
+            isUserLoggedIn = valid;
+            return valid;
+        }
+
+        function updateHeaderAccountUI() {
+            isStyleHubUserAuthenticated();
+            const links = document.querySelectorAll('#account-trigger, #headerAccountLink');
+            links.forEach(function(link) {
+                if(isUserLoggedIn) {
+                    const savedName = localStorage.getItem('hub_name') || "ACCOUNT";
+                    link.innerText = savedName.toUpperCase();
+                    link.href = "account.html";
+                } else {
+                    link.innerText = "ACCOUNT";
+                    link.href = "account.html";
+                }
+            });
+        }
+
+        function handleImmediateLogin() {
+            const emailInput = document.getElementById('authEmail').value.trim();
+            const passwordInput = document.getElementById('authPass').value;
+            const result = window.StyleHubAuth
+                ? window.StyleHubAuth.login(emailInput, passwordInput)
+                : { ok: false, message: "Hệ thống tài khoản chưa sẵn sàng. Vui lòng tải lại trang." };
+
+            if (!result.ok) {
+                showToastNotification(result.message);
+                return;
+            }
+
+            const account = result.user;
+            isUserLoggedIn = true;
+            rememberHubLoginIdentity(account.name || account.email.split('@')[0], account.email);
+
+            const loginProfile = readStyleHubShippingProfile(account.email);
+            const displayName = loginProfile.name || account.name || account.email.split('@')[0];
+            localStorage.setItem('hub_name', displayName);
+
+            loadSavedShippingInfo();
+            updateHeaderAccountUI();
+            toggleAuthModal(false);
+            showToastNotification("Đăng nhập xác thực thành công!");
+            if(pendingCheckoutAction) {
+                pendingCheckoutAction = false;
+                toggleCheckoutDrawer(true);
+            }
+        }
+
+        function handleImmediateRegister() {
+            const nameInput = document.getElementById('regNewName').value.trim();
+            const emailInput = document.getElementById('regNewEmail').value.trim();
+            const passwordInput = document.getElementById('regNewPass').value;
+            const result = window.StyleHubAuth
+                ? window.StyleHubAuth.register({ name: nameInput, email: emailInput, password: passwordInput })
+                : { ok: false, message: "Hệ thống tài khoản chưa sẵn sàng. Vui lòng tải lại trang." };
+
+            if (!result.ok) {
+                showToastNotification(result.message);
+                return;
+            }
+
+            const loginResult = window.StyleHubAuth.login(emailInput, passwordInput);
+            if (!loginResult.ok) {
+                showToastNotification(loginResult.message);
+                return;
+            }
+
+            isUserLoggedIn = true;
+            localStorage.setItem('hub_name', nameInput);
+            rememberHubLoginIdentity(nameInput, emailInput);
+            saveStyleHubShippingProfile({
+                name: nameInput,
+                phone: '',
+                address: '',
+                email: emailInput.trim().toLowerCase()
+            });
+
+            loadSavedShippingInfo();
+            updateHeaderAccountUI();
+            toggleAuthModal(false);
+            
+            triggerFireworkCelebration();
+
+            if(pendingCheckoutAction) {
+                pendingCheckoutAction = false;
+                setTimeout(() => { toggleCheckoutDrawer(true); }, 1000);
+            }
+        }
+
+        function addBag() { 
+            if (!currentItem) {
+                showToastNotification("Không tìm thấy sản phẩm để thêm vào BAG!");
+                return;
+            }
+
+            if (!selectedSizeText) {
+                const selectedButton = document.querySelector(".size-button.selected");
+                selectedSizeText = selectedButton ? (selectedButton.dataset.size || selectedButton.innerText.trim()) : "M";
+            }
+
+            const selectedQty = getSelectedPurchaseQuantity();
+            const maxStock = getStyleHubCurrentProductStockLimit();
+            if (maxStock <= 0) {
+                showToastNotification("Sản phẩm này đang hết hàng!");
+                return;
+            }
+
+            // Luôn lấy lại BAG từ localStorage trước, tránh bị reset khi qua trang khác.
+            loadStyleHubCartIntoMemory();
+
+            const existingItem = cartMemoryArray.find(function(item) {
+                return item.key === currentItem.key && item.size === selectedSizeText;
+            });
+
+            const currentQtyInBag = existingItem ? getStyleHubItemQuantity(existingItem) : 0;
+            const finalQty = Math.min(currentQtyInBag + selectedQty, maxStock);
+            const addedQty = Math.max(0, finalQty - currentQtyInBag);
+
+            if (addedQty <= 0) {
+                showToastNotification(`BAG đã đạt tối đa ${maxStock} sản phẩm cho size ${selectedSizeText}!`);
+                return;
+            }
+
+            if (existingItem) {
+                existingItem.qty = finalQty;
+            } else {
+                cartMemoryArray.push({
+                    key: currentItem.key,
+                    name: currentItem.name,
+                    price: currentItem.price,
+                    priceNum: Number(currentItem.priceNum) || getStyleHubItemPriceNumber(currentItem),
+                    mainImg: currentItem.mainImg || (currentItem.images && currentItem.images[0]) || "",
+                    size: selectedSizeText,
+                    qty: addedQty
+                });
+            }
+
+            forceStyleHubCartSyncNow();
+            renderCartUI();
+            forceStyleHubCartSyncNow();
+
+            showToastNotification(`ĐÃ THÊM ${addedQty} SẢN PHẨM (SIZE ${selectedSizeText}) VÀO BAG!`);
+        }
+
+        function removeCartItem(index) {
+            loadStyleHubCartIntoMemory();
+            cartMemoryArray.splice(index, 1);
+            forceStyleHubCartSyncNow();
+            renderCartUI();
+            forceStyleHubCartSyncNow();
+        }
+
+
+        function getStyleHubActiveVoucherCode() {
+            return String(localStorage.getItem("stylehub_active_voucher") || "").trim().toUpperCase();
+        }
+
+        function calculateStyleHubBagTotals(subtotal) {
+            const code = getStyleHubActiveVoucherCode();
+            const shipping = subtotal > 0 ? 30000 : 0;
+            let discount = 0;
+
+            if (code === "STYLE10") discount = Math.round(subtotal * 0.1);
+            // FREESHIP vẫn giữ dòng phí ship gốc và trừ ở dòng giảm giá.
+            if (code === "FREESHIP") discount = shipping;
+
+            return {
+                subtotal: subtotal,
+                shipping: shipping,
+                discount: discount,
+                total: Math.max(0, subtotal + shipping - discount),
+                code: code
+            };
+        }
+
+        function formatStyleHubMoney(value) {
+            return (Number(value || 0)).toLocaleString('vi-VN') + " ₫";
+        }
+
+        function updateStyleHubBagTotalsUI(subtotal) {
+            const totals = calculateStyleHubBagTotals(subtotal);
+
+            const subtotalEl = document.getElementById('cartSubtotalTarget');
+            const shippingEl = document.getElementById('cartShippingTarget');
+            const discountEl = document.getElementById('cartDiscountTarget');
+            const totalEl = document.getElementById('cartTotalTarget');
+
+            if (subtotalEl) subtotalEl.innerText = formatStyleHubMoney(totals.subtotal);
+            if (shippingEl) shippingEl.innerText = formatStyleHubMoney(totals.shipping);
+            if (discountEl) discountEl.innerText = "-" + formatStyleHubMoney(totals.discount);
+            if (totalEl) totalEl.innerText = formatStyleHubMoney(totals.total);
+
+            if (typeof window.StyleHubRenderCheckoutTotals === "function") {
+                setTimeout(window.StyleHubRenderCheckoutTotals, 80);
+            }
+        }
+
+        window.updateStyleHubBagTotalsUI = updateStyleHubBagTotalsUI;
+
+        function renderCartUI() {
+            // Luôn sync lại từ storage trước khi render để nút Xóa / Checkout không bị ghi ngược giỏ hàng cũ.
+            cartMemoryArray = mergeStyleHubCartDuplicates(cartMemoryArray || readStyleHubCartFromStorage());
+            window.cartMemoryArray = cartMemoryArray;
+
+            const container = document.getElementById('cartItemsContainer');
+            const emptyMsg = document.getElementById('emptyCartMessage');
+            if (!container || !emptyMsg) return;
+            container.innerHTML = '';
+            let totalItemsCount = 0;
+            let totalAmountMoney = 0;
+
+            if (cartMemoryArray.length === 0) {
+                emptyMsg.classList.remove('hidden');
+                document.getElementById('bag-count').innerText = "0";
+                updateStyleHubBagTotalsUI(0);
+                forceStyleHubCartSyncNow();
+                return;
+            }
+            emptyMsg.classList.add('hidden');
+
+            cartMemoryArray.forEach((item, index) => {
+                totalItemsCount += item.qty;
+                totalAmountMoney += (getStyleHubItemPriceNumber(item) * getStyleHubItemQuantity(item));
+                const row = document.createElement('div');
+                row.className = 'cart-product-row';
+                row.innerHTML = `
+                    <img src="${item.mainImg}" class="cart-item-img">
+                    <div class="cart-item-info">
+                        <p class="cart-item-title">${item.name}</p>
+                        <p class="cart-item-meta">Size: ${item.size} / SL: ${item.qty}</p>
+                        <p class="cart-item-price">${item.price}</p>
+                    </div>
+                    <button class="remove-item-btn" onclick="removeCartItem(${index})">Xóa</button>
+                `;
+                container.appendChild(row);
+            });
+            document.getElementById('bag-count').innerText = totalItemsCount;
+            updateStyleHubBagTotalsUI(totalAmountMoney);
+            forceStyleHubCartSyncNow();
+        }
+
+        window.renderCartUI = renderCartUI;
+
+        function loadSavedShippingInfo() {
+            const accountEmail = getStyleHubCurrentAccountEmail();
+            const profile = readStyleHubShippingProfile(accountEmail);
+
+            // Mỗi tài khoản có thông tin giao hàng riêng.
+            // Không lấy hub_phone / hub_address / hub_shipping_email global nữa để tránh lẫn thông tin giữa các tài khoản.
+            const savedName = profile.name || localStorage.getItem('hub_name') || '';
+            const savedPhone = profile.phone || '';
+            const savedAddress = profile.address || '';
+            const savedEmail = profile.email || accountEmail || '';
+
+            if (savedName) { document.getElementById('cusName').value = savedName; }
+            else { document.getElementById('cusName').value = ""; }
+
+            if (savedEmail) { document.getElementById('cusEmail').value = savedEmail; }
+            else { document.getElementById('cusEmail').value = ""; }
+
+            if (savedPhone && savedPhone !== "Chưa cập nhật") { 
+                document.getElementById('cusPhone').value = savedPhone; 
+            } else {
+                document.getElementById('cusPhone').value = ""; 
+            }
+
+            if (savedAddress && savedAddress !== "Chưa cập nhật địa chỉ giao hàng") {
+                if (window.StyleHubVNAddress && typeof window.StyleHubVNAddress.setExistingAddress === 'function') {
+                    window.StyleHubVNAddress.setExistingAddress('checkout', savedAddress);
+                } else {
+                    document.getElementById('cusAddress').value = savedAddress;
+                }
+            } else {
+                document.getElementById('cusAddress').value = "";
+            }
+        }
+
+        function openCheckoutFromCart() {
+            if(cartMemoryArray.length === 0) { showToastNotification("Giỏ hàng của bạn đang trống!"); return; }
+            toggleCartDrawer(false);
+            if(!isStyleHubUserAuthenticated()) { pendingCheckoutAction = true; toggleAuthModal(true); return; }
+            toggleCheckoutDrawer(true);
+        }
+
+        function openCheckoutDirectly() {
+            if (!currentItem) return;
+
+            // Order Now chỉ thanh toán riêng sản phẩm đang xem, không cộng các món đã có sẵn trong BAG.
+            if (!startStyleHubOrderNowCheckout()) {
+                showToastNotification("Không tìm thấy sản phẩm để đặt hàng!");
+                return;
+            }
+
+            if(!isStyleHubUserAuthenticated()) {
+                pendingCheckoutAction = true;
+                toggleAuthModal(true);
+                return;
+            }
+
+            toggleCheckoutDrawer(true);
+        }
+
+
+        /* ==================== EMAILJS ORDER CONFIRMATION ==================== */
+        function buildStyleHubProductDetails(orderObject) {
+            const items = orderObject && Array.isArray(orderObject.orderedProductsList)
+                ? orderObject.orderedProductsList
+                : [];
+
+            if (items.length === 0) return "Không có sản phẩm";
+
+            return items.map(function(item, index) {
+                const name = item.name || "Sản phẩm";
+                const size = item.size || "N/A";
+                const qty = item.qty || 1;
+                const price = item.price || "";
+                return `${index + 1}. ${name} (Size: ${size}) x ${qty} - Giá: ${price}`;
+            }).join("\n");
+        }
+
+
+        function waitForStyleHubEmailJS(timeoutMs = 6000) {
+            return new Promise(function(resolve, reject) {
+                const start = Date.now();
+
+                function check() {
+                    if (window.emailjs && typeof window.emailjs.send === "function") {
+                        if (typeof window.emailjs.init === "function") {
+                            window.emailjs.init(window.STYLEHUB_EMAILJS_PUBLIC_KEY);
+                        }
+                        resolve();
+                        return;
+                    }
+
+                    if (Date.now() - start > timeoutMs) {
+                        reject(new Error("EmailJS SDK chưa tải được. Kiểm tra mạng hoặc CDN @emailjs/browser."));
+                        return;
+                    }
+
+                    setTimeout(check, 120);
+                }
+
+                check();
+            });
+        }
+
+        function normalizeStyleHubEmail(value) {
+            return String(value || "").trim().toLowerCase();
+        }
+
+        function isValidStyleHubEmail(value) {
+            return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(normalizeStyleHubEmail(value));
+        }
+
+        function getStyleHubEmailTemplateIds() {
+            const ids = [];
+            if (window.STYLEHUB_EMAILJS_TEMPLATE_ID) ids.push(window.STYLEHUB_EMAILJS_TEMPLATE_ID);
+            if (Array.isArray(window.STYLEHUB_EMAILJS_FALLBACK_TEMPLATE_IDS)) {
+                window.STYLEHUB_EMAILJS_FALLBACK_TEMPLATE_IDS.forEach(function(id) { if (id) ids.push(id); });
+            }
+            return Array.from(new Set(ids));
+        }
+
+        async function sendStyleHubOrderEmail(orderObject) {
+            await waitForStyleHubEmailJS();
+
+            const userInfo = orderObject.userInfo || {};
+            const toEmail = normalizeStyleHubEmail(
+                orderObject.shippingEmail ||
+                userInfo.email ||
+                orderObject.customerEmail ||
+                orderObject.userEmail ||
+                localStorage.getItem("hub_shipping_email") ||
+                localStorage.getItem("hub_email") ||
+                ""
+            );
+
+            if (!isValidStyleHubEmail(toEmail)) {
+                throw new Error("Email người nhận không hợp lệ hoặc đang bị trống: " + (toEmail || "N/A"));
+            }
+
+            const customerName = userInfo.name || localStorage.getItem("hub_name") || "Khách hàng";
+            const orderId = orderObject.orderId || "";
+            const orderDate = orderObject.orderDate || orderObject.date || new Date().toLocaleString("vi-VN");
+            const customerPhone = userInfo.phone || localStorage.getItem("hub_phone") || "";
+            const customerAddress = userInfo.address || localStorage.getItem("hub_address") || "";
+            const productDetails = buildStyleHubProductDetails(orderObject);
+            const totalPrice = orderObject.totalPriceFormatted || formatStyleHubVND(calculateStyleHubOrderTotal(orderObject.orderedProductsList)) || "0 ₫";
+
+            const templateParams = {
+                // Các biến chính đang dùng trong EmailJS template
+                to_email: toEmail,
+                customer_name: customerName,
+                orderId: orderId,
+                order_date: orderDate,
+                customer_phone: customerPhone,
+                customer_address: customerAddress,
+                product_details: productDetails,
+                total_price: totalPrice,
+
+                // Biến dự phòng để template cũ/mới đều nhận được dữ liệu
+                email: toEmail,
+                user_email: toEmail,
+                reply_to: toEmail,
+                to_name: customerName,
+                from_name: "The Style Hub",
+                order_id: orderId,
+                order_number: orderId,
+                phone: customerPhone,
+                address: customerAddress,
+                message: productDetails,
+                total: totalPrice
+            };
+
+            console.log("Đang gửi EmailJS với dữ liệu:", templateParams);
+            console.log("EmailJS Service ID:", window.STYLEHUB_EMAILJS_SERVICE_ID);
+
+            const templateIds = getStyleHubEmailTemplateIds();
+            if (templateIds.length === 0) {
+                throw new Error("Chưa cấu hình EmailJS Template ID.");
+            }
+
+            let lastError = null;
+            for (const templateId of templateIds) {
+                try {
+                    console.log("EmailJS Template ID đang thử:", templateId);
+                    return await window.emailjs.send(
+                        window.STYLEHUB_EMAILJS_SERVICE_ID,
+                        templateId,
+                        templateParams,
+                        window.STYLEHUB_EMAILJS_PUBLIC_KEY
+                    );
+                } catch (error) {
+                    lastError = error;
+                    console.error("Gửi EmailJS thất bại với template " + templateId + ":", error);
+                }
+            }
+
+            throw lastError || new Error("Gửi EmailJS thất bại.");
+        }
+
+        // Cho stylehub-cart-sync.js dùng lại hàm này khi khách đặt hàng từ BAG nhiều sản phẩm.
+        window.sendStyleHubOrderEmail = sendStyleHubOrderEmail;
+
+
+
+        function getStyleHubItemPriceNumber(item) {
+            if (!item) return 0;
+            const fromPriceNum = Number(item.priceNum);
+            if (!Number.isNaN(fromPriceNum) && fromPriceNum > 0) return fromPriceNum;
+
+            const priceText = String(item.price || item.itemPrice || item.productPrice || "0");
+            const parsed = parseInt(priceText.replace(/[^\d]/g, ""), 10);
+            return Number.isNaN(parsed) ? 0 : parsed;
+        }
+
+        function getStyleHubItemQuantity(item) {
+            const qty = Number(item && (item.qty || item.quantity || item.amount || 1));
+            return Number.isNaN(qty) || qty < 1 ? 1 : qty;
+        }
+
+        function calculateStyleHubOrderTotal(items) {
+            if (!Array.isArray(items)) return 0;
+            return items.reduce(function(total, item) {
+                return total + (getStyleHubItemPriceNumber(item) * getStyleHubItemQuantity(item));
+            }, 0);
+        }
+
+        function formatStyleHubVND(amount) {
+            const safeAmount = Number(amount) || 0;
+            return safeAmount.toLocaleString("vi-VN") + " ₫";
+        }
+
+
+
+        function getStyleHubOrderSubmitFingerprint(accountEmail, cartItems, name, phone, address, email) {
+            const products = (cartItems || []).map(function(item) {
+                return [
+                    item.key || item.id || item.name || '',
+                    item.size || '',
+                    item.qty || item.quantity || 1,
+                    item.price || item.priceNum || ''
+                ].join('|');
+            }).join('||');
+
+            return [
+                accountEmail || '',
+                name || '',
+                phone || '',
+                address || '',
+                email || '',
+                products
+            ].join('@@');
+        }
+
+        async function submitFinalOrder() {
+            if (styleHubOrderSubmitLocked) {
+                return;
+            }
+            styleHubOrderSubmitLocked = true;
+
+            const submitButton = document.querySelector('#checkoutOverlay .cart-footer .btn-checkout, #checkout-form button[type="submit"], #checkout-form .btn-submit, .checkout-submit-btn, button.btn-submit');
+            const originalButtonText = submitButton ? submitButton.innerText : "";
+
+            if (submitButton) {
+                submitButton.disabled = true;
+                submitButton.style.pointerEvents = "none";
+                submitButton.innerText = "ĐANG XỬ LÝ...";
+            }
+
+            const name = document.getElementById('cusName').value.trim();
+            const phone = document.getElementById('cusPhone').value.trim();
+            const address = document.getElementById('cusAddress').value.trim();
+            const email = document.getElementById('cusEmail').value.trim().toLowerCase();
+
+            if(!name || !phone || !address || !email) {
+                showToastNotification("Vui lòng điền đầy đủ thông tin giao hàng!");
+                styleHubOrderSubmitLocked = false;
+                if (submitButton) {
+                    submitButton.disabled = false;
+                    submitButton.style.pointerEvents = "";
+                    submitButton.innerText = originalButtonText || "XÁC NHẬN ĐẶT HÀNG";
+                }
+                return;
+            }
+
+            loadStyleHubCartIntoMemory();
+
+            if(cartMemoryArray.length === 0) {
+                showToastNotification("Giỏ hàng của bạn đang trống!");
+                styleHubOrderSubmitLocked = false;
+                if (submitButton) {
+                    submitButton.disabled = false;
+                    submitButton.style.pointerEvents = "";
+                    submitButton.innerText = originalButtonText || "XÁC NHẬN ĐẶT HÀNG";
+                }
+                return;
+            }
+
+            const accountEmail = (
+                localStorage.getItem('hub_current_user_key') ||
+                localStorage.getItem('hub_email') ||
+                email
+            ).trim().toLowerCase();
+
+            const orderFingerprint = getStyleHubOrderSubmitFingerprint(accountEmail, cartMemoryArray, name, phone, address, email);
+            const lastFingerprint = sessionStorage.getItem('stylehub_last_order_submit_fingerprint') || '';
+            const lastSubmitTime = Number(sessionStorage.getItem('stylehub_last_order_submit_time') || 0);
+
+            if (lastFingerprint === orderFingerprint && Date.now() - lastSubmitTime < 8000) {
+                showToastNotification("Đơn hàng đang được xử lý, vui lòng không bấm lại.");
+                styleHubOrderSubmitLocked = false;
+                if (submitButton) {
+                    submitButton.disabled = false;
+                    submitButton.style.pointerEvents = "";
+                    submitButton.innerText = originalButtonText || "XÁC NHẬN ĐẶT HÀNG";
+                }
+                return;
+            }
+
+            sessionStorage.setItem('stylehub_last_order_submit_fingerprint', orderFingerprint);
+            sessionStorage.setItem('stylehub_last_order_submit_time', String(Date.now()));
+
+            localStorage.setItem('hub_name', name);
+            rememberHubLoginIdentity(localStorage.getItem('hub_name') || name || accountEmail, accountEmail);
+
+            // Lưu thông tin giao hàng RIÊNG theo account đang đăng nhập.
+            // Không ghi phone/address/email vào key global để account khác không bị tự động load nhầm.
+            saveStyleHubShippingProfile({
+                name: name,
+                phone: phone,
+                address: address,
+                email: email
+            });
+
+            const orderStorageKey = 'hub_orders_' + accountEmail;
+            const existingOrdersArray = JSON.parse(localStorage.getItem(orderStorageKey) || '[]');
+            const uniqueOrderId = "STH" + Date.now().toString().slice(-6) + Math.floor(10 + Math.random() * 90);
+
+            const orderCreatedAt = Date.now();
+            const orderDate = new Date(orderCreatedAt).toLocaleString('vi-VN');
+            const finalOrderTotalAmount = calculateStyleHubOrderTotal(cartMemoryArray);
+            const finalOrderTotalFormatted = formatStyleHubVND(finalOrderTotalAmount);
+
+            const newCompletedOrderObject = {
+                orderId: uniqueOrderId,
+                userEmail: accountEmail,
+                customerEmail: accountEmail,
+                shippingEmail: email,
+                orderDate: orderDate,
+                date: orderDate,
+                createdAt: orderCreatedAt,
+                updatedAt: orderCreatedAt,
+                clientOrderUid: uniqueOrderId,
+                userInfo: {
+                    name: name,
+                    phone: phone,
+                    email: email,
+                    accountEmail: accountEmail,
+                    address: address
+                },
+                totalPriceFormatted: finalOrderTotalFormatted,
+                orderedProductsList: [...cartMemoryArray],
+                status: "Đang chờ xác nhận"
+            };
+
+            /*
+              FAST CHECKOUT:
+              Lưu local và đóng giao diện ngay để người dùng không phải chờ EmailJS/Firebase.
+              EmailJS + Firebase vẫn chạy ở nền sau đó.
+            */
+            existingOrdersArray.unshift(newCompletedOrderObject);
+            localStorage.setItem(orderStorageKey, JSON.stringify(existingOrdersArray));
+            // Ghi nhận lượt mua cho hệ gợi ý (máy chủ) và cho phép khách đánh giá sản phẩm đã mua.
+            if (window.StyleHubApi && typeof StyleHubApi.recordOrder === 'function') StyleHubApi.recordOrder(newCompletedOrderObject);
+            if (window.StyleHubRecommendations && typeof StyleHubRecommendations.markDirty === 'function') StyleHubRecommendations.markDirty();
+
+            // Không lưu vào hub_orders global nữa để tránh Orders History hiển thị 2 đơn giống nhau.
+            // Đơn đã được lưu riêng theo account bằng hub_orders_<email> và đồng bộ Firebase ở nền.
+
+            if (window.StyleHubNotifications && typeof StyleHubNotifications.addOrderSuccessNotification === 'function') {
+                StyleHubNotifications.addOrderSuccessNotification(newCompletedOrderObject);
+            }
+
+            const wasOrderNowCheckout = isStyleHubOrderNowActive();
+            styleHubOrderNowSubmitting = true;
+            toggleCheckoutDrawer(false);
+            styleHubOrderNowSubmitting = false;
+
+            if (wasOrderNowCheckout) {
+                restoreStyleHubOrderNowCart();
+            } else {
+                cartMemoryArray = [];
+                clearStyleHubCartStorage();
+                forceStyleHubCartSyncNow();
+                renderCartUI();
+            }
+
+            showStyleHubOrderSuccessDrawer(newCompletedOrderObject);
+            showToastNotification("ĐẶT HÀNG THÀNH CÔNG! EMAIL XÁC NHẬN ĐANG ĐƯỢC GỬI.");
+
+            if (submitButton) {
+                submitButton.disabled = false;
+                submitButton.style.pointerEvents = "";
+                submitButton.innerText = originalButtonText || "XÁC NHẬN ĐẶT HÀNG";
+            }
+            setTimeout(function() {
+                styleHubOrderSubmitLocked = false;
+            }, 1200);
+
+            setTimeout(function() {
+                // Gửi email ở nền, không chặn màn hình đặt hàng.
+                sendStyleHubOrderEmail(newCompletedOrderObject)
+                    .then(function() {
+                        console.log("Email xác nhận đơn hàng đã gửi thành công.");
+                    })
+                    .catch(function(emailError) {
+                        console.error("Gửi email xác nhận thất bại:", emailError);
+                    });
+
+                // Lưu cloud ở nền, không làm chậm nút đặt hàng.
+                if (window.StyleHubOrders && typeof StyleHubOrders.saveOrder === 'function') {
+                    StyleHubOrders.saveOrder(newCompletedOrderObject)
+                        .then(function() {
+                            console.log("Đơn hàng đã đồng bộ Firebase thành công.");
+                        })
+                        .catch(function(error) {
+                            console.error("Không thể đồng bộ Firebase, đơn hàng đã lưu local:", error);
+                        });
+                }
+            }, 50);
+        }
+
+        /* --- HIỆU ỨNG PHÁO HOA --- */
+        const canvas = document.getElementById('fwCanvas');
+        const ctx = canvas.getContext('2d');
+        let particles = [];
+        function resizeCanvas() { canvas.width = window.innerWidth; canvas.height = window.innerHeight; }
+        window.addEventListener('resize', resizeCanvas);
+
+        function triggerFireworkCelebration() {
+            canvas.style.display = 'block';
+            resizeCanvas();
+            particles = [];
+            createExplosion(canvas.width * 0.25, canvas.height * 0.4);
+            createExplosion(canvas.width * 0.5, canvas.height * 0.3);
+            createExplosion(canvas.width * 0.75, canvas.height * 0.4);
+            let animationFrameId, framesCount = 0;
+            function loop() {
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+                for (let i = 0; i < particles.length; i++) {
+                    let p = particles[i];
+                    p.x += p.vx; p.y += p.vy; p.vy += 0.12; p.alpha -= 0.012;
+                    ctx.save(); ctx.globalAlpha = p.alpha; ctx.fillStyle = p.color;
+                    ctx.beginPath(); ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2); ctx.fill(); ctx.restore();
+                    if (p.alpha <= 0) { particles.splice(i, 1); i--; }
+                }
+                framesCount++;
+                if (particles.length > 0 && framesCount < 200) { animationFrameId = requestAnimationFrame(loop); } 
+                else { cancelAnimationFrame(animationFrameId); canvas.style.display = 'none'; }
+            }
+            loop();
+        }
+
+        function createExplosion(x, y) {
+            const colors = ['#ffffff', '#000000', '#777777', '#333333', '#dddddd']; 
+            for (let i = 0; i < 60; i++) {
+                const angle = Math.random() * Math.PI * 2;
+                const speed = Math.random() * 5 + 2;
+                particles.push({ x: x, y: y, vx: Math.cos(angle) * speed, vy: Math.sin(angle) * speed, size: Math.random() * 3 + 1.5, color: colors[Math.floor(Math.random() * colors.length)], alpha: 1 });
+            }
+        }
+    </script>
+
+
+<script>
+function openSearchBox() {
+    const box = document.getElementById("searchBox");
+    const input = document.getElementById("searchInput");
+    if (box) box.style.display = "block";
+    if (input) setTimeout(() => input.focus(), 80);
+}
+function closeSearchBox() {
+    const box = document.getElementById("searchBox");
+    const results = document.getElementById("searchResults");
+    const input = document.getElementById("searchInput");
+    if (box) box.style.display = "none";
+    if (results) results.innerHTML = "";
+    if (input) input.value = "";
+}
+function searchProducts() {
+    const input = document.getElementById("searchInput");
+    const resultsBox = document.getElementById("searchResults");
+    if (!input || !resultsBox || typeof database === "undefined") return;
+    const keyword = input.value.trim().toLowerCase();
+    resultsBox.innerHTML = "";
+    if (!keyword) return;
+    const results = Object.keys(database).filter(id => {
+        const item = database[id] || {};
+        const text = `${item.name || ""} ${item.brand || ""} ${item.key || ""}`.toLowerCase();
+        return text.includes(keyword);
+    }).slice(0, 12);
+    if (results.length === 0) {
+        resultsBox.innerHTML = `<p class="search-empty">No products found.</p>`;
+        return;
+    }
+    results.forEach(id => {
+        const item = database[id];
+        resultsBox.innerHTML += `
+            <div class="search-result-item" onclick="window.location.href='product-detail.html?id=${id}'">
+                <img src="${item.mainImg || (item.images && item.images[0]) || ''}" alt="${item.name || ''}">
+                <div>
+                    <strong>${item.name || ''}</strong>
+                    <span>${item.price || ''}</span>
+                </div>
+            </div>`;
+    });
+}
+document.addEventListener("DOMContentLoaded", function () {
+    const trigger = document.getElementById("search-trigger");
+    if (trigger) {
+        trigger.addEventListener("click", function(e) {
+            e.preventDefault();
+            openSearchBox();
+        });
+    }
+});
+document.addEventListener("keydown", function(e) {
+    if (e.key === "Escape") closeSearchBox();
+    if (e.key === "Enter" && document.activeElement && document.activeElement.id === "searchInput") {
+        const first = document.querySelector(".search-result-item");
+        if (first) first.click();
+    }
+});
+document.addEventListener("click", function(e) {
+    const box = document.getElementById("searchBox");
+    if (box && e.target === box) closeSearchBox();
+});
+</script>
+
+<footer class="site-footer support-footer">
+    <div class="footer-col footer-brand">
+        <h3>THE STYLE HUB</h3>
+        <p>Modern fashion store for menswear, womenswear, kidswear, shoes and seasonal sale collections.</p>
+        <div class="social-links footer-social-links">
+            <a class="footer-social-icon footer-fb-icon" href="#" aria-label="Facebook"><img src="images/fb.png" alt="Facebook"></a>
+            <a class="footer-social-icon footer-zalo-icon" href="#" aria-label="Zalo"><img src="images/zalo.png" alt="Zalo"></a>
+            <a class="footer-social-icon footer-instagram-icon" href="#" aria-label="Instagram"><img src="images/instagram.png" alt="Instagram"></a>
+            <a class="footer-social-icon footer-youtube-icon" href="#" aria-label="YouTube"><img src="images/ytb.png" alt="YouTube"></a>
+            <a class="footer-social-icon footer-shopee-icon" href="#" aria-label="Shopee"><img src="images/shoppe.png" alt="Shopee"></a>
+        </div>
+    </div>
+
+    <div class="footer-col footer-categories">
+        <h4>DANH MỤC</h4>
+        <a href="collections.html">ALL PRODUCTS</a>
+        <a href="mens.html">MENS</a>
+        <a href="womens.html">WOMENS</a>
+        <a href="kids.html">KIDS</a>
+        <a href="sale.html">SALE</a>
+        <a href="shoes.html">SHOES</a>
+        <a href="account.html" id="account-trigger">ACCOUNT</a>
+    </div>
+
+    <div class="footer-col footer-support">
+        <h4>HỖ TRỢ KHÁCH HÀNG</h4>
+        <a href="exchange-warranty-policy.html">Chính sách đổi hàng & bảo hành</a>
+        <a href="privacy-policy.html">Chính sách bảo mật</a>
+        <a href="shipping-policy.html">Chính sách giao hàng</a>
+    </div>
+
+    <div class="footer-col footer-store">
+        <h4>HỆ THỐNG CỬA HÀNG</h4>
+        <p><strong>HỒ CHÍ MINH</strong><br>15 Nguyễn Huệ, P. Bến Nghé, Quận 1</p>
+        <p><strong>HỒ CHÍ MINH</strong><br>236 Cách Mạng Tháng Tám, P. 10, Quận 3</p>
+        <div class="payment-icons" aria-label="Phương thức thanh toán">
+            <img src="images/tienmat.png" alt="Tiền mặt">
+            <img src="images/internet-banking.png" alt="Internet Banking">
+            <img src="images/visa.png" alt="Visa">
+            <img src="images/mastercard.png" alt="Mastercard">
+            <img src="images/jcb.png" alt="JCB">
+        </div>
+        <div class="footer-badges">
+        
+            <img src="images/dathongbao.png" alt="Đã thông báo">
+        
+            <span>DMCA PROTECTED</span>
+        
+        </div>
+    </div>
+</footer>
+<div class="footer-bottom">© 2026 THE STYLE HUB. UI/UX Interface Design Project.</div>
+<script src="stylehub-notifications.js?v=notification-bell-fixed-all-pages-20260616"></script>
+<script src="stylehub-responsive-nav.js?v=kids-bottoms-3-products-20260618"></script>
+<script src="stylehub-crypto.js"></script>
+<script src="stylehub-common.js?v=stock-cloud-sync-20260630"></script>
+
+<script src="shoe-size-patch.js?v=shoe-size-no-flash-20260616"></script>
+<script src="stylehub-ai-chat.js"></script>
+<script src="stylehub-reviews.js?v=1"></script>
+<script src="stylehub-cart-sync.js?v=qty-selector-20260701"></script>
+
+<script>
+/* PROPERTY OF LA IMAGE FALLBACK */
+(function () {
+    const fallbackUrl = "https://fearofgod.com/cdn/shop/files/RW00201_WHITE_SOX_SPORT_HOODIE-OATMEAL_HEATHER_W_BLACK_PINSTRIPES_1_x800.jpg?v=1777997926";
+
+    function fixBrokenPropertyLAImages() {
+        const productNameText = document.body.innerText || "";
+        if (!productNameText.includes("Property Of LA Crewneck Sweatshirt")) return;
+
+        document.querySelectorAll("img").forEach(function(img) {
+            const altText = (img.getAttribute("alt") || "").toLowerCase();
+            const srcText = (img.getAttribute("src") || "").toLowerCase();
+
+            if (
+                altText.includes("property of la") ||
+                srcText.includes("property_of_la") ||
+                srcText.includes("rw00184")
+            ) {
+                img.onerror = null;
+                img.src = fallbackUrl;
+            }
+        });
+    }
+
+    document.addEventListener("DOMContentLoaded", fixBrokenPropertyLAImages);
+    window.addEventListener("load", fixBrokenPropertyLAImages);
+})();
+</script>
+
+
+<script>
+/* PRODUCT DETAIL BACK RESTORE SAFETY START */
+(function () {
+    document.addEventListener("DOMContentLoaded", function () {
+        const backLink = document.getElementById("back-link-target");
+        if (!backLink) return;
+
+        const params = new URLSearchParams(window.location.search);
+        const productId = params.get("id") || "";
+
+        if (productId.startsWith("shoe-")) {
+            let saved = null;
+            try {
+                saved = JSON.parse(sessionStorage.getItem("stylehub_collection_return") || "null");
+            } catch (error) {
+                saved = null;
+            }
+
+            if (saved && saved.fromPage === "shoes" && saved.productId === productId && saved.url) {
+                backLink.href = saved.url;
+            }
+
+            backLink.addEventListener("click", function () {
+                sessionStorage.setItem("stylehub_collection_restore", "1");
+                sessionStorage.setItem("stylehub_collection_back_clicked_at", String(Date.now()));
+            });
+        }
+    });
+})();
+/* PRODUCT DETAIL BACK RESTORE SAFETY END */
+</script>
+
+<script src="stylehub-vn-address.js?v=vietnam-address-no-api-key-20260623"></script>
+<script>
+        document.addEventListener("stylehub-vn-address-ready", function () {
+            if (typeof loadSavedShippingInfo === "function") {
+                loadSavedShippingInfo();
+            }
+        });
+</script>
+</body>
+</html>

@@ -1,0 +1,68 @@
+/* Premium styling is scoped to the product recommendation section only. */
+#relatedProductsSection.related-products-section{max-width:1340px;margin:20px auto 100px;padding:0 36px}
+#relatedProductsSection .related-products-header{position:relative;isolation:isolate;overflow:hidden;padding:55px 34px 48px;margin-bottom:36px;background:linear-gradient(125deg,#f5f1e9 0%,#f9f7f2 49%,#ede5d9 100%);border:1px solid #e9e2d6;border-radius:22px;text-align:center}
+#relatedProductsSection .related-products-header::before{content:"";position:absolute;z-index:-1;top:-190px;left:50%;width:680px;height:410px;transform:translateX(-50%);background:radial-gradient(ellipse,rgba(222,197,160,.34),transparent 67%);pointer-events:none}
+#relatedProductsSection .sh-recommend-eyebrow{display:flex;align-items:center;justify-content:center;gap:12px;font-size:10px;letter-spacing:3.3px;color:#95754d;font-weight:700;text-transform:uppercase;margin-bottom:20px}
+#relatedProductsSection .sh-recommend-eyebrow::before,#relatedProductsSection .sh-recommend-eyebrow::after{content:"";width:27px;height:1px;background:#b8a07f}
+#relatedProductsSection .related-products-header h2{font-family:Georgia,'Times New Roman',serif;font-size:clamp(30px,4.5vw,52px);line-height:1.1;letter-spacing:-1.4px;text-transform:none;font-weight:400;margin:0 0 16px;color:#201f1e}
+#relatedProductsSection .related-products-header h2 em{font-weight:400;color:#9c7952}
+#relatedProductsSection .related-title-line{height:1px;width:94px;background:#cdbfae;border-radius:0}
+#relatedProductsSection .related-title-line::after{height:3px;width:29px;top:-1px;background:#ac8760;border-radius:1px}
+#relatedProductsSection .sh-recommend-lede{margin:20px auto 0;color:#766e64;font-size:13px;line-height:1.8;max-width:520px}
+#relatedProductsSection .sh-preference-panel{position:relative;width:min(720px,100%);margin:28px auto 0;padding:25px 27px 20px;text-align:left;border:1px solid rgba(181,160,135,.38);border-radius:18px;background:rgba(255,255,255,.82);box-shadow:0 19px 55px rgba(89,70,46,.08),inset 0 1px rgba(255,255,255,.95);backdrop-filter:blur(10px)}
+#relatedProductsSection .sh-preference-top{display:flex;gap:15px;align-items:flex-start}
+#relatedProductsSection .sh-preference-icon{flex:0 0 42px;width:42px;height:42px;border-radius:13px;background:#22201e;color:#d7b78b;display:flex;align-items:center;justify-content:center;font-size:22px}
+#relatedProductsSection .sh-preference-intro{flex:1;min-width:0}
+#relatedProductsSection .sh-preference-heading{font-size:15px;line-height:1.4;font-weight:600;letter-spacing:.1px;color:#26231e;margin:1px 0 5px}
+#relatedProductsSection .sh-preference-subtitle{font-size:12px;line-height:1.65;color:#7c766f;margin:0}
+#relatedProductsSection .sh-rating-interaction{display:flex;flex-wrap:wrap;align-items:center;gap:15px;margin-top:19px}
+#relatedProductsSection .sh-star-list{display:inline-flex;align-items:center;gap:5px;border-radius:12px;background:#f6f2eb;padding:7px 10px}
+#relatedProductsSection .sh-rating-star{font:400 31px/1 Georgia,serif;color:#c4bdb3;border:0;background:transparent;width:36px;height:40px;padding:0;cursor:pointer;transition:color .2s,transform .25s ease;display:flex;align-items:center;justify-content:center}
+#relatedProductsSection .sh-rating-star:hover{transform:translateY(-4px) scale(1.12);color:#bc9052}
+#relatedProductsSection .sh-rating-star.is-selected{color:#bb8d4d;text-shadow:0 3px 12px rgba(191,143,70,.18)}
+#relatedProductsSection .sh-rating-star:focus-visible,#relatedProductsSection .sh-rating-clear:focus-visible,#relatedProductsSection select:focus-visible{outline:2px solid #8b632e;outline-offset:3px}
+#relatedProductsSection .sh-rating-caption{display:flex;flex-direction:column;gap:3px}
+#relatedProductsSection .sh-rating-caption strong{font-size:13px;font-weight:600;color:#3b3024}
+#relatedProductsSection .sh-rating-caption span{font-size:11px;color:#958a7f}
+#relatedProductsSection .sh-rating-foot{display:flex;gap:12px;flex-wrap:wrap;align-items:center;justify-content:space-between;margin-top:19px;padding-top:14px;border-top:1px solid #ede7df}
+#relatedProductsSection .sh-rating-foot-note{display:flex;gap:7px;align-items:center;color:#82796d;font-size:11px;line-height:1.55}
+#relatedProductsSection .sh-rating-foot-note::before{content:'✧';font-size:17px;color:#ae8254}
+#relatedProductsSection .sh-rating-foot-actions{display:flex;align-items:center;gap:10px}
+#relatedProductsSection .sh-rating-foot-actions select{min-height:32px;border:1px solid #e8e0d4;background:#fff;color:#65594b;border-radius:7px;padding:5px 7px;font:inherit;font-size:11px;max-width:180px;cursor:pointer}
+#relatedProductsSection .sh-rating-clear{border:1px solid #e6dcd0;background:#faf7f3;color:#796654;font-size:11px;border-radius:7px;padding:8px 9px;cursor:pointer;transition:background .2s}
+#relatedProductsSection .sh-rating-clear:hover{background:#eee5d7}
+#relatedProductsSection #stylehubRatingStatus{display:block;min-height:17px;margin-top:10px;color:#52754e;font-size:11px;line-height:1.45}
+#relatedProductsSection .related-products-grid{gap:22px}
+#relatedProductsSection .related-product-card{border:1px solid #eae8e3;background:#fff;border-radius:13px;overflow:hidden;padding:9px 9px 17px;box-shadow:0 8px 18px rgba(0,0,0,.025);transition:transform .38s cubic-bezier(.22,.65,.22,1),box-shadow .38s,border-color .3s}
+#relatedProductsSection .related-product-card:hover{transform:translateY(-8px);box-shadow:0 18px 36px rgba(0,0,0,.09);border-color:#d9ccbc}
+#relatedProductsSection .related-image-box{border-radius:9px;background:#f3f1ed;margin:0 0 13px}
+#relatedProductsSection .related-image-box::after{content:'↗';position:absolute;right:12px;bottom:12px;width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;background:rgba(255,255,255,.95);color:#222;font-size:21px;z-index:2;opacity:0;transform:translateY(8px);transition:opacity .25s,transform .25s;pointer-events:none}
+#relatedProductsSection .related-product-card:hover .related-image-box::after{opacity:1;transform:translateY(0)}
+#relatedProductsSection .related-brand,#relatedProductsSection .related-name,#relatedProductsSection .related-price{margin-left:7px;margin-right:7px}
+#relatedProductsSection .related-brand{color:#9d7c52;font-weight:600;margin-bottom:8px}
+#relatedProductsSection .related-name{line-height:1.55;font-weight:500;margin-bottom:8px;min-height:41px}
+#relatedProductsSection .related-price{font-weight:600}
+#relatedProductsSection .sh-related-reason{font-size:11px;line-height:1.5;color:#77726d;margin:10px 7px 0;padding-top:9px;border-top:1px solid #f0eee9}
+@media(max-width:768px){
+ #relatedProductsSection.related-products-section{padding:0 15px;margin-bottom:65px}
+ #relatedProductsSection .related-products-header{padding:38px 16px 25px;border-radius:17px;margin-bottom:24px}
+ #relatedProductsSection .related-products-header h2{font-size:clamp(30px,7vw,43px)}
+ #relatedProductsSection .sh-recommend-eyebrow{font-size:9px;letter-spacing:1.8px}
+ #relatedProductsSection .sh-recommend-lede{font-size:12px}
+ #relatedProductsSection .sh-preference-panel{padding:18px 15px 15px;margin-top:23px}
+ #relatedProductsSection .sh-preference-top{gap:10px}
+ #relatedProductsSection .sh-preference-icon{width:36px;height:36px;flex-basis:36px;font-size:19px}
+ #relatedProductsSection .sh-preference-heading{font-size:14px}
+ #relatedProductsSection .sh-preference-subtitle{font-size:11px}
+ #relatedProductsSection .sh-rating-interaction{gap:9px}
+ #relatedProductsSection .sh-star-list{padding:5px 7px;gap:1px}
+ #relatedProductsSection .sh-rating-star{width:34px;height:36px;font-size:29px}
+ #relatedProductsSection .sh-rating-foot{align-items:flex-start;flex-direction:column;gap:10px}
+ #relatedProductsSection .related-products-grid{gap:12px}
+ #relatedProductsSection .related-product-card{padding:6px 6px 12px;border-radius:10px}
+ #relatedProductsSection .related-image-box{border-radius:7px}
+ #relatedProductsSection .related-name{font-size:11px;min-height:34px}
+ #relatedProductsSection .related-price{font-size:11px}
+ #relatedProductsSection .sh-related-reason{font-size:10px}
+}
+@media(prefers-reduced-motion:reduce){#relatedProductsSection .sh-rating-star,#relatedProductsSection .related-product-card{transition:none!important}}

@@ -1,0 +1,180 @@
+/* THE STYLE HUB — HOME EDITION 2026
+   Visual-only enhancements: existing links, cart, accounts and catalog stay intact. */
+:root{--sh-ink:#171714;--sh-champagne:#d4b995;--sh-cream:#f4f0e9;--sh-editorial:'Georgia','Times New Roman',serif}
+html{scroll-behavior:smooth}
+.premium-home{background:#f8f7f4}
+/* Các thành phần trượt ngang không tạo thanh kéo ngang ngoài ý muốn. */
+.premium-home #home-page-view{overflow-x:clip}
+.premium-home .main-header{background:rgba(21,21,21,.92);border-bottom:1px solid rgba(255,255,255,.12);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px)}
+.premium-home .main-header.scrolled{background:rgba(17,17,17,.96);box-shadow:0 12px 40px rgba(0,0,0,.17)}
+.premium-home .nav-left a,.premium-home .nav-right a{transition:color .3s ease,opacity .3s ease}
+.premium-home .nav-left a:hover,.premium-home .nav-right a:hover{color:#e8cdae}
+.premium-home .logo a{letter-spacing:5px}
+/* The cover is real photography with a subtle layered perspective, not a heavy 3D engine. */
+.premium-home .main-hero-banner{height:clamp(650px,92svh,1010px);min-height:600px;isolation:isolate;background:#1b1c1b}
+.premium-home .main-hero-img{display:block;will-change:transform;transform:translate3d(var(--sh-hero-x,0px),var(--sh-hero-y,0px),0) scale(1.085);transition:transform .55s cubic-bezier(.2,.6,.3,1),filter 1s ease;filter:saturate(.84) contrast(1.05);object-position:center 20%}
+.premium-home .main-hero-banner::before{content:"";position:absolute;inset:0;z-index:1;background:linear-gradient(90deg,rgba(5,8,8,.74) 0%,rgba(5,8,8,.34) 45%,rgba(5,8,8,.05) 90%),linear-gradient(0deg,rgba(9,10,10,.68) 0%,transparent 47%);pointer-events:none}
+.premium-home .main-hero-banner::after{background:linear-gradient(180deg,rgba(0,0,0,.13),transparent 25%,transparent 75%,rgba(0,0,0,.25));pointer-events:none}
+/* No oversized headline: let the original hero photo breathe. */
+.premium-home .main-hero-content{left:clamp(26px,7.5vw,120px);bottom:9%;width:min(540px,78%);padding:0;text-align:left;transform:none;z-index:3}
+.premium-home .sh-visually-hidden{position:absolute!important;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
+.premium-home .sh-hero-description{font-size:13px;color:#e9e5dd;line-height:1.9;letter-spacing:.3px;max-width:400px;margin:0 0 32px}
+.premium-home .sh-hero-actions{display:flex;align-items:center;gap:25px;flex-wrap:wrap}
+.premium-home .main-shop-btn{display:inline-flex;align-items:center;justify-content:space-between;gap:27px;background:#f4f0e8;color:#191816;padding:18px 23px 18px 25px;border:1px solid #f4f0e8;font-size:10px;font-weight:700;letter-spacing:2px;min-width:265px;transition:background .3s,transform .3s,box-shadow .3s}
+.premium-home .main-shop-btn:hover{background:#dec5a3;color:#111;transform:translateY(-4px);box-shadow:0 13px 35px rgba(0,0,0,.24)}
+.premium-home .sh-btn-arrow{font-size:21px;line-height:0;font-weight:400;letter-spacing:0}
+.premium-home .sh-hero-secondary{color:#fff;font-size:10px;font-weight:600;letter-spacing:2px;border-bottom:1px solid rgba(255,255,255,.7);padding-bottom:8px;transition:color .2s}
+.premium-home .sh-hero-secondary:hover{color:#dfc5a4}
+.premium-home .sh-scroll-cue{position:absolute;bottom:40px;right:clamp(26px,6.5vw,105px);display:flex;align-items:center;gap:19px;z-index:3;color:#f5eee4;font-size:9px;letter-spacing:3px;font-weight:600}
+.premium-home .sh-scroll-cue span{font-size:25px;line-height:1;animation:shFloat 1.8s ease-in-out infinite}
+@keyframes shFloat{0%,100%{transform:translateY(-3px)}50%{transform:translateY(4px)}}
+/* Shoppable editorial diptychs: keep original anchors completely functional */
+.premium-home .split-hero-container{padding:110px max(30px,5vw) 80px;gap:28px;background:#f8f7f4}
+.premium-home .hero-column{min-width:0;perspective:1200px}
+.premium-home .hero-image-wrapper{position:relative;aspect-ratio:4 / 4.9;margin-bottom:0;overflow:hidden;background:#e8e1d5;transform:rotateX(var(--sh-tilt-x,0deg)) rotateY(var(--sh-tilt-y,0deg));transition:transform .42s cubic-bezier(.18,.72,.25,1),box-shadow .45s ease;will-change:transform}
+.premium-home .hero-image-wrapper::after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,transparent 40%,rgba(0,0,0,.62));pointer-events:none}
+.premium-home .hero-image-wrapper img{transform:scale(1.015);transition:transform .95s cubic-bezier(.2,.7,.2,1),filter .8s;filter:saturate(.86)}
+.premium-home .hero-column:hover .hero-image-wrapper{box-shadow:0 35px 65px rgba(40,34,24,.17)}
+.premium-home .hero-column:hover .hero-image-wrapper img{transform:scale(1.09);filter:saturate(1)}
+.premium-home .sh-category-overlay{position:absolute;z-index:2;left:35px;right:35px;bottom:29px;display:flex;flex-direction:column;align-items:flex-start;gap:13px;pointer-events:none;color:#fff}
+.premium-home .sh-category-number{font-size:10px;letter-spacing:3px;color:#e9d6b7;font-weight:600}
+.premium-home .sh-category-overlay strong{font:400 clamp(35px,4.2vw,75px)/1 var(--sh-editorial);letter-spacing:-1.6px;text-shadow:0 4px 16px rgba(0,0,0,.25)}
+.premium-home .sh-category-overlay small{font-size:10px;letter-spacing:2.6px;color:#eee9e3}
+.premium-home .hero-btn-container{justify-content:flex-start}
+.premium-home .shop-btn{max-width:none;display:flex;align-items:center;justify-content:space-between;padding:23px 28px;background:transparent;border:1px solid #d6d0c8;border-top:none;font-size:11px;font-weight:600;letter-spacing:2.5px;transition:background .3s,color .3s,padding .3s}
+.premium-home .shop-btn::after{content:'↗';font-size:22px;line-height:0;font-weight:400}
+.premium-home .shop-btn:hover{background:#1b1b1a;color:#fff;padding-left:35px}
+/* Midpage divider/editorial display */
+.premium-home .sh-statement{background:#f8f7f4;padding:54px 22px 80px;text-align:center}
+.premium-home .sh-statement .sh-section-kicker{color:#9b7e5f}
+.premium-home .sh-statement h2{font:400 clamp(36px,5vw,72px)/1.16 var(--sh-editorial);letter-spacing:-2px;color:#282724;margin:17px auto 17px;max-width:1000px}
+.premium-home .sh-statement h2 em{color:#a58b6b;font-weight:400}
+.premium-home .sh-statement p:last-child{font-size:13px;color:#77736d;letter-spacing:.3px;line-height:1.8}
+.premium-home .sh-section-kicker{font-size:10px;letter-spacing:4px;font-weight:600;color:#a08463;text-transform:uppercase}
+/* Business casual — match the new editorial system, no changes to gallery links/videos */
+.premium-home .outfit-section-title{margin:20px auto 35px}
+.premium-home .outfit-section-title h3{font:400 clamp(25px,3vw,43px)/1.2 var(--sh-editorial);letter-spacing:2px;border:0;border-bottom:1px solid #ac9170;padding:8px 4px 16px}
+.premium-home .outfit-section-title h3:hover{background:transparent;color:#a08463}
+.premium-home .outfit-section-container{padding:0 max(30px,5vw);gap:17px;margin-bottom:115px}
+.premium-home .outfit-video-left-box{background:#e4dfd7}
+.premium-home .outfit-item-link-card{background:#e7e3dd;transition:transform .25s,box-shadow .25s}
+.premium-home .outfit-item-link-card:hover{transform:translateY(-5px);box-shadow:0 12px 28px rgba(0,0,0,.1)}
+/* Personal product rail. Items are sourced from existing catalog + existing recommender. */
+.premium-home .sh-personal-section{padding:70px 0 90px;margin:0;background:#f2eee7;border:1px solid #eae3d8}
+.premium-home .sh-personal-heading{display:flex;align-items:end;justify-content:space-between;gap:30px;margin:0 auto 34px;max-width:1350px;padding:0 40px}
+.premium-home .sh-personal-heading h2{font:400 clamp(33px,4.4vw,60px)/1.13 var(--sh-editorial);letter-spacing:-1.3px;margin:12px 0 12px}
+.premium-home .sh-personal-heading h2 em{font-weight:400;color:#a08463}
+.premium-home .sh-personal-heading p{font-size:12px;color:#7b766f;line-height:1.7;max-width:520px}
+.premium-home .sh-personal-all{white-space:nowrap;font-size:10px;letter-spacing:2px;font-weight:600;border-bottom:1px solid #2a2927;padding:0 0 8px}
+.premium-home .sh-personal-all:hover{color:#a08463}
+.premium-home .sh-personal-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:22px;max-width:1350px;padding:0 40px;margin:auto}
+.premium-home .sh-pick{min-width:0;color:#1b1a19;display:block;position:relative;transition:transform .45s,filter .45s}
+.premium-home .sh-pick:hover{transform:translateY(-9px)}
+.premium-home .sh-pick-photo{aspect-ratio:3/3.65;background:#e4ded4;overflow:hidden;position:relative}
+.premium-home .sh-pick-photo img{height:100%;width:100%;object-fit:contain;display:block;mix-blend-mode:multiply;transition:transform .75s cubic-bezier(.22,.68,.2,1)}
+.premium-home .sh-pick:hover .sh-pick-photo img{transform:scale(1.065)}
+.premium-home .sh-pick-photo::after{content:'↗';position:absolute;right:16px;bottom:16px;border-radius:50%;background:#fff;width:42px;height:42px;display:flex;align-items:center;justify-content:center;font-size:22px;opacity:0;transform:translateY(10px);transition:opacity .28s,transform .28s}
+.premium-home .sh-pick:hover .sh-pick-photo::after{opacity:1;transform:translateY(0)}
+.premium-home .sh-pick-label{display:inline-block;font-size:9px;letter-spacing:2px;color:#997b5c;margin:17px 0 8px;font-weight:700}
+.premium-home .sh-pick-name{font-size:13px;line-height:1.48;font-weight:500;margin:0 0 7px;min-height:38px;display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:2;overflow:hidden}
+.premium-home .sh-pick-price{font-size:13px;color:#5e5a54}
+/* The shoe hero and rail retain existing product navigation / animations */
+.premium-home main.container{padding-top:85px;background:#f8f7f4}
+.premium-home .shoes-hero{height:clamp(540px,76svh,820px);isolation:isolate}
+.premium-home .shoes-hero img{transition:transform 1.2s;transform:scale(1.03)}
+.premium-home .shoes-hero:hover img{transform:scale(1.075)}
+.premium-home .shoes-hero::after{background:linear-gradient(180deg,rgba(0,0,0,.1),rgba(0,0,0,.53))}
+.premium-home .shoes-hero-content h2{font-family:var(--sh-editorial);font-size:clamp(60px,8vw,110px);letter-spacing:1px;margin-bottom:26px}
+.premium-home .shoes-shop-btn{padding:17px 70px;background:#f5f1e9;color:#111;letter-spacing:3px;border:1px solid #f5f1e9;transition:background .3s,transform .3s}
+.premium-home .shoes-shop-btn:hover{background:#dfc6a4;transform:translateY(-3px)}
+.premium-home .home-shoes-marquee-section{padding-top:90px;background:transparent}
+.premium-home .home-shoes-marquee-heading h3{font:400 clamp(31px,4vw,55px)/1.1 var(--sh-editorial);letter-spacing:1px}
+.premium-home .home-shoes-marquee-heading p{color:#a08463}
+.premium-home .home-shoes-marquee-viewport::before{background:linear-gradient(to right,#f8f7f4,transparent)}
+.premium-home .home-shoes-marquee-viewport::after{background:linear-gradient(to left,#f8f7f4,transparent)}
+.premium-home .home-shoe-marquee-card img{background:#eae7e1}
+.premium-home .home-shoes-marquee-track{animation-duration:52s}
+/* Animate only enhanced sections, without blank content when JS is off. */
+.sh-enhance-ready .sh-reveal{opacity:0;transform:translateY(38px);transition:opacity .82s ease,transform .82s cubic-bezier(.16,.65,.23,1)}
+.sh-enhance-ready .sh-reveal.sh-visible{opacity:1;transform:translateY(0)}
+@media(max-width:1100px){.premium-home .sh-personal-grid{gap:14px}.premium-home .sh-category-overlay strong{font-size:46px}.premium-home .nav-left a,.premium-home .nav-right a{letter-spacing:1.2px}}
+@media(max-width:768px){
+  html{scroll-behavior:auto}
+  .premium-home .main-hero-banner{height:83svh;min-height:620px;max-height:820px}
+  .premium-home .main-hero-img{object-position:60% center}
+  .premium-home .main-hero-banner::before{background:linear-gradient(0deg,rgba(0,0,0,.84),rgba(0,0,0,.12) 90%)}
+  .premium-home .main-hero-content{left:24px;width:calc(100% - 48px);bottom:11%}
+  .premium-home .sh-hero-description{font-size:12px;max-width:310px;margin-bottom:23px;line-height:1.65}
+  .premium-home .sh-hero-actions{gap:15px}
+  .premium-home .main-shop-btn{min-width:0;padding:15px 17px;font-size:9px}
+  .premium-home .sh-hero-secondary{font-size:9px}
+  .premium-home .sh-scroll-cue{display:none}
+  .premium-home .split-hero-container{flex-direction:column;padding:55px 18px 45px;gap:30px}
+  .premium-home .sh-category-overlay{left:21px;bottom:19px}
+  .premium-home .sh-category-overlay strong{font-size:48px}
+  .premium-home .shop-btn{padding:18px 19px}
+  .premium-home .sh-statement{padding:50px 20px 62px}.premium-home .sh-statement h2{letter-spacing:-1px}
+  .premium-home .outfit-section-container{padding:0 17px;margin-bottom:58px}
+  .premium-home .sh-personal-section{padding:52px 0 65px}
+  .premium-home .sh-personal-heading{padding:0 18px;align-items:start;flex-direction:column;gap:16px}
+  .premium-home .sh-personal-grid{grid-template-columns:repeat(2,minmax(0,1fr));padding:0 18px;gap:24px 14px}
+  .premium-home .sh-pick-label{font-size:8px;margin-top:12px}.premium-home .sh-pick-name{font-size:12px}
+  .premium-home main.container{padding:50px 16px}
+  .premium-home .shoes-hero{height:65svh;min-height:435px}
+  .premium-home .shoes-shop-btn{padding:16px 48px}
+  .premium-home .home-shoes-marquee-section{padding-top:48px}
+  .premium-home .home-shoes-marquee-heading{padding-left:0;padding-right:0}
+}
+@media(max-width:420px){.premium-home .sh-hero-description{max-width:275px}.premium-home .sh-hero-secondary{display:none}}
+@media(prefers-reduced-motion:reduce){.premium-home .home-shoes-marquee-track,.premium-home .sh-scroll-cue span{animation:none!important}.premium-home .main-hero-img,.premium-home .hero-image-wrapper,.premium-home .hero-image-wrapper img,.premium-home .shoes-hero img{transition:none!important;transform:none!important}.sh-enhance-ready .sh-reveal{opacity:1!important;transform:none!important;transition:none!important}}
+
+/* === HOME V3: LẬT OUTFIT 3D — chỉ áp dụng khu Được chọn cho bạn === */
+.premium-home .sh-pick-stage{position:relative;min-width:0;isolation:isolate;transition:filter .35s ease}
+.premium-home .sh-pick-stage .sh-pick{display:block;transform:none;transition:transform .45s cubic-bezier(.2,.7,.2,1)}
+.premium-home .sh-pick-stage:hover .sh-pick{transform:translateY(-7px)}
+.premium-home .sh-pick-stage .sh-pick-photo{perspective:1100px;perspective-origin:center;background:#e4ded4;isolation:isolate}
+.premium-home .sh-pick-stage .sh-pick-photo::after{content:none}
+.premium-home .sh-pick-flipper{width:100%;height:100%;position:absolute;inset:0;transform-style:preserve-3d;transform:rotateY(0deg);transition:transform .93s cubic-bezier(.18,.67,.17,1)}
+.premium-home .sh-flip-face{position:absolute;inset:0;backface-visibility:hidden;-webkit-backface-visibility:hidden;overflow:hidden;background:#e4ded4}
+.premium-home .sh-flip-face.sh-flip-back{transform:rotateY(180deg);background:#e8e3dc}
+.premium-home .sh-flip-face img{width:100%;height:100%;object-fit:contain;display:block;mix-blend-mode:multiply;transform:scale(1);transition:transform .8s ease}
+.premium-home .sh-has-flip.sh-flipped .sh-pick-flipper{transform:rotateY(180deg)}
+.premium-home .sh-pick-stage:hover .sh-flip-face img{transform:scale(1.035)}
+.premium-home .sh-pick-flip-hint{position:absolute;z-index:2;left:13px;bottom:13px;pointer-events:none;padding:10px 12px;background:rgba(244,240,233,.94);color:#312c27;font-size:9px;font-weight:700;letter-spacing:1.3px;box-shadow:0 7px 30px rgba(0,0,0,.08);transition:opacity .3s,transform .3s}
+.premium-home .sh-has-flip.sh-flipped .sh-pick-flip-hint{opacity:0;transform:translateY(8px)}
+.premium-home .sh-pick-flip-toggle{position:absolute;z-index:5;left:12px;top:12px;min-height:35px;max-width:calc(100% - 72px);border:1px solid rgba(60,50,40,.1);border-radius:3px;background:rgba(255,255,255,.94);color:#191817;font:700 9px/1.25 Arial,sans-serif;letter-spacing:.8px;padding:9px 10px;cursor:pointer;box-shadow:0 8px 20px rgba(0,0,0,.08);transition:background .25s,color .25s}
+.premium-home .sh-pick-flip-toggle:hover,.premium-home .sh-pick-flip-toggle:focus-visible{background:#1d1c1a;color:#fff;outline:2px solid #c7aa87;outline-offset:2px}
+.premium-home .sh-pick-stage .stylehub-wishlist-btn{z-index:7}
+@media(hover:hover) and (pointer:fine){
+  .premium-home .sh-has-flip:not(.sh-flipped):hover .sh-pick-flipper{transform:rotateY(180deg)}
+  .premium-home .sh-has-flip .sh-pick-flip-toggle{opacity:0;pointer-events:none}
+  .premium-home .sh-has-flip .sh-pick-flip-toggle:focus-visible{opacity:1;pointer-events:auto}
+  .premium-home .sh-has-flip:not(.sh-flipped):hover .sh-pick-flip-hint{opacity:0;transform:translateY(8px)}
+}
+@media(hover:none),(pointer:coarse){
+  .premium-home .sh-pick-flip-hint{display:none}
+  .premium-home .sh-pick-flip-toggle{display:block;top:auto;bottom:105px;left:8px;padding:9px 7px;font-size:8px;max-width:calc(100% - 16px)}
+}
+/* V5: Reveal gắn với vị trí scroll 2 chiều, kích hoạt lại mỗi lần quay vào viewport. */
+.premium-home .sh-scroll-slide{--sh-scroll-progress:1;--sh-slide-offset-x:0px;--sh-slide-offset-y:0px;--sh-slide-scale:1}
+.sh-scroll-ready.premium-home .sh-scroll-slide{
+  opacity:var(--sh-scroll-progress,1);
+  transform:translate3d(var(--sh-slide-offset-x,0px),var(--sh-slide-offset-y,0px),0) scale(var(--sh-slide-scale,1));
+  transition:opacity .12s linear,transform .16s cubic-bezier(.2,.6,.2,1)
+}
+.premium-home .sh-scroll-slide{will-change:auto}
+.premium-home .sh-scroll-slide.sh-slide-near{will-change:transform,opacity}
+.premium-home .sh-personal-grid .sh-scroll-slide{transform-origin:center center}
+.premium-home .sh-scroll-slide .sh-pick{backface-visibility:visible}
+/* Giữ nội dung ổn định khi người dùng cần ít chuyển động. */
+@media(prefers-reduced-motion:reduce){
+ .premium-home .sh-pick-flipper{transition:none!important}
+ .premium-home .sh-scroll-slide{transform:none!important;opacity:1!important;transition:none!important}
+ .premium-home .sh-pick-stage:hover .sh-pick{transform:none}
+}
+@media(max-width:768px){
+ .sh-scroll-ready.premium-home .sh-scroll-slide{transition-duration:.08s,.1s}
+ .premium-home .sh-pick-flip-toggle{bottom:98px}
+ .premium-home .sh-pick-flip-hint{font-size:8px}
+}
+

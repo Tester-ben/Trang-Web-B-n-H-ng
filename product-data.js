@@ -813,12 +813,117 @@ const database = {
         return "mens";
     }
 
+    /* ===== BẢO MẬT: làm sạch sản phẩm do admin thêm =====
+       Sản phẩm admin đến từ localStorage và Firebase (ai cũng ghi được nếu rules mở), nên là dữ liệu
+       KHÔNG tin cậy. Nhiều trang chèn tên/ảnh sản phẩm bằng innerHTML, vì vậy mọi chuỗi được bỏ thẻ HTML,
+       ký tự điều khiển và dấu nháy thẳng; ảnh chỉ nhận http(s), data:image (base64) hoặc đường dẫn tương đối.
+       Ưu tiên dùng StyleHubCrypto (stylehub-crypto.js); file này thường được nạp TRƯỚC module đó nên có
+       bản dự phòng cục bộ cho kết quả giống hệt (kiểm chứng trong tests/security.test.js). */
+    const SAFE_PRODUCT_ID = /^[A-Za-z0-9_-]{1,80}$/;
+    const SAFE_FIELD_NAME = /^[A-Za-z0-9_$-]{1,60}$/;
+    const UNSAFE_KEYS = { "__proto__": true, "constructor": true, "prototype": true };
+    const IMAGE_FIELDS = { mainImg: true, hoverImg: true, image: true, img: true, thumbnail: true, imageUrl: true };
+    const LONG_TEXT_FIELDS = { description: true, details: true, desc: true, content: true, story: true };
+    const RIGHT_DOUBLE_QUOTE = String.fromCharCode(0x201D);
+    const RIGHT_SINGLE_QUOTE = String.fromCharCode(0x2019);
+    const LINE_SEPARATORS = new RegExp("[" + String.fromCharCode(0x2028, 0x2029) + "]", "g");
+    const DATA_IMAGE_PATTERN = /^data:image\/(png|jpe?g|gif|webp|avif|bmp);base64,[a-z0-9+/]+=*$/i;
+
+    function cryptoHelpers() {
+        const lib = typeof window !== "undefined" ? window.StyleHubCrypto : null;
+        return lib && typeof lib.sanitizeText === "function" && typeof lib.safeImageUrl === "function" ? lib : null;
+    }
+
+    function localSanitizeText(value, maxLength) {
+        if (value === undefined || value === null) return "";
+        const limit = Math.max(1, Math.floor(Number(maxLength) || 500));
+        return String(value)
+            .replace(/<\s*(script|style|iframe|object|embed|noscript|template)\b[\s\S]*?<\s*\/\s*\1\s*>/gi, " ")
+            .replace(/<\/?[a-z!?][^>]*>/gi, " ")
+            .replace(/[<>]/g, "")
+            .replace(/"/g, RIGHT_DOUBLE_QUOTE)
+            .replace(/'/g, RIGHT_SINGLE_QUOTE)
+            .replace(/`/g, RIGHT_SINGLE_QUOTE)
+            .replace(/[\x00-\x1F\x7F]/g, " ")
+            .replace(LINE_SEPARATORS, " ")
+            .replace(/\s{2,}/g, " ")
+            .trim()
+            .slice(0, limit);
+    }
+
+    function localSafeImageUrl(value) {
+        const url = String(value === undefined || value === null ? "" : value).trim();
+        if (!url) return "";
+        if (/^data:/i.test(url)) return DATA_IMAGE_PATTERN.test(url) ? url : "";
+        if (/[\x00-\x20\x7F"'<>`\\]/.test(url)) return "";
+        if (/^https?:\/\/[^/?#]+/i.test(url)) return url;
+        if (url.indexOf("//") === 0) return "";
+        if (/^[a-z][a-z0-9+.\-]*:/i.test(url)) return "";
+        return url;
+    }
+
+    function cleanText(value, maxLength) {
+        const lib = cryptoHelpers();
+        return lib ? lib.sanitizeText(value, maxLength) : localSanitizeText(value, maxLength);
+    }
+
+    function cleanImage(value) {
+        const lib = cryptoHelpers();
+        return lib ? lib.safeImageUrl(value) : localSafeImageUrl(value);
+    }
+
+    function sanitizeProductValue(key, value, depth) {
+        if (typeof value === "string") {
+            return IMAGE_FIELDS[key] ? cleanImage(value) : cleanText(value, LONG_TEXT_FIELDS[key] ? 2000 : 300);
+        }
+        if (typeof value === "number") return Number.isFinite(value) ? value : 0;
+        if (typeof value === "boolean") return value;
+        if (Array.isArray(value)) {
+            if (key === "images" || key === "gallery") return value.map(cleanImage).filter(Boolean).slice(0, 12);
+            return value.slice(0, 60).map(function (item) {
+                if (typeof item === "string") return cleanText(item, 300);
+                if (typeof item === "number") return Number.isFinite(item) ? item : undefined;
+                if (typeof item === "boolean") return item;
+                return undefined;
+            }).filter(function (item) { return item !== undefined; });
+        }
+        if (value && typeof value === "object" && depth < 1) {
+            const nested = {};
+            Object.keys(value).slice(0, 60).forEach(function (nestedKey) {
+                if (UNSAFE_KEYS[nestedKey] || !SAFE_FIELD_NAME.test(nestedKey)) return;
+                const cleaned = sanitizeProductValue(nestedKey, value[nestedKey], depth + 1);
+                if (cleaned !== undefined) nested[nestedKey] = cleaned;
+            });
+            return nested;
+        }
+        return undefined;
+    }
+
+    function sanitizeProductRecord(product) {
+        const result = {};
+        if (!product || typeof product !== "object" || Array.isArray(product)) return result;
+        Object.keys(product).forEach(function (key) {
+            if (UNSAFE_KEYS[key] || !SAFE_FIELD_NAME.test(key)) return;
+            const cleaned = sanitizeProductValue(key, product[key], 0);
+            if (cleaned !== undefined) result[key] = cleaned;
+        });
+        return result;
+    }
+
+    function isSafeProductId(id) {
+        return typeof id === "string" && SAFE_PRODUCT_ID.test(id) && !UNSAFE_KEYS[id];
+    }
+
     function applyAdminProductsToDatabase() {
         if (typeof database === "undefined" || !database) return;
 
         const customProducts = readJson(CUSTOM_PRODUCTS_KEY, {});
         Object.keys(customProducts).forEach(function (id) {
-            const product = customProducts[id] || {};
+            if (!isSafeProductId(id)) {
+                console.warn("Bỏ qua sản phẩm admin có mã không hợp lệ:", String(id).slice(0, 80));
+                return;
+            }
+            const product = sanitizeProductRecord(customProducts[id] || {});
             database[id] = Object.assign({}, database[id] || {}, product, {
                 key: id,
                 adminDepartment: product.adminDepartment || product.department || inferDepartment(id, product),
@@ -833,11 +938,11 @@ const database = {
             product.adminDepartment = product.adminDepartment || product.department || inferDepartment(id, product);
             product.department = product.department || product.adminDepartment;
 
-            if (inventory[id]) {
-                const stock = Math.max(0, Number(inventory[id].stock || 0));
+            if (inventory[id] && typeof inventory[id] === "object") {
+                const stock = Math.max(0, Number(inventory[id].stock || 0)) || 0;
                 product.stock = stock;
                 product.outOfStock = !!inventory[id].outOfStock || stock <= 0;
-                product.adminStockUpdatedAt = inventory[id].updatedAt || null;
+                product.adminStockUpdatedAt = Number(inventory[id].updatedAt) || null;
             } else if (product.stock === undefined) {
                 product.stock = 20;
                 product.outOfStock = false;
@@ -864,6 +969,8 @@ const database = {
         inventoryKey: INVENTORY_KEY,
         applyAdminProductsToDatabase: applyAdminProductsToDatabase,
         getAdminStockInfo: getAdminStockInfo,
-        inferDepartment: inferDepartment
+        inferDepartment: inferDepartment,
+        sanitizeProductRecord: sanitizeProductRecord,
+        isSafeProductId: isSafeProductId
     };
 })();

@@ -1,3 +1,5 @@
+> **Tài liệu của phiên bản cũ (v1)** — thuật toán và cách chạy đã được thay bằng Hybrid v2. Xem `README.md` và `docs/BAO_CAO_NANG_CAP.md`.
+
 # Bổ sung hệ gợi ý sản phẩm thời trang
 
 ## Phạm vi thay đổi

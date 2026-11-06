@@ -1,3 +1,5 @@
+> **Tài liệu của phiên bản cũ (v1)** — thuật toán và cách chạy đã được thay bằng Hybrid v2. Xem `README.md` và `docs/BAO_CAO_NANG_CAP.md`.
+
 # THE STYLE HUB — Kết quả kiểm tra chatbot và đề xuất sáng tạo cho đề tài 3
 
 **Phạm vi:** Bản web THE_STYLE_HUB_THANH_HIEU_UNG_MOI_SCROLL_2_CHIEU, sau khi xóa hoàn toàn dải Style Journal/Style Notes ở trang chủ. Báo cáo dựa trên kiểm tra mã nguồn và bài thử logic JavaScript độc lập trong Node.js. **Chưa xác minh** dịch vụ Firebase thực tế, gửi/nhận tin từ admin và các thao tác trực quan ở trình duyệt (môi trường thử chặn việc mở trang). Không thực hiện đơn hàng thật.

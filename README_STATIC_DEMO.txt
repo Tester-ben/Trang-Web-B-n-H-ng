@@ -1,23 +1,23 @@
-THE STYLE HUB - STATIC DEMO VERSION
-===================================
+THE STYLE HUB - GHI CHÚ CHẾ ĐỘ TĨNH (cập nhật cho v2)
+=====================================================
 
-Bản này đã được chỉnh theo yêu cầu “web tĩnh”.
+Tài liệu chính: README.md (cách chạy, kiến trúc, thuật toán, kịch bản demo).
 
-Các phần đã chuyển về tĩnh:
-1. Removed Firebase scripts from all HTML pages.
-2. Removed EmailJS sending from checkout/product detail.
-3. stylehub-orders-api.js is now a no-backend static mock API.
-4. Customer checkout shows success UI and saves the order only inside the customer's local Account demo history.
-5. Customer demo orders are stored under stylehub_customer_demo_orders, not hub_orders/Firebase/backend.
-6. Admin dashboard uses demo/sample orders and demo/sample support messages only.
-7. Customer orders/messages will NOT jump to Admin.
-8. Old dynamic order storage keys are cleared by the static order API to avoid leaking dynamic data from previous versions.
+Website có 2 chế độ:
 
-Admin demo password:
-admin123
+1. Chế độ máy chủ (khuyến nghị để demo):  npm start  -> http://localhost:3000
+   - Hệ gợi ý Hybrid v2 trên dữ liệu tập trung của mọi người dùng (Collaborative Filtering đa thiết bị).
+   - Đánh giá sau mua được xác minh qua đơn hàng; quản trị đăng nhập bằng tài khoản role admin
+     (tạo bằng: npm run create-admin -- email@vi-du.com MatKhauManh123).
 
-Notes:
-- Cart, search, filters, product detail, AI stylist suggestions and UI interactions remain available because they are front-end JavaScript interactions.
-- Account > Orders History can show the customer's own demo checkout order on the same browser.
-- Admin actions such as Confirm, Complete, Delete still work on the sample data during the current browser session only, for presentation/demo purposes.
-- No backend/API/database/email service is required.
+2. Chế độ tĩnh (Live Server / mở file HTML):
+   - Mọi tính năng gợi ý vẫn chạy bằng recommender/engine.js trong trình duyệt, dữ liệu ở localStorage.
+   - Collaborative Filtering chỉ dùng được giữa các tài khoản trên CÙNG trình duyệt.
+   - Mật khẩu admin demo: admin123 (chỉ để trình diễn; mã nguồn chỉ lưu bản băm PBKDF2,
+     kiểm tra phía trình duyệt KHÔNG phải bảo mật thật).
+
+Lưu ý đính chính bản ghi chú cũ:
+- Các trang VẪN nạp Firebase (stylehub-orders-api.js) để đồng bộ đơn hàng, tồn kho, sản phẩm admin
+  và tin nhắn hỗ trợ khi có mạng; khi không kết nối được thì dùng localStorage.
+- Đơn của khách chỉ được truy vấn theo email của chính khách (không tải đơn của người khác).
+- Mật khẩu tài khoản khách không còn lưu dạng chữ (băm PBKDF2-SHA256, tự chuyển đổi tài khoản cũ).

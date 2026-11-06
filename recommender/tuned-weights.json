@@ -1,0 +1,21 @@
+{
+  "_ghi_chu": "Trọng số hybrid (ngữ cảnh trang chủ) tinh chỉnh bằng grid search trên tập validation mô phỏng; trung bình 3 seed. Sinh bởi npm run evaluate.",
+  "generatedAt": "2026-11-06T05:29:27.174Z",
+  "home": {
+    "session": 0,
+    "cb": 0.07,
+    "ucf": 0.45,
+    "icf": 0.07,
+    "mf": 0.28,
+    "pop": 0.13
+  },
+  "cold": {
+    "session": 0,
+    "cb": 0.08,
+    "ucf": 0.48,
+    "icf": 0.1,
+    "mf": 0.13,
+    "pop": 0.2
+  },
+  "mmrLambda": 0.8
+}

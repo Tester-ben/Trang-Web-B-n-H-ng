@@ -3,7 +3,9 @@
    Sửa 2 lỗi:
    1) Không còn tên demo/owner hiện trên máy người khác.
    2) Không cho đăng nhập bằng email chưa đăng ký hoặc sai mật khẩu.
-   Lưu ý: Đây là auth demo bằng localStorage cho project tĩnh. Production nên dùng Firebase Auth. */
+   3) Mật khẩu được băm PBKDF2-HMAC-SHA256 + salt (stylehub-crypto.js phải được nạp TRƯỚC file này),
+      tài khoản cũ lưu mật khẩu dạng chữ được tự động nâng cấp.
+   Lưu ý: Đây là auth demo bằng localStorage cho project tĩnh. Production nên dùng backend (server/) hoặc Firebase Auth. */
 (function () {
     const ACCOUNTS_KEY = "stylehub_accounts_v1";
     const SESSION_FLAG = "isLoggedInStatus";
@@ -79,10 +81,41 @@
         }
     }
 
+    /* BẢO MẬT: không bao giờ lưu mật khẩu dạng chữ.
+       - Tài khoản mới lưu passwordHash (PBKDF2-HMAC-SHA256 + salt ngẫu nhiên, xem stylehub-crypto.js).
+       - Tài khoản cũ còn trường "password" được băm lại ngay khi trang tải (migratePlaintextPasswords)
+         hoặc khi đăng nhập, sau đó xóa mật khẩu gốc. */
+    function cryptoLib() {
+        const lib = typeof window !== "undefined" ? window.StyleHubCrypto : null;
+        return lib && typeof lib.hashPassword === "function" && typeof lib.verifyPassword === "function" ? lib : null;
+    }
+
+    const CRYPTO_MISSING_MESSAGE = "Không tải được mô-đun bảo mật (stylehub-crypto.js). Vui lòng tải lại trang.";
+
+    function toPublicAccount(account) {
+        if (!account || typeof account !== "object") return account;
+        const copy = Object.assign({}, account);
+        delete copy.password;
+        delete copy.passwordHash;
+        return copy;
+    }
+
+    function migratePlaintextPasswords() {
+        const lib = cryptoLib();
+        if (!lib) return;
+        try {
+            const result = lib.migrateAccounts(readAccounts());
+            if (result.changed) writeAccounts(result.accounts);
+        } catch (error) {
+            console.warn("Không thể nâng cấp mật khẩu cũ:", error);
+        }
+    }
+
     function migrateOldSingleAccount() {
         let oldUser = {};
         try { oldUser = JSON.parse(localStorage.getItem("hub_userData") || "{}"); }
         catch (error) { oldUser = {}; }
+        if (!oldUser || typeof oldUser !== "object") return;
 
         const email = normalizeEmail(oldUser.email);
         const password = String(oldUser.password || "");
@@ -90,21 +123,30 @@
         const lastName = String(oldUser.lastName || "").trim();
         const name = String(oldUser.name || [lastName, firstName].filter(Boolean).join(" ") || email.split("@")[0] || "").trim();
 
-        if (!email || !password || isDemoIdentity(email, name)) return;
+        if (!password) return;
+        const lib = cryptoLib();
+        // Chưa có mô-đun băm thì giữ nguyên để không làm mất tài khoản cũ; lần tải sau sẽ nâng cấp.
+        if (!lib) return;
 
-        const accounts = readAccounts();
-        if (!accounts[email]) {
-            accounts[email] = {
-                email,
-                password,
-                firstName,
-                lastName,
-                name,
-                createdAt: Date.now(),
-                migratedFrom: "hub_userData"
-            };
-            writeAccounts(accounts);
+        if (email && !isDemoIdentity(email, name)) {
+            const accounts = readAccounts();
+            if (!accounts[email]) {
+                accounts[email] = {
+                    email,
+                    passwordHash: lib.hashPassword(password),
+                    firstName,
+                    lastName,
+                    name,
+                    createdAt: Date.now(),
+                    migratedFrom: "hub_userData"
+                };
+                writeAccounts(accounts);
+            }
         }
+
+        // Xóa mật khẩu gốc khỏi hub_userData (chỉ giữ thông tin hiển thị).
+        delete oldUser.password;
+        try { localStorage.setItem("hub_userData", JSON.stringify(oldUser)); } catch (error) {}
     }
 
     function setSession(account) {
@@ -133,16 +175,27 @@
         if (password.length < 6) return { ok: false, message: "Mật khẩu phải có ít nhất 6 ký tự." };
         if (!name) return { ok: false, message: "Vui lòng nhập tên tài khoản." };
 
+        const lib = cryptoLib();
+        if (!lib) return { ok: false, message: CRYPTO_MISSING_MESSAGE };
+
         const accounts = readAccounts();
         if (accounts[email]) {
             return { ok: false, message: "Email này đã được đăng ký. Vui lòng đăng nhập hoặc dùng email khác." };
         }
 
-        const account = { email, password, firstName, lastName, name, createdAt: Date.now() };
+        let passwordHash = "";
+        try {
+            passwordHash = lib.hashPassword(password);
+        } catch (error) {
+            return { ok: false, message: "Không thể bảo vệ mật khẩu trên trình duyệt này. Vui lòng thử trình duyệt khác." };
+        }
+
+        const account = { email, passwordHash, firstName, lastName, name, createdAt: Date.now() };
         accounts[email] = account;
         writeAccounts(accounts);
-        localStorage.setItem("hub_userData", JSON.stringify({ firstName, lastName, email, password, name }));
-        return { ok: true, message: "Đăng ký thành công! Hãy đăng nhập thông tin.", user: account };
+        // hub_userData chỉ giữ thông tin hiển thị, không chứa mật khẩu.
+        localStorage.setItem("hub_userData", JSON.stringify({ firstName, lastName, email, name }));
+        return { ok: true, message: "Đăng ký thành công! Hãy đăng nhập thông tin.", user: toPublicAccount(account) };
     }
 
     function login(email, password) {
@@ -156,10 +209,20 @@
 
         if (!isValidEmail(cleanEmail)) return { ok: false, message: "Email không hợp lệ." };
         if (!account) return { ok: false, message: "Tài khoản này chưa được đăng ký. Vui lòng tạo tài khoản trước." };
-        if (String(account.password || "") !== cleanPassword) return { ok: false, message: "Mật khẩu không đúng. Vui lòng kiểm tra lại." };
 
-        setSession(account);
-        return { ok: true, message: "Đăng nhập thành công!", user: account };
+        const lib = cryptoLib();
+        if (!lib) return { ok: false, message: CRYPTO_MISSING_MESSAGE };
+
+        const check = lib.checkAccountPassword(account, cleanPassword);
+        if (!check.ok) return { ok: false, message: "Mật khẩu không đúng. Vui lòng kiểm tra lại." };
+        if (check.upgraded) {
+            // Tài khoản cũ còn mật khẩu dạng chữ: thay bằng bản băm rồi xóa mật khẩu gốc.
+            accounts[cleanEmail] = check.account;
+            writeAccounts(accounts);
+        }
+
+        setSession(check.account);
+        return { ok: true, message: "Đăng nhập thành công!", user: toPublicAccount(check.account) };
     }
 
     function getCurrentUser() {
@@ -178,7 +241,7 @@
             clearSessionOnly();
             return null;
         }
-        return account;
+        return toPublicAccount(account);
     }
 
     function signOut() {
@@ -203,6 +266,15 @@
 
     purgeDemoIdentity();
     migrateOldSingleAccount();
+    migratePlaintextPasswords();
+
+    // Bản công khai: không trả passwordHash ra ngoài module.
+    function readPublicAccounts() {
+        const accounts = readAccounts();
+        const result = {};
+        Object.keys(accounts).forEach(function (email) { result[email] = toPublicAccount(accounts[email]); });
+        return result;
+    }
 
     window.StyleHubAuth = {
         register,
@@ -210,7 +282,7 @@
         signOut,
         getCurrentUser,
         syncHeader,
-        readAccounts,
+        readAccounts: readPublicAccounts,
         normalizeEmail
     };
 })();
@@ -1866,7 +1938,8 @@ function initStyleHubBlackFooterFinal() {
         html body footer.site-footer,
         html body .footer,
         html body footer,
-        html body [class*="footer"] {
+        html body footer [class*="footer"],
+        html body .site-footer [class*="footer"] {
             background: #050505 !important;
             background-color: #050505 !important;
             background-image: none !important;
@@ -1876,8 +1949,10 @@ function initStyleHubBlackFooterFinal() {
         html body .site-footer::after,
         html body footer::before,
         html body footer::after,
-        html body [class*="footer"]::before,
-        html body [class*="footer"]::after {
+        html body footer [class*="footer"]::before,
+        html body footer [class*="footer"]::after,
+        html body .site-footer [class*="footer"]::before,
+        html body .site-footer [class*="footer"]::after {
             background: #050505 !important;
             background-color: #050505 !important;
             background-image: none !important;

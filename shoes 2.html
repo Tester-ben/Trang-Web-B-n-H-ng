@@ -1,0 +1,934 @@
+<!DOCTYPE html>
+
+<html lang="vi">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>The Style Hub - Mens Collection</title>
+<link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&amp;display=swap" rel="stylesheet"/>
+<link href="style.css" rel="stylesheet"/>
+<style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { font-family: 'Roboto', sans-serif; background-color: #ffffff; color: #111111; overflow-x: hidden; }
+        
+        .main-header { position: fixed; top: 0; left: 0; width: 100%; height: 57px; background-color: #000000; color: #ffffff; z-index: 1000; }
+        .nav-container { max-width: 1440px; margin: 0 auto; height: 100%; display: flex; justify-content: space-between; align-items: center; padding: 0 40px; }
+        .nav-left, .nav-right { display: flex; gap: 16px; align-items: center; }
+        .logo { font-size: 16px; font-weight: 700; letter-spacing: 4px; text-align: center; }
+        .nav-container a { color: #ffffff; text-decoration: none; font-size: 11px; letter-spacing: 1.5px; text-transform: uppercase; cursor: pointer; }
+
+        /* FIX LỖI KHOẢNG CÁCH GIAO DIỆN PHÍA TRÊN */
+        .sub-filter-bar { margin-top: 57px; padding: 20px 40px 15px 40px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #f2f2f2; background-color: #ffffff; }
+        .filter-left-group { display: flex; gap: 15px; }
+        .filter-tag { font-size: 11px; letter-spacing: 1px; text-transform: uppercase; font-weight: 500; cursor: pointer; color: #777; transition: color 0.2s; }
+        .filter-tag.active, .filter-tag:hover { color: #111; }
+        .filter-right-sort { font-size: 11px; letter-spacing: 1px; text-transform: uppercase; font-weight: 500; color: #111; }
+
+        .product-gallery-container { max-width: 1440px; margin: 0 auto; padding: 40px; }
+        .mens-product-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 40px 24px; }
+        
+        .mens-card { display: flex; flex-direction: column; text-decoration: none; color: inherit; }
+        .mens-thumb-box { width: 100%; aspect-ratio: 3 / 4; overflow: hidden; background-color: #f7f7f7; margin-bottom: 15px; position: relative; }
+        
+        .mens-thumb-box img { width: 100%; height: 100%; object-fit: cover; object-position: center top; position: absolute; top: 0; left: 0; transition: opacity 0.4s ease, transform 0.4s ease; }
+        .img-back { opacity: 0; }
+        
+        .mens-card:hover .img-front { opacity: 0; }
+        .mens-card:hover .img-back { opacity: 1; transform: scale(1.01); }
+
+        .mens-details { text-align: left; }
+        .tag-brand { font-size: 10px; letter-spacing: 1.5px; color: #777; text-transform: uppercase; margin-bottom: 4px; }
+        .item-name { font-size: 13px; color: #111; margin-bottom: 4px; font-weight: 400; line-height: 1.4; }
+        .item-price { font-size: 12px; color: #111; font-weight: 500; }
+
+        .hide-item { display: none !important; }
+
+        /* ==================== TOAST NOTIFICATION LUXURY ==================== */
+        .toast-notification { position: fixed; bottom: -100px; left: 50%; transform: translateX(-50%); background-color: #111111; color: #ffffff; padding: 14px 30px; font-size: 12px; letter-spacing: 1px; text-transform: uppercase; z-index: 3000; box-shadow: 0 5px 15px rgba(0,0,0,0.15); transition: bottom 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); pointer-events: none; }
+        .toast-notification.show { bottom: 40px; }
+        #fwCanvas { position: fixed; top: 0; left: 0; width: 100%; height: 100vh; pointer-events: none; z-index: 9999; display: none; }
+    </style>
+
+
+
+
+
+<style>
+/* ===== FOOTER CATEGORY ALIGN FIX ===== */
+@media (min-width: 769px) {
+    .site-footer .footer-categories {
+        transform: translateX(34px) !important;
+    }
+}
+
+@media (max-width: 768px) {
+    .site-footer .footer-categories {
+        transform: none !important;
+        margin-left: 0 !important;
+    }
+}
+/* ===== END FOOTER CATEGORY ALIGN FIX ===== */
+</style>
+
+
+
+
+<style>
+/* ===== FOOTER SOCIAL 3 ICONS LEFT ALIGN FINAL ===== */
+.site-footer .social-links,
+.site-footer .footer-social-links {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: flex-start !important;
+    gap: 24px !important;
+    margin-top: 26px !important;
+    margin-left: 0 !important;
+    padding-left: 0 !important;
+    flex-wrap: nowrap !important;
+    width: 100% !important;
+    max-width: 260px !important;
+}
+
+.site-footer .footer-social-icon {
+    width: 42px !important;
+    height: 42px !important;
+    min-width: 42px !important;
+    max-width: 42px !important;
+    min-height: 42px !important;
+    max-height: 42px !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    border: none !important;
+    outline: none !important;
+    border-radius: 0 !important;
+    background: transparent !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    text-decoration: none !important;
+    overflow: visible !important;
+    box-shadow: none !important;
+    line-height: 1 !important;
+    transition: transform 0.25s ease, opacity 0.25s ease !important;
+}
+
+.site-footer .footer-social-icon:hover {
+    transform: translateY(-2px) scale(1.08) !important;
+    opacity: 0.9 !important;
+}
+
+.site-footer .footer-social-icon img {
+    width: 38px !important;
+    height: 38px !important;
+    max-width: 38px !important;
+    max-height: 38px !important;
+    display: block !important;
+    object-fit: contain !important;
+    object-position: center !important;
+    border: 0 !important;
+    outline: none !important;
+    border-radius: 0 !important;
+    background: transparent !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    box-shadow: none !important;
+}
+
+@media (max-width: 768px) {
+    .site-footer .social-links,
+    .site-footer .footer-social-links {
+        justify-content: flex-start !important;
+        gap: 22px !important;
+        max-width: 230px !important;
+        margin-left: 0 !important;
+        padding-left: 0 !important;
+    }
+
+    .site-footer .footer-social-icon {
+        width: 38px !important;
+        height: 38px !important;
+        min-width: 38px !important;
+        max-width: 38px !important;
+        min-height: 38px !important;
+        max-height: 38px !important;
+    }
+
+    .site-footer .footer-social-icon img {
+        width: 34px !important;
+        height: 34px !important;
+        max-width: 34px !important;
+        max-height: 34px !important;
+    }
+}
+/* ===== END FOOTER SOCIAL 3 ICONS LEFT ALIGN FINAL ===== */
+</style>
+
+</head>
+<body>
+
+<div class="search-overlay" id="searchBox">
+    <div class="search-panel">
+        <button class="search-close-btn" onclick="closeSearchBox()">×</button>
+        <input class="search-input" id="searchInput" onkeyup="searchProducts()" placeholder="SEARCH FOR PRODUCTS..." type="text">
+        <div class="search-results" id="searchResults"></div>
+    </div>
+</div>
+
+<canvas id="fwCanvas"></canvas>
+<div class="toast-notification" id="toastMessage">Đăng nhập thành công!</div>
+<header class="main-header">
+<div class="nav-container">
+<div class="nav-left">
+<div class="menu-item-has-mega">
+<a class="nav-link-featured" href="index.html">FEATURED</a>
+<div class="mega-menu-dropdown">
+<div class="mega-menu-container">
+<div class="mega-links-col">
+<a href="collections.html">NEW ARRIVALS</a>
+<a href="mens.html">MLB SPRING 2026</a>
+<a href="womens.html">COLLECTION NINE WOMENSWEAR</a>
+<a href="mens.html">ESSENTIALS CLASSIC STYLES</a>
+<a href="mens.html">ATHLETICS &amp; TEAM APPAREL</a>
+<a href="mens.html">ESSENTIALS</a>
+<a href="mens.html">FEAR OF GOD</a>
+<a href="sale.html">SALE</a>
+
+<a href="exchange-warranty-policy.html">CHÍNH SÁCH ĐỔI HÀNG & BẢO HÀNH</a>
+<a href="privacy-policy.html">CHÍNH SÁCH BẢO MẬT</a>
+<a href="shipping-policy.html">CHÍNH SÁCH GIAO HÀNG</a></div>
+<div class="mega-images-col">
+<a class="mega-img-card" href="womens.html">
+<img alt="Collection Nine Womenswear" src="https://fearofgod.com/cdn/shop/files/LOOK_36_26241979-d8f6-4a59-81bf-798c81a576b9.jpg?v=1758565392&amp;width=1200"/>
+<span>COLLECTION NINE WOMENSWEAR</span>
+</a>
+<a class="mega-img-card" href="mens.html">
+<img alt="Collection Nine Menswear" src="https://fearofgod.com/cdn/shop/files/LOOK_29.png?v=1774904924&amp;width=1200"/>
+<span>COLLECTION NINE MENSWEAR</span>
+</a>
+</div>
+</div>
+</div>
+</div>
+<div class="menu-item-has-dropdown">
+<a class="" href="mens.html">MENS</a>
+<div class="nav-dropdown">
+<a href="mens.html">ALL PRODUCTS</a>
+<a href="mens.html?cat=tops">TOPS</a>
+<a href="mens.html?cat=hoodies">HOODIES</a>
+<a href="mens.html?cat=dress-shirt">DRESS SHIRT</a>
+<a href="mens.html?cat=bottoms">BOTTOMS</a>
+</div>
+</div>
+<div class="menu-item-has-dropdown">
+<a class="" href="womens.html">WOMENS</a>
+<div class="nav-dropdown">
+<a href="womens.html">ALL PRODUCTS</a>
+<a href="womens.html?cat=tops">TOPS</a>
+<a href="womens.html?cat=jackets">JACKETS &amp; OUTERWEAR</a>
+<a href="womens.html?cat=bottoms">BOTTOMS</a>
+</div>
+</div>
+<div class="menu-item-has-dropdown">
+<a class="" href="kids.html">KIDS</a>
+<div class="nav-dropdown">
+<a href="kids.html">ALL KIDS</a>
+<a href="kids.html?cat=tops">TOPS</a>
+<a href="kids.html?cat=jackets">JACKETS &amp; OUTERWEAR</a>
+<a href="kids.html?cat=bottoms">BOTTOMS</a>
+</div>
+</div>
+<div class="menu-item-has-dropdown">
+<a class="" href="sale.html">SALE</a>
+<div class="nav-dropdown">
+<a href="sale.html">ALL SALE ITEMS</a>
+<a href="sale.html?cat=tops">TOPS</a>
+<a href="sale.html?cat=jackets">JACKETS &amp; OUTERWEAR</a>
+</div>
+</div>
+<div class="menu-item-has-dropdown">
+    <a class="active" href="shoes.html">SHOES</a>
+<div class="nav-dropdown">
+<a href="shoes.html">ALL SHOES</a>
+</div>
+</div>
+</div>
+<div class="logo"><a href="index.html">THE STYLE HUB</a></div>
+<div class="nav-right">
+<a href="#" id="search-trigger">SEARCH</a>
+<a href="#" id="account-trigger">ACCOUNT</a>
+<a href="admin.html" target="_blank" rel="noopener" class="admin-nav-link">ADMIN</a>
+<a href="#" id="bag-trigger">BAG (<span id="cart-count">0</span>)</a>
+</div>
+</div>
+</header>
+<div class="sub-filter-bar">
+<div class="filter-left-group">
+<span class="filter-tag active">All Shoes</span>
+</div>
+<div class="filter-right-sort" data-stylehub-notification-bell></div>
+</div>
+<div class="product-gallery-container">
+<div class="mens-product-grid">
+<a class="product-card" data-product-id="shoe-1" href="product-detail.html?id=shoe-1">
+<div class="product-thumb hover-img">
+<img class="img-main" src="https://fearofgod.com/cdn/shop/files/NRA08_ATHLETICS_III_BASKETBALL-CINDERWARM_VANILLA_1_900x.jpg?v=1773344807"/>
+<img class="img-hover" src="https://fearofgod.com/cdn/shop/files/NRA08_ATHLETICS_III_BASKETBALL-CINDERWARM_VANILLA_2_900x.jpg?v=1773344807"/>
+</div>
+<div class="product-info">
+<p class="brand">ATHLETICS</p>
+<p class="name">Athletics III Basketball - Cinder Warm Vanilla</p>
+<p class="price">6.100.000 ₫</p>
+</div>
+</a>
+<a class="product-card" data-product-id="shoe-2" href="product-detail.html?id=shoe-2">
+<div class="product-thumb hover-img">
+<img class="img-main" src="https://fearofgod.com/cdn/shop/files/KJ5967_ATHLETICS_III_BASKETBALL-WONDER_ALUMINA_1_900x.jpg?v=1777386827"/>
+<img class="img-hover" src="https://fearofgod.com/cdn/shop/files/KJ5967_ATHLETICS_III_BASKETBALL-WONDER_ALUMINA_2_900x.jpg?v=1777386827"/>
+</div>
+<div class="product-info">
+<p class="brand">ATHLETICS</p>
+<p class="name">Athletics III Basketball - Wonder Alumina</p>
+<p class="price">6.100.000 ₫</p>
+</div>
+</a>
+<a class="product-card" data-product-id="shoe-3" href="product-detail.html?id=shoe-3">
+<div class="product-thumb hover-img">
+<img class="img-main" src="https://fearofgod.com/cdn/shop/files/ATHLETICS_II_BASKETBALL-CARBON_METGRY_1_900x.jpg?v=1764625443"/>
+<img class="img-hover" src="https://fearofgod.com/cdn/shop/files/ATHLETICS_II_BASKETBALL-CARBON_METGRY_3_900x.jpg?v=1764625443"/>
+</div>
+<div class="product-info">
+<p class="brand">ATHLETICS</p>
+<p class="name">Athletics II Basketball - Carbon Met Grey</p>
+<p class="price">5.900.000 ₫</p>
+</div>
+</a>
+<a class="product-card" data-product-id="shoe-4" href="product-detail.html?id=shoe-4">
+<div class="product-thumb hover-img">
+<img class="img-main" src="https://fearofgod.com/cdn/shop/files/ATHLETICS_II_BASKETBALL_HI-CARBON_METGRY_1_900x.jpg?v=1764623956"/>
+<img class="img-hover" src="https://fearofgod.com/cdn/shop/files/ATHLETICS_II_BASKETBALL_HI-CARBON_METGRY_2_900x.jpg?v=1764623956"/>
+</div>
+<div class="product-info">
+<p class="brand">ATHLETICS</p>
+<p class="name">Athletics II Basketball Hi - Carbon Met Grey</p>
+<p class="price">6.300.000 ₫</p>
+</div>
+</a>
+<a class="product-card" data-product-id="shoe-5" href="product-detail.html?id=shoe-5">
+<div class="product-thumb hover-img">
+<img class="img-main" src="https://fearofgod.com/cdn/shop/files/FG980-8109NUB_101_LIGHT_GREY_1_900x.jpg?v=1772082765"/>
+<img class="img-hover" src="https://fearofgod.com/cdn/shop/files/FG980-8109NUB_101_LIGHT_GREY_2_900x.jpg?v=1772082764"/>
+</div>
+<div class="product-info">
+<p class="brand">FEAR OF GOD</p>
+<p class="name">Aerobic Sneaker - Light Grey</p>
+<p class="price">7.200.000 ₫</p>
+</div>
+</a>
+<a class="product-card" data-product-id="shoe-6" href="product-detail.html?id=shoe-6">
+<div class="product-thumb hover-img">
+<img class="img-main" src="https://fearofgod.com/cdn/shop/files/FG980-101NUB_AEROBIC_LOW-LIGHT_GREY_1_900x.jpg?v=1772082697"/>
+<img class="img-hover" src="https://fearofgod.com/cdn/shop/files/FG980-101NUB_AEROBIC_LOW-LIGHT_GREY_2_900x.jpg?v=1772082696"/>
+</div>
+<div class="product-info">
+<p class="brand">FEAR OF GOD</p>
+<p class="name">Aerobic Low - Light Grey</p>
+<p class="price">6.900.000 ₫</p>
+</div>
+</a>
+<a class="product-card" data-product-id="shoe-7" href="product-detail.html?id=shoe-7">
+<div class="product-thumb hover-img">
+<img class="img-main" src="https://fearofgod.com/cdn/shop/files/FG980-101NUB_AEROBIC_LOW-DUST_BLUSH_1_900x.jpg?v=1772082669"/>
+<img class="img-hover" src="https://fearofgod.com/cdn/shop/files/FG980-101NUB_AEROBIC_LOW-DUST_BLUSH_2_900x.jpg?v=1772082670"/>
+</div>
+<div class="product-info">
+<p class="brand">FEAR OF GOD</p>
+<p class="name">Aerobic Low - Dust Blush</p>
+<p class="price">6.900.000 ₫</p>
+</div>
+</a>
+<a class="product-card" data-product-id="shoe-8" href="product-detail.html?id=shoe-8">
+<div class="product-thumb hover-img">
+<img class="img-main" src="https://fearofgod.com/cdn/shop/files/FG980-207CLP_SLIPPERS-BOTTLE_GREEN_1_900x.jpg?v=1773415561"/>
+<img class="img-hover" src="https://fearofgod.com/cdn/shop/files/FG980-207CLP_SLIPPERS-BOTTLE_GREEN_2_900x.jpg?v=1773415560"/>
+</div>
+<div class="product-info">
+<p class="brand">FEAR OF GOD</p>
+<p class="name">Slippers - Bottle Green</p>
+<p class="price">4.900.000 ₫</p>
+</div>
+</a>
+<a class="product-card" data-product-id="shoe-9" href="product-detail.html?id=shoe-9">
+<div class="product-thumb hover-img">
+<img class="img-main" src="https://fearofgod.com/cdn/shop/files/FG980-207CLP_SLIPPERS-MIDNIGHT_BLUE_1_900x.jpg?v=1773415929"/>
+<img class="img-hover" src="https://fearofgod.com/cdn/shop/files/FG980-207CLP_SLIPPERS-MIDNIGHT_BLUE_2_900x.jpg?v=1773415929"/>
+</div>
+<div class="product-info">
+<p class="brand">FEAR OF GOD</p>
+<p class="name">Slippers - Midnight Blue</p>
+<p class="price">4.900.000 ₫</p>
+</div>
+</a>
+<a class="product-card" data-product-id="shoe-10" href="product-detail.html?id=shoe-10">
+<div class="product-thumb hover-img">
+<img class="img-main" src="https://fearofgod.com/cdn/shop/files/FG980-210NAPP_BALLERINO-BLACK_1_900x.jpg?v=1773416071"/>
+<img class="img-hover" src="https://fearofgod.com/cdn/shop/files/FG980-210NAPP_BALLERINO-BLACK_2_900x.jpg?v=1773416071"/>
+</div>
+<div class="product-info">
+<p class="brand">FEAR OF GOD</p>
+<p class="name">Ballerino - Black</p>
+<p class="price">5.600.000 ₫</p>
+</div>
+</a>
+<a class="product-card" data-product-id="shoe-11" href="product-detail.html?id=shoe-11">
+<div class="product-thumb hover-img">
+<img class="img-main" src="https://fearofgod.com/cdn/shop/files/FG981-9000CLP_ANKLE_BOOT-MIDNIGHT_BLUE_1_900x.jpg?v=1778520700"/>
+<img class="img-hover" src="https://fearofgod.com/cdn/shop/files/FG981-9000CLP_ANKLE_BOOT-MIDNIGHT_BLUE_2_900x.jpg?v=1778520700"/>
+</div>
+<div class="product-info">
+<p class="brand">FEAR OF GOD</p>
+<p class="name">Ankle Boot - Midnight Blue</p>
+<p class="price">8.200.000 ₫</p>
+</div>
+</a>
+<a class="product-card" data-product-id="shoe-12" href="product-detail.html?id=shoe-12">
+<div class="product-thumb hover-img">
+<img class="img-main" src="https://fearofgod.com/cdn/shop/files/FG981-9000SUE_ANKLE_BOOT-DARK_BROWN_1_900x.jpg?v=1778520737"/>
+<img class="img-hover" src="https://fearofgod.com/cdn/shop/files/FG981-9000SUE_ANKLE_BOOT-DARK_BROWN_2_900x.jpg?v=1778520737"/>
+</div>
+<div class="product-info">
+<p class="brand">FEAR OF GOD</p>
+<p class="name">Ankle Boot - Dark Brown</p>
+<p class="price">8.200.000 ₫</p>
+</div>
+</a>
+<a class="product-card" data-product-id="shoe-13" href="product-detail.html?id=shoe-13">
+<div class="product-thumb hover-img">
+<img class="img-main" src="https://fearofgod.com/cdn/shop/files/BASKETBALLSNEAKER-1_900x.jpg?v=1741986715"/>
+<img class="img-hover" src="https://fearofgod.com/cdn/shop/files/BASKETBALLSNEAKER-2_900x.jpg?v=1741986740"/>
+</div>
+<div class="product-info">
+<p class="brand">ATHLETICS</p>
+<p class="name">Basketball Sneaker</p>
+<p class="price">6.500.000 ₫</p>
+</div>
+</a>
+<a class="product-card" data-product-id="shoe-14" href="product-detail.html?id=shoe-14">
+<div class="product-thumb hover-img">
+<img class="img-main" src="https://fearofgod.com/cdn/shop/files/FG980-9019SOFS_LACE_UP_RUNNER-LIGHT_GREY_1_3d11095a-5bb8-4086-b986-fdc55918cca2_900x.jpg?v=1776876890"/>
+<img class="img-hover" src="https://fearofgod.com/cdn/shop/files/FG980-9019SOFS_LACE_UP_RUNNER-LIGHT_GREY_2_427ac223-e6fd-439a-8ad7-509a1bb29e26_900x.jpg?v=1776876890"/>
+</div>
+<div class="product-info">
+<p class="brand">FEAR OF GOD</p>
+<p class="name">Lace Up Runner - Light Grey</p>
+<p class="price">7.400.000 ₫</p>
+</div>
+</a>
+<a class="product-card" data-product-id="shoe-15" href="product-detail.html?id=shoe-15">
+<div class="product-thumb hover-img">
+<img class="img-main" src="https://fearofgod.com/cdn/shop/files/FG980-8109NUB_101_DUST_BLUSH_1_900x.jpg?v=1772082741"/>
+<img class="img-hover" src="https://fearofgod.com/cdn/shop/files/FG980-8109NUB_101_DUST_BLUSH_2_900x.jpg?v=1772082741"/>
+</div>
+<div class="product-info">
+<p class="brand">FEAR OF GOD</p>
+<p class="name">Aerobic Sneaker - Dust Blush</p>
+<p class="price">7.200.000 ₫</p>
+</div>
+</a>
+</div>
+</div>
+<div class="modal-overlay" id="search-modal" style="display:none;">
+<div class="search-modal-content">
+<span class="close-modal" id="close-search">×</span>
+<input id="search-input" placeholder="SEARCH FOR PRODUCTS..." type="text"/>
+<div id="search-results"></div>
+</div>
+</div>
+<div class="modal-overlay" id="account-modal" style="display:none;">
+<div class="account-box">
+<span class="close-modal" id="close-account">×</span>
+<div id="login-form-container">
+<h3>LOGIN</h3>
+<form onsubmit="event.preventDefault(); handleLogin();">
+<input id="login-email" placeholder="EMAIL" required="" type="email"/>
+<input id="login-pass" placeholder="PASSWORD" required="" type="password"/>
+<button class="auth-submit-btn" type="submit">SIGN IN</button>
+</form>
+<p class="switch-form-text">Don't have an account? <span onclick="toggleAuthForm('register')">CREATE ACCOUNT</span></p>
+</div>
+<div id="register-form-container" style="display:none;">
+<h3>CREATE ACCOUNT</h3>
+<form onsubmit="event.preventDefault(); handleRegister();">
+<input id="reg-fname" placeholder="FIRST NAME" required="" type="text"/>
+<input id="reg-lname" placeholder="LAST NAME" required="" type="text"/>
+<input id="reg-email" placeholder="EMAIL ADDRESS" required="" type="email"/>
+<input id="reg-pass" placeholder="PASSWORD" required="" type="password"/>
+<button class="auth-submit-btn" type="submit">CREATE</button>
+</form>
+<p class="switch-form-text">Already have an account? <span onclick="toggleAuthForm('login')">RETURN TO LOGIN</span></p>
+</div>
+</div>
+</div>
+<div class="modal-overlay" id="bag-modal" style="display:none;">
+<div class="bag-sidebar">
+<div class="bag-header">
+<h3>SHOPPING BAG</h3>
+<span class="close-modal" id="close-bag">×</span>
+</div>
+<div id="cart-items-container">
+<p class="empty-cart-msg">Your bag is empty.</p>
+</div>
+<div class="bag-footer">
+<div class="total-row">
+<span>TOTAL:</span>
+<span id="cart-total-price">0 ₫</span>
+</div>
+<button class="checkout-btn" onclick="alert('Proceeding to checkout!')">CHECKOUT</button>
+</div>
+</div>
+</div>
+<script>
+        let isLoggedIn = localStorage.getItem('isLoggedInStatus') === 'true' && !!(localStorage.getItem('hub_current_user_key') || localStorage.getItem('hub_email')); 
+        let userData = JSON.parse(localStorage.getItem("hub_userData") || "{}") || {};
+
+        // Cập nhật đúng tên tài khoản đang đăng nhập, không dùng tên demo mặc định
+        function checkGlobalLoginStatus() {
+            const accountLink = document.getElementById('headerAccountLink');
+            if (accountLink) {
+                if (localStorage.getItem('isLoggedInStatus') === 'true' && (localStorage.getItem('hub_current_user_key') || localStorage.getItem('hub_email'))) {
+                    isLoggedIn = true;
+                    const savedName = localStorage.getItem('hub_name') || "ACCOUNT";
+                    accountLink.innerText = savedName.toUpperCase();
+                } else {
+                    isLoggedIn = false;
+                    accountLink.innerText = "ACCOUNT";
+                }
+            }
+        }
+
+        document.addEventListener("DOMContentLoaded", function() {
+            checkGlobalLoginStatus();
+
+            // Nhận diện lệnh truyền lọc từ trang chủ sang qua URL (?cat=dress-shirt)
+            const urlParams = new URLSearchParams(window.location.search);
+            const categoryParam = urlParams.get('cat');
+            
+            if (categoryParam === 'dress-shirt') {
+                const dressShirtBtn = document.getElementById('filter-dress-shirt');
+                if (dressShirtBtn) {
+                    filterCategory('dress-shirt', dressShirtBtn);
+                }
+            }
+        });
+
+        const searchModal = document.getElementById('search-modal');
+        const accountModal = document.getElementById('account-modal');
+        const bagModal = document.getElementById('bag-modal');
+        const accountTrigger = document.getElementById('headerAccountLink');
+
+        if(accountTrigger) {
+            accountTrigger.onclick = function() {
+                if (isLoggedIn) { window.location.href = 'account.html'; } 
+                else { accountModal.style.display = 'block'; }
+            };
+        }
+
+        if(document.getElementById('search-trigger')) document.getElementById('search-trigger').onclick = () => searchModal.style.display = 'block';
+        if(document.getElementById('bag-trigger')) document.getElementById('bag-trigger').onclick = () => bagModal.style.display = 'block';
+        if(document.getElementById('close-search')) document.getElementById('close-search').onclick = () => searchModal.style.display = 'none';
+        if(document.getElementById('close-account')) document.getElementById('close-account').onclick = () => accountModal.style.display = 'none';
+        if(document.getElementById('close-bag')) document.getElementById('close-bag').onclick = () => bagModal.style.display = 'none';
+
+        window.onclick = function(event) {
+            if (event.target == searchModal) searchModal.style.display = 'none';
+            if (event.target == accountModal) accountModal.style.display = 'none';
+            if (event.target == bagModal) bagModal.style.display = 'none';
+        }
+
+        function toggleAuthForm(target) {
+            const loginForm = document.getElementById('login-form-container');
+            const regForm = document.getElementById('register-form-container');
+            if(target === 'register') {
+                loginForm.style.display = 'none';
+                regForm.style.display = 'block';
+            } else {
+                loginForm.style.display = 'block';
+                regForm.style.display = 'none';
+            }
+        }
+
+        function showToast(textMsg) {
+            const toast = document.getElementById('toastMessage');
+            if(toast) {
+                toast.innerText = textMsg;
+                toast.classList.add('show');
+                setTimeout(() => { toast.classList.remove('show'); }, 2800);
+            }
+        }
+
+        function handleRegister() {
+            const firstName = document.getElementById('reg-fname').value.trim();
+            const lastName = document.getElementById('reg-lname').value.trim();
+            const email = document.getElementById('reg-email').value.trim();
+            const password = document.getElementById('reg-pass').value;
+
+            const result = window.StyleHubAuth
+                ? window.StyleHubAuth.register({ firstName, lastName, email, password })
+                : { ok: false, message: "Hệ thống tài khoản chưa sẵn sàng. Vui lòng tải lại trang." };
+
+            showToast(result.message);
+            if (!result.ok) return;
+
+            userData = result.user;
+            toggleAuthForm('login');
+        }
+
+        function handleLogin() {
+            const emailInput = document.getElementById('login-email').value.trim();
+            const passwordInput = document.getElementById('login-pass').value;
+            const result = window.StyleHubAuth
+                ? window.StyleHubAuth.login(emailInput, passwordInput)
+                : { ok: false, message: "Hệ thống tài khoản chưa sẵn sàng. Vui lòng tải lại trang." };
+
+            showToast(result.message);
+            if (!result.ok) return;
+
+            isLoggedIn = true;
+            userData = result.user;
+            const fullDisplayName = result.user.name || result.user.email.split('@')[0];
+            checkGlobalLoginStatus();
+            accountModal.style.display = 'none';
+            if (typeof triggerFireworkCelebration === 'function') triggerFireworkCelebration(fullDisplayName);
+        }
+
+        function filterCategory(categoryName, element) {
+            document.querySelectorAll('.filter-tag').forEach(tag => tag.classList.remove('active'));
+            element.classList.add('active');
+            
+            document.querySelectorAll('.mens-card').forEach(card => {
+                const itemCat = card.getAttribute('data-cat');
+                if (categoryName === 'all' || itemCat === categoryName) { 
+                    card.classList.remove('hide-item'); 
+                } else { 
+                    card.classList.add('hide-item'); 
+                }
+            });
+        }
+
+        // --- HIỆU ỨNG PHÁO HOA ĐỒNG BỘ CHẠY MUỢT MÀ ---
+        const canvas = document.getElementById('fwCanvas');
+        const ctx = canvas.getContext('2d');
+        let particles = [];
+
+        function triggerFireworkCelebration(displayName) {
+            canvas.style.display = 'block';
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+            createExplosion(canvas.width * 0.5, canvas.height * 0.4);
+            
+            function loop() {
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+                for (let i = 0; i < particles.length; i++) {
+                    let p = particles[i];
+                    p.x += p.vx; p.y += p.vy; p.vy += 0.12; p.alpha -= 0.014;
+                    ctx.save(); ctx.globalAlpha = p.alpha; ctx.fillStyle = p.color;
+                    ctx.beginPath(); ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2); ctx.fill(); ctx.restore();
+                    if (p.alpha <= 0) { particles.splice(i, 1); i--; }
+                }
+                if (particles.length > 0) { requestAnimationFrame(loop); } 
+                else { canvas.style.display = 'none'; showToast(`XIN CHÀO ${displayName.toUpperCase()}!`); }
+            }
+            loop();
+        }
+
+        function createExplosion(x, y) {
+            for (let i = 0; i < 40; i++) {
+                const angle = Math.random() * Math.PI * 2;
+                const speed = Math.random() * 4 + 2;
+                particles.push({ x, y, vx: Math.cos(angle) * speed, vy: Math.sin(angle) * speed, size: Math.random() * 2 + 1, color: '#111', alpha: 1 });
+            }
+        }
+    </script>
+<script>
+/* AUTO FILTER FROM NAVBAR QUERY (?cat=...) */
+document.addEventListener("DOMContentLoaded", function () {
+    const params = new URLSearchParams(window.location.search);
+    const cat = params.get("cat");
+
+    if (cat && typeof filterCategory === "function") {
+        const target = document.querySelector(`.filter-tag[onclick*="'${cat}'"], .filter-tag[onclick*='"${cat}"']`);
+        if (target) {
+            filterCategory(cat, target);
+        }
+    }
+});
+</script><script src="product-data.js?v=shoes-back-position-fix-20260618"></script>
+    <script src="recommender/product-attributes.js?v=2"></script>
+    <script src="recommender/sentiment-vi.js?v=2"></script>
+    <script src="recommender/engine.js?v=2"></script>
+    <script src="stylehub-api.js?v=2"></script>
+    <script src="stylehub-recommendations.js?v=3-hybrid-v2"></script>
+
+
+<script>
+function openSearchBox() {
+    const box = document.getElementById("searchBox");
+    const input = document.getElementById("searchInput");
+    if (box) box.style.display = "block";
+    if (input) setTimeout(() => input.focus(), 80);
+}
+function closeSearchBox() {
+    const box = document.getElementById("searchBox");
+    const results = document.getElementById("searchResults");
+    const input = document.getElementById("searchInput");
+    if (box) box.style.display = "none";
+    if (results) results.innerHTML = "";
+    if (input) input.value = "";
+}
+function searchProducts() {
+    const input = document.getElementById("searchInput");
+    const resultsBox = document.getElementById("searchResults");
+    if (!input || !resultsBox || typeof database === "undefined") return;
+    const keyword = input.value.trim().toLowerCase();
+    resultsBox.innerHTML = "";
+    if (!keyword) return;
+    const results = Object.keys(database).filter(id => {
+        const item = database[id] || {};
+        const text = `${item.name || ""} ${item.brand || ""} ${item.key || ""}`.toLowerCase();
+        return text.includes(keyword);
+    }).slice(0, 12);
+    if (results.length === 0) {
+        resultsBox.innerHTML = `<p class="search-empty">No products found.</p>`;
+        return;
+    }
+    results.forEach(id => {
+        const item = database[id];
+        resultsBox.innerHTML += `
+            <div class="search-result-item" onclick="window.location.href='product-detail.html?id=${id}'">
+                <img src="${item.mainImg || (item.images && item.images[0]) || ''}" alt="${item.name || ''}">
+                <div>
+                    <strong>${item.name || ''}</strong>
+                    <span>${item.price || ''}</span>
+                </div>
+            </div>`;
+    });
+}
+document.addEventListener("DOMContentLoaded", function () {
+    const trigger = document.getElementById("search-trigger");
+    if (trigger) {
+        trigger.addEventListener("click", function(e) {
+            e.preventDefault();
+            openSearchBox();
+        });
+    }
+});
+document.addEventListener("keydown", function(e) {
+    if (e.key === "Escape") closeSearchBox();
+    if (e.key === "Enter" && document.activeElement && document.activeElement.id === "searchInput") {
+        const first = document.querySelector(".search-result-item");
+        if (first) first.click();
+    }
+});
+document.addEventListener("click", function(e) {
+    const box = document.getElementById("searchBox");
+    if (box && e.target === box) closeSearchBox();
+});
+</script>
+
+<footer class="site-footer support-footer">
+    <div class="footer-col footer-brand">
+        <h3>THE STYLE HUB</h3>
+        <p>Modern fashion store for menswear, womenswear, kidswear, shoes and seasonal sale collections.</p>
+        <div class="social-links footer-social-links">
+            <a class="footer-social-icon footer-fb-icon" href="#" aria-label="Facebook"><img src="images/fb.png" alt="Facebook"></a>
+            <a class="footer-social-icon footer-zalo-icon" href="#" aria-label="Zalo"><img src="images/zalo.png" alt="Zalo"></a>
+            <a class="footer-social-icon footer-instagram-icon" href="#" aria-label="Instagram"><img src="images/instagram.png" alt="Instagram"></a>
+        </div>
+    </div>
+
+    <div class="footer-col footer-categories">
+        <h4>DANH MỤC</h4>
+        <a href="collections.html">ALL PRODUCTS</a>
+        <a href="mens.html">MENS</a>
+        <a href="womens.html">WOMENS</a>
+        <a href="kids.html">KIDS</a>
+        <a href="sale.html">SALE</a>
+        <a href="shoes.html">SHOES</a>
+        <a href="account.html" id="account-trigger">ACCOUNT</a>
+    </div>
+
+    <div class="footer-col footer-support">
+        <h4>HỖ TRỢ KHÁCH HÀNG</h4>
+        <a href="exchange-warranty-policy.html">Chính sách đổi hàng & bảo hành</a>
+        <a href="privacy-policy.html">Chính sách bảo mật</a>
+        <a href="shipping-policy.html">Chính sách giao hàng</a>
+    </div>
+
+    <div class="footer-col footer-store">
+        <h4>HỆ THỐNG CỬA HÀNG</h4>
+        <p><strong>HỒ CHÍ MINH</strong><br>15 Nguyễn Huệ, P. Bến Nghé, Quận 1</p>
+        <p><strong>HỒ CHÍ MINH</strong><br>236 Cách Mạng Tháng Tám, P. 10, Quận 3</p>
+        <div class="payment-icons" aria-label="Phương thức thanh toán">
+            <img src="images/tienmat.png" alt="Tiền mặt">
+            <img src="images/internet-banking.png" alt="Internet Banking">
+            <img src="images/visa.png" alt="Visa">
+            <img src="images/mastercard.png" alt="Mastercard">
+            <img src="images/jcb.png" alt="JCB">
+        </div>
+        <div class="footer-badges">
+        
+            <img src="images/dathongbao.png" alt="Đã thông báo">
+        
+            <span>DMCA PROTECTED</span>
+        
+        </div>
+    </div>
+</footer>
+<div class="footer-bottom">© 2026 THE STYLE HUB. UI/UX Interface Design Project.</div>
+<script src="stylehub-notifications.js?v=notification-bell-fixed-all-pages-20260616"></script>
+<script src="stylehub-responsive-nav.js?v=kids-bottoms-3-products-20260618"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-database-compat.js"></script>
+<script src="stylehub-orders-api.js?v=stock-cloud-sync-20260630"></script>
+<script src="stylehub-crypto.js"></script>
+<script src="stylehub-common.js?v=stock-cloud-sync-20260630"></script>
+
+<script src="stylehub-ai-chat.js"></script>
+<script src="stylehub-cart-sync.js?v=bag-merge-remove-20260701"></script>
+
+<script>
+/* PROPERTY OF LA IMAGE FALLBACK */
+(function () {
+    const fallbackUrl = "https://fearofgod.com/cdn/shop/files/RW00201_WHITE_SOX_SPORT_HOODIE-OATMEAL_HEATHER_W_BLACK_PINSTRIPES_1_x800.jpg?v=1777997926";
+
+    function fixBrokenPropertyLAImages() {
+        const productNameText = document.body.innerText || "";
+        if (!productNameText.includes("Property Of LA Crewneck Sweatshirt")) return;
+
+        document.querySelectorAll("img").forEach(function(img) {
+            const altText = (img.getAttribute("alt") || "").toLowerCase();
+            const srcText = (img.getAttribute("src") || "").toLowerCase();
+
+            if (
+                altText.includes("property of la") ||
+                srcText.includes("property_of_la") ||
+                srcText.includes("rw00184")
+            ) {
+                img.onerror = null;
+                img.src = fallbackUrl;
+            }
+        });
+    }
+
+    document.addEventListener("DOMContentLoaded", fixBrokenPropertyLAImages);
+    window.addEventListener("load", fixBrokenPropertyLAImages);
+})();
+</script>
+
+
+<script>
+/* SHOES BACK POSITION FIX START */
+(function () {
+    const SHOES_PAGE = "shoes.html";
+
+    function getProductIdFromCard(card) {
+        const href = card.getAttribute("href") || "";
+        try {
+            const url = new URL(href, window.location.href);
+            return url.searchParams.get("id") || card.dataset.productId || "";
+        } catch (error) {
+            return card.dataset.productId || "";
+        }
+    }
+
+    function rememberShoesReturnPosition(card) {
+        const productId = getProductIdFromCard(card);
+        const savedData = {
+            url: SHOES_PAGE,
+            scrollY: window.scrollY || window.pageYOffset || 0,
+            productId: productId,
+            fromPage: "shoes",
+            savedAt: Date.now()
+        };
+
+        sessionStorage.setItem("stylehub_collection_return", JSON.stringify(savedData));
+
+        const targetUrl = new URL(card.getAttribute("href") || "product-detail.html", window.location.href);
+        if (productId) targetUrl.searchParams.set("id", productId);
+        targetUrl.searchParams.set("from", SHOES_PAGE);
+
+        return targetUrl.pathname.split("/").pop() + targetUrl.search;
+    }
+
+    function bindShoesProductLinks() {
+        document.querySelectorAll('a.product-card[href*="product-detail.html?id=shoe-"]').forEach(function (card) {
+            if (card.dataset.shoesBackBound === "1") return;
+            card.dataset.shoesBackBound = "1";
+
+            const productId = getProductIdFromCard(card);
+            if (productId && !card.dataset.productId) {
+                card.dataset.productId = productId;
+            }
+
+            card.addEventListener("click", function (event) {
+                if (event.defaultPrevented || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey || event.button !== 0) return;
+                event.preventDefault();
+                window.location.href = rememberShoesReturnPosition(this);
+            });
+        });
+    }
+
+    function restoreShoesPosition() {
+        if (sessionStorage.getItem("stylehub_collection_restore") !== "1") return;
+
+        let saved = null;
+        try {
+            saved = JSON.parse(sessionStorage.getItem("stylehub_collection_return") || "null");
+        } catch (error) {
+            saved = null;
+        }
+
+        if (!saved || saved.fromPage !== "shoes" || !saved.url || !saved.url.includes("shoes.html")) return;
+
+        sessionStorage.removeItem("stylehub_collection_restore");
+
+        function scrollBack() {
+            if (typeof saved.scrollY === "number") {
+                window.scrollTo(0, saved.scrollY);
+            }
+        }
+
+        function ensureProductVisible() {
+            if (!saved.productId) return;
+            const safeId = window.CSS && CSS.escape ? CSS.escape(saved.productId) : saved.productId.replace(/"/g, '\\"');
+            const targetCard = document.querySelector(`[data-product-id="${safeId}"], a[href*="id=${safeId}"]`);
+            if (!targetCard) return;
+
+            const rect = targetCard.getBoundingClientRect();
+            const isVisible = rect.top >= 90 && rect.bottom <= (window.innerHeight - 80);
+            if (!isVisible) {
+                targetCard.scrollIntoView({ block: "center", behavior: "auto" });
+            }
+        }
+
+        // Gọi nhiều lần để đợi ảnh load xong, tránh lệch vị trí.
+        setTimeout(scrollBack, 60);
+        setTimeout(scrollBack, 250);
+        setTimeout(scrollBack, 650);
+        setTimeout(ensureProductVisible, 900);
+    }
+
+    document.addEventListener("DOMContentLoaded", function () {
+        bindShoesProductLinks();
+        restoreShoesPosition();
+    });
+
+    window.addEventListener("load", function () {
+        bindShoesProductLinks();
+        restoreShoesPosition();
+    });
+})();
+/* SHOES BACK POSITION FIX END */
+</script>
+
+</body>
+</html>

@@ -1,0 +1,994 @@
+<!DOCTYPE html>
+
+<html lang="vi">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>The Style Hub - Kids Collection</title>
+<link href="https://fonts.googleapis.com/css2?family=Roboto:wght=300;400;500;700&amp;display=swap" rel="stylesheet"/>
+<link href="style.css" rel="stylesheet"/>
+<style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { font-family: 'Roboto', sans-serif; background-color: #ffffff; color: #111111; overflow-x: hidden; }
+        
+        /* --- STICKY HEADER ĐỒNG BỘ THANH ĐEN --- */
+        .main-header { position: fixed; top: 0; left: 0; width: 100%; height: 57px; background-color: #000000; color: #ffffff; z-index: 1000; }
+        .nav-container { max-width: 1440px; margin: 0 auto; height: 100%; display: flex; justify-content: space-between; align-items: center; padding: 0 40px; }
+        .nav-left, .nav-right { display: flex; gap: 16px; align-items: center; }
+        .logo { font-size: 16px; font-weight: 700; letter-spacing: 4px; text-align: center; }
+        .nav-container a { color: #ffffff; text-decoration: none; font-size: 11px; letter-spacing: 1.5px; text-transform: uppercase; cursor: pointer; }
+
+        /* --- BỘ LỌC SUB-FILTER BAR ĐỒNG BỘ --- */
+        .sub-filter-bar { padding-top: 82px; padding-left: 40px; padding-right: 40px; padding-bottom: 15px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #f2f2f2; }
+        .filter-left-group { display: flex; gap: 15px; }
+        .filter-tag { font-size: 11px; letter-spacing: 1px; text-transform: uppercase; font-weight: 500; cursor: pointer; color: #777; transition: color 0.2s; }
+        .filter-tag.active, .filter-tag:hover { color: #111; }
+        .filter-right-sort { font-size: 11px; letter-spacing: 1px; text-transform: uppercase; font-weight: 500; color: #111; }
+
+        /* --- LƯỚI SẢN PHẨM HỖ TRỢ HOVER LẬT ẢNH --- */
+        .product-gallery-container { max-width: 1440px; margin: 0 auto; padding: 40px; }
+        .mens-product-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 40px 24px; }
+        
+        .mens-card { display: flex; flex-direction: column; text-decoration: none; color: inherit; }
+        .mens-card.hide-item { display: none !important; }
+        .mens-thumb-box { width: 100%; aspect-ratio: 3 / 4; overflow: hidden; background-color: #f7f7f7; margin-bottom: 15px; position: relative; }
+        
+        .mens-thumb-box img { width: 100%; height: 100%; object-fit: cover; object-position: center top; position: absolute; top: 0; left: 0; transition: opacity 0.4s ease, transform 0.4s ease; }
+        .img-back { opacity: 0; }
+        
+        .mens-card:hover .img-front { opacity: 0; }
+        .mens-card:hover .img-back { opacity: 1; transform: scale(1.01); }
+
+        .mens-details { text-align: left; }
+        .tag-brand { font-size: 10px; letter-spacing: 1.5px; color: #777; text-transform: uppercase; margin-bottom: 4px; }
+        .item-name { font-size: 13px; color: #111; margin-bottom: 4px; font-weight: 400; line-height: 1.4; }
+        .item-price { font-size: 12px; color: #111; font-weight: 500; }
+
+        @media (max-width: 1024px) { .mens-product-grid { grid-template-columns: repeat(2, 1fr); } }
+        @media (max-width: 768px) {
+            .mens-product-grid { grid-template-columns: 1fr; }
+            .sub-filter-bar { padding-left: 20px; padding-right: 20px; }
+            .product-gallery-container { padding: 20px; }
+        }
+    </style>
+
+
+
+
+
+<style>
+/* ===== FOOTER CATEGORY ALIGN FIX ===== */
+@media (min-width: 769px) {
+    .site-footer .footer-categories {
+        transform: translateX(34px) !important;
+    }
+}
+
+@media (max-width: 768px) {
+    .site-footer .footer-categories {
+        transform: none !important;
+        margin-left: 0 !important;
+    }
+}
+/* ===== END FOOTER CATEGORY ALIGN FIX ===== */
+</style>
+
+
+
+
+<style>
+/* ===== FOOTER SOCIAL 3 ICONS LEFT ALIGN FINAL ===== */
+.site-footer .social-links,
+.site-footer .footer-social-links {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: flex-start !important;
+    gap: 24px !important;
+    margin-top: 26px !important;
+    margin-left: 0 !important;
+    padding-left: 0 !important;
+    flex-wrap: nowrap !important;
+    width: 100% !important;
+    max-width: 260px !important;
+}
+
+.site-footer .footer-social-icon {
+    width: 42px !important;
+    height: 42px !important;
+    min-width: 42px !important;
+    max-width: 42px !important;
+    min-height: 42px !important;
+    max-height: 42px !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    border: none !important;
+    outline: none !important;
+    border-radius: 0 !important;
+    background: transparent !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    text-decoration: none !important;
+    overflow: visible !important;
+    box-shadow: none !important;
+    line-height: 1 !important;
+    transition: transform 0.25s ease, opacity 0.25s ease !important;
+}
+
+.site-footer .footer-social-icon:hover {
+    transform: translateY(-2px) scale(1.08) !important;
+    opacity: 0.9 !important;
+}
+
+.site-footer .footer-social-icon img {
+    width: 38px !important;
+    height: 38px !important;
+    max-width: 38px !important;
+    max-height: 38px !important;
+    display: block !important;
+    object-fit: contain !important;
+    object-position: center !important;
+    border: 0 !important;
+    outline: none !important;
+    border-radius: 0 !important;
+    background: transparent !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    box-shadow: none !important;
+}
+
+@media (max-width: 768px) {
+    .site-footer .social-links,
+    .site-footer .footer-social-links {
+        justify-content: flex-start !important;
+        gap: 22px !important;
+        max-width: 230px !important;
+        margin-left: 0 !important;
+        padding-left: 0 !important;
+    }
+
+    .site-footer .footer-social-icon {
+        width: 38px !important;
+        height: 38px !important;
+        min-width: 38px !important;
+        max-width: 38px !important;
+        min-height: 38px !important;
+        max-height: 38px !important;
+    }
+
+    .site-footer .footer-social-icon img {
+        width: 34px !important;
+        height: 34px !important;
+        max-width: 34px !important;
+        max-height: 34px !important;
+    }
+}
+/* ===== END FOOTER SOCIAL 3 ICONS LEFT ALIGN FINAL ===== */
+</style>
+
+</head>
+<body>
+
+<div class="search-overlay" id="searchBox">
+    <div class="search-panel">
+        <button class="search-close-btn" onclick="closeSearchBox()">×</button>
+        <input class="search-input" id="searchInput" onkeyup="searchProducts()" placeholder="SEARCH FOR PRODUCTS..." type="text">
+        <div class="search-results" id="searchResults"></div>
+    </div>
+</div>
+
+<header class="main-header">
+<div class="nav-container">
+<div class="nav-left">
+<div class="menu-item-has-mega">
+<a class="nav-link-featured" href="index.html">FEATURED</a>
+<div class="mega-menu-dropdown">
+<div class="mega-menu-container">
+<div class="mega-links-col">
+<a href="collections.html">NEW ARRIVALS</a>
+<a href="mens.html">MLB SPRING 2026</a>
+<a href="womens.html">COLLECTION NINE WOMENSWEAR</a>
+<a href="mens.html">ESSENTIALS CLASSIC STYLES</a>
+<a href="mens.html">ATHLETICS &amp; TEAM APPAREL</a>
+<a href="mens.html">ESSENTIALS</a>
+<a href="mens.html">FEAR OF GOD</a>
+<a href="sale.html">SALE</a>
+
+<a href="exchange-warranty-policy.html">CHÍNH SÁCH ĐỔI HÀNG & BẢO HÀNH</a>
+<a href="privacy-policy.html">CHÍNH SÁCH BẢO MẬT</a>
+<a href="shipping-policy.html">CHÍNH SÁCH GIAO HÀNG</a></div>
+<div class="mega-images-col">
+<a class="mega-img-card" href="womens.html">
+<img alt="Collection Nine Womenswear" src="https://fearofgod.com/cdn/shop/files/LOOK_36_26241979-d8f6-4a59-81bf-798c81a576b9.jpg?v=1758565392&amp;width=1200"/>
+<span>COLLECTION NINE WOMENSWEAR</span>
+</a>
+<a class="mega-img-card" href="mens.html">
+<img alt="Collection Nine Menswear" src="https://fearofgod.com/cdn/shop/files/LOOK_29.png?v=1774904924&amp;width=1200"/>
+<span>COLLECTION NINE MENSWEAR</span>
+</a>
+</div>
+</div>
+</div>
+</div>
+<div class="menu-item-has-dropdown">
+<a class="" href="mens.html">MENS</a>
+<div class="nav-dropdown">
+<a href="mens.html">ALL PRODUCTS</a>
+<a href="mens.html?cat=tops">TOPS</a>
+<a href="mens.html?cat=hoodies">HOODIES</a>
+<a href="mens.html?cat=dress-shirt">DRESS SHIRT</a>
+<a href="mens.html?cat=bottoms">BOTTOMS</a>
+</div>
+</div>
+<div class="menu-item-has-dropdown">
+<a class="" href="womens.html">WOMENS</a>
+<div class="nav-dropdown">
+<a href="womens.html">ALL PRODUCTS</a>
+<a href="womens.html?cat=tops">TOPS</a>
+<a href="womens.html?cat=jackets">JACKETS &amp; OUTERWEAR</a>
+<a href="womens.html?cat=bottoms">BOTTOMS</a>
+</div>
+</div>
+<div class="menu-item-has-dropdown">
+    <a class="active" href="kids.html">KIDS</a>
+<div class="nav-dropdown">
+<a href="kids.html">ALL KIDS</a>
+<a href="kids.html?cat=tops">TOPS</a>
+<a href="kids.html?cat=jackets">JACKETS &amp; OUTERWEAR</a>
+<a href="kids.html?cat=bottoms">BOTTOMS</a>
+</div>
+</div>
+<div class="menu-item-has-dropdown">
+<a class="" href="sale.html">SALE</a>
+<div class="nav-dropdown">
+<a href="sale.html">ALL SALE ITEMS</a>
+<a href="sale.html?cat=tops">TOPS</a>
+<a href="sale.html?cat=jackets">JACKETS &amp; OUTERWEAR</a>
+</div>
+</div>
+<div class="menu-item-has-dropdown">
+<a class="" href="shoes.html">SHOES</a>
+<div class="nav-dropdown">
+<a href="shoes.html">ALL SHOES</a>
+</div>
+</div>
+</div>
+<div class="logo">
+<a href="index.html">THE STYLE HUB</a>
+</div>
+<div class="nav-right">
+<a href="#" id="search-trigger">SEARCH</a>
+<a href="account.html" id="account-trigger">ACCOUNT</a>
+<a href="admin.html" target="_blank" rel="noopener" class="admin-nav-link">ADMIN</a>
+<a href="#" id="bag-trigger">BAG (<span id="cart-count">0</span>)</a>
+</div>
+</div>
+</header>
+<div class="sub-filter-bar">
+<div class="filter-left-group">
+<span class="filter-tag active" onclick="filterCategory('all', this)">All Kids</span>
+<span class="filter-tag" onclick="filterCategory('tops', this)">Tops</span>
+<span class="filter-tag" onclick="filterCategory('jackets', this)">Jackets &amp; Outerwear</span>
+<span class="filter-tag" id="filter-bottoms" onclick="filterCategory('bottoms', this)">Bottoms</span>
+</div>
+<div class="filter-right-sort" data-stylehub-notification-bell></div>
+</div>
+<div class="product-gallery-container">
+<div class="mens-product-grid">
+<!-- Sản phẩm 1 -->
+<a class="mens-card" data-cat="tops" href="product-detail.html?id=kids-1">
+<div class="mens-thumb-box">
+<img class="img-front" src="https://fearofgod.com/cdn/shop/files/785SP262422K_KIDS_TRAINING_90S_HOODIE-FADED_SEAL_1_900x.jpg?v=1772251904"/>
+<img class="img-back" src="https://fearofgod.com/cdn/shop/files/785SP262422K_KIDS_TRAINING_90S_HOODIE-FADED_SEAL_2_900x.jpg?v=1772251904"/>
+</div>
+<div class="mens-details">
+<p class="tag-brand">Essentials</p>
+<h4 class="item-name">Kids Training 90s Hoodie - Faded Seal</h4>
+<p class="item-price">1.850.000 ₫</p>
+</div>
+</a>
+<!-- Sản phẩm 2 -->
+<a class="mens-card" data-cat="none" href="product-detail.html?id=kids-2">
+<div class="mens-thumb-box">
+<img class="img-front" src="https://fearofgod.com/cdn/shop/files/785SP263152K_KIDS_TRAINING_CLASSIC_FIT_SWEATPANT-FADED_SEAL_1_900x.jpg?v=1772225305"/>
+<img class="img-back" src="https://fearofgod.com/cdn/shop/files/785SP263152K_KIDS_TRAINING_CLASSIC_FIT_SWEATPANT-FADED_SEAL_2_900x.jpg?v=1772225305"/>
+</div>
+<div class="mens-details">
+<p class="tag-brand">Essentials</p>
+<h4 class="item-name">Kids Training Classic Fit Sweatpant - Faded Seal</h4>
+<p class="item-price">1.550.000 ₫</p>
+</div>
+</a>
+<!-- Sản phẩm 3 -->
+<a class="mens-card" data-cat="tops" href="product-detail.html?id=kids-3">
+<div class="mens-thumb-box">
+<img class="img-front" src="https://fearofgod.com/cdn/shop/files/785SP262432K_KIDS_TRAINING_90S_CREWNECK_SWEATSHIRT-FADED_SEAL_1_900x.jpg?v=1772582784"/>
+<img class="img-back" src="https://fearofgod.com/cdn/shop/files/785SP262432K_KIDS_TRAINING_90S_CREWNECK_SWEATSHIRT-FADED_SEAL_2_900x.jpg?v=1772582784"/>
+</div>
+<div class="mens-details">
+<p class="tag-brand">Essentials</p>
+<h4 class="item-name">Kids Training 90s Crewneck Sweatshirt - Faded Seal</h4>
+<p class="item-price">1.650.000 ₫</p>
+</div>
+</a>
+<!-- Sản phẩm 4 -->
+<a class="mens-card" data-cat="tops" href="product-detail.html?id=kids-4">
+<div class="mens-thumb-box">
+<img class="img-front" src="https://fearofgod.com/cdn/shop/files/785SP261011K_KIDS_TRAINING_90S_SHORT_SLEEVE_TEE-FADED_BLACK_1_1d40c50f-519a-48a9-bb0b-2ddc34fa5b20_900x.jpg?v=1771870270"/>
+<img class="img-back" src="https://fearofgod.com/cdn/shop/files/785SP261011K_KIDS_TRAINING_90S_SHORT_SLEEVE_TEE-FADED_BLACK_2_de5efbfc-2459-4cf3-9584-6c12ec084202_900x.jpg?v=1771870270"/>
+</div>
+<div class="mens-details">
+<p class="tag-brand">Essentials</p>
+<h4 class="item-name">Kids Training 90s Short Sleeve Tee - Faded Black</h4>
+<p class="item-price">1.150.000 ₫</p>
+</div>
+</a>
+<!-- Sản phẩm 5 -->
+<a class="mens-card" data-cat="tops" href="product-detail.html?id=kids-5">
+<div class="mens-thumb-box">
+<img class="img-front" src="https://fearofgod.com/cdn/shop/files/785SP262421K_KIDS_TRAINING_90S_HOODIE-FADED_BLACK_1_900x.jpg?v=1772218722"/>
+<img class="img-back" src="https://fearofgod.com/cdn/shop/files/785SP262421K_KIDS_TRAINING_90S_HOODIE-FADED_BLACK_2_900x.jpg?v=1772218722"/>
+</div>
+<div class="mens-details">
+<p class="tag-brand">Essentials</p>
+<h4 class="item-name">Kids Training 90s Hoodie - Faded Black</h4>
+<p class="item-price">1.850.000 ₫</p>
+</div>
+</a>
+<!-- Sản phẩm 6 -->
+<a class="mens-card" data-cat="none" href="product-detail.html?id=kids-6">
+<div class="mens-thumb-box">
+<img class="img-front" src="https://fearofgod.com/cdn/shop/files/785SP263151K_KIDS_TRAINING_CLASSIC_FIT_SWEATPANT-FADED_BLACK_1_900x.jpg?v=1772214805"/>
+<img class="img-back" src="https://fearofgod.com/cdn/shop/files/785SP263151K_KIDS_TRAINING_CLASSIC_FIT_SWEATPANT-FADED_BLACK_2_900x.jpg?v=1772214805"/>
+</div>
+<div class="mens-details">
+<p class="tag-brand">Essentials</p>
+<h4 class="item-name">Kids Training Classic Fit Sweatpant - Faded Black</h4>
+<p class="item-price">1.550.000 ₫</p>
+</div>
+</a>
+<!-- Sản phẩm 7 -->
+<a class="mens-card" data-cat="tops" href="product-detail.html?id=kids-7">
+<div class="mens-thumb-box">
+<img class="img-front" src="https://fearofgod.com/cdn/shop/files/785SP262431K_KIDS_TRAINING_90S_CREWNECK_SWEATSHIRT-FADED_BLACK_1_900x.jpg?v=1772490599"/>
+<img class="img-back" src="https://fearofgod.com/cdn/shop/files/785SP262431K_KIDS_TRAINING_90S_CREWNECK_SWEATSHIRT-FADED_BLACK_2_900x.jpg?v=1772490599"/>
+</div>
+<div class="mens-details">
+<p class="tag-brand">Essentials</p>
+<h4 class="item-name">Kids Training 90s Crewneck Sweatshirt - Faded Black</h4>
+<p class="item-price">1.650.000 ₫</p>
+</div>
+</a>
+<!-- Sản phẩm 8 -->
+<a class="mens-card" data-cat="tops" href="product-detail.html?id=kids-8">
+<div class="mens-thumb-box">
+<img class="img-front" src="https://fearofgod.com/cdn/shop/files/785SP262022K_KIDS_CLASSIC_CREWNECK_SWEATSHIRT-VINTAGE_BLACK_1_900x.jpg?v=1772582131"/>
+<img class="img-back" src="https://fearofgod.com/cdn/shop/files/785SP262022K_KIDS_CLASSIC_CREWNECK_SWEATSHIRT-VINTAGE_BLACK_2_900x.jpg?v=1772582131"/>
+</div>
+<div class="mens-details">
+<p class="tag-brand">Essentials</p>
+<h4 class="item-name">Kids Classic Crewneck Sweatshirt - Vintage Black</h4>
+<p class="item-price">1.650.000 ₫</p>
+</div>
+</a>
+<!-- Sản phẩm 9 -->
+<a class="mens-card" data-cat="tops" href="product-detail.html?id=kids-9">
+<div class="mens-thumb-box">
+<img class="img-front" src="https://fearofgod.com/cdn/shop/files/785SP261362K_KIDS_CLASSIC_LONG_SLEEVE_TEE-VINTAGE_BLACK_1_900x.jpg?v=1773073567"/>
+<img class="img-back" src="https://fearofgod.com/cdn/shop/files/785SP261362K_KIDS_CLASSIC_LONG_SLEEVE_TEE-VINTAGE_BLACK_2_900x.jpg?v=1773073567"/>
+</div>
+<div class="mens-details">
+<p class="tag-brand">Essentials</p>
+<h4 class="item-name">Kids Classic Long Sleeve Tee - Vintage Black</h4>
+<p class="item-price">1.350.000 ₫</p>
+</div>
+</a>
+<!-- Sản phẩm 10 -->
+<a class="mens-card" data-cat="tops" href="product-detail.html?id=kids-10">
+<div class="mens-thumb-box">
+<img class="img-front" src="https://fearofgod.com/cdn/shop/files/785SP262753K_KIDS_CAMPUS_90S_HOODIE-FADED_COASTAL_1_900x.jpg?v=1772225903"/>
+<img class="img-back" src="https://fearofgod.com/cdn/shop/files/785SP262753K_KIDS_CAMPUS_90S_HOODIE-FADED_COASTAL_2_900x.jpg?v=1772225903"/>
+</div>
+<div class="mens-details">
+<p class="tag-brand">Essentials</p>
+<h4 class="item-name">Kids Campus 90s Hoodie - Faded Coastal</h4>
+<p class="item-price">1.850.000 ₫</p>
+</div>
+</a>
+<!-- Sản phẩm 11 -->
+<a class="mens-card" data-cat="tops" href="product-detail.html?id=kids-11">
+<div class="mens-thumb-box">
+<img class="img-front" src="https://fearofgod.com/cdn/shop/files/785SP262752K_KIDS_CAMPUS_90S_HOODIE-FADED_MAUVE_1_900x.jpg?v=1772488015"/>
+<img class="img-back" src="https://fearofgod.com/cdn/shop/files/785SP262752K_KIDS_CAMPUS_90S_HOODIE-FADED_MAUVE_2_900x.jpg?v=1772488015"/>
+</div>
+<div class="mens-details">
+<p class="tag-brand">Essentials</p>
+<h4 class="item-name">Kids Campus 90s Hoodie - Faded Mauve</h4>
+<p class="item-price">1.850.000 ₫</p>
+</div>
+</a>
+<!-- Sản phẩm 12 -->
+<a class="mens-card" data-cat="none" href="product-detail.html?id=kids-12">
+<div class="mens-thumb-box">
+<img class="img-front" src="https://fearofgod.com/cdn/shop/files/785SP263042K_KIDS_SIGNATURE_FLARE_SWEATPANT-FADED_MAUVE_1_900x.jpg?v=1772491601"/>
+<img class="img-back" src="https://fearofgod.com/cdn/shop/files/785SP263042K_KIDS_SIGNATURE_FLARE_SWEATPANT-FADED_MAUVE_2_900x.jpg?v=1772491601"/>
+</div>
+<div class="mens-details">
+<p class="tag-brand">Essentials</p>
+<h4 class="item-name">Kids Signature Flare Sweatpant - Faded Mauve</h4>
+<p class="item-price">1.550.000 ₫</p>
+</div>
+</a>
+<!-- Sản phẩm 13 -->
+<a class="mens-card" data-cat="tops" href="product-detail.html?id=kids-13">
+<div class="mens-thumb-box">
+<img class="img-front" src="https://fearofgod.com/cdn/shop/files/785SP261391K_KIDS_CAMPUS_90S_SHORT_SLEEVE_TEE-FADED_BLACK_1_900x.jpg?v=1770751933"/>
+<img class="img-back" src="https://fearofgod.com/cdn/shop/files/785SP261391K_KIDS_CAMPUS_90S_SHORT_SLEEVE_TEE-FADED_BLACK_2_900x.jpg?v=1770751933"/>
+</div>
+<div class="mens-details">
+<p class="tag-brand">Essentials</p>
+<h4 class="item-name">Kids Campus 90s Short Sleeve Tee - Faded Black</h4>
+<p class="item-price">1.150.000 ₫</p>
+</div>
+</a>
+<!-- Sản phẩm 14 -->
+<a class="mens-card" data-cat="tops" href="product-detail.html?id=kids-14">
+<div class="mens-thumb-box">
+<img class="img-front" src="https://fearofgod.com/cdn/shop/files/785SP261481K_KIDS_SIGNATURE_90S_SHORT_SLEEVE_TEE-BLACK_1_900x.jpg?v=1771518008"/>
+<img class="img-back" src="https://fearofgod.com/cdn/shop/files/785SP261481K_KIDS_SIGNATURE_90S_SHORT_SLEEVE_TEE-BLACK_2_900x.jpg?v=1771518008"/>
+</div>
+<div class="mens-details">
+<p class="tag-brand">Essentials</p>
+<h4 class="item-name">Kids Signature 90s Short Sleeve Tee - Black</h4>
+<p class="item-price">1.150.000 ₫</p>
+</div>
+</a>
+<!-- Sản phẩm 15 -->
+<a class="mens-card" data-cat="jackets" href="product-detail.html?id=kids-15">
+<div class="mens-thumb-box">
+<img class="img-front" src="https://fearofgod.com/cdn/shop/files/785SP262031K_KIDS_CLASSIC_FULL_ZIP_HOODIE-OATMEAL_HEATHER_LIGHT_HEATHER_1_c2f28201-4065-42e4-b908-c0dbd7340f8f_900x.jpg?v=1772490948"/>
+<img class="img-back" src="https://fearofgod.com/cdn/shop/files/785SP262031K_KIDS_CLASSIC_FULL_ZIP_HOODIE-OATMEAL_HEATHER_LIGHT_HEATHER_2_3f5bcbc3-8dc1-42b6-bfe1-4cf032c7f1e7_900x.jpg?v=1772490948"/>
+</div>
+<div class="mens-details">
+<p class="tag-brand">Essentials</p>
+<h4 class="item-name">Kids Classic Full Zip Hoodie - Oatmeal</h4>
+<p class="item-price">1.950.000 ₫</p>
+</div>
+</a>
+<!-- KIDS BOTTOMS PRODUCTS START -->
+<a class="mens-card" data-cat="bottoms" href="product-detail.html?id=kids-bottoms-1">
+<div class="mens-thumb-box">
+<img class="img-front" src="https://fearofgod.com/cdn/shop/files/785SP263001K_KIDS_CLASSIC_SWEATPANT-OATMEAL_HEATHER_LIGHT_HEATHER_1.jpg?v=1772488502&width=1600"/>
+<img class="img-back" src="https://fearofgod.com/cdn/shop/files/785SP263001K_KIDS_CLASSIC_SWEATPANT-OATMEAL_HEATHER_LIGHT_HEATHER_2.jpg?v=1772488503&width=1600"/>
+</div>
+<div class="mens-details">
+<p class="tag-brand">Essentials</p>
+<h4 class="item-name">Kids Classic Sweatpant - Oatmeal Heather</h4>
+<p class="item-price">1.550.000 ₫</p>
+</div>
+</a>
+<a class="mens-card" data-cat="bottoms" href="product-detail.html?id=kids-bottoms-2">
+<div class="mens-thumb-box">
+<img class="img-front" src="https://fearofgod.com/cdn/shop/files/785SP264013K_KIDS_SIGNATURE_CLASSIC_SHORT-FADED_COASTAL_1.jpg?v=1772487802&width=1600"/>
+<img class="img-back" src="https://fearofgod.com/cdn/shop/files/785SP264013K_KIDS_SIGNATURE_CLASSIC_SHORT-FADED_COASTAL_2.jpg?v=1772487802&width=1600"/>
+</div>
+<div class="mens-details">
+<p class="tag-brand">Essentials</p>
+<h4 class="item-name">Kids Signature Classic Short - Faded Coastal</h4>
+<p class="item-price">1.250.000 ₫</p>
+</div>
+</a>
+<a class="mens-card" data-cat="bottoms" href="product-detail.html?id=kids-bottoms-3">
+<div class="mens-thumb-box">
+<img class="img-front" src="https://fearofgod.com/cdn/shop/files/785SP263002K_KIDS_CLASSIC_SWEATPANT-VINTAGE_BLACK_1.jpg?v=1772215079&width=1600"/>
+<img class="img-back" src="https://fearofgod.com/cdn/shop/files/785SP263002K_KIDS_CLASSIC_SWEATPANT-VINTAGE_BLACK_2.jpg?v=1772215079&width=1600"/>
+</div>
+<div class="mens-details">
+<p class="tag-brand">Essentials</p>
+<h4 class="item-name">Kids Classic Sweatpant - Vintage Black</h4>
+<p class="item-price">1.550.000 ₫</p>
+</div>
+</a>
+<!-- KIDS BOTTOMS PRODUCTS END -->
+<!-- KIDS PAGE 2 PRODUCTS START -->
+<!-- KIDS PAGE 2 - Sản phẩm 1 -->
+<a class="mens-card" data-cat="tops" href="product-detail.html?id=kids-20">
+<div class="mens-thumb-box">
+<img class="img-front" src="https://fearofgod.com/cdn/shop/files/RW00328_KIDS_CROPPED_RELAXED_PANELLED_HOODIE-IRON_GREY_HEATHER_SEAL_HEATHER_1.jpg?v=1781023189&amp;width=832"/>
+<img class="img-back" src="https://fearofgod.com/cdn/shop/files/RW00328_KIDS_CROPPED_RELAXED_PANELLED_HOODIE-IRON_GREY_HEATHER_SEAL_HEATHER_2.jpg?v=1781023189&amp;width=832"/>
+</div>
+<div class="mens-details">
+<p class="tag-brand">Essentials</p>
+<h4 class="item-name">Kids Cropped Relaxed Panelled Hoodie - Iron Grey Heather / Seal Heather</h4>
+<p class="item-price">1.850.000 ₫</p>
+</div>
+</a>
+<!-- KIDS PAGE 2 - Sản phẩm 2 -->
+<a class="mens-card" data-cat="tops" href="product-detail.html?id=kids-21">
+<div class="mens-thumb-box">
+<img class="img-front" src="https://fearofgod.com/cdn/shop/files/RW00327_KIDS_CROPPED_POLO-IRON_GREY_SEAL_HEATHER_1_6d1a407d-9778-4519-92c9-13e5d51a70e2.jpg?v=1781127191&amp;width=832"/>
+<img class="img-back" src="https://fearofgod.com/cdn/shop/files/RW00327_KIDS_CROPPED_POLO-IRON_GREY_SEAL_HEATHER_2_b3782ce8-2a1d-426d-afa6-4c9232e6481b.jpg?v=1781127191&amp;width=832"/>
+</div>
+<div class="mens-details">
+<p class="tag-brand">Essentials</p>
+<h4 class="item-name">Kids Cropped Polo - Iron Grey / Seal Heather</h4>
+<p class="item-price">1.350.000 ₫</p>
+</div>
+</a>
+<!-- KIDS PAGE 2 - Sản phẩm 3 -->
+<a class="mens-card" data-cat="tops" href="product-detail.html?id=kids-22">
+<div class="mens-thumb-box">
+<img class="img-front" src="https://fearofgod.com/cdn/shop/files/RW00329_KIDS_CROPPED_RELAXED_PANELLED_SWEATSHIRT-IRON_GREY_HEATHER_SEAL_HEATHER_1.jpg?v=1781023411&amp;width=3840"/>
+<img class="img-back" src="https://fearofgod.com/cdn/shop/files/RW00329_KIDS_CROPPED_RELAXED_PANELLED_SWEATSHIRT-IRON_GREY_HEATHER_SEAL_HEATHER_2.jpg?v=1781023411&amp;width=3840"/>
+</div>
+<div class="mens-details">
+<p class="tag-brand">Essentials</p>
+<h4 class="item-name">Kids Cropped Relaxed Panelled Sweatshirt - Iron Grey Heather / Seal Heather</h4>
+<p class="item-price">1.650.000 ₫</p>
+</div>
+</a>
+<!-- KIDS PAGE 2 - Sản phẩm 4 -->
+<a class="mens-card" data-cat="tops" href="product-detail.html?id=kids-23">
+<div class="mens-thumb-box">
+<img class="img-front" src="https://fearofgod.com/cdn/shop/files/RW00328_KIDS_CROPPED_RELAXED_PANELLED_HOODIE-SEAL_HEATHER_IRON_GREY_1.jpg?v=1781023246&amp;width=832"/>
+<img class="img-back" src="https://fearofgod.com/cdn/shop/files/RW00328_KIDS_CROPPED_RELAXED_PANELLED_HOODIE-SEAL_HEATHER_IRON_GREY_2.jpg?v=1781023246&amp;width=832"/>
+</div>
+<div class="mens-details">
+<p class="tag-brand">Essentials</p>
+<h4 class="item-name">Kids Cropped Relaxed Panelled Hoodie - Seal Heather / Iron Grey</h4>
+<p class="item-price">1.850.000 ₫</p>
+</div>
+</a>
+<!-- KIDS PAGE 2 - Sản phẩm 5 -->
+<a class="mens-card" data-cat="tops" href="product-detail.html?id=kids-24">
+<div class="mens-thumb-box">
+<img class="img-front" src="https://fearofgod.com/cdn/shop/files/RW00327_KIDS_CROPPED_POLO-SEAL_HEATHER_IRON_GREY_1_f5426cdd-3b0b-432a-a4bb-085e9477d377.jpg?v=1781127614&amp;width=832"/>
+<img class="img-back" src="https://fearofgod.com/cdn/shop/files/RW00327_KIDS_CROPPED_POLO-SEAL_HEATHER_IRON_GREY_2_9a73ad39-4d47-47fe-9eef-337c3e4b3c67.jpg?v=1781127614&amp;width=832"/>
+</div>
+<div class="mens-details">
+<p class="tag-brand">Essentials</p>
+<h4 class="item-name">Kids Cropped Polo - Seal Heather / Iron Grey</h4>
+<p class="item-price">1.350.000 ₫</p>
+</div>
+</a>
+<!-- KIDS PAGE 2 - Sản phẩm 6 -->
+<a class="mens-card" data-cat="tops" href="product-detail.html?id=kids-25">
+<div class="mens-thumb-box">
+<img class="img-front" src="https://fearofgod.com/cdn/shop/files/RW00329_KIDS_CROPPED_RELAXED_PANELLED_SWEATSHIRT-SEAL_HEATHER_IRON_GREY_1.jpg?v=1781023434&amp;width=832"/>
+<img class="img-back" src="https://fearofgod.com/cdn/shop/files/RW00329_KIDS_CROPPED_RELAXED_PANELLED_SWEATSHIRT-SEAL_HEATHER_IRON_GREY_2.jpg?v=1781023438&amp;width=832"/>
+</div>
+<div class="mens-details">
+<p class="tag-brand">Essentials</p>
+<h4 class="item-name">Kids Cropped Relaxed Panelled Sweatshirt - Seal Heather / Iron Grey</h4>
+<p class="item-price">1.650.000 ₫</p>
+</div>
+</a>
+<!-- KIDS PAGE 2 - Sản phẩm 7 -->
+<a class="mens-card" data-cat="tops" href="product-detail.html?id=kids-26">
+<div class="mens-thumb-box">
+<img class="img-front" src="https://fearofgod.com/cdn/shop/files/RW00330_KIDS_ESSENTIAL_TEE-VINTAGE_BLACK_1.jpg?v=1781023864&amp;width=3840"/>
+<img class="img-back" src="https://fearofgod.com/cdn/shop/files/RW00330_KIDS_ESSENTIAL_TEE-VINTAGE_BLACK_2.jpg?v=1781023864&amp;width=3840"/>
+</div>
+<div class="mens-details">
+<p class="tag-brand">Essentials</p>
+<h4 class="item-name">Kids Essential Tee - Vintage Black</h4>
+<p class="item-price">1.150.000 ₫</p>
+</div>
+</a>
+<!-- KIDS PAGE 2 - Sản phẩm 8 -->
+<a class="mens-card" data-cat="bottoms" href="product-detail.html?id=kids-bottoms-20">
+<div class="mens-thumb-box">
+<img class="img-front" src="https://fearofgod.com/cdn/shop/files/RW00363_KIDS_CLASSIC_FLEECE_SWEATPANT-IRON_GREY_HEATHER_1_c69ee527-3363-42fc-ad5f-4d86df9b1632.jpg?v=1781024548&amp;width=3840"/>
+<img class="img-back" src="https://fearofgod.com/cdn/shop/files/RW00363_KIDS_CLASSIC_FLEECE_SWEATPANT-IRON_GREY_HEATHER_2_39f5ba5c-ccc7-4e68-8698-f759a1dbf8bf.jpg?v=1781024549&amp;width=3840"/>
+</div>
+<div class="mens-details">
+<p class="tag-brand">Essentials</p>
+<h4 class="item-name">Kids Classic Fleece Sweatpant - Iron Grey Heather</h4>
+<p class="item-price">1.550.000 ₫</p>
+</div>
+</a>
+<!-- KIDS PAGE 2 - Sản phẩm 9 -->
+<a class="mens-card" data-cat="bottoms" href="product-detail.html?id=kids-bottoms-21">
+<div class="mens-thumb-box">
+<img class="img-front" src="https://fearofgod.com/cdn/shop/files/RW00364_KIDS_CLASSIC_SHORT-GINGER_1.jpg?v=1781025138&amp;width=832"/>
+<img class="img-back" src="https://fearofgod.com/cdn/shop/files/RW00364_KIDS_CLASSIC_SHORT-GINGER_2.jpg?v=1781025138&amp;width=832"/>
+</div>
+<div class="mens-details">
+<p class="tag-brand">Essentials</p>
+<h4 class="item-name">Kids Classic Short - Ginger</h4>
+<p class="item-price">1.250.000 ₫</p>
+</div>
+</a>
+<!-- KIDS PAGE 2 - Sản phẩm 10 -->
+<a class="mens-card" data-cat="tops" href="product-detail.html?id=kids-27">
+<div class="mens-thumb-box">
+<img class="img-front" src="https://fearofgod.com/cdn/shop/files/RW00334_KIDS_MERCH_TEE-OVERCAST_1_e8298948-ba98-44bc-86a3-7f5eeb6f5506.jpg?v=1781024165&amp;width=832"/>
+<img class="img-back" src="https://fearofgod.com/cdn/shop/files/RW00334_KIDS_MERCH_TEE-OVERCAST_2_637a1239-802b-47d2-85f8-14876b139374.jpg?v=1781024167&amp;width=832"/>
+</div>
+<div class="mens-details">
+<p class="tag-brand">Essentials</p>
+<h4 class="item-name">Kids Merch Tee - Overcast</h4>
+<p class="item-price">1.150.000 ₫</p>
+</div>
+</a>
+<!-- KIDS PAGE 2 PRODUCTS END -->
+</div>
+</div>
+<script>
+        document.addEventListener("DOMContentLoaded", function() {
+            const accountLink = document.getElementById('headerAccountLink');
+            if (accountLink) {
+                if (localStorage.getItem('isLoggedInStatus') === 'true' && (localStorage.getItem('hub_current_user_key') || localStorage.getItem('hub_email'))) {
+                    const savedName = localStorage.getItem('hub_name') || "ACCOUNT";
+                    accountLink.innerText = savedName.toUpperCase();
+                } else {
+                    accountLink.innerText = "ACCOUNT";
+                }
+            }
+        });
+
+        let currentKidsCategory = 'all';
+
+        function isKidsCardMatchingCategory(card, categoryName) {
+            const itemCat = card.getAttribute('data-cat');
+            const itemName = (card.querySelector('.item-name')?.innerText || '').toLowerCase();
+            const isOuterwearItem = itemName.includes('hoodie') || itemName.includes('crewneck') || itemName.includes('sweatshirt');
+
+            if (categoryName === 'all') return true;
+            if (categoryName === 'jackets') return itemCat === 'jackets' || isOuterwearItem;
+            return itemCat === categoryName;
+        }
+
+        function updateKidsUrl() {
+            const url = new URL(window.location.href);
+            url.searchParams.delete('cat');
+            url.searchParams.delete('page');
+
+            if (currentKidsCategory && currentKidsCategory !== 'all') {
+                url.searchParams.set('cat', currentKidsCategory);
+            }
+
+            window.history.replaceState({}, '', url.pathname.split('/').pop() + url.search);
+        }
+
+        function renderKidsProducts() {
+            document.querySelectorAll('.mens-card').forEach(card => {
+                const shouldShow = isKidsCardMatchingCategory(card, currentKidsCategory);
+                card.classList.toggle('hide-item', !shouldShow);
+            });
+
+            updateKidsUrl();
+        }
+
+        function filterCategory(categoryName, element) {
+            currentKidsCategory = categoryName || 'all';
+
+            document.querySelectorAll('.filter-tag').forEach(tag => tag.classList.remove('active'));
+            if (element) element.classList.add('active');
+
+            renderKidsProducts();
+        }
+
+        document.addEventListener("DOMContentLoaded", function () {
+            const params = new URLSearchParams(window.location.search);
+            const cat = params.get("cat");
+
+            if (cat && typeof filterCategory === "function") {
+                const target = document.querySelector(`.filter-tag[onclick*="'${cat}'"], .filter-tag[onclick*='"${cat}"']`);
+                if (target) {
+                    filterCategory(cat, target);
+                    return;
+                }
+            }
+
+            renderKidsProducts();
+        });
+    </script>
+<script>
+/* KIDS COLLECTION RETURN: bấm ← Collection quay lại đúng mục và đúng vị trí sản phẩm */
+(function () {
+    const COLLECTION_PAGE = 'kids.html';
+
+    function getActiveCategory() {
+        const activeTag = document.querySelector('.filter-tag.active');
+        if (!activeTag) {
+            const params = new URLSearchParams(window.location.search);
+            return params.get('cat') || 'all';
+        }
+
+        const onclickText = activeTag.getAttribute('onclick') || '';
+        const matched = onclickText.match(/filterCategory\(['"]([^'"]+)['"]/);
+        if (matched && matched[1]) return matched[1];
+
+        const label = activeTag.textContent.trim().toLowerCase();
+        if (label.includes('top')) return 'tops';
+        if (label.includes('jacket') || label.includes('outerwear')) return 'jackets';
+        if (label.includes('bottom')) return 'bottoms';
+        return 'all';
+    }
+
+    function buildKidsReturnUrl(productId) {
+        const category = getActiveCategory();
+        const url = new URL(COLLECTION_PAGE, window.location.href);
+        url.search = '';
+
+        if (category && category !== 'all') {
+            url.searchParams.set('cat', category);
+        }
+
+        if (productId) {
+            url.searchParams.set('returnProduct', productId);
+        }
+
+        return url.pathname.split('/').pop() + url.search;
+    }
+
+    function rememberKidsReturnPosition(card) {
+        const productUrl = new URL(card.getAttribute('href') || '', window.location.href);
+        const productId = productUrl.searchParams.get('id') || '';
+        const returnUrl = buildKidsReturnUrl(productId);
+
+        sessionStorage.setItem('stylehub_collection_return', JSON.stringify({
+            url: returnUrl,
+            scrollY: window.scrollY || window.pageYOffset || 0,
+            productId: productId,
+            savedAt: Date.now()
+        }));
+
+        productUrl.searchParams.set('from', returnUrl);
+        return productUrl.pathname.split('/').pop() + productUrl.search;
+    }
+
+    function setupKidsReturnLinks() {
+        document.querySelectorAll('a.mens-card[href*="product-detail.html"], a.product-card[href*="product-detail.html"]').forEach(function (card) {
+            if (card.dataset.kidsReturnBound === '1') return;
+            card.dataset.kidsReturnBound = '1';
+
+            card.addEventListener('click', function (event) {
+                if (event.defaultPrevented || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey || event.button !== 0) return;
+                event.preventDefault();
+                window.location.href = rememberKidsReturnPosition(this);
+            }, true);
+        });
+    }
+
+    function applyKidsFilterFromSavedUrl(savedUrl) {
+        if (!savedUrl) return;
+
+        const url = new URL(savedUrl, window.location.href);
+        const cat = url.searchParams.get('cat') || 'all';
+
+        const target = document.querySelector(`.filter-tag[onclick*="'${cat}'"], .filter-tag[onclick*='"${cat}"']`);
+        if (target && typeof filterCategory === 'function') {
+            filterCategory(cat, target);
+        } else if (typeof renderKidsProducts === 'function') {
+            renderKidsProducts();
+        }
+    }
+
+    function findKidsProductCard(productId) {
+        if (!productId) return null;
+
+        const cards = Array.from(document.querySelectorAll('a.mens-card[href*="product-detail.html"], a.product-card[href*="product-detail.html"]'));
+        return cards.find(function(card) {
+            try {
+                const cardUrl = new URL(card.getAttribute('href') || '', window.location.href);
+                return cardUrl.searchParams.get('id') === productId;
+            } catch (error) {
+                return false;
+            }
+        }) || null;
+    }
+
+    function restoreKidsReturnPosition() {
+        const params = new URLSearchParams(window.location.search);
+        const productFromUrl = params.get('returnProduct') || '';
+
+        let shouldRestore = sessionStorage.getItem('stylehub_collection_restore') === '1';
+        if (productFromUrl) shouldRestore = true;
+        if (!shouldRestore) return;
+
+        sessionStorage.removeItem('stylehub_collection_restore');
+
+        let saved = null;
+        try {
+            saved = JSON.parse(sessionStorage.getItem('stylehub_collection_return') || 'null');
+        } catch (error) {
+            saved = null;
+        }
+
+        const productId = productFromUrl || (saved && saved.productId) || '';
+        const savedUrl = (saved && saved.url) || window.location.href;
+
+        applyKidsFilterFromSavedUrl(savedUrl);
+
+        function scrollToSavedSpot() {
+            const targetCard = findKidsProductCard(productId);
+            if (targetCard) {
+                targetCard.scrollIntoView({ block: 'center', inline: 'nearest' });
+                return;
+            }
+
+            if (saved && typeof saved.scrollY === 'number') {
+                window.scrollTo(0, saved.scrollY);
+            }
+        }
+
+        setTimeout(scrollToSavedSpot, 80);
+        setTimeout(scrollToSavedSpot, 350);
+        setTimeout(scrollToSavedSpot, 800);
+        window.addEventListener('load', scrollToSavedSpot, { once: true });
+    }
+
+    document.addEventListener('DOMContentLoaded', function () {
+        setupKidsReturnLinks();
+        restoreKidsReturnPosition();
+    });
+})();
+</script>
+
+<script src="product-data.js?v=kids-one-page-sizes-20260623"></script>
+    <script src="recommender/product-attributes.js?v=2"></script>
+    <script src="recommender/sentiment-vi.js?v=2"></script>
+    <script src="recommender/engine.js?v=2"></script>
+    <script src="stylehub-api.js?v=2"></script>
+    <script src="stylehub-recommendations.js?v=3-hybrid-v2"></script>
+
+
+<script>
+function openSearchBox() {
+    const box = document.getElementById("searchBox");
+    const input = document.getElementById("searchInput");
+    if (box) box.style.display = "block";
+    if (input) setTimeout(() => input.focus(), 80);
+}
+function closeSearchBox() {
+    const box = document.getElementById("searchBox");
+    const results = document.getElementById("searchResults");
+    const input = document.getElementById("searchInput");
+    if (box) box.style.display = "none";
+    if (results) results.innerHTML = "";
+    if (input) input.value = "";
+}
+function searchProducts() {
+    const input = document.getElementById("searchInput");
+    const resultsBox = document.getElementById("searchResults");
+    if (!input || !resultsBox || typeof database === "undefined") return;
+    const keyword = input.value.trim().toLowerCase();
+    resultsBox.innerHTML = "";
+    if (!keyword) return;
+    const results = Object.keys(database).filter(id => {
+        const item = database[id] || {};
+        const text = `${item.name || ""} ${item.brand || ""} ${item.key || ""}`.toLowerCase();
+        return text.includes(keyword);
+    }).slice(0, 12);
+    if (results.length === 0) {
+        resultsBox.innerHTML = `<p class="search-empty">No products found.</p>`;
+        return;
+    }
+    results.forEach(id => {
+        const item = database[id];
+        resultsBox.innerHTML += `
+            <div class="search-result-item" onclick="window.location.href='product-detail.html?id=${id}'">
+                <img src="${item.mainImg || (item.images && item.images[0]) || ''}" alt="${item.name || ''}">
+                <div>
+                    <strong>${item.name || ''}</strong>
+                    <span>${item.price || ''}</span>
+                </div>
+            </div>`;
+    });
+}
+document.addEventListener("DOMContentLoaded", function () {
+    const trigger = document.getElementById("search-trigger");
+    if (trigger) {
+        trigger.addEventListener("click", function(e) {
+            e.preventDefault();
+            openSearchBox();
+        });
+    }
+});
+document.addEventListener("keydown", function(e) {
+    if (e.key === "Escape") closeSearchBox();
+    if (e.key === "Enter" && document.activeElement && document.activeElement.id === "searchInput") {
+        const first = document.querySelector(".search-result-item");
+        if (first) first.click();
+    }
+});
+document.addEventListener("click", function(e) {
+    const box = document.getElementById("searchBox");
+    if (box && e.target === box) closeSearchBox();
+});
+</script>
+
+<footer class="site-footer support-footer">
+    <div class="footer-col footer-brand">
+        <h3>THE STYLE HUB</h3>
+        <p>Modern fashion store for menswear, womenswear, kidswear, shoes and seasonal sale collections.</p>
+        <div class="social-links footer-social-links">
+            <a class="footer-social-icon footer-fb-icon" href="#" aria-label="Facebook"><img src="images/fb.png" alt="Facebook"></a>
+            <a class="footer-social-icon footer-zalo-icon" href="#" aria-label="Zalo"><img src="images/zalo.png" alt="Zalo"></a>
+            <a class="footer-social-icon footer-instagram-icon" href="#" aria-label="Instagram"><img src="images/instagram.png" alt="Instagram"></a>
+        </div>
+    </div>
+
+    <div class="footer-col footer-categories">
+        <h4>DANH MỤC</h4>
+        <a href="collections.html">ALL PRODUCTS</a>
+        <a href="mens.html">MENS</a>
+        <a href="womens.html">WOMENS</a>
+        <a href="kids.html">KIDS</a>
+        <a href="sale.html">SALE</a>
+        <a href="shoes.html">SHOES</a>
+        <a href="account.html" id="account-trigger">ACCOUNT</a>
+    </div>
+
+    <div class="footer-col footer-support">
+        <h4>HỖ TRỢ KHÁCH HÀNG</h4>
+        <a href="exchange-warranty-policy.html">Chính sách đổi hàng & bảo hành</a>
+        <a href="privacy-policy.html">Chính sách bảo mật</a>
+        <a href="shipping-policy.html">Chính sách giao hàng</a>
+    </div>
+
+    <div class="footer-col footer-store">
+        <h4>HỆ THỐNG CỬA HÀNG</h4>
+        <p><strong>HỒ CHÍ MINH</strong><br>15 Nguyễn Huệ, P. Bến Nghé, Quận 1</p>
+        <p><strong>HỒ CHÍ MINH</strong><br>236 Cách Mạng Tháng Tám, P. 10, Quận 3</p>
+        <div class="payment-icons" aria-label="Phương thức thanh toán">
+            <img src="images/tienmat.png" alt="Tiền mặt">
+            <img src="images/internet-banking.png" alt="Internet Banking">
+            <img src="images/visa.png" alt="Visa">
+            <img src="images/mastercard.png" alt="Mastercard">
+            <img src="images/jcb.png" alt="JCB">
+        </div>
+        <div class="footer-badges">
+        
+            <img src="images/dathongbao.png" alt="Đã thông báo">
+        
+            <span>DMCA PROTECTED</span>
+        
+        </div>
+    </div>
+</footer>
+<div class="footer-bottom">© 2026 THE STYLE HUB. UI/UX Interface Design Project.</div>
+<script src="stylehub-notifications.js?v=notification-bell-fixed-all-pages-20260616"></script>
+<script src="stylehub-responsive-nav.js?v=kids-bottoms-3-products-20260618"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-database-compat.js"></script>
+<script src="stylehub-orders-api.js?v=stock-cloud-sync-20260630"></script>
+<script src="stylehub-crypto.js"></script>
+<script src="stylehub-common.js?v=stock-cloud-sync-20260630"></script>
+
+<script src="stylehub-ai-chat.js"></script>
+<script src="stylehub-cart-sync.js?v=bag-merge-remove-20260701"></script>
+
+<script>
+/* PROPERTY OF LA IMAGE FALLBACK */
+(function () {
+    const fallbackUrl = "https://fearofgod.com/cdn/shop/files/RW00201_WHITE_SOX_SPORT_HOODIE-OATMEAL_HEATHER_W_BLACK_PINSTRIPES_1_x800.jpg?v=1777997926";
+
+    function fixBrokenPropertyLAImages() {
+        const productNameText = document.body.innerText || "";
+        if (!productNameText.includes("Property Of LA Crewneck Sweatshirt")) return;
+
+        document.querySelectorAll("img").forEach(function(img) {
+            const altText = (img.getAttribute("alt") || "").toLowerCase();
+            const srcText = (img.getAttribute("src") || "").toLowerCase();
+
+            if (
+                altText.includes("property of la") ||
+                srcText.includes("property_of_la") ||
+                srcText.includes("rw00184")
+            ) {
+                img.onerror = null;
+                img.src = fallbackUrl;
+            }
+        });
+    }
+
+    document.addEventListener("DOMContentLoaded", fixBrokenPropertyLAImages);
+    window.addEventListener("load", fixBrokenPropertyLAImages);
+})();
+</script>
+
+</body>
+</html>
