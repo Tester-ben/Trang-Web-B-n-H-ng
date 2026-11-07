@@ -2582,14 +2582,18 @@
        GIAO DIỆN TIN NHẮN
        ========================================================= */
 
-    // Lịch sử chat lưu sẵn HTML: bỏ thẻ của sản phẩm đã ngừng kinh doanh (gỡ khỏi product-data.js)
-    // để tin nhắn cũ không còn hiện và bán món đó.
+    // Lịch sử chat lưu sẵn HTML: thay thẻ của sản phẩm đã ngừng kinh doanh (gỡ khỏi product-data.js)
+    // bằng một dòng ghi chú, để tin nhắn cũ không còn bán món đó mà câu dẫn phía trên vẫn hợp lý.
     function pruneDiscontinuedProductCards(container) {
         const productAdmin = window.StyleHubProductAdmin;
         if (!productAdmin || typeof productAdmin.isDiscontinuedProduct !== "function") return;
         container.querySelectorAll(".tsh-ai-product-card").forEach(function (card) {
             const ref = card.querySelector("[data-product-id]");
-            if (ref && productAdmin.isDiscontinuedProduct(ref.getAttribute("data-product-id"))) card.remove();
+            if (!ref || !productAdmin.isDiscontinuedProduct(ref.getAttribute("data-product-id"))) return;
+            const note = document.createElement("span");
+            note.className = "tsh-ai-muted tsh-ai-discontinued-note";
+            note.textContent = "Mẫu này hiện không còn bán.";
+            card.replaceWith(note);
         });
     }
 

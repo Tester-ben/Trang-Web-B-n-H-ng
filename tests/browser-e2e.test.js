@@ -140,6 +140,7 @@ test('E2E: món đã ngừng kinh doanh (dress-8) bị gỡ khỏi BAG cũ, gi�
         assert.ok(stored.every((v) => v.includes('dress-7') && !v.includes('dress-8')), 'giỏ lưu trong trình duyệt đã được dọn: ' + stored.join(' | '));
         assert.deepEqual(await page.$$eval('#tshAiBody .tsh-ai-product-card [data-product-id]', (els) => els.map((e) => e.dataset.productId)), ['dress-7'],
             'lịch sử chat không còn thẻ của món đã gỡ');
+        assert.equal(await page.$$eval('#tshAiBody .tsh-ai-discontinued-note', (els) => els.length), 1, 'thẻ đã gỡ được thay bằng ghi chú "không còn bán"');
 
         // Giỏ "Đặt lại đơn này" còn sót từ trước khi gỡ: món đã gỡ bị bỏ qua.
         await page.evaluate((oldItem) => localStorage.setItem('stylehub_reorder_cart', JSON.stringify([oldItem,
@@ -148,12 +149,42 @@ test('E2E: món đã ngừng kinh doanh (dress-8) bị gỡ khỏi BAG cũ, gi�
         await page.waitForTimeout(800);
         assert.deepEqual(await page.evaluate(() => (window.cartMemoryArray || []).map((i) => i.key)), ['dress-9']);
 
-        // Link cũ tới món đã gỡ: thông báo cho khách, không còn nút mua.
-        await page.goto(site.url + '/product-detail.html?id=dress-8', { waitUntil: 'domcontentloaded' });
+        // Giỏ đặt lại chỉ toàn món đã gỡ: KHÔNG được làm trống giỏ hiện tại của khách.
+        await page.evaluate(([oldItem, okItem]) => {
+            ['stylehub_cart_memory_v1', 'stylehub_cart', 'hub_cart', 'cartMemoryArray', 'the_style_hub_cart', 'cart'].forEach((k) => localStorage.setItem(k, JSON.stringify([okItem])));
+            localStorage.setItem('stylehub_reorder_cart', JSON.stringify([oldItem]));
+        }, [stale, kept]);
+        await page.goto(site.url + '/product-detail.html?id=tops-1', { waitUntil: 'domcontentloaded' });
+        await page.waitForTimeout(800);
+        assert.deepEqual(await page.evaluate(() => (window.cartMemoryArray || []).map((i) => i.key)), ['dress-7']);
+        assert.equal(await page.evaluate(() => localStorage.getItem('stylehub_reorder_cart')), null);
+
+        // Link cũ tới món đã gỡ (và id trùng thuộc tính của Object): thông báo cho khách, không còn nút mua.
+        for (const id of ['dress-8', 'constructor']) {
+            await page.goto(site.url + '/product-detail.html?id=' + id, { waitUntil: 'domcontentloaded' });
+            await page.waitForTimeout(600);
+            assert.equal((await page.textContent('#product-name-target')).trim(), 'Sản phẩm hiện không còn bán', id);
+            assert.equal(await page.isVisible('.btn-add-to-bag'), false, id);
+            assert.equal(await page.isVisible('.size-selector-section'), false, id);
+        }
+
+        // Sản phẩm admin (custom-*) đến muộn từ Firebase: hiện "đang tải", rồi tự hiển thị khi dữ liệu về.
+        await page.goto(site.url + '/product-detail.html?id=custom-mens-late-tee', { waitUntil: 'domcontentloaded' });
+        await page.waitForTimeout(400);
+        assert.equal((await page.textContent('#product-name-target')).trim(), 'Đang tải sản phẩm…');
+        await Promise.all([
+            page.waitForEvent('load'),
+            page.evaluate(() => {
+                localStorage.setItem('stylehub_admin_products_v1', JSON.stringify({ 'custom-mens-late-tee': {
+                    name: 'Late Admin Tee', brand: 'Essentials', price: '450.000 ₫', priceNum: 450000, adminDepartment: 'mens',
+                    mainImg: 'https://cdn.example.com/late-1.jpg', images: ['https://cdn.example.com/late-1.jpg', 'https://cdn.example.com/late-2.jpg']
+                } }));
+                window.dispatchEvent(new CustomEvent('stylehub-products-change'));
+            })
+        ]);
         await page.waitForTimeout(600);
-        assert.equal((await page.textContent('#product-name-target')).trim(), 'Sản phẩm hiện không còn bán');
-        assert.equal(await page.isVisible('.btn-add-to-bag'), false);
-        assert.equal(await page.isVisible('.size-selector-section'), false);
+        assert.equal((await page.textContent('#product-name-target')).trim(), 'Late Admin Tee');
+        assert.equal(await page.isVisible('.btn-add-to-bag'), true);
         assert.deepEqual(errors, []);
     } finally {
         await browser.close();
