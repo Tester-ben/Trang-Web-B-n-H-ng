@@ -596,3 +596,16 @@ test('firebase.database.rules.json: JSON hợp lệ, có index theo email và ki
     assert.match(orders.$orderId.orderId['.validate'], /matches/);
     assert.ok(rules.stylehub_orders.admin_products.$productId.name['.validate'].includes('[<>]'));
 });
+
+test('Danh mục: món đã gỡ khỏi product-data.js (dress-8) là "ngừng kinh doanh"; món đang bán và sản phẩm admin custom-* thì không', () => {
+    const { context } = loadProductData({
+        'custom-mens-new-tee': { name: 'New Tee', price: '100.000 ₫', priceNum: 100000, mainImg: 'https://cdn.example.com/a.jpg', adminDepartment: 'mens' }
+    }, true);
+    const isDiscontinued = context.StyleHubProductAdmin.isDiscontinuedProduct;
+    assert.equal(isDiscontinued('dress-8'), true);
+    assert.equal(isDiscontinued('dress-7'), false);
+    assert.equal(isDiscontinued('custom-mens-new-tee'), false);
+    assert.equal(isDiscontinued('custom-womens-chua-dong-bo'), false, 'sản phẩm admin có thể được nạp muộn (Firebase) nên không bị gỡ khỏi giỏ');
+    assert.equal(isDiscontinued(''), false);
+    assert.equal(isDiscontinued(undefined), false);
+});

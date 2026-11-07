@@ -948,12 +948,23 @@ const database = {
         return { status: "in", label: "In Stock", vn: "Còn hàng", qty: stock };
     }
 
+    /* Sản phẩm NGỪNG KINH DOANH = mã sản phẩm có sẵn của website nhưng không còn trong `database`
+       (đã gỡ khỏi file này, ví dụ dress-8). Giỏ hàng, checkout và "Đặt lại đơn này" dùng hàm này để
+       không bán tiếp món đã gỡ còn lưu trong trình duyệt của khách cũ. Sản phẩm do admin tạo (mã custom-*)
+       có thể được nạp muộn hơn nên không bao giờ bị coi là ngừng kinh doanh. */
+    function isDiscontinuedProduct(productId) {
+        const id = String(productId || "").trim();
+        if (!id || /^custom-/i.test(id) || typeof database === "undefined" || !database) return false;
+        return !Object.prototype.hasOwnProperty.call(database, id);
+    }
+
     applyAdminProductsToDatabase();
 
     window.StyleHubProductAdmin = {
         customProductsKey: CUSTOM_PRODUCTS_KEY,
         inventoryKey: INVENTORY_KEY,
         applyAdminProductsToDatabase: applyAdminProductsToDatabase,
+        isDiscontinuedProduct: isDiscontinuedProduct,
         getAdminStockInfo: getAdminStockInfo,
         inferDepartment: inferDepartment,
         sanitizeProductRecord: sanitizeProductRecord,

@@ -258,7 +258,7 @@
     function renderEval() {
         var R = evalData;
         if (!R) return;
-        document.getElementById('evalMeta').textContent = 'Nguồn dữ liệu: ' + (R.dataKind === 'simulated' ? 'MÔ PHỎNG (' + R.config.users + ' người dùng × ' + R.config.items + ' sản phẩm thật, ' + R.config.seeds + ' seed)' : 'THẬT') +
+        document.getElementById('evalMeta').textContent = 'Nguồn dữ liệu: ' + (R.dataKind === 'simulated' ? 'MÔ PHỎNG (' + R.config.users + ' người dùng × ' + R.config.items + ' sản phẩm thật' + (R.config.catalog === 'snapshot' ? ' — ảnh chụp danh mục cố định lúc thực nghiệm' : '') + ', ' + R.config.seeds + ' seed)' : 'THẬT') +
             ' · cập nhật ' + new Date(R.generatedAt).toLocaleString('vi-VN') + ' · thời gian chạy ' + R.runtimeSeconds + 's';
         var main = R.main, names = Object.keys(main);
         var hyb = main['Hybrid v2 (tinh chỉnh)'], leg = main['Thuật toán cũ (v1)'];

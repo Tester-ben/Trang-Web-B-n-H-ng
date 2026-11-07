@@ -255,7 +255,9 @@
     }
 
     /** Gợi ý cho trang chi tiết sản phẩm (tương thích API cũ). */
-    function recommend(current, limit) { return fromServerOrLocal('product', catalog()[current] ? current : undefined, limit); }
+    // Sản phẩm không còn trong danh mục (link cũ tới món đã gỡ): dùng gợi ý cá nhân như trang chủ,
+    // không gửi yêu cầu ngữ cảnh "product" thiếu productId (máy chủ sẽ trả 404).
+    function recommend(current, limit) { return catalog()[current] ? fromServerOrLocal('product', current, limit) : fromServerOrLocal('home', undefined, limit); }
     /** Gợi ý cho trang chủ (tương thích API cũ). */
     function recommendHome(limit) { return fromServerOrLocal('home', undefined, limit); }
 

@@ -116,3 +116,47 @@ test('E2E có máy chủ: đăng nhập liên kết tài khoản, gợi ý từ 
         fs.rmSync(dataDir, { recursive: true, force: true });
     }
 });
+
+test('E2E: món đã ngừng kinh doanh (dress-8) bị gỡ khỏi BAG cũ, giỏ đặt lại và lịch sử chat; link cũ báo không còn bán', { skip, timeout: 120000 }, async () => {
+    const site = await staticServer();
+    const browser = await playwright.chromium.launch();
+    try {
+        const { page, errors } = await newPage(browser);
+        const stale = { key: 'dress-8', name: 'The Weekend Minimalist Urban Shirt', price: '580.000 ₫', priceNum: 580000, size: 'M', qty: 1 };
+        const kept = { key: 'dress-7', name: 'Món vẫn đang bán', price: '590.000 ₫', priceNum: 590000, size: 'L', qty: 1 };
+        await page.goto(site.url + '/mens.html', { waitUntil: 'domcontentloaded' });
+        await page.evaluate(([oldItem, okItem]) => {
+            const cart = JSON.stringify([oldItem, okItem]);
+            ['stylehub_cart_memory_v1', 'stylehub_cart', 'hub_cart', 'cartMemoryArray', 'the_style_hub_cart', 'cart'].forEach((k) => localStorage.setItem(k, cart));
+            const card = (id) => '<div class="tsh-ai-product-list"><div class="tsh-ai-product-card"><a class="tsh-ai-product-name" href="product-detail.html?id=' + id + '">' + id +
+                '</a><button class="tsh-ai-product-cart" type="button" data-product-id="' + id + '">🛒</button></div></div>';
+            localStorage.setItem('tsh_ai_pro_messages', JSON.stringify([{ who: 'bot', html: 'Gợi ý:' + card('dress-8') + card('dress-7'), meta: 'Stylist AI 10:00' }]));
+        }, [stale, kept]);
+        await page.reload({ waitUntil: 'domcontentloaded' });
+        await page.waitForTimeout(800);
+
+        assert.deepEqual(await page.evaluate(() => window.StyleHubCartSync.read().map((i) => i.key)), ['dress-7'], 'BAG chỉ còn món đang bán');
+        const stored = await page.evaluate(() => ['stylehub_cart_memory_v1', 'cart'].map((k) => localStorage.getItem(k) || ''));
+        assert.ok(stored.every((v) => v.includes('dress-7') && !v.includes('dress-8')), 'giỏ lưu trong trình duyệt đã được dọn: ' + stored.join(' | '));
+        assert.deepEqual(await page.$$eval('#tshAiBody .tsh-ai-product-card [data-product-id]', (els) => els.map((e) => e.dataset.productId)), ['dress-7'],
+            'lịch sử chat không còn thẻ của món đã gỡ');
+
+        // Giỏ "Đặt lại đơn này" còn sót từ trước khi gỡ: món đã gỡ bị bỏ qua.
+        await page.evaluate((oldItem) => localStorage.setItem('stylehub_reorder_cart', JSON.stringify([oldItem,
+            { key: 'dress-9', name: 'Món đặt lại', price: '490.000 ₫', priceNum: 490000, size: 'M', qty: 1 }])), stale);
+        await page.goto(site.url + '/product-detail.html?id=dress-9&reorder=1', { waitUntil: 'domcontentloaded' });
+        await page.waitForTimeout(800);
+        assert.deepEqual(await page.evaluate(() => (window.cartMemoryArray || []).map((i) => i.key)), ['dress-9']);
+
+        // Link cũ tới món đã gỡ: thông báo cho khách, không còn nút mua.
+        await page.goto(site.url + '/product-detail.html?id=dress-8', { waitUntil: 'domcontentloaded' });
+        await page.waitForTimeout(600);
+        assert.equal((await page.textContent('#product-name-target')).trim(), 'Sản phẩm hiện không còn bán');
+        assert.equal(await page.isVisible('.btn-add-to-bag'), false);
+        assert.equal(await page.isVisible('.size-selector-section'), false);
+        assert.deepEqual(errors, []);
+    } finally {
+        await browser.close();
+        await site.close();
+    }
+});

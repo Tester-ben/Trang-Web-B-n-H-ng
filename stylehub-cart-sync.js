@@ -114,8 +114,15 @@
         return Number.isNaN(qty) || qty < 1 ? 1 : qty;
     }
 
+    function isDiscontinued(productKey) {
+        const admin = window.StyleHubProductAdmin;
+        return !!(admin && typeof admin.isDiscontinuedProduct === "function" && admin.isDiscontinuedProduct(productKey));
+    }
+
     function normalizeItem(item) {
         if (!item || typeof item !== "object") return null;
+        // Món đã ngừng kinh doanh (gỡ khỏi product-data.js) không còn hiện trong BAG và không đặt được nữa.
+        if (isDiscontinued(item.key || item.id || item.productId)) return null;
 
         const priceText = item.price || item.itemPrice || item.productPrice || "";
         const priceNum = Number(item.priceNum || item.priceValue || item.unitPrice) || parseMoney(priceText);
@@ -216,14 +223,22 @@
         for (const key of CART_KEYS) {
             const rawCart = parseCart(localStorage.getItem(key));
             const cart = rawCart.map(normalizeItem).filter(Boolean);
+            const droppedDiscontinued = rawCart.some(function (item) {
+                return item && typeof item === "object" && isDiscontinued(item.key || item.id || item.productId);
+            });
             if (cart.length > 0) {
                 const mergedCart = mergeDuplicateCartItems(cart);
-                if (isCartChangedAfterMerge(cart, mergedCart)) {
+                if (droppedDiscontinued || isCartChangedAfterMerge(cart, mergedCart)) {
                     writeCartStorageOnly(mergedCart);
                 } else {
                     syncProductDetailCartMemory(mergedCart);
                 }
                 return mergedCart;
+            }
+            if (droppedDiscontinued) {
+                // Giỏ chỉ còn món đã ngừng kinh doanh: dọn sạch để badge/checkout không còn thấy chúng.
+                writeCartStorageOnly([]);
+                return [];
             }
         }
         syncProductDetailCartMemory([]);
