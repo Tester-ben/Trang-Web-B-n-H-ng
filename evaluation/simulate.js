@@ -5,7 +5,8 @@
    MÔ PHỎNG, không phải khách hàng thật — kết quả chỉ chứng minh cài đặt đúng và so
    sánh tương đối giữa các thuật toán dưới các giả định nêu dưới đây.
 
-   Mô hình sinh (trên danh mục 197 sản phẩm thật của website):
+   Mô hình sinh (trên danh mục 197 sản phẩm thật của website — ảnh chụp cố định
+   evaluation/catalog-snapshot.json, xem run-evaluation.js):
    - Mỗi người dùng u có: phân khúc (nam/nữ/mua cho trẻ em), trọng số phong cách,
      màu, loại sản phẩm (Dirichlet thưa), khoảng giá ưa thích, mức độ hoạt động
      (log-normal) và một "cụm gu" ẩn c(u) (K cụm).

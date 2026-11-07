@@ -8,7 +8,7 @@ Bản **v2** (nhánh `improve-fashion-recommender`) nâng cấp từ một websi
 - **Năm thuật toán thành phần** được tinh chỉnh bằng thực nghiệm có số liệu.
 - **Đánh giá sau mua** kèm phân tích cảm xúc tiếng Việt.
 - **Giải thích gợi ý (XAI)**, **quiz Style DNA** cho người dùng mới và **gợi ý phối đồ**.
-- **88 bài kiểm thử tự động**.
+- **89 bài kiểm thử tự động**.
 
 | Kết quả chính (thực nghiệm offline, dữ liệu **mô phỏng**, 3 seed) | Thuật toán cũ (v1) | **Hybrid v2** |
 |---|---|---|
@@ -19,7 +19,7 @@ Bản **v2** (nhánh `improve-fashion-recommender`) nâng cấp từ một websi
 | Người dùng mới — NDCG@10 | 0,059 | **0,242** (switching + quiz) |
 | Độ chính xác phân tích cảm xúc (tập held-out) | — | **82,5%** |
 
-> Dữ liệu thực nghiệm là **mô phỏng**, sinh từ danh mục 197 sản phẩm thật theo mô hình có công bố (`evaluation/simulate.js`). Kết quả chứng minh cài đặt đúng và cho phép so sánh tương đối. Khi có khách hàng thật, chạy lại bằng `npm run evaluate -- --data=server`. Chi tiết, kiểm định thống kê và hạn chế: [`docs/KET_QUA_THUC_NGHIEM.md`](docs/KET_QUA_THUC_NGHIEM.md).
+> Dữ liệu thực nghiệm là **mô phỏng**, sinh từ danh mục 197 sản phẩm thật theo mô hình có công bố (`evaluation/simulate.js`). Danh mục dùng cho thực nghiệm được chụp cố định trong `evaluation/catalog-snapshot.json`, nên website thêm/xóa sản phẩm sau đó vẫn tái lập đúng số liệu đã báo cáo. Kết quả chứng minh cài đặt đúng và cho phép so sánh tương đối. Khi có khách hàng thật, chạy lại bằng `npm run evaluate -- --data=server`. Chi tiết, kiểm định thống kê và hạn chế: [`docs/KET_QUA_THUC_NGHIEM.md`](docs/KET_QUA_THUC_NGHIEM.md).
 
 ---
 
@@ -44,7 +44,7 @@ Bản **v2** (nhánh `improve-fashion-recommender`) nâng cấp từ một websi
 │ db.js   SQLite (node:sqlite) | JSON dự phòng — schema.sql       │
 └─────────────────────────────────────────────────────────────────┘
 evaluation/  thực nghiệm offline (mô phỏng, độ đo, grid search, kiểm định)
-tests/       88 kiểm thử: engine, cảm xúc, bảo mật, chatbot, API, E2E
+tests/       89 kiểm thử: engine, cảm xúc, bảo mật, chatbot, API, E2E
 ```
 
 **Hai chế độ chạy:**
@@ -100,7 +100,7 @@ npm run evaluate
 npm run attributes
 ```
 
-- `npm test`: 88 kiểm thử. Bộ E2E tự bỏ qua nếu máy chưa có Playwright.
+- `npm test`: 89 kiểm thử. Bộ E2E tự bỏ qua nếu máy chưa có Playwright.
 - `npm run evaluate`: thực nghiệm offline (khoảng 1 phút). Lệnh này sinh lại `docs/KET_QUA_THUC_NGHIEM.md` và `recommender/tuned-weights.json`.
 - `npm run attributes`: sinh lại bảng thuộc tính sản phẩm sau khi sửa `tools/attribute-overrides.json`.
 
@@ -190,7 +190,7 @@ Dựa trên từ điển, có xử lý phủ định, từ nhấn mạnh, "nhưn
   - Kiểm định hoán vị cặp với 10.000 hoán vị.
   - Các thí nghiệm phụ: cold-start, ablation cảm xúc, độ nhạy ρ, số lượng người dùng.
   - Kết quả: [`docs/KET_QUA_THUC_NGHIEM.md`](docs/KET_QUA_THUC_NGHIEM.md).
-- **Kiểm thử tự động (`npm test`, 88 test):** engine (17), cảm xúc (5), bảo mật (26), chatbot (26), API trên cả SQLite lẫn JSON (12), E2E trên Chromium (2). Phương pháp và checklist UAT: [`docs/KIEM_THU.md`](docs/KIEM_THU.md).
+- **Kiểm thử tự động (`npm test`, 89 test):** engine (18), cảm xúc (5), bảo mật (26), chatbot (26), API trên cả SQLite lẫn JSON (12), E2E trên Chromium (2). Phương pháp và checklist UAT: [`docs/KIEM_THU.md`](docs/KIEM_THU.md).
 - **Danh sách lỗi đã sửa và tính năng mới, có đối chiếu file:** [`docs/BAO_CAO_NANG_CAP.md`](docs/BAO_CAO_NANG_CAP.md). **API:** [`docs/API.md`](docs/API.md).
 
 ## 6. Bảo mật

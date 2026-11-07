@@ -653,20 +653,6 @@ const database = {
             "https://yame.vn/cdn/shop/files/TheWeekend008TrangXanhDuong5.jpg?v=1769509802&width=713"
         ] 
     },
-    "dress-8": { 
-        key: "dress-8", 
-        brand: "The Weekend", 
-        name: "The Weekend Minimalist Urban Shirt", 
-        priceNum: 580000, 
-        price: "580.000 ₫", 
-        mainImg: "https://yame.vn/cdn/shop/files/TheWeekend036.jpg?v=1778465478&width=713", 
-        images: [
-            "https://yame.vn/cdn/shop/files/TheWeekend036.jpg?v=1778465478&width=713", 
-            "https://yame.vn/cdn/shop/files/0024593_thumb_2.jpg?v=1760801320&width=713", 
-            "https://yame.vn/cdn/shop/files/0024593_thumb_6.jpg?v=1760801328&width=713", 
-            "https://yame.vn/cdn/shop/files/TheWeekend036-TheNoStyle022-TheWeekend018.jpg?v=1767007256&width=713"
-        ] 
-    },
     "dress-9": { 
         key: "dress-9", 
         brand: "The Weekend", 

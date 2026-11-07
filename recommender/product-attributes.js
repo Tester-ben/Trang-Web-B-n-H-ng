@@ -1979,21 +1979,6 @@
             "fit": null,
             "brand": "the weekend"
         },
-        "dress-8": {
-            "gender": "men",
-            "category": "top",
-            "type": "shirt",
-            "colors": [],
-            "styles": [
-                "smart",
-                "minimal"
-            ],
-            "materials": [
-                "cotton"
-            ],
-            "fit": null,
-            "brand": "the weekend"
-        },
         "dress-9": {
             "gender": "men",
             "category": "top",

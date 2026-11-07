@@ -8,13 +8,13 @@ npm test
 
 Lệnh trên tương đương `node --test "tests/*.test.js"` và không cần cài thư viện.
 
-Kết quả tại thời điểm bàn giao: **88/88 đạt** (Node 22, Chromium headless có sẵn trong môi trường kiểm thử).
+Kết quả tại thời điểm bàn giao: **89/89 đạt** (Node 22, Chromium headless có sẵn trong môi trường kiểm thử).
 
 ## 1. Kim tự tháp kiểm thử
 
 | Tầng | File | Số test | Nội dung chính |
 |---|---|---|---|
-| Đơn vị — thuật toán | `tests/engine.test.js` | 17 | Suy luận thuộc tính; ma trận ưu tiên (giới hạn lượt xem, "không thích" ghi đè, bỏ yêu thích, loại sự kiện lỗi/tương lai); UserKNN dùng cả đánh giá ≥ 4★; chuẩn hóa = 1; lọc hàng đã mua/hết hàng/không ảnh/không thích; giải thích trung thực và gắn nhãn demo; cold-start + quiz; ngữ cảnh sản phẩm; MMR tăng ILD; BPR tái lập được và học được (AUC > 0,8); phối đồ đúng giới tính; Style DNA; switching + phiên đang mở; chặn giới tính; trọng số khớp `tuned-weights.json` |
+| Đơn vị — thuật toán | `tests/engine.test.js` | 18 | Suy luận thuộc tính; ma trận ưu tiên (giới hạn lượt xem, "không thích" ghi đè, bỏ yêu thích, loại sự kiện lỗi/tương lai); UserKNN dùng cả đánh giá ≥ 4★; chuẩn hóa = 1; lọc hàng đã mua/hết hàng/không ảnh/không thích; giải thích trung thực và gắn nhãn demo; cold-start + quiz; ngữ cảnh sản phẩm; MMR tăng ILD; BPR tái lập được và học được (AUC > 0,8); phối đồ đúng giới tính; Style DNA; switching + phiên đang mở; chặn giới tính; trọng số khớp `tuned-weights.json`; ảnh chụp danh mục của thực nghiệm còn nguyên |
 | Đơn vị — cảm xúc | `tests/sentiment.test.js` | 5 | Phủ định, nhấn mạnh, "thì… nhưng"; không dấu và âm tiết nhập nhằng; câu hỏi có/không; emoji; độ chính xác dev ≥ 90% và held-out ≥ 75% (đo được 82,5%) |
 | Đơn vị — bảo mật | `tests/security.test.js` | 26 | Vector chuẩn SHA-256/HMAC/PBKDF2; băm/kiểm tra mật khẩu; chuyển đổi tài khoản chữ thường; làm sạch sản phẩm; truy vấn đơn theo email với Firebase giả; mã nguồn không còn `admin123` |
 | Đơn vị — chatbot | `tests/chatbot.test.js` | 26 | So khớp theo từ; lọc ngân sách; luồng size giày; thêm giỏ đúng size; trạng thái gửi hỗ trợ; xử lý đầy bộ nhớ; thoát HTML; **câu hỏi ngoài phạm vi** (phép tính "1 + 1 =" không bị hiểu là ngân sách, "bạn là ai", thời tiết, giờ, câu lạc đề, câu hỏi nhạy cảm không bị chuyển cho nhân viên) |

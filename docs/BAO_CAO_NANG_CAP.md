@@ -13,7 +13,7 @@ Tài liệu này đối chiếu từng vấn đề nêu trong bản đánh giá 
 | 3 | Chuẩn hóa sai `Math.max(1, …)` (dòng 112) | `normalizeMap` chia cho giá trị lớn nhất thật; mọi thành phần đều nằm trong [0, 1] | Test: điểm cộng tác cao nhất = 1 |
 | 4 | Nhãn "Người có sở thích tương tự đã mua" xuất hiện cả khi đóng góp ≈ 0 (dòng 116) | `explain()` chọn thành phần đóng góp **lớn nhất**, kèm bằng chứng đếm được. Nút "Vì sao bạn thấy sản phẩm này?" hiển thị tỉ lệ từng thành phần. Bằng chứng chỉ từ tài khoản demo được ghi "(dữ liệu demo)" | Test "Giải thích trung thực", "Dữ liệu demo được ghi rõ" |
 | 5 | Trọng số chọn tay (0,65/0,35; 1/3/5/7) | Grid search thô → mịn (bước 0,2 → 0,1 → 0,05) trên validation theo thời gian, lấy trung bình 3 seed. Kết quả ghi ở `recommender/tuned-weights.json` | NDCG@10: trọng số đặt tay 0,251, sau tinh chỉnh 0,335 (p < 0,001). Test khẳng định engine dùng đúng trọng số đã tinh chỉnh |
-| 6 | Đặc trưng nội dung bằng regex: "T-Shirt" bị gắn cả `tee` lẫn `shirt`, không có IDF, tên đội bóng bị hiểu thành màu | Bảng thuộc tính có cấu trúc cho 197 sản phẩm (`recommender/product-attributes.js`, sinh bởi `tools/`, sửa tay qua `attribute-overrides.json`) + TF-IDF có trọng số theo nhóm | Test suy luận thuộc tính; test bảng thuộc tính khớp toàn bộ danh mục |
+| 6 | Đặc trưng nội dung bằng regex: "T-Shirt" bị gắn cả `tee` lẫn `shirt`, không có IDF, tên đội bóng bị hiểu thành màu | Bảng thuộc tính có cấu trúc cho toàn bộ danh mục (`recommender/product-attributes.js`, sinh bởi `tools/`, sửa tay qua `attribute-overrides.json`) + TF-IDF có trọng số theo nhóm | Test suy luận thuộc tính; test bảng thuộc tính khớp toàn bộ danh mục |
 | 7 | Trang chủ dễ lặp lại sản phẩm vừa xem; heuristic "loại vừa xem" cứng | Có thành phần session (tương tự sản phẩm vừa xem, không tự so khớp), tăng trọng số khi đang trong phiên ≤ 30 phút, hệ số 0,9 cho sản phẩm chỉ mới xem (chọn bằng ablation), popularity trừ phần của chính người dùng | Ablation mục 5 trong `KET_QUA_THUC_NGHIEM.md`. E2E: trang chủ hiện "Vì bạn vừa xem…" |
 | 8 | Không có hệ thống đánh giá sản phẩm sau mua | `stylehub-reviews.js` + API `/api/products/:id/reviews`: chỉ khách **đã mua** mới đánh giá được, có điểm cảm xúc tiếng Việt, ẩn danh tên, cho xóa đánh giá của mình. Đánh giá là đầu vào của mô hình (`r_eff`) | `tests/server.test.js` (403 khi chưa mua). E2E mua → đánh giá → "Tích cực" |
 | 9 | Không có đánh giá định lượng | `evaluation/`: tách theo thời gian, 11 thuật toán (gồm bản port thuật toán cũ), P/R/NDCG/HR/MRR, Coverage, ILD, Novelty, kiểm định hoán vị, cold-start, ablation, độ nhạy ρ, quy mô cộng đồng | `docs/KET_QUA_THUC_NGHIEM.md` (sinh tự động, tái lập được nhờ seed cố định) |
@@ -54,7 +54,7 @@ Tài liệu này đối chiếu từng vấn đề nêu trong bản đánh giá 
 | Kiến trúc, backend, CSDL | 2,0 | 0,6 | 1,6 | Backend REST + SQLite có schema; trừ điểm vì đơn hàng vẫn ở Firebase |
 | Thực nghiệm, số liệu | 1,5 | 0,2 | 1,2 | Đầy đủ độ đo, kiểm định; trừ điểm vì dữ liệu mô phỏng |
 | Frontend, UX | 1,5 | 1,3 | 1,4 | XAI, quiz, phối đồ, đánh giá |
-| Chất lượng mã, bảo mật | 1,0 | 0,4 | 0,8 | Hết mật khẩu chữ, XSS, 88 test; HTML inline cũ chưa tách |
+| Chất lượng mã, bảo mật | 1,0 | 0,4 | 0,8 | Hết mật khẩu chữ, XSS, 89 test; HTML inline cũ chưa tách |
 | Tài liệu, tính trung thực | 1,0 | 0,8 | 0,9 | README, API, báo cáo sinh tự động, nêu rõ hạn chế |
 | **Tổng** | **10** | **4,9** | **≈ 8,6** | Để đạt ≥ 9: thu thập dữ liệu thật và đánh giá lại; chuyển đơn hàng về backend |
 

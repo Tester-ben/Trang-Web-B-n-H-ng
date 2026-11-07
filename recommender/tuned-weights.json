@@ -1,6 +1,6 @@
 {
   "_ghi_chu": "Trọng số hybrid (ngữ cảnh trang chủ) tinh chỉnh bằng grid search trên tập validation mô phỏng; trung bình 3 seed. Sinh bởi npm run evaluate.",
-  "generatedAt": "2026-11-06T05:29:27.174Z",
+  "generatedAt": "2026-11-07T00:27:44.273Z",
   "home": {
     "session": 0,
     "cb": 0.07,

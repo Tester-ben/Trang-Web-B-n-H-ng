@@ -1,8 +1,8 @@
 # Kết quả thực nghiệm hệ gợi ý — THE STYLE HUB
 
-> Tự động sinh bởi `npm run evaluate` lúc 2026-11-06T05:29:27.174Z. Không sửa tay — chạy lại lệnh để cập nhật.
+> Tự động sinh bởi `npm run evaluate` lúc 2026-11-07T00:27:44.273Z. Không sửa tay — chạy lại lệnh để cập nhật.
 
-**Nguồn dữ liệu: MÔ PHỎNG** (600 người dùng × 197 sản phẩm thật, 120 ngày, 3 seed, ρ = 0.5). Dữ liệu được sinh bởi `evaluation/simulate.js` theo mô hình độ hữu dụng có cả phần thuộc tính (content) và phần "gu cụm" ẩn (collaborative). Kết quả chứng minh cài đặt đúng và so sánh tương đối giữa thuật toán **dưới giả định của bộ mô phỏng**; cần đánh giá lại trên dữ liệu thật bằng `npm run evaluate -- --data=server`.
+**Nguồn dữ liệu: MÔ PHỎNG** (600 người dùng × 197 sản phẩm thật — ảnh chụp danh mục cố định `evaluation/catalog-snapshot.json`, 120 ngày, 3 seed, ρ = 0.5). Dữ liệu được sinh bởi `evaluation/simulate.js` theo mô hình độ hữu dụng có cả phần thuộc tính (content) và phần "gu cụm" ẩn (collaborative). Kết quả chứng minh cài đặt đúng và so sánh tương đối giữa thuật toán **dưới giả định của bộ mô phỏng**; cần đánh giá lại trên dữ liệu thật bằng `npm run evaluate -- --data=server`.
 
 ## 1. Giao thức
 
