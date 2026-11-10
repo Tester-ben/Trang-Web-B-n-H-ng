@@ -1130,7 +1130,10 @@
                     </div>
                 `;
 
-                const first = group.querySelector(".shoe-number-size");
+                // Size chọn sẵn từ link (vd. khu giày trang chủ: product-detail.html?id=shoe-1&size=42).
+                const wantedSize = new URLSearchParams(window.location.search).get("size");
+                const preferred = /^\d{2}$/.test(wantedSize || "") ? group.querySelector('.shoe-number-size[data-size="' + wantedSize + '"]') : null;
+                const first = preferred || group.querySelector(".shoe-number-size");
                 if (first) changeSize(first);
                 return;
             }

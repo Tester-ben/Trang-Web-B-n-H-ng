@@ -258,3 +258,31 @@ test('E2E: trang Admin có mục Hệ gợi ý (Streamlit), báo rõ khi ứng d
         await site.close();
     }
 });
+
+test('E2E: khu giày trang chủ dạng vòng cung — lấy giày từ danh mục, xoay bằng bánh xe/phím, bấm mở trang sản phẩm', { skip, timeout: 120000 }, async () => {
+    const site = await staticServer();
+    const browser = await playwright.chromium.launch();
+    try {
+        const { page, errors } = await newPage(browser);
+        await page.goto(site.url + '/index.html', { waitUntil: 'load' });
+        await page.waitForSelector('[data-shoes-orbit].is-ready .sh-orbit-shoe');
+        const shoes = await page.$$eval('.sh-orbit-shoe', (els) => els.map((a) => a.getAttribute('href')));
+        assert.ok(shoes.length >= 10 && shoes.every((h) => /^product-detail\.html\?id=shoe-\d+$/.test(h)), shoes.join(','));
+        assert.equal(await page.$$eval('[data-shoes-orbit] .stylehub-wishlist-btn, [data-shoes-orbit] .stylehub-stock-badge', (els) => els.length), 0, 'không bị gắn nút tim / nhãn kho chồng lên');
+        assert.equal(await page.textContent('[data-orbit-count]'), '02 / ' + String(shoes.length).padStart(2, '0'));
+        await page.focus('[data-orbit-wheel]');
+        await page.keyboard.press('ArrowRight');
+        await page.waitForTimeout(800);
+        assert.equal(await page.textContent('[data-orbit-count]'), '03 / ' + String(shoes.length).padStart(2, '0'));
+        assert.equal(await page.getAttribute('[data-orbit-link]', 'href'), 'product-detail.html?id=shoe-3');
+        assert.equal(await page.getAttribute('[data-orbit-sizes] a[data-size="42"]', 'href'), 'product-detail.html?id=shoe-3&size=42');
+        await page.click('[data-orbit-sizes] a[data-size="42"]');
+        await page.waitForURL(/product-detail\.html\?id=shoe-3&size=42/);
+        await page.waitForSelector('.shoe-number-size');
+        assert.equal(await page.$eval('.shoe-number-size.selected', (b) => b.dataset.size), '42', 'trang sản phẩm chọn sẵn size đã bấm');
+        assert.deepEqual(errors, []);
+    } finally {
+        await browser.close();
+        await site.close();
+    }
+});

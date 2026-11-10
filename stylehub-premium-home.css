@@ -87,13 +87,6 @@ html{scroll-behavior:smooth}
 .premium-home .shoes-hero-content h2{font-family:var(--sh-editorial);font-size:clamp(60px,8vw,110px);letter-spacing:1px;margin-bottom:26px}
 .premium-home .shoes-shop-btn{padding:17px 70px;background:#f5f1e9;color:#111;letter-spacing:3px;border:1px solid #f5f1e9;transition:background .3s,transform .3s}
 .premium-home .shoes-shop-btn:hover{background:#dfc6a4;transform:translateY(-3px)}
-.premium-home .home-shoes-marquee-section{padding-top:90px;background:transparent}
-.premium-home .home-shoes-marquee-heading h3{font:400 clamp(31px,4vw,55px)/1.1 var(--sh-editorial);letter-spacing:1px}
-.premium-home .home-shoes-marquee-heading p{color:#a08463}
-.premium-home .home-shoes-marquee-viewport::before{background:linear-gradient(to right,#f8f7f4,transparent)}
-.premium-home .home-shoes-marquee-viewport::after{background:linear-gradient(to left,#f8f7f4,transparent)}
-.premium-home .home-shoe-marquee-card img{background:#eae7e1}
-.premium-home .home-shoes-marquee-track{animation-duration:52s}
 /* Animate only enhanced sections, without blank content when JS is off. */
 .sh-enhance-ready .sh-reveal{opacity:0;transform:translateY(38px);transition:opacity .82s ease,transform .82s cubic-bezier(.16,.65,.23,1)}
 .sh-enhance-ready .sh-reveal.sh-visible{opacity:1;transform:translateY(0)}
@@ -122,11 +115,9 @@ html{scroll-behavior:smooth}
   .premium-home main.container{padding:50px 16px}
   .premium-home .shoes-hero{height:65svh;min-height:435px}
   .premium-home .shoes-shop-btn{padding:16px 48px}
-  .premium-home .home-shoes-marquee-section{padding-top:48px}
-  .premium-home .home-shoes-marquee-heading{padding-left:0;padding-right:0}
 }
 @media(max-width:420px){.premium-home .sh-hero-description{max-width:275px}.premium-home .sh-hero-secondary{display:none}}
-@media(prefers-reduced-motion:reduce){.premium-home .home-shoes-marquee-track,.premium-home .sh-scroll-cue span{animation:none!important}.premium-home .main-hero-img,.premium-home .hero-image-wrapper,.premium-home .hero-image-wrapper img,.premium-home .shoes-hero img{transition:none!important;transform:none!important}.sh-enhance-ready .sh-reveal{opacity:1!important;transform:none!important;transition:none!important}}
+@media(prefers-reduced-motion:reduce){.premium-home .sh-scroll-cue span{animation:none!important}.premium-home .main-hero-img,.premium-home .hero-image-wrapper,.premium-home .hero-image-wrapper img,.premium-home .shoes-hero img{transition:none!important;transform:none!important}.sh-enhance-ready .sh-reveal{opacity:1!important;transform:none!important;transition:none!important}}
 
 /* === HOME V3: LẬT OUTFIT 3D — chỉ áp dụng khu Được chọn cho bạn === */
 .premium-home .sh-pick-stage{position:relative;min-width:0;isolation:isolate;transition:filter .35s ease}
