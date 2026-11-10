@@ -214,12 +214,11 @@
         if (canFlip) {
           const backImg = addPhotoSide(flipper, secondSrc, 'Góc nhìn thứ hai: ' + (product.name || 'Sản phẩm'), 'back');
           // Nếu ảnh phụ lỗi, lật phải tự tắt để không có mặt sau trống.
-          backImg.addEventListener('error', () => { stage.classList.remove('sh-has-flip', 'sh-flipped'); });
-          const hint = document.createElement('span');
-          hint.className = 'sh-pick-flip-hint';
-          hint.setAttribute('aria-hidden', 'true');
-          hint.textContent = '↻  LẬT XEM OUTFIT';
-          photo.appendChild(hint);
+          backImg.addEventListener('error', () => {
+            stage.classList.remove('sh-has-flip', 'sh-flipped');
+            const toggle = stage.querySelector('.sh-pick-flip-toggle');
+            if (toggle) toggle.remove();
+          });
         }
         photo.prepend(flipper);
         const brand = document.createElement('span');
@@ -247,12 +246,12 @@
           flip.className = 'sh-pick-flip-toggle';
           flip.setAttribute('aria-label', 'Lật xem mặt sau: ' + (product.name || key));
           flip.setAttribute('aria-pressed', 'false');
-          flip.textContent = '↻ XEM MẶT SAU';
+          flip.textContent = '↻'; // chỉ biểu tượng, không chữ đè lên ảnh
           flip.addEventListener('click', () => {
             const flipped = stage.classList.toggle('sh-flipped');
             flip.setAttribute('aria-pressed', String(flipped));
             flip.setAttribute('aria-label', (flipped ? 'Quay lại mặt trước: ' : 'Lật xem mặt sau: ') + (product.name || key));
-            flip.textContent = flipped ? '↶ MẶT TRƯỚC' : '↻ XEM MẶT SAU';
+            flip.textContent = flipped ? '↶' : '↻';
           });
           stage.appendChild(flip);
         }
