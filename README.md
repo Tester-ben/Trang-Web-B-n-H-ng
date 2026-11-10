@@ -8,7 +8,7 @@ Bản **v2** (nhánh `improve-fashion-recommender`) nâng cấp từ một websi
 - **Năm thuật toán thành phần** được tinh chỉnh bằng thực nghiệm có số liệu.
 - **Đánh giá sau mua** kèm phân tích cảm xúc tiếng Việt.
 - **Giải thích gợi ý (XAI)**, **quiz Style DNA** cho người dùng mới và **gợi ý phối đồ**.
-- **91 bài kiểm thử tự động**.
+- **93 bài kiểm thử tự động**.
 
 | Kết quả chính (thực nghiệm offline, dữ liệu **mô phỏng**, 3 seed) | Thuật toán cũ (v1) | **Hybrid v2** |
 |---|---|---|
@@ -44,7 +44,7 @@ Bản **v2** (nhánh `improve-fashion-recommender`) nâng cấp từ một websi
 │ db.js   SQLite (node:sqlite) | JSON dự phòng — schema.sql       │
 └─────────────────────────────────────────────────────────────────┘
 evaluation/  thực nghiệm offline (mô phỏng, độ đo, grid search, kiểm định)
-tests/       91 kiểm thử: engine, cảm xúc, bảo mật, chatbot, API, E2E
+tests/       93 kiểm thử: engine, cảm xúc, bảo mật, danh mục, chatbot, API, E2E
 ```
 
 **Hai chế độ chạy:**
@@ -100,7 +100,7 @@ npm run evaluate
 npm run attributes
 ```
 
-- `npm test`: 91 kiểm thử. Bộ E2E tự bỏ qua nếu máy chưa có Playwright.
+- `npm test`: 93 kiểm thử. Bộ E2E tự bỏ qua nếu máy chưa có Playwright.
 - `npm run evaluate`: thực nghiệm offline (khoảng 1 phút). Lệnh này sinh lại `docs/KET_QUA_THUC_NGHIEM.md` và `recommender/tuned-weights.json`.
 - `npm run attributes`: sinh lại bảng thuộc tính sản phẩm sau khi sửa `tools/attribute-overrides.json`.
 
@@ -190,7 +190,7 @@ Dựa trên từ điển, có xử lý phủ định, từ nhấn mạnh, "nhưn
   - Kiểm định hoán vị cặp với 10.000 hoán vị.
   - Các thí nghiệm phụ: cold-start, ablation cảm xúc, độ nhạy ρ, số lượng người dùng.
   - Kết quả: [`docs/KET_QUA_THUC_NGHIEM.md`](docs/KET_QUA_THUC_NGHIEM.md).
-- **Kiểm thử tự động (`npm test`, 91 test):** engine (18), cảm xúc (5), bảo mật (27), chatbot (26), API trên cả SQLite lẫn JSON (12), E2E trên Chromium (3). Phương pháp và checklist UAT: [`docs/KIEM_THU.md`](docs/KIEM_THU.md).
+- **Kiểm thử tự động (`npm test`, 93 test):** engine (18), cảm xúc (5), bảo mật (27), danh mục (1), chatbot (26), API trên cả SQLite lẫn JSON (12), E2E trên Chromium (4). Phương pháp và checklist UAT: [`docs/KIEM_THU.md`](docs/KIEM_THU.md).
 - **Danh sách lỗi đã sửa và tính năng mới, có đối chiếu file:** [`docs/BAO_CAO_NANG_CAP.md`](docs/BAO_CAO_NANG_CAP.md). **API:** [`docs/API.md`](docs/API.md).
 
 ## 6. Bảo mật

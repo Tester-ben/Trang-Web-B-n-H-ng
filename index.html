@@ -1164,9 +1164,12 @@
                 } else {
                     cancelAnimationFrame(animationFrameId);
                     canvas.style.display = 'none';
-                    showToast(`XIN CHÀO ${displayName.toUpperCase()}! ĐĂNG NHẬP THÀNH CÔNG.`);
-                    showPage('dashboard');
-                    checkGlobalLoginStatus();
+                    // Chỉ luồng đăng nhập truyền tên; pháo hoa sau khi đặt hàng (gọi không kèm tên) không chuyển trang.
+                    if (displayName) {
+                        showToast(`XIN CHÀO ${String(displayName).toUpperCase()}! ĐĂNG NHẬP THÀNH CÔNG.`);
+                        showPage('dashboard');
+                        checkGlobalLoginStatus();
+                    }
                 }
             }
             loop();

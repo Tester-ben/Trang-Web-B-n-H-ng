@@ -191,3 +191,39 @@ test('E2E: món đã ngừng kinh doanh (dress-8) bị gỡ khỏi BAG cũ, gi�
         await site.close();
     }
 });
+
+test('E2E: đặt hàng từ BAG rồi bấm hoàn tất (pháo hoa) không gây lỗi JS', { skip, timeout: 120000 }, async () => {
+    const site = await staticServer();
+    const browser = await playwright.chromium.launch();
+    try {
+        for (const pageName of ['mens.html', 'index.html']) {
+            const { ctx, page, errors } = await newPage(browser);
+            await page.goto(site.url + '/' + pageName, { waitUntil: 'domcontentloaded' });
+            await page.evaluate(() => {
+                const cart = JSON.stringify([{ key: 'dress-7', name: 'Món thử', price: '590.000 ₫', priceNum: 590000, size: 'M', qty: 1 }]);
+                ['stylehub_cart_memory_v1', 'stylehub_cart', 'hub_cart', 'cartMemoryArray', 'the_style_hub_cart', 'cart'].forEach((k) => localStorage.setItem(k, cart));
+            });
+            await page.reload({ waitUntil: 'load' });
+            await page.waitForTimeout(1000); // chờ các script khởi tạo trang chạy xong (có script tự đóng BAG lúc tải)
+            await page.evaluate(() => window.StyleHubCartSync.openBag());
+            await page.waitForSelector('#bag-modal .stylehub-universal-checkout', { state: 'visible' });
+            await page.waitForTimeout(400);
+            await page.click('#bag-modal .stylehub-universal-checkout');
+            await page.waitForSelector('#stylehubCheckoutName', { state: 'visible' });
+            await page.fill('#stylehubCheckoutName', 'Khach Thu');
+            await page.fill('#stylehubCheckoutPhone', '0900000000');
+            await page.fill('#stylehubCheckoutAddress', '1 Duong Thu, Quan 1, TP HCM');
+            await page.fill('#stylehubCheckoutEmail', 'khach.thu@example.com');
+            await page.click('#bag-modal .stylehub-checkout-submit');
+            await page.waitForSelector('#bag-modal .stylehub-checkout-done', { state: 'visible' });
+            await page.waitForTimeout(300);
+            await page.click('#bag-modal .stylehub-checkout-done');
+            await page.waitForTimeout(5000); // pháo hoa chạy hết
+            assert.deepEqual(errors, [], pageName);
+            await ctx.close();
+        }
+    } finally {
+        await browser.close();
+        await site.close();
+    }
+});
