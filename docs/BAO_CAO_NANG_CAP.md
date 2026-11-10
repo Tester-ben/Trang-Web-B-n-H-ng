@@ -45,6 +45,7 @@ Tài liệu này đối chiếu từng vấn đề nêu trong bản đánh giá 
 8. **Bảng nghiên cứu** `research-dashboard.html`: biểu đồ thực nghiệm (có tooltip, bảng số liệu, kiểm định bảng màu cho người mù màu) và số liệu vận hành (CTR theo vị trí gợi ý, phân bố cảm xúc, độ thưa ma trận).
 9. **Đo CTR thật:** ghi lượt hiển thị và lượt nhấp của từng khu gợi ý, sẵn sàng cho A/B test.
 10. **Cộng đồng demo minh bạch:** `npm run seed:demo` tạo tài khoản mô phỏng không đăng nhập được, luôn gắn nhãn "dữ liệu demo".
+11. **Ứng dụng Streamlit (Python)** `streamlit_app/`: trình diễn gợi ý cá nhân kèm biểu đồ đóng góp từng thuật toán, quiz khách mới, sản phẩm tương tự và phối đồ, kết quả thực nghiệm, phân tích cảm xúc. Gọi chung bộ máy `recommender/engine.js` qua `bridge.js` nên kết quả khớp website và báo cáo; đọc được dữ liệu mô phỏng hoặc dữ liệu thật của backend.
 
 ## 4. Tự đánh giá lại theo thang điểm phản biện
 
@@ -54,7 +55,7 @@ Tài liệu này đối chiếu từng vấn đề nêu trong bản đánh giá 
 | Kiến trúc, backend, CSDL | 2,0 | 0,6 | 1,6 | Backend REST + SQLite có schema; trừ điểm vì đơn hàng vẫn ở Firebase |
 | Thực nghiệm, số liệu | 1,5 | 0,2 | 1,2 | Đầy đủ độ đo, kiểm định; trừ điểm vì dữ liệu mô phỏng |
 | Frontend, UX | 1,5 | 1,3 | 1,4 | XAI, quiz, phối đồ, đánh giá |
-| Chất lượng mã, bảo mật | 1,0 | 0,4 | 0,8 | Hết mật khẩu chữ, XSS, 93 test; HTML inline cũ chưa tách |
+| Chất lượng mã, bảo mật | 1,0 | 0,4 | 0,8 | Hết mật khẩu chữ, XSS, 95 test; HTML inline cũ chưa tách |
 | Tài liệu, tính trung thực | 1,0 | 0,8 | 0,9 | README, API, báo cáo sinh tự động, nêu rõ hạn chế |
 | **Tổng** | **10** | **4,9** | **≈ 8,6** | Để đạt ≥ 9: thu thập dữ liệu thật và đánh giá lại; chuyển đơn hàng về backend |
 

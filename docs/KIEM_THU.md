@@ -8,7 +8,7 @@ npm test
 
 Lệnh trên tương đương `node --test "tests/*.test.js"` và không cần cài thư viện.
 
-Kết quả tại thời điểm bàn giao: **93/93 đạt** (Node 22, Chromium headless có sẵn trong môi trường kiểm thử).
+Kết quả tại thời điểm bàn giao: **95/95 đạt** (Node 22, Chromium headless có sẵn trong môi trường kiểm thử).
 
 ## 1. Kim tự tháp kiểm thử
 
@@ -20,6 +20,7 @@ Kết quả tại thời điểm bàn giao: **93/93 đạt** (Node 22, Chromium 
 | Dữ liệu — danh mục | `tests/catalog.test.js` | 1 | Mọi thẻ sản phẩm viết sẵn trong các trang HTML khớp `product-data.js` (tên, giá — trang Sale so giá đã giảm, thương hiệu, ảnh) |
 | Đơn vị — chatbot | `tests/chatbot.test.js` | 26 | So khớp theo từ; lọc ngân sách; luồng size giày; thêm giỏ đúng size; trạng thái gửi hỗ trợ; xử lý đầy bộ nhớ; thoát HTML; **câu hỏi ngoài phạm vi** (phép tính "1 + 1 =" không bị hiểu là ngân sách, "bạn là ai", thời tiết, giờ, câu lạc đề, câu hỏi nhạy cảm không bị chuyển cho nhân viên) |
 | Tích hợp — API | `tests/server.test.js` | 12 | Chạy trên **cả SQLite và JSON**: health, file tĩnh, chặn đọc mã/dữ liệu (kể cả `%2e%2e`); đăng ký/đăng nhập/token/415; **CF đa thiết bị** (A nhận sản phẩm B đã mua và B chấm 5★, không nhận đồ của C khác gu, `strategy=social`); đánh giá chỉ khi đã mua, cảm xúc, chống chèn HTML, ẩn danh; quiz, xóa lịch sử, thống kê admin, CORS; rate limit đăng nhập; dữ liệu demo không đăng nhập được và luôn gắn nhãn |
+| Tích hợp — Streamlit | `tests/streamlit-bridge.test.js` | 2 | Cầu nối Python ↔ hệ gợi ý (`streamlit_app/bridge.js`): danh mục, gợi ý cá nhân có tính tất định, quiz khách mới ưu tiên đúng giới tính, sản phẩm tương tự và phối đồ, công thức r_eff; báo lỗi rõ khi lệnh sai, sản phẩm không có, chưa có dữ liệu máy chủ |
 | Đầu-cuối — trình duyệt | `tests/browser-e2e.test.js` | 4 | Chế độ tĩnh (gợi ý, phối đồ, chặn đánh giá, đánh giá hợp gu, trang chủ phản ánh lượt xem, quiz) và chế độ máy chủ (đăng ký → đăng nhập → liên kết → gợi ý từ máy chủ → đặt hàng → đánh giá có cảm xúc); khách cũ còn sản phẩm đã gỡ trong BAG/giỏ đặt lại/lịch sử chat, link cũ tới sản phẩm đó và sản phẩm admin đồng bộ muộn từ Firebase; đặt hàng từ BAG rồi bấm hoàn tất (pháo hoa) không lỗi JS. Tự bỏ qua nếu chưa cài Playwright |
 
 Kiểm thử thủ công đã chạy thêm trên Chromium cho cả 17 trang HTML ở viewport 1280px và 390px. Kết quả: không có lỗi JS (riêng `email.html`/`emailjs-test.html` cần CDN EmailJS), không tràn ngang trên mobile.

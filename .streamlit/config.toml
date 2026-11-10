@@ -1,0 +1,14 @@
+# Giao diện ứng dụng Streamlit (streamlit_app/app.py) theo tông màu của website.
+[theme]
+base = "light"
+primaryColor = "#111111"
+backgroundColor = "#faf8f5"
+secondaryBackgroundColor = "#f1ede6"
+textColor = "#111111"
+
+[browser]
+gatherUsageStats = false
+
+[client]
+# Ẩn nút "Deploy" và menu dành cho lập trình viên khi trình diễn.
+toolbarMode = "minimal"
