@@ -12,6 +12,8 @@ Streamlit (Python, app.py)  ──JSON──▶  node bridge.js  ──▶  reco
                                                   └──▶  product-data.js, evaluation/simulate.js, server/data
 ```
 
+**Bản đang chạy trên mạng:** <https://style-recommender.streamlit.app> (cũng hiện trong trang Admin → mục *Hệ gợi ý (Streamlit)*).
+
 ## Các trang
 
 | Trang | Nội dung |

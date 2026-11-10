@@ -990,7 +990,7 @@
     /* ===== HỆ GỢI Ý (STREAMLIT) =====
        Nhúng ứng dụng Python streamlit_app/app.py. Sau khi đưa ứng dụng lên Streamlit Community Cloud,
        có thể dán link vào STREAMLIT_DEFAULT_URL để mọi máy đều thấy mà không cần nhập. */
-    const STREAMLIT_DEFAULT_URL = '';
+    const STREAMLIT_DEFAULT_URL = 'https://style-recommender.streamlit.app';
     const STREAMLIT_URL_KEY = 'stylehub_streamlit_url';
     let streamlitLoadedSrc = '';
 
@@ -1047,11 +1047,17 @@
     }
 
     // Kiểm tra máy chủ Streamlit có đang chạy (điểm /_stcore/health) trước khi nhúng.
+    // Ứng dụng trên Streamlit Community Cloud (*.streamlit.app) đặt điểm này dưới /~/+/.
+    function streamlitHealthUrl(url) {
+        const isCloud = /\.streamlit\.app$/i.test(new URL(url).hostname);
+        return url + (isCloud ? '/~/+/_stcore/health' : '/_stcore/health');
+    }
+
     async function probeStreamlit(url) {
         const controller = typeof AbortController === 'function' ? new AbortController() : null;
         const timer = controller ? setTimeout(function() { controller.abort(); }, 8000) : null;
         try {
-            await fetch(url + '/_stcore/health', { mode: 'no-cors', cache: 'no-store', signal: controller ? controller.signal : undefined });
+            await fetch(streamlitHealthUrl(url), { mode: 'no-cors', cache: 'no-store', signal: controller ? controller.signal : undefined });
             return true;
         } catch (error) {
             return false;

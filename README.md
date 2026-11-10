@@ -120,7 +120,7 @@ pip install -r streamlit_app/requirements.txt
 streamlit run streamlit_app/app.py
 ```
 
-Trình duyệt mở http://localhost:8501. Ứng dụng cũng hiện ngay trong **trang Admin → mục "Hệ gợi ý (Streamlit)"**: trên máy tự dùng `http://localhost:8501`; khi đã đưa lên Streamlit Community Cloud thì dán link `https://….streamlit.app` vào ô địa chỉ của mục này (hoặc đặt sẵn ở hằng `STREAMLIT_DEFAULT_URL` trong `admin.html`).
+Trình duyệt mở http://localhost:8501. Bản đang chạy trên mạng: https://style-recommender.streamlit.app. Ứng dụng cũng hiện ngay trong **trang Admin → mục "Hệ gợi ý (Streamlit)"**: trên máy tự dùng `http://localhost:8501`; khi đã đưa lên Streamlit Community Cloud thì dán link `https://….streamlit.app` vào ô địa chỉ của mục này (hoặc đặt sẵn ở hằng `STREAMLIT_DEFAULT_URL` trong `admin.html`).
 
 Chế độ tĩnh: mở `index.html` bằng Live Server như trước. Mật khẩu admin demo chỉ dùng cho chế độ này: `admin123`, được lưu dạng băm PBKDF2 và không phải bảo mật thật.
 
