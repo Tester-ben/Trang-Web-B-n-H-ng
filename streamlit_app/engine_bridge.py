@@ -7,6 +7,7 @@ và của thực nghiệm offline, không có bản sao thứ hai có thể lệ
 from __future__ import annotations
 
 import json
+import os
 import shutil
 import subprocess
 from pathlib import Path
@@ -23,6 +24,17 @@ class BridgeError(RuntimeError):
 
 
 def node_executable() -> str | None:
+    """Ưu tiên Node.js cài kèm qua pip (gói nodejs-wheel-binaries trong requirements.txt),
+    nên chạy được cả trên Streamlit Community Cloud và trên máy chưa cài Node.js."""
+    try:
+        import nodejs_wheel  # type: ignore
+
+        base = Path(nodejs_wheel.__file__).resolve().parent
+        bundled = base / "node.exe" if os.name == "nt" else base / "bin" / "node"
+        if bundled.exists():
+            return str(bundled)
+    except ImportError:
+        pass
     return shutil.which("node")
 
 
@@ -30,8 +42,9 @@ def call(request: dict[str, Any], timeout: int = 120) -> Any:
     node = node_executable()
     if not node:
         raise BridgeError(
-            "Không tìm thấy Node.js. Hãy cài Node.js 18 trở lên (https://nodejs.org) — "
-            "ứng dụng dùng chung bộ máy gợi ý JavaScript với website."
+            "Không tìm thấy Node.js. Hãy chạy: pip install -r streamlit_app/requirements.txt "
+            "(cài kèm Node.js) hoặc cài Node.js 18+ từ https://nodejs.org — ứng dụng dùng chung "
+            "bộ máy gợi ý JavaScript với website."
         )
     try:
         proc = subprocess.run(

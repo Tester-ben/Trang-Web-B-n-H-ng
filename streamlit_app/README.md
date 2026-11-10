@@ -25,7 +25,7 @@ Streamlit (Python, app.py)  ──JSON──▶  node bridge.js  ──▶  reco
 
 ## Chạy trên máy
 
-Cần **Python 3.9+** và **Node.js 18+** (Node.js đã cần sẵn cho backend của website).
+Cần **Python 3.9+**. Lệnh cài dưới đây cài luôn Node.js (gói `nodejs-wheel-binaries`), không cần cài Node riêng.
 
 ```bash
 pip install -r streamlit_app/requirements.txt
@@ -60,8 +60,7 @@ Trang `admin.html` có mục **"Hệ gợi ý (Streamlit)"** ở thanh menu bên
 1. Vào <https://share.streamlit.io>, đăng nhập bằng GitHub.
 2. **Create app** → chọn repository này, nhánh `improve-fashion-recommender`,
    **Main file path:** `streamlit_app/app.py` → **Deploy**.
-3. `streamlit_app/requirements.txt` (thư viện Python) và `streamlit_app/packages.txt` (cài Node.js) được
-   nhận tự động.
+3. `streamlit_app/requirements.txt` được nhận tự động (gồm cả Node.js cho bộ máy gợi ý).
 
 ## Kiểm thử
 

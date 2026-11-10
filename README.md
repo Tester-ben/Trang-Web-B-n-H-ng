@@ -110,7 +110,7 @@ Biến môi trường: `PORT`, `HOST`, `STYLEHUB_DATA_DIR`, `STYLEHUB_ADMIN_EMAI
 
 ### Ứng dụng Streamlit (Python)
 
-Ứng dụng trình diễn hệ gợi ý bằng **Streamlit** nằm trong [`streamlit_app/`](streamlit_app/README.md): gợi ý cho từng khách hàng kèm lời giải thích, quiz khách mới, sản phẩm tương tự và phối đồ, kết quả thực nghiệm, phân tích cảm xúc. Cần Python 3.9+ và Node.js 18+. Chạy từ thư mục gốc:
+Ứng dụng trình diễn hệ gợi ý bằng **Streamlit** nằm trong [`streamlit_app/`](streamlit_app/README.md): gợi ý cho từng khách hàng kèm lời giải thích, quiz khách mới, sản phẩm tương tự và phối đồ, kết quả thực nghiệm, phân tích cảm xúc. Cần Python 3.9+ (lệnh cài kèm sẵn Node.js qua pip). Chạy từ thư mục gốc:
 
 ```bash
 pip install -r streamlit_app/requirements.txt
@@ -231,7 +231,7 @@ Dựa trên từ điển, có xử lý phủ định, từ nhấn mạnh, "nhưn
 recommender/   engine.js · sentiment-vi.js · product-attributes.js (sinh tự động) · tuned-weights.json · load-catalog.js
 server/        server.js · app.js · db.js · schema.sql · auth.js · rate-limit.js · recommender-service.js · seed-demo.js · create-admin.js
 evaluation/    simulate.js · legacy-v1.js · metrics.js · run-evaluation.js · results/latest.json
-streamlit_app/ app.py (Streamlit) · engine_bridge.py · bridge.js · requirements.txt · packages.txt · README.md (+ .streamlit/config.toml ở thư mục gốc)
+streamlit_app/ app.py (Streamlit) · engine_bridge.py · bridge.js · requirements.txt · README.md (+ .streamlit/config.toml ở thư mục gốc)
 tests/         engine · sentiment · security · catalog · chatbot · server · streamlit-bridge · browser-e2e (+ fixtures/)
 tools/         generate-product-attributes.js · attribute-overrides.json
 docs/          KET_QUA_THUC_NGHIEM.md · BAO_CAO_NANG_CAP.md · KIEM_THU.md · API.md
