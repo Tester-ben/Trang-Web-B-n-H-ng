@@ -38,6 +38,14 @@ streamlit run streamlit_app/app.py
 Chạy lệnh từ **thư mục gốc của dự án** để nhận giao diện màu trong `.streamlit/config.toml`.
 Trình duyệt tự mở `http://localhost:8501`.
 
+## Xem trong trang Admin của website
+
+Trang `admin.html` có mục **"Hệ gợi ý (Streamlit)"** ở thanh menu bên trái. Mục này nhúng ứng dụng ngay trong trang Admin:
+
+- Chạy website trên máy (`npm start` hoặc Live Server): mục này tự dùng `http://localhost:8501`. Chỉ cần đang chạy `streamlit run streamlit_app/app.py`.
+- Website trên Vercel: đưa ứng dụng lên Streamlit Community Cloud (mục bên dưới), rồi dán link `https://….streamlit.app` vào ô **Địa chỉ ứng dụng Streamlit** và bấm **Lưu & tải lại**. Địa chỉ được lưu trên trình duyệt đó. Muốn mọi máy đều thấy mà không cần nhập, đặt link vào hằng `STREAMLIT_DEFAULT_URL` trong `admin.html`.
+- Website tự truyền địa chỉ của nó cho ứng dụng (tham số `?site=`), nên bấm tên sản phẩm trong Streamlit là mở đúng trang sản phẩm.
+
 ## Nguồn dữ liệu (thanh bên trái)
 
 - **Mô phỏng (mặc định):** khách hàng và hành vi sinh bởi `evaluation/simulate.js` — cùng bộ mô phỏng

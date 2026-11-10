@@ -227,3 +227,34 @@ test('E2E: đặt hàng từ BAG rồi bấm hoàn tất (pháo hoa) không gây
         await site.close();
     }
 });
+
+test('E2E: trang Admin có mục Hệ gợi ý (Streamlit), báo rõ khi ứng dụng chưa chạy và chỉ nhận địa chỉ http(s)', { skip, timeout: 120000 }, async () => {
+    const site = await staticServer();
+    const browser = await playwright.chromium.launch();
+    try {
+        const { page, errors } = await newPage(browser);
+        await page.goto(site.url + '/admin.html', { waitUntil: 'load' });
+        // Cổng 9 luôn đóng: kiểm thử không phụ thuộc việc máy đang chạy Streamlit hay không.
+        await page.evaluate(() => localStorage.setItem('stylehub_streamlit_url', 'http://127.0.0.1:9'));
+        await page.waitForTimeout(1200);
+        await page.fill('#adminPassword', 'admin123');
+        await page.click('#adminLoginButton');
+        await page.waitForSelector('.admin-nav-btn[data-tab="streamlit"]', { state: 'visible' });
+        await page.click('.admin-nav-btn[data-tab="streamlit"]');
+        await page.waitForFunction(() => document.getElementById('streamlitStatusChip').textContent === 'Không kết nối được', null, { timeout: 15000 });
+        assert.equal(await page.$eval('#streamlitFrame', (f) => f.hidden), true);
+        assert.match(await page.textContent('#streamlitEmpty'), /streamlit run streamlit_app\/app\.py/);
+
+        await page.fill('#streamlitUrlInput', 'javascript:alert(1)');
+        await page.click('text=Lưu & tải lại');
+        assert.equal(await page.evaluate(() => localStorage.getItem('stylehub_streamlit_url')), 'http://127.0.0.1:9', 'địa chỉ không phải http(s) bị từ chối');
+
+        await page.fill('#streamlitUrlInput', 'http://127.0.0.1:9/ung-dung/');
+        await page.click('text=Lưu & tải lại');
+        assert.equal(await page.evaluate(() => localStorage.getItem('stylehub_streamlit_url')), 'http://127.0.0.1:9/ung-dung');
+        assert.deepEqual(errors, []);
+    } finally {
+        await browser.close();
+        await site.close();
+    }
+});

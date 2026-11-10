@@ -8,8 +8,8 @@ Bản **v2** (nhánh `improve-fashion-recommender`) nâng cấp từ một websi
 - **Năm thuật toán thành phần** được tinh chỉnh bằng thực nghiệm có số liệu.
 - **Đánh giá sau mua** kèm phân tích cảm xúc tiếng Việt.
 - **Giải thích gợi ý (XAI)**, **quiz Style DNA** cho người dùng mới và **gợi ý phối đồ**.
-- **Ứng dụng Streamlit (Python)** trình diễn hệ gợi ý, dùng chung bộ máy với website: [`streamlit_app/`](streamlit_app/README.md).
-- **95 bài kiểm thử tự động**.
+- **Ứng dụng Streamlit (Python)** trình diễn hệ gợi ý, dùng chung bộ máy với website: [`streamlit_app/`](streamlit_app/README.md), xem ngay trong trang Admin (mục *Hệ gợi ý (Streamlit)*).
+- **96 bài kiểm thử tự động**.
 
 | Kết quả chính (thực nghiệm offline, dữ liệu **mô phỏng**, 3 seed) | Thuật toán cũ (v1) | **Hybrid v2** |
 |---|---|---|
@@ -46,7 +46,7 @@ Bản **v2** (nhánh `improve-fashion-recommender`) nâng cấp từ một websi
 └─────────────────────────────────────────────────────────────────┘
 evaluation/  thực nghiệm offline (mô phỏng, độ đo, grid search, kiểm định)
 streamlit_app/  ứng dụng Streamlit (Python) → bridge.js → recommender/engine.js (cùng bộ máy với website)
-tests/       95 kiểm thử: engine, cảm xúc, bảo mật, danh mục, chatbot, API, cầu nối Streamlit, E2E
+tests/       96 kiểm thử: engine, cảm xúc, bảo mật, danh mục, chatbot, API, cầu nối Streamlit, E2E
 ```
 
 **Hai chế độ chạy:**
@@ -102,7 +102,7 @@ npm run evaluate
 npm run attributes
 ```
 
-- `npm test`: 95 kiểm thử. Bộ E2E tự bỏ qua nếu máy chưa có Playwright.
+- `npm test`: 96 kiểm thử. Bộ E2E tự bỏ qua nếu máy chưa có Playwright.
 - `npm run evaluate`: thực nghiệm offline (khoảng 1 phút). Lệnh này sinh lại `docs/KET_QUA_THUC_NGHIEM.md` và `recommender/tuned-weights.json`.
 - `npm run attributes`: sinh lại bảng thuộc tính sản phẩm sau khi sửa `tools/attribute-overrides.json`.
 
@@ -120,7 +120,7 @@ pip install -r streamlit_app/requirements.txt
 streamlit run streamlit_app/app.py
 ```
 
-Trình duyệt mở http://localhost:8501.
+Trình duyệt mở http://localhost:8501. Ứng dụng cũng hiện ngay trong **trang Admin → mục "Hệ gợi ý (Streamlit)"**: trên máy tự dùng `http://localhost:8501`; khi đã đưa lên Streamlit Community Cloud thì dán link `https://….streamlit.app` vào ô địa chỉ của mục này (hoặc đặt sẵn ở hằng `STREAMLIT_DEFAULT_URL` trong `admin.html`).
 
 Chế độ tĩnh: mở `index.html` bằng Live Server như trước. Mật khẩu admin demo chỉ dùng cho chế độ này: `admin123`, được lưu dạng băm PBKDF2 và không phải bảo mật thật.
 
@@ -134,7 +134,7 @@ Chế độ tĩnh: mở `index.html` bằng Live Server như trước. Mật kh�
 6. Mở trình duyệt khác hoặc cửa sổ ẩn danh (mô phỏng **thiết bị thứ hai**), đăng nhập cùng tài khoản: gợi ý giống nhau vì dữ liệu nằm trên máy chủ.
 7. **Mua hàng rồi đánh giá:** đặt một sản phẩm, quay lại trang sản phẩm, ô đánh giá mở ra. Khi gõ "Áo đẹp, vải mềm", hệ thống phân tích cảm xúc là "Tích cực". Đánh giá có huy hiệu "Đã mua hàng".
 8. Đăng nhập admin, vào **Nghiên cứu gợi ý** (`research-dashboard.html`): biểu đồ so sánh thuật toán, cold-start, độ nhạy ρ, cùng số liệu sống (CTR khu gợi ý, phân bố cảm xúc, độ thưa ma trận).
-9. **Ứng dụng Streamlit:** `streamlit run streamlit_app/app.py` → trang *Gợi ý cho khách hàng* (gợi ý + biểu đồ đóng góp từng thuật toán), *Khách hàng mới*, *Kết quả thực nghiệm*.
+9. **Ứng dụng Streamlit:** `streamlit run streamlit_app/app.py`, rồi mở trang Admin → mục **Hệ gợi ý (Streamlit)** (hoặc http://localhost:8501) → trang *Gợi ý cho khách hàng* (gợi ý + biểu đồ đóng góp từng thuật toán), *Khách hàng mới*, *Kết quả thực nghiệm*.
 
 ## 4. Thuật toán (`recommender/engine.js`)
 
@@ -207,7 +207,7 @@ Dựa trên từ điển, có xử lý phủ định, từ nhấn mạnh, "nhưn
   - Kiểm định hoán vị cặp với 10.000 hoán vị.
   - Các thí nghiệm phụ: cold-start, ablation cảm xúc, độ nhạy ρ, số lượng người dùng.
   - Kết quả: [`docs/KET_QUA_THUC_NGHIEM.md`](docs/KET_QUA_THUC_NGHIEM.md).
-- **Kiểm thử tự động (`npm test`, 95 test):** engine (18), cảm xúc (5), bảo mật (27), danh mục (1), chatbot (26), API trên cả SQLite lẫn JSON (12), cầu nối Streamlit (2), E2E trên Chromium (4). Phương pháp và checklist UAT: [`docs/KIEM_THU.md`](docs/KIEM_THU.md).
+- **Kiểm thử tự động (`npm test`, 96 test):** engine (18), cảm xúc (5), bảo mật (27), danh mục (1), chatbot (26), API trên cả SQLite lẫn JSON (12), cầu nối Streamlit (2), E2E trên Chromium (5). Phương pháp và checklist UAT: [`docs/KIEM_THU.md`](docs/KIEM_THU.md).
 - **Danh sách lỗi đã sửa và tính năng mới, có đối chiếu file:** [`docs/BAO_CAO_NANG_CAP.md`](docs/BAO_CAO_NANG_CAP.md). **API:** [`docs/API.md`](docs/API.md).
 
 ## 6. Bảo mật

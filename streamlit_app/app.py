@@ -225,7 +225,10 @@ def sidebar_source() -> str:
         else:
             source = {"kind": "server"}
             st.caption("Đọc hành vi thật mà backend (npm start) đã ghi nhận trong server/data.")
-        st.text_input("Địa chỉ website (để mở trang sản phẩm)", value=DEFAULT_SITE, key="site_url",
+        # Khi được nhúng trong trang Admin, website truyền địa chỉ của nó qua tham số ?site=...
+        site_param = str(st.query_params.get("site", "") or "")
+        site_default = site_param if site_param.startswith(("http://", "https://")) else DEFAULT_SITE
+        st.text_input("Địa chỉ website (để mở trang sản phẩm)", value=site_default, key="site_url",
                       placeholder="vd: http://localhost:3000")
         st.divider()
         st.caption("Ứng dụng Python (Streamlit) gọi cùng bộ máy gợi ý với website: "
