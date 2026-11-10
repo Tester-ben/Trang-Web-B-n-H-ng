@@ -80,6 +80,10 @@
         img.decoding = 'async';
         img.draggable = false;
         a.appendChild(img);
+        var hit = document.createElement('span');
+        hit.className = 'sh-orbit-hit';
+        hit.setAttribute('aria-hidden', 'true');
+        a.appendChild(hit);
         stage.appendChild(a);
         return a;
     });
@@ -104,8 +108,8 @@
         var mobile = window.matchMedia('(max-width: 860px)').matches;
         // Góc tính theo độ, chiều dương ngược kim đồng hồ (trục y hướng lên).
         G = mobile
-            ? { W: W, H: H, cx: W * 1.12, cy: H * 1.02, R: W * 0.98, hero: 126, step: 25, fade: 1.6, size: clamp(W * 0.6, 200, 330) }
-            : { W: W, H: H, cx: W * 0.80, cy: H * 1.16, R: H * 0.98, hero: 121, step: 21, fade: 2.6, size: clamp(W * 0.31, 300, 470) };
+            ? { W: W, H: H, cx: W * 1.12, cy: H * 1.02, R: W * 0.98, hero: 126, step: 21, fade: 1.8, size: clamp(W * 0.7, 230, 380) }
+            : { W: W, H: H, cx: W * 0.80, cy: H * 1.16, R: H * 0.98, hero: 121, step: 18, fade: 2.8, size: clamp(W * 0.35, 330, 540) };
         stage.style.setProperty('--orbit-cx', G.cx.toFixed(1) + 'px');
         stage.style.setProperty('--orbit-cy', G.cy.toFixed(1) + 'px');
         stage.style.setProperty('--orbit-r', G.R.toFixed(1) + 'px');
@@ -132,14 +136,14 @@
             var x = G.cx + G.R * Math.cos(ang);
             var y = G.cy - G.R * Math.sin(ang);
             var rot = d * G.step * 0.45;
-            var scale = Math.max(0.3, 1 - 0.34 * ad);
+            var scale = Math.max(0.34, 1 - 0.29 * ad);
             var opacity = ad > G.fade + 1 ? 0 : clamp(1 - (ad - G.fade) * 0.9, 0, 1);
             var bob = !reduceMotion && ad < 0.5 ? Math.sin((now || 0) / 650) * 5 * (1 - ad * 2) : 0;
             var node = nodes[i];
             node.style.transform = 'translate3d(' + x.toFixed(1) + 'px,' + (y + bob).toFixed(1) + 'px,0) translate(-50%,-58%) rotate(' + rot.toFixed(2) + 'deg) scale(' + scale.toFixed(4) + ')';
             node.style.opacity = opacity.toFixed(3);
             node.style.zIndex = String(100 - Math.round(ad * 10));
-            node.style.pointerEvents = opacity < 0.15 ? 'none' : '';
+            node.lastChild.style.pointerEvents = opacity < 0.15 ? 'none' : '';
             node.style.visibility = opacity <= 0.001 ? 'hidden' : '';
         }
         drawRidges();
