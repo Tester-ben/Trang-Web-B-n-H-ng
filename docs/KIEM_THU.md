@@ -8,7 +8,7 @@ npm test
 
 Lệnh trên tương đương `node --test "tests/*.test.js"` và không cần cài thư viện.
 
-Kết quả tại thời điểm bàn giao: **97/97 đạt** (Node 22, Chromium headless có sẵn trong môi trường kiểm thử).
+Kết quả tại thời điểm bàn giao: **100/100 đạt** (Node 22, Chromium headless có sẵn trong môi trường kiểm thử).
 
 ## 1. Kim tự tháp kiểm thử
 
@@ -18,7 +18,7 @@ Kết quả tại thời điểm bàn giao: **97/97 đạt** (Node 22, Chromium 
 | Đơn vị — cảm xúc | `tests/sentiment.test.js` | 5 | Phủ định, nhấn mạnh, "thì… nhưng"; không dấu và âm tiết nhập nhằng; câu hỏi có/không; emoji; độ chính xác dev ≥ 90% và held-out ≥ 75% (đo được 82,5%) |
 | Đơn vị — bảo mật | `tests/security.test.js` | 27 | Vector chuẩn SHA-256/HMAC/PBKDF2; băm/kiểm tra mật khẩu; chuyển đổi tài khoản chữ thường; làm sạch sản phẩm; truy vấn đơn theo email với Firebase giả; mã nguồn không còn `admin123`; nhận diện sản phẩm ngừng kinh doanh (sản phẩm admin `custom-*` không bị ảnh hưởng) |
 | Dữ liệu — danh mục | `tests/catalog.test.js` | 1 | Mọi thẻ sản phẩm viết sẵn trong các trang HTML khớp `product-data.js` (tên, giá — trang Sale so giá đã giảm, thương hiệu, ảnh) |
-| Đơn vị — chatbot | `tests/chatbot.test.js` | 26 | So khớp theo từ; lọc ngân sách; luồng size giày; thêm giỏ đúng size; trạng thái gửi hỗ trợ; xử lý đầy bộ nhớ; thoát HTML; **câu hỏi ngoài phạm vi** (phép tính "1 + 1 =" không bị hiểu là ngân sách, "bạn là ai", thời tiết, giờ, câu lạc đề, câu hỏi nhạy cảm không bị chuyển cho nhân viên) |
+| Đơn vị — chatbot | `tests/chatbot.test.js` | 29 | So khớp theo từ; lọc ngân sách; luồng size giày; thêm giỏ đúng size; trạng thái gửi hỗ trợ; xử lý đầy bộ nhớ; thoát HTML; **câu hỏi ngoài phạm vi** (phép tính "1 + 1 =" không bị hiểu là ngân sách, "bạn là ai", thời tiết, giờ, câu lạc đề, câu hỏi nhạy cảm không bị chuyển cho nhân viên); **câu hỏi thông tin shop** (địa chỉ cửa hàng, giờ mở cửa, hotline, thanh toán, mã giảm giá, theo dõi / hủy đơn, đánh giá, wishlist, tài khoản, cách đặt hàng, giới thiệu shop — trả lời ngay, không lấn sang tìm sản phẩm / giao hàng, không làm đứt luồng tư vấn size) |
 | Tích hợp — API | `tests/server.test.js` | 12 | Chạy trên **cả SQLite và JSON**: health, file tĩnh, chặn đọc mã/dữ liệu (kể cả `%2e%2e`); đăng ký/đăng nhập/token/415; **CF đa thiết bị** (A nhận sản phẩm B đã mua và B chấm 5★, không nhận đồ của C khác gu, `strategy=social`); đánh giá chỉ khi đã mua, cảm xúc, chống chèn HTML, ẩn danh; quiz, xóa lịch sử, thống kê admin, CORS; rate limit đăng nhập; dữ liệu demo không đăng nhập được và luôn gắn nhãn |
 | Tích hợp — Streamlit | `tests/streamlit-bridge.test.js` | 2 | Cầu nối Python ↔ hệ gợi ý (`streamlit_app/bridge.js`): danh mục, gợi ý cá nhân có tính tất định, quiz khách mới ưu tiên đúng giới tính, sản phẩm tương tự và phối đồ, công thức r_eff; báo lỗi rõ khi lệnh sai, sản phẩm không có, chưa có dữ liệu máy chủ |
 | Đầu-cuối — trình duyệt | `tests/browser-e2e.test.js` | 6 | Chế độ tĩnh (gợi ý, phối đồ, chặn đánh giá, đánh giá hợp gu, trang chủ phản ánh lượt xem, quiz) và chế độ máy chủ (đăng ký → đăng nhập → liên kết → gợi ý từ máy chủ → đặt hàng → đánh giá có cảm xúc); khách cũ còn sản phẩm đã gỡ trong BAG/giỏ đặt lại/lịch sử chat, link cũ tới sản phẩm đó và sản phẩm admin đồng bộ muộn từ Firebase; đặt hàng từ BAG rồi bấm hoàn tất (pháo hoa) không lỗi JS; mục Admin "Hệ gợi ý (Streamlit)" báo rõ khi ứng dụng chưa chạy và chỉ nhận địa chỉ http(s); khu giày trang chủ dạng vòng cung lấy giày từ danh mục, xoay bằng phím/bánh xe, bấm size mở trang sản phẩm với size chọn sẵn. Tự bỏ qua nếu chưa cài Playwright |
