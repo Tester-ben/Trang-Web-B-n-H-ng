@@ -617,3 +617,60 @@ test("đang tư vấn size giày, hỏi xen địa chỉ shop vẫn giữ luồn
     const next = api.respond("42");
     assert.equal(next.kind, "shoe-size", "trả lời '42' vẫn tiếp tục luồng size giày");
 });
+
+// Số liệu giả lập đúng định dạng window.StyleHubRecommendations.popularStats() (engine.itemStats()).
+function withStats(env, items) {
+    env.sandbox.StyleHubRecommendations = { popularStats: () => (items ? { source: "server", items } : null) };
+    return env;
+}
+const RANK_STATS = {
+    "tops-7": { buyers: 5, raters: 5, ratingAvg: 5, wishers: 1, score: 9, demoShare: 0 },
+    "hoodies-3": { buyers: 3, raters: 3, ratingAvg: 4, wishers: 0, score: 6, demoShare: 0 },
+    "tops-6": { buyers: 2, raters: 0, ratingAvg: null, wishers: 0, score: 4, demoShare: 0 },
+    "sale-6": { buyers: 1, raters: 1, ratingAvg: 5, wishers: 0, score: 2, demoShare: 0 },
+    "tops-1": { buyers: 4, raters: 4, ratingAvg: 2.5, wishers: 0, score: 5, demoShare: 0 },
+    "kids-8": { buyers: 9, raters: 0, ratingAvg: null, wishers: 0, score: 12, demoShare: 0 }
+};
+
+test("'các áo đẹp được nhiều người mua' xếp theo số khách đã mua thật, ghi số liệu trên từng mẫu", () => {
+    const { api } = withStats(createEnv(), RANK_STATS);
+    const r = api.respond("các áo đẹp được nhiều người mua");
+    assert.equal(r.kind, "products");
+    assert.deepEqual(Array.from(r.products), ["tops-7", "tops-1", "hoodies-3", "tops-6"], "xếp giảm dần theo số khách đã mua; đồ trẻ em không lẫn vào khi không hỏi");
+    assert.match(r.html, /được nhiều khách mua nhất/);
+    assert.match(r.html, /Đẹp thì tùy gu/);
+    assert.match(r.html, /5 khách đã mua · ★ 5,0\/5 \(5 đánh giá\)/);
+    assert.doesNotMatch(r.html, /dữ liệu demo/);
+    for (const q of ["áo nào bán chạy nhất", "áo mua nhiều nhất", "best seller"]) {
+        assert.equal(api.respond(q).products[0], "tops-7", q);
+        assert.equal(api.shouldForwardToSupport(q), false, "hỏi bán chạy không bị hiểu là mua số lượng lớn: " + q);
+    }
+    assert.equal(api.shouldForwardToSupport("tôi muốn mua nhiều áo làm đồng phục"), true, "mua số lượng lớn vẫn chuyển nhân viên");
+});
+
+test("'áo được đánh giá cao' chỉ xếp mẫu từ 4★ trở lên, trung bình có làm mượt theo số lượt", () => {
+    const { api } = withStats(createEnv(), RANK_STATS);
+    const r = api.respond("áo được đánh giá cao");
+    assert.equal(r.kind, "products");
+    assert.deepEqual(Array.from(r.products.slice(0, 3)), ["tops-7", "sale-6", "hoodies-3"]);
+    assert.ok(!r.products.slice(0, 3).includes("tops-1"), "mẫu 2,5★ không được gọi là 'đánh giá cao'");
+    assert.match(r.html, /được đánh giá cao nhất/);
+    assert.match(r.html, /1 mẫu cuối chưa có đủ dữ liệu/);
+});
+
+test("chưa có dữ liệu mua/đánh giá: nói thẳng là chưa xếp hạng được, không bịa 'bán chạy'", () => {
+    for (const env of [withStats(createEnv(), {}), createEnv()]) {
+        const r = env.api.respond("các áo đẹp được nhiều người mua");
+        assert.equal(r.kind, "products");
+        assert.equal(r.products.length, 4, "vẫn gợi ý mẫu tiêu biểu còn hàng");
+        assert.match(r.html, /chưa ghi nhận đủ lượt mua/);
+        assert.doesNotMatch(r.html, /được nhiều khách mua nhất|khách đã mua/);
+    }
+});
+
+test("số liệu chỉ đến từ khách demo (mô phỏng) được ghi rõ", () => {
+    const demo = {};
+    for (const [id, st] of Object.entries(RANK_STATS)) demo[id] = Object.assign({}, st, { demoShare: 1 });
+    const { api } = withStats(createEnv(), demo);
+    assert.match(api.respond("áo bán chạy").html, /dữ liệu demo \(khách mô phỏng\)/);
+});

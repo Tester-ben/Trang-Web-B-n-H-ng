@@ -329,6 +329,13 @@
                 color: #111;
             }
 
+            .tsh-ai-product-stat {
+                display: block;
+                margin-top: 3px;
+                font-size: 11.5px;
+                color: #4f6262;
+            }
+
             .tsh-ai-product-old {
                 font-size: 12px;
                 color: #888;
@@ -1001,6 +1008,16 @@
     ];
     const STRONG_REQUEST_TERMS = ["xem", "coi", "tìm", "kiếm", "gợi ý", "mẫu", "show", "find", "mua", "có những", "có gì", "bán"];
     const GENERIC_PRODUCT_TERMS = ["mẫu", "sản phẩm", "hàng", "đồ", "item", "items", "product", "products", "quần áo"];
+
+    // Xếp hạng theo DỮ LIỆU THẬT của khách (đơn hàng, đánh giá, wishlist) — không đoán:
+    //  popular = "bán chạy / được nhiều người mua"; rated = "được đánh giá cao"; liked = "hot / nổi bật / đẹp" (tùy gu → độ yêu thích).
+    const POPULAR_BUY_TERMS = ["bán chạy", "bán chạy nhất", "bán được nhiều", "nhiều người mua", "nhiều khách mua", "nhiều bạn mua",
+        "được mua nhiều", "mua nhiều nhất", "người ta mua", "mọi người mua", "khách mua nhiều", "best seller", "bestseller"];
+    const TREND_TERMS = ["hot", "hot nhất", "hot trend", "nổi bật", "phổ biến", "xu hướng", "trending", "thịnh hành", "ưa chuộng",
+        "được ưa chuộng", "yêu thích nhất", "được yêu thích", "nhiều người thích", "nhiều người chọn", "được chọn nhiều", "popular", "most popular"];
+    const RATED_TERMS = ["đánh giá cao", "đánh giá tốt", "được đánh giá", "review tốt", "review cao", "nhiều sao", "5 sao", "năm sao",
+        "điểm cao", "được khen", "khen nhiều", "chất lượng nhất", "top rated", "best rated"];
+    const BEAUTY_TERMS = ["đẹp", "đẹp nhất", "xịn", "xịn nhất", "nên mua", "đáng mua", "chất nhất"];
     const CLOTHING_TALK_TERMS = ["quần áo", "đồ", "clothes", "clothing", "outfit", "trang phục"];
 
     const FEMALE_TERMS = ["nữ", "women", "womens", "woman", "female", "girl", "girls", "lady", "ladies", "bạn gái", "vợ", "mẹ", "con gái", "phụ nữ", "bé gái"];
@@ -1450,7 +1467,10 @@
             (sizeTalk && clothingTalk && !strongRequest)
         );
         const askSizeKind = (sizeTalk || sizeAdvice) && !shoeTalk && !clothingTalk && !measurements && !letterSize && shoeNumber === null && !footLengthCm;
+        const rank = detectRank(a);
         const wantsProducts = hasCatalogCriteria ||
+            (!!rank && rank.mode !== "liked") ||
+            (!!rank && (typeList.length > 0 || groups.size > 0 || productRequest || hasAny(a, GENERIC_PRODUCT_TERMS))) ||
             (!!budget && (productRequest || !!gender || colors.length > 0 || cheap || expensive || a.tokens.length <= 4)) ||
             ((!!gender || colors.length > 0 || cheap || expensive) && productRequest) ||
             (productRequest && hasAny(a, GENERIC_PRODUCT_TERMS));
@@ -1466,6 +1486,7 @@
             wantsShoeSize: wantsShoeSize, wantsClothingSize: wantsClothingSize, askSizeKind: askSizeKind, wantsProducts: wantsProducts,
             shipping: hasAny(a, SHIPPING_TERMS), returns: hasAny(a, RETURN_TERMS),
             storeInfo: detectStoreInfo(a, typeList.length > 0 || groups.size > 0),
+            rank: rank,
             greeting: hasAny(a, GREETING_TERMS), thanks: hasAny(a, THANKS_TERMS),
             budget: budget || null, queryWords: queryWords
         };
@@ -1570,6 +1591,55 @@
         return !!(c.colors && c.colors.length && c.colors.some(function (def) { return def.test.test(p.name); }));
     }
 
+    /** Khách muốn xếp hạng theo độ phổ biến / đánh giá? Trả về { mode, beauty } hoặc null. */
+    function detectRank(a) {
+        const buy = hasAny(a, POPULAR_BUY_TERMS);
+        if (buy) return { mode: "popular", beauty: hasAny(a, BEAUTY_TERMS) };
+        if (hasAny(a, RATED_TERMS)) return { mode: "rated", beauty: hasAny(a, BEAUTY_TERMS) };
+        if (hasAny(a, TREND_TERMS)) return { mode: "liked", beauty: false };
+        if (hasAny(a, BEAUTY_TERMS)) return { mode: "liked", beauty: true };
+        return null;
+    }
+
+    /** Số liệu theo sản phẩm từ hệ gợi ý (máy chủ: toàn bộ khách; chế độ tĩnh: dữ liệu trên trình duyệt). */
+    function getPopularStats() {
+        try {
+            const recs = window.StyleHubRecommendations;
+            if (recs && typeof recs.popularStats === "function") {
+                const res = recs.popularStats();
+                if (res && res.items && typeof res.items === "object") return res;
+            }
+        } catch (e) {}
+        return null;
+    }
+
+    /** Điểm xếp hạng của 1 sản phẩm theo kiểu câu hỏi; null = chưa có dữ liệu phù hợp (không được xếp hạng). */
+    function rankScore(mode, st) {
+        if (!st) return null;
+        const buyers = Number(st.buyers) || 0, raters = Number(st.raters) || 0, wishers = Number(st.wishers) || 0;
+        const avg = st.ratingAvg === null || st.ratingAvg === undefined ? null : Number(st.ratingAvg);
+        const pop = Number(st.score) || 0;
+        if (mode === "popular") return buyers > 0 ? buyers * 1000 + pop : null;
+        if (mode === "rated") {
+            if (!raters || avg === null || avg < 4) return null;           // "đánh giá cao" = từ 4★ trở lên
+            return ((avg * raters + 3.5 * 2) / (raters + 2)) * 1000 + raters; // trung bình có làm mượt (ít lượt thì kéo về 3,5★)
+        }
+        // liked: tổng hợp mua + lưu + đánh giá tốt
+        const liked = buyers * 3 + wishers * 2 + (avg !== null && avg >= 4 ? raters : 0);
+        return liked > 0 ? liked * 1000 + pop : null;
+    }
+
+    function statLine(st) {
+        if (!st) return "";
+        const parts = [];
+        if (st.buyers) parts.push(`🛒 ${st.buyers} khách đã mua`);
+        if (st.raters && st.ratingAvg !== null && st.ratingAvg !== undefined) {
+            parts.push(`★ ${String(Number(st.ratingAvg).toFixed(1)).replace(".", ",")}/5 (${st.raters} đánh giá)`);
+        }
+        if (st.wishers) parts.push(`♡ ${st.wishers} lượt lưu`);
+        return parts.join(" · ");
+    }
+
     function rankProducts(list, c) {
         const scored = list.map(function (p) {
             let score = 0;
@@ -1632,7 +1702,23 @@
 
         const ranked = rankProducts(matches, c);
         const noSpecificType = !(c.types && c.types.size);
-        const top = diversify(ranked, limit, noSpecificType);
+        let top;
+        let rankedCount = 0;
+        if (c.rank) {
+            // Sản phẩm CÓ dữ liệu thật được xếp trước theo số liệu; còn chỗ thì bù mẫu tiêu biểu (được ghi rõ).
+            const items = (c.rank.stats && c.rank.stats.items) || {};
+            const withData = ranked.map(function (p) { return { p: p, s: rankScore(c.rank.mode, items[p.id]) }; })
+                .filter(function (x) { return x.s !== null; })
+                .sort(function (x, y) { return y.s - x.s || x.p.order - y.p.order; })
+                .map(function (x) { return x.p; });
+            top = withData.slice(0, limit);
+            rankedCount = top.length;
+            if (top.length < limit) {
+                top = top.concat(diversify(ranked.filter(function (p) { return top.indexOf(p) < 0; }), limit - top.length, noSpecificType));
+            }
+        } else {
+            top = diversify(ranked, limit, noSpecificType);
+        }
 
         let alternatives = [];
         if (!matches.length && c.budget && audienceMatched.length) {
@@ -1650,6 +1736,7 @@
 
         return {
             matches: top,
+            rankedCount: rankedCount,
             totalMatches: matches.length,
             alternatives: alternatives,
             typeAvailable: inStock.some(function (p) { return criteriaTypeMatch(p, c); }),
@@ -1674,6 +1761,7 @@
 
     function productCards(list, options) {
         const flag = options && options.flag ? `<span class="tsh-ai-product-flag">${escapeHTML(options.flag)}</span>` : "";
+        const stats = options && options.stats ? options.stats : null;
         return `<div class="tsh-ai-product-list">` + list.map(function (entry) {
             const id = entry.id;
             const item = entry.item || {};
@@ -1686,6 +1774,7 @@
                         <a class="tsh-ai-product-name" href="product-detail.html?id=${encodeURIComponent(id)}">${escapeHTML(item.name)}</a>
                         <span class="tsh-ai-product-price">${escapeHTML(item.price || (productPrice(item) ? formatVND(productPrice(item)) : ""))}</span>
                         ${oldPrice ? `<span class="tsh-ai-product-old">${escapeHTML(oldPrice)}</span>` : ""}
+                        ${stats && statLine(stats[id]) ? `<span class="tsh-ai-product-stat">${escapeHTML(statLine(stats[id]))}</span>` : ""}
                         ${flag}
                     </div>
                     <button class="tsh-ai-product-cart" type="button" data-product-id="${escapeHTML(id)}" title="Thêm vào BAG">🛒</button>
@@ -2127,10 +2216,45 @@
        TRẢ LỜI GỢI Ý SẢN PHẨM
        ========================================================= */
 
+    function rankIntroHtml(rank, desc, res) {
+        const n = res.matches.length;
+        const k = res.rankedCount;
+        const d = escapeHTML(desc);
+        const what = rank.mode === "popular" ? "bán chạy" : (rank.mode === "rated" ? "được đánh giá cao" : "được yêu thích");
+        if (!k) {
+            const data = rank.mode === "rated" ? "đánh giá từ 4★ trở lên" : (rank.mode === "popular" ? "lượt mua" : "lượt mua, đánh giá hay lượt lưu");
+            return `Hệ thống chưa ghi nhận đủ ${data} của khách cho ${d} nên mình chưa thể nói mẫu nào ${what} nhất — mình không muốn đoán bừa 🙏. ` +
+                `Dưới đây là ${n} mẫu ${d} tiêu biểu còn hàng:` +
+                ` <span class="tsh-ai-muted">Khi có thêm đơn hàng và đánh giá, mình sẽ xếp hạng theo dữ liệu thật.</span>`;
+        }
+        let html;
+        if (rank.mode === "popular") {
+            html = `Đây là ${k} mẫu ${d} <b>được nhiều khách mua nhất</b>, xếp theo số khách đã đặt mua trên hệ thống:`;
+        } else if (rank.mode === "rated") {
+            html = `Đây là ${k} mẫu ${d} <b>được đánh giá cao nhất</b> (từ 4★ trở lên), xếp theo điểm sao của khách đã mua:`;
+        } else if (rank.beauty) {
+            html = `Đẹp thì tùy gu mỗi người 😊 nên mình chọn theo mức độ khách yêu thích (số người mua, đánh giá và lượt lưu). Đây là ${k} mẫu ${d} nổi bật nhất:`;
+        } else {
+            html = `Đây là ${k} mẫu ${d} <b>đang được khách quan tâm nhất</b> (số người mua, đánh giá và lượt lưu):`;
+        }
+        if (rank.beauty && rank.mode !== "liked") html = `Đẹp thì tùy gu mỗi người 😊 nên mình dựa vào lựa chọn của khách. ` + html;
+        if (k < n) html += ` <span class="tsh-ai-muted">${n - k} mẫu cuối chưa có đủ dữ liệu nên là mẫu tiêu biểu còn hàng, không phải xếp hạng.</span>`;
+        // Số liệu từ khách demo (mô phỏng) phải được ghi rõ, không trình bày như khách thật.
+        const items = (rank.stats && rank.stats.items) || {};
+        const shares = res.matches.slice(0, k).map(function (p) { return Number((items[p.id] || {}).demoShare) || 0; });
+        if (shares.length && shares.every(function (x) { return x >= 1; })) {
+            html += ` <span class="tsh-ai-muted">Lưu ý: số liệu này đến từ dữ liệu demo (khách mô phỏng) của máy chủ thử nghiệm.</span>`;
+        } else if (shares.some(function (x) { return x > 0; })) {
+            html += ` <span class="tsh-ai-muted">Lưu ý: một phần số liệu đến từ dữ liệu demo (khách mô phỏng).</span>`;
+        }
+        return html;
+    }
+
     function productReply(ctx, ent) {
         const criteria = {
             types: ent.types, groups: ent.groups, gender: ent.gender, kids: ent.kids, sale: ent.sale, budget: ent.budget,
-            colors: ent.colors, materials: ent.materials || [], sort: ent.cheap ? "asc" : (ent.expensive ? "desc" : null), words: ent.queryWords, dressShirt: ent.dressShirt
+            colors: ent.colors, materials: ent.materials || [], sort: ent.cheap ? "asc" : (ent.expensive ? "desc" : null), words: ent.queryWords, dressShirt: ent.dressShirt,
+            rank: ent.rank ? { mode: ent.rank.mode, beauty: ent.rank.beauty, stats: getPopularStats() } : null
         };
         const res = searchProducts(criteria, { limit: CONFIG.resultLimit });
         ctx.lastProducts = res.matches.map(function (p) { return p.id; });
@@ -2161,8 +2285,13 @@
 
         if (res.matches.length) {
             const desc = describeCriteria(criteria);
-            let html = `Dưới đây là ${res.matches.length} mẫu ${escapeHTML(desc)} còn hàng trong THE STYLE HUB`;
-            html += res.totalMatches > res.matches.length ? ` (có ${res.totalMatches} mẫu phù hợp, mình chọn ${res.matches.length} mẫu tiêu biểu):` : ":";
+            let html;
+            if (criteria.rank) {
+                html = rankIntroHtml(criteria.rank, desc, res);
+            } else {
+                html = `Dưới đây là ${res.matches.length} mẫu ${escapeHTML(desc)} còn hàng trong THE STYLE HUB`;
+                html += res.totalMatches > res.matches.length ? ` (có ${res.totalMatches} mẫu phù hợp, mình chọn ${res.matches.length} mẫu tiêu biểu):` : ":";
+            }
             if (criteria.colors.length) {
                 const colorText = criteria.colors.map(function (d) { return d.label; }).join(" / ");
                 html += res.colorMatches
@@ -2177,7 +2306,11 @@
                     : ` <span class="tsh-ai-muted">Chưa có mẫu chất liệu ${escapeHTML(materialText)} trong nhóm này — đây là các mẫu gần nhất.</span>`;
             }
             notes.forEach(function (n) { html += ` <span class="tsh-ai-muted">${escapeHTML(n)}</span>`; });
-            return { kind: "products", html: html + productCards(res.matches), products: res.matches.map(function (p) { return p.id; }), alternatives: [], criteria: criteria };
+            const cardStats = criteria.rank && criteria.rank.stats ? criteria.rank.stats.items : null;
+            return {
+                kind: "products", html: html + productCards(res.matches, { stats: cardStats }), products: res.matches.map(function (p) { return p.id; }),
+                alternatives: [], criteria: criteria, rankedCount: res.rankedCount
+            };
         }
 
         // Không có sản phẩm thỏa TẤT CẢ điều kiện → nói rõ, không đưa hàng sai điều kiện như thể là phù hợp.
@@ -2581,7 +2714,9 @@
         // thì chatbot trả lời ngay; chỉ chuyển nhân viên khi có mã đơn, báo lỗi hoặc là yêu cầu cụ thể.
         if (!hasAny(a, DEFECT_TERMS) && !hasOrderCode(a) && (isQuestion(a) || hasAny(a, HOW_TERMS) || hasAny(a, ["nào", "gì", "đâu", "mấy", "bao nhiêu"])) &&
             detectStoreInfo(a, false) && !hasAny(a, ["nhân viên", "người thật", "tư vấn viên"])) return false;
-        if (hasAny(a, SUPPORT_TERMS) || hasAny(a, DEFECT_TERMS)) return true;
+        // "áo nào được mua nhiều nhất" là hỏi bán chạy, không phải "mua nhiều / mua sỉ".
+        const supportTerms = detectRank(a) ? SUPPORT_TERMS.filter(function (t) { return t !== "mua nhiều"; }) : SUPPORT_TERMS;
+        if (hasAny(a, supportTerms) || hasAny(a, DEFECT_TERMS)) return true;
         if (hasAny(a, RETURN_TERMS)) {
             if (hasOrderReference(a)) return true;     // có mã đơn → cần nhân viên xử lý
             if (isQuestion(a)) return false;           // hỏi chính sách → chatbot trả lời chính sách

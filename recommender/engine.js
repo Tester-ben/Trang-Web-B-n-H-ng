@@ -383,7 +383,7 @@
      * Gom sự kiện thành ma trận ưu tiên.
      * events: [{ user, item, type: view|cart|wishlist|unwishlist|purchase|rating, value, sentiment, ts }]
      */
-    function buildPreferenceData(events, catalog, opts, now) {
+    function buildPreferenceData(events, catalog, opts, now, itemStatsOut, demoUsers) {
         var acc = new Map();   // user -> Map(item -> accumulator)
         var recent = new Map(); // user -> [{item, ts}]
         var sorted = (events || []).filter(function (e) {
@@ -396,7 +396,7 @@
             if (ts > now) return; // không dùng sự kiện tương lai
             if (!acc.has(user)) acc.set(user, new Map());
             var items = acc.get(user);
-            if (!items.has(e.item)) items.set(e.item, { views: 0, carts: 0, wish: false, wishTs: 0, purchaseTs: 0, rating: null, ratingTs: 0, lastTs: 0 });
+            if (!items.has(e.item)) items.set(e.item, { views: 0, carts: 0, wish: false, wishTs: 0, purchaseTs: 0, rating: null, stars: null, ratingTs: 0, lastTs: 0 });
             var a = items.get(e.item);
             var age = now - ts;
             a.lastTs = Math.max(a.lastTs, ts);
@@ -422,8 +422,8 @@
                 case 'rating':
                 case 'review':
                     var r = effectiveRating(e.value, e.sentiment, opts.sentimentMix);
-                    if (r === null && Number(e.value) === 0) { a.rating = null; a.ratingTs = ts; }
-                    else if (r !== null) { a.rating = r; a.ratingTs = ts; }
+                    if (r === null && Number(e.value) === 0) { a.rating = null; a.stars = null; a.ratingTs = ts; }
+                    else if (r !== null) { a.rating = r; a.stars = Math.max(1, Math.min(5, Number(e.value))); a.ratingTs = ts; }
                     break;
                 default:
                     break; // rec_impression, rec_click... không dùng để học sở thích
@@ -435,6 +435,17 @@
         acc.forEach(function (items, user) {
             var map = new Map(), n = 0, maxScore = 0, normSq = 0;
             items.forEach(function (a, item) {
+                // Thống kê tổng hợp theo sản phẩm (đếm số NGƯỜI, không lưu ai làm gì): số khách đã mua,
+                // số khách chấm sao + tổng sao, số khách đang lưu wishlist. Dùng cho "bán chạy / đánh giá cao".
+                if (itemStatsOut && (a.purchaseTs || a.stars !== null || a.wish)) {
+                    var st = itemStatsOut.get(item) || { buyers: 0, raters: 0, starsSum: 0, wishers: 0, people: 0, demoPeople: 0 };
+                    st.people++;
+                    if (demoUsers && demoUsers.has(user)) st.demoPeople++;
+                    if (a.purchaseTs) st.buyers++;
+                    if (a.stars !== null) { st.raters++; st.starsSum += a.stars; }
+                    if (a.wish) st.wishers++;
+                    itemStatsOut.set(item, st);
+                }
                 var score = 0, strongest = null, disliked = false;
                 if (a.views > 0) { score += w.view * Math.min(opts.viewCap, a.views); strongest = 'view'; }
                 if (a.carts > 0) { score += w.cart * Math.min(opts.cartCap, a.carts); strongest = 'cart'; }
@@ -593,7 +604,8 @@
         }
 
         // Ma trận ưu tiên
-        var users = buildPreferenceData(input.events || [], catalog, opts, now);
+        var itemStatsRaw = new Map();
+        var users = buildPreferenceData(input.events || [], catalog, opts, now, itemStatsRaw, demoUsers);
         var itemUsers = new Map(), itemPosNormSq = new Map();
         users.forEach(function (u, user) {
             u.items.forEach(function (e, item) {
@@ -779,6 +791,27 @@
         }
 
         /** Độ phổ biến trong CỘNG ĐỒNG: trừ phần đóng góp của chính người dùng (không gợi ý lại thứ chỉ mình họ xem). */
+        /** Thống kê công khai theo sản phẩm (chỉ số đếm, không có danh tính người dùng):
+         *  buyers = số khách đã mua, raters/ratingAvg = số khách chấm sao và điểm sao trung bình,
+         *  wishers = số khách đang lưu, interested = số khách có tương tác tích cực, score = độ phổ biến (có suy giảm). */
+        function itemStats() {
+            var out = {};
+            itemIds.forEach(function (id) {
+                var st = itemStatsRaw.get(id);
+                var score = popularity.get(id) || 0;
+                if (!st && !score) return;
+                st = st || { buyers: 0, raters: 0, starsSum: 0, wishers: 0, people: 0, demoPeople: 0 };
+                out[id] = {
+                    buyers: st.buyers, raters: st.raters,
+                    ratingAvg: st.raters ? Number((st.starsSum / st.raters).toFixed(2)) : null,
+                    wishers: st.wishers, interested: popCount.get(id) || 0, score: Number(score.toFixed(4)),
+                    // Tỷ lệ số liệu đến từ người dùng demo (mô phỏng) — để chatbot ghi rõ, không trình bày như khách thật.
+                    demoShare: st.people ? Number((st.demoPeople / st.people).toFixed(3)) : 0
+                };
+            });
+            return out;
+        }
+
         function popularityScores(candidates, user) {
             var me = users.get(user), scores = new Map();
             candidates.forEach(function (id) {
@@ -1220,6 +1253,7 @@
             userData: function (user) { return users.get(String(user)) || null; },
             popularity: function (id) { return popularity.get(id) || 0; },
             popularityCount: function (id) { return popCount.get(id) || 0; },
+            itemStats: itemStats,
             componentScores: componentScores,
             rankFromComponents: rankFromComponents,
             weightsFor: weightsFor,

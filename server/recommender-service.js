@@ -49,6 +49,14 @@ class RecommenderService {
     outfit(productId, userId, perCategory) { return this.getModel().outfit(productId, userId ? String(userId) : null, { perCategory }); }
     styleDNA(userId, quiz) { return this.getModel().styleDNA(String(userId), quiz || undefined); }
     stats() { return Object.assign(this.getModel().stats(), { buildMs: this.buildMs, builtAt: this.builtAt }); }
+    /** Số liệu tổng hợp theo sản phẩm (số khách đã mua, điểm sao TB, số lượt lưu) — không chứa danh tính người dùng. */
+    popularStats(limit) {
+        const stats = this.getModel().itemStats();
+        return Object.keys(stats).filter((id) => this.catalog[id])
+            .map((id) => Object.assign({ id }, stats[id]))
+            .sort((a, b) => b.buyers - a.buyers || b.score - a.score)
+            .slice(0, limit || 200);
+    }
     topPopular(limit) {
         const model = this.getModel();
         return Object.keys(this.catalog).map((id) => ({ id, name: this.catalog[id].name, score: model.popularity(id), users: model.popularityCount(id) }))

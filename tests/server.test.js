@@ -182,6 +182,24 @@ for (const kind of STORES) {
     });
 }
 
+test('[json] /api/products/popular: số liệu bán chạy công khai chỉ là số đếm, không có thông tin khách', async () => {
+    const t = await boot('json');
+    try {
+        const tokens = [];
+        for (const name of ['p1', 'p2', 'p3']) tokens.push((await t.api('POST', '/api/auth/register', { email: name + '@test.vn', password: 'secret123' })).body.token);
+        await t.api('POST', '/api/orders', { orderId: 'P-001', items: [{ productId: 'tops-7' }, { productId: 'hoodies-3' }] }, tokens[0]);
+        await t.api('POST', '/api/orders', { orderId: 'P-002', items: [{ productId: 'tops-7' }] }, tokens[1]);
+        await t.api('POST', '/api/orders', { orderId: 'P-003', items: [{ productId: 'tops-7' }] }, tokens[2]);
+        const res = await t.api('GET', '/api/products/popular?limit=5');
+        assert.equal(res.status, 200, 'không cần đăng nhập');
+        assert.equal(res.body.items[0].id, 'tops-7');
+        assert.equal(res.body.items[0].buyers, 3);
+        assert.equal(res.body.items.find((x) => x.id === 'hoodies-3').buyers, 1);
+        assert.ok(res.body.items.length <= 5);
+        assert.doesNotMatch(res.text, /@test\.vn|userId|email|"p1"/, 'không lộ email hay mã khách');
+    } finally { await t.close(); }
+});
+
 test('[sqlite] giới hạn tần suất đăng nhập (chống dò mật khẩu)', async () => {
     const t = await boot('sqlite');
     try {

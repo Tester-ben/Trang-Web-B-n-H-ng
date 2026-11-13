@@ -249,3 +249,24 @@ test('Ảnh chụp danh mục của thực nghiệm (evaluation/catalog-snapshot
     assert.equal(latest.config.catalog, 'snapshot', 'số liệu báo cáo được sinh trên ảnh chụp cố định');
     assert.equal(latest.config.items, ids.length);
 });
+
+test('itemStats: đếm số khách đã mua, điểm sao trung bình, lượt lưu và tỷ lệ demo — không chứa danh tính', () => {
+    const m = engine.createModel({
+        catalog: CATALOG, now: NOW, demoUsers: ['d1'], options: { mf: { enabled: false } },
+        events: [
+            ev('u1', 'tee-black', 'purchase', 3), ev('u2', 'tee-black', 'purchase', 2), ev('d1', 'tee-black', 'purchase', 1),
+            ev('u1', 'tee-black', 'review', 2, 5, { sentiment: 0.8 }), ev('u2', 'tee-black', 'rating', 1, 4),
+            ev('u3', 'hoodie-black', 'rating', 1, 2), ev('u3', 'hoodie-black', 'wishlist', 1, 1),
+            ev('d1', 'jeans-blue', 'purchase', 1),
+            ev('u4', 'tee-white', 'view', 1)
+        ]
+    });
+    const s = m.itemStats();
+    assert.deepEqual([s['tee-black'].buyers, s['tee-black'].raters, s['tee-black'].ratingAvg], [3, 2, 4.5]);
+    assert.ok(Math.abs(s['tee-black'].demoShare - 1 / 3) < 0.01);
+    assert.deepEqual([s['hoodie-black'].buyers, s['hoodie-black'].raters, s['hoodie-black'].ratingAvg, s['hoodie-black'].wishers], [0, 1, 2, 1]);
+    assert.equal(s['jeans-blue'].demoShare, 1, 'chỉ khách demo mua → ghi rõ là demo');
+    assert.equal(s['tee-white'].buyers, 0, 'chỉ xem thì không tính là đã mua');
+    assert.equal(s['pants-black'], undefined, 'sản phẩm không có dữ liệu thì không có số liệu');
+    assert.ok(Object.values(s).every((x) => !('users' in x) && !('user' in x)), 'không lộ danh tính người dùng');
+});

@@ -250,6 +250,13 @@ function createApp(ctx) {
         return { ok: true, productId, items: service.outfit(productId, user ? user.id : null, per) };
     });
 
+    // Công khai: chỉ số đếm theo sản phẩm (bán chạy / đánh giá cao) cho chatbot và trang chủ — không có thông tin cá nhân.
+    route('GET', /^\/api\/products\/popular$/, (req, url) => {
+        rate(req, 'recs', 240, 60000);
+        const limit = Math.max(1, Math.min(200, Number(url.searchParams.get('limit')) || 200));
+        return { ok: true, source: 'server', items: service.popularStats(limit), meta: { activeUsers: service.stats().activeUsers } };
+    });
+
     route('GET', /^\/api\/products\/([A-Za-z0-9_-]{1,80})\/reviews$/, (req, url, m) => {
         const productId = productOr404(m[1]);
         const limit = Math.max(1, Math.min(50, Number(url.searchParams.get('limit')) || 10));
