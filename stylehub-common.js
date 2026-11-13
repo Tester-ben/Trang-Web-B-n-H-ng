@@ -1235,6 +1235,8 @@ function searchProducts() {
     function initWishlistButtons() {
         const list = getWishlist();
         document.querySelectorAll('a[href*="product-detail.html?id="]').forEach(card => {
+            // Khu tự trình bày (vd. khu giày dạng vòng cung ở trang chủ) tự lo giao diện: không gắn nút tim.
+            if (card.closest("[data-stylehub-plain-links]")) return;
             const productId = productIdFromHref(card.getAttribute("href"));
             if (!productId || card.querySelector(".stylehub-wishlist-btn")) return;
             const thumb = card.querySelector(".mens-thumb-box, .product-thumb, .product-image, .thumb-box") || card;
@@ -1400,6 +1402,7 @@ function searchProducts() {
 
     function initStockBadges() {
         document.querySelectorAll('a[href*="product-detail.html?id="]').forEach(card => {
+            if (card.closest("[data-stylehub-plain-links]")) return; // khu này tự hiển thị tình trạng kho
             const id = productIdFromHref(card.getAttribute("href"));
             if (!id) return;
             const stock = getStockInfo(id);

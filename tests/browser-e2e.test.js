@@ -116,3 +116,173 @@ test('E2E có máy chủ: đăng nhập liên kết tài khoản, gợi ý từ 
         fs.rmSync(dataDir, { recursive: true, force: true });
     }
 });
+
+test('E2E: món đã ngừng kinh doanh (dress-8) bị gỡ khỏi BAG cũ, giỏ đặt lại và lịch sử chat; link cũ báo không còn bán', { skip, timeout: 120000 }, async () => {
+    const site = await staticServer();
+    const browser = await playwright.chromium.launch();
+    try {
+        const { page, errors } = await newPage(browser);
+        const stale = { key: 'dress-8', name: 'The Weekend Minimalist Urban Shirt', price: '580.000 ₫', priceNum: 580000, size: 'M', qty: 1 };
+        const kept = { key: 'dress-7', name: 'Món vẫn đang bán', price: '590.000 ₫', priceNum: 590000, size: 'L', qty: 1 };
+        await page.goto(site.url + '/mens.html', { waitUntil: 'domcontentloaded' });
+        await page.evaluate(([oldItem, okItem]) => {
+            const cart = JSON.stringify([oldItem, okItem]);
+            ['stylehub_cart_memory_v1', 'stylehub_cart', 'hub_cart', 'cartMemoryArray', 'the_style_hub_cart', 'cart'].forEach((k) => localStorage.setItem(k, cart));
+            const card = (id) => '<div class="tsh-ai-product-list"><div class="tsh-ai-product-card"><a class="tsh-ai-product-name" href="product-detail.html?id=' + id + '">' + id +
+                '</a><button class="tsh-ai-product-cart" type="button" data-product-id="' + id + '">🛒</button></div></div>';
+            localStorage.setItem('tsh_ai_pro_messages', JSON.stringify([{ who: 'bot', html: 'Gợi ý:' + card('dress-8') + card('dress-7'), meta: 'Stylist AI 10:00' }]));
+        }, [stale, kept]);
+        await page.reload({ waitUntil: 'domcontentloaded' });
+        await page.waitForTimeout(800);
+
+        assert.deepEqual(await page.evaluate(() => window.StyleHubCartSync.read().map((i) => i.key)), ['dress-7'], 'BAG chỉ còn món đang bán');
+        const stored = await page.evaluate(() => ['stylehub_cart_memory_v1', 'cart'].map((k) => localStorage.getItem(k) || ''));
+        assert.ok(stored.every((v) => v.includes('dress-7') && !v.includes('dress-8')), 'giỏ lưu trong trình duyệt đã được dọn: ' + stored.join(' | '));
+        assert.deepEqual(await page.$$eval('#tshAiBody .tsh-ai-product-card [data-product-id]', (els) => els.map((e) => e.dataset.productId)), ['dress-7'],
+            'lịch sử chat không còn thẻ của món đã gỡ');
+        assert.equal(await page.$$eval('#tshAiBody .tsh-ai-discontinued-note', (els) => els.length), 1, 'thẻ đã gỡ được thay bằng ghi chú "không còn bán"');
+
+        // Giỏ "Đặt lại đơn này" còn sót từ trước khi gỡ: món đã gỡ bị bỏ qua.
+        await page.evaluate((oldItem) => localStorage.setItem('stylehub_reorder_cart', JSON.stringify([oldItem,
+            { key: 'dress-9', name: 'Món đặt lại', price: '490.000 ₫', priceNum: 490000, size: 'M', qty: 1 }])), stale);
+        await page.goto(site.url + '/product-detail.html?id=dress-9&reorder=1', { waitUntil: 'domcontentloaded' });
+        await page.waitForTimeout(800);
+        assert.deepEqual(await page.evaluate(() => (window.cartMemoryArray || []).map((i) => i.key)), ['dress-9']);
+
+        // Giỏ đặt lại chỉ toàn món đã gỡ: KHÔNG được làm trống giỏ hiện tại của khách.
+        await page.evaluate(([oldItem, okItem]) => {
+            ['stylehub_cart_memory_v1', 'stylehub_cart', 'hub_cart', 'cartMemoryArray', 'the_style_hub_cart', 'cart'].forEach((k) => localStorage.setItem(k, JSON.stringify([okItem])));
+            localStorage.setItem('stylehub_reorder_cart', JSON.stringify([oldItem]));
+        }, [stale, kept]);
+        await page.goto(site.url + '/product-detail.html?id=tops-1', { waitUntil: 'domcontentloaded' });
+        await page.waitForTimeout(800);
+        assert.deepEqual(await page.evaluate(() => (window.cartMemoryArray || []).map((i) => i.key)), ['dress-7']);
+        assert.equal(await page.evaluate(() => localStorage.getItem('stylehub_reorder_cart')), null);
+
+        // Link cũ tới món đã gỡ (và id trùng thuộc tính của Object): thông báo cho khách, không còn nút mua.
+        for (const id of ['dress-8', 'constructor']) {
+            await page.goto(site.url + '/product-detail.html?id=' + id, { waitUntil: 'domcontentloaded' });
+            await page.waitForTimeout(600);
+            assert.equal((await page.textContent('#product-name-target')).trim(), 'Sản phẩm hiện không còn bán', id);
+            assert.equal(await page.isVisible('.btn-add-to-bag'), false, id);
+            assert.equal(await page.isVisible('.size-selector-section'), false, id);
+        }
+
+        // Sản phẩm admin (custom-*) đến muộn từ Firebase: hiện "đang tải", rồi tự hiển thị khi dữ liệu về.
+        await page.goto(site.url + '/product-detail.html?id=custom-mens-late-tee', { waitUntil: 'domcontentloaded' });
+        await page.waitForTimeout(400);
+        assert.equal((await page.textContent('#product-name-target')).trim(), 'Đang tải sản phẩm…');
+        await Promise.all([
+            page.waitForEvent('load'),
+            page.evaluate(() => {
+                localStorage.setItem('stylehub_admin_products_v1', JSON.stringify({ 'custom-mens-late-tee': {
+                    name: 'Late Admin Tee', brand: 'Essentials', price: '450.000 ₫', priceNum: 450000, adminDepartment: 'mens',
+                    mainImg: 'https://cdn.example.com/late-1.jpg', images: ['https://cdn.example.com/late-1.jpg', 'https://cdn.example.com/late-2.jpg']
+                } }));
+                window.dispatchEvent(new CustomEvent('stylehub-products-change'));
+            })
+        ]);
+        await page.waitForTimeout(600);
+        assert.equal((await page.textContent('#product-name-target')).trim(), 'Late Admin Tee');
+        assert.equal(await page.isVisible('.btn-add-to-bag'), true);
+        assert.deepEqual(errors, []);
+    } finally {
+        await browser.close();
+        await site.close();
+    }
+});
+
+test('E2E: đặt hàng từ BAG rồi bấm hoàn tất (pháo hoa) không gây lỗi JS', { skip, timeout: 120000 }, async () => {
+    const site = await staticServer();
+    const browser = await playwright.chromium.launch();
+    try {
+        for (const pageName of ['mens.html', 'index.html']) {
+            const { ctx, page, errors } = await newPage(browser);
+            await page.goto(site.url + '/' + pageName, { waitUntil: 'domcontentloaded' });
+            await page.evaluate(() => {
+                const cart = JSON.stringify([{ key: 'dress-7', name: 'Món thử', price: '590.000 ₫', priceNum: 590000, size: 'M', qty: 1 }]);
+                ['stylehub_cart_memory_v1', 'stylehub_cart', 'hub_cart', 'cartMemoryArray', 'the_style_hub_cart', 'cart'].forEach((k) => localStorage.setItem(k, cart));
+            });
+            await page.reload({ waitUntil: 'load' });
+            await page.waitForTimeout(1000); // chờ các script khởi tạo trang chạy xong (có script tự đóng BAG lúc tải)
+            await page.evaluate(() => window.StyleHubCartSync.openBag());
+            await page.waitForSelector('#bag-modal .stylehub-universal-checkout', { state: 'visible' });
+            await page.waitForTimeout(400);
+            await page.click('#bag-modal .stylehub-universal-checkout');
+            await page.waitForSelector('#stylehubCheckoutName', { state: 'visible' });
+            await page.fill('#stylehubCheckoutName', 'Khach Thu');
+            await page.fill('#stylehubCheckoutPhone', '0900000000');
+            await page.fill('#stylehubCheckoutAddress', '1 Duong Thu, Quan 1, TP HCM');
+            await page.fill('#stylehubCheckoutEmail', 'khach.thu@example.com');
+            await page.click('#bag-modal .stylehub-checkout-submit');
+            await page.waitForSelector('#bag-modal .stylehub-checkout-done', { state: 'visible' });
+            await page.waitForTimeout(300);
+            await page.click('#bag-modal .stylehub-checkout-done');
+            await page.waitForTimeout(5000); // pháo hoa chạy hết
+            assert.deepEqual(errors, [], pageName);
+            await ctx.close();
+        }
+    } finally {
+        await browser.close();
+        await site.close();
+    }
+});
+
+test('E2E: trang Admin có mục Hệ gợi ý (Streamlit), báo rõ khi ứng dụng chưa chạy và chỉ nhận địa chỉ http(s)', { skip, timeout: 120000 }, async () => {
+    const site = await staticServer();
+    const browser = await playwright.chromium.launch();
+    try {
+        const { page, errors } = await newPage(browser);
+        await page.goto(site.url + '/admin.html', { waitUntil: 'load' });
+        // Cổng 9 luôn đóng: kiểm thử không phụ thuộc việc máy đang chạy Streamlit hay không.
+        await page.evaluate(() => localStorage.setItem('stylehub_streamlit_url', 'http://127.0.0.1:9'));
+        await page.waitForTimeout(1200);
+        await page.fill('#adminPassword', 'admin123');
+        await page.click('#adminLoginButton');
+        await page.waitForSelector('.admin-nav-btn[data-tab="streamlit"]', { state: 'visible' });
+        await page.click('.admin-nav-btn[data-tab="streamlit"]');
+        await page.waitForFunction(() => document.getElementById('streamlitStatusChip').textContent === 'Không kết nối được', null, { timeout: 15000 });
+        assert.equal(await page.$eval('#streamlitFrame', (f) => f.hidden), true);
+        assert.match(await page.textContent('#streamlitEmpty'), /streamlit run streamlit_app\/app\.py/);
+
+        await page.fill('#streamlitUrlInput', 'javascript:alert(1)');
+        await page.click('text=Lưu & tải lại');
+        assert.equal(await page.evaluate(() => localStorage.getItem('stylehub_streamlit_url')), 'http://127.0.0.1:9', 'địa chỉ không phải http(s) bị từ chối');
+
+        await page.fill('#streamlitUrlInput', 'http://127.0.0.1:9/ung-dung/');
+        await page.click('text=Lưu & tải lại');
+        assert.equal(await page.evaluate(() => localStorage.getItem('stylehub_streamlit_url')), 'http://127.0.0.1:9/ung-dung');
+        assert.deepEqual(errors, []);
+    } finally {
+        await browser.close();
+        await site.close();
+    }
+});
+
+test('E2E: khu giày trang chủ dạng vòng cung — lấy giày từ danh mục, xoay bằng bánh xe/phím, bấm mở trang sản phẩm', { skip, timeout: 120000 }, async () => {
+    const site = await staticServer();
+    const browser = await playwright.chromium.launch();
+    try {
+        const { page, errors } = await newPage(browser);
+        await page.goto(site.url + '/index.html', { waitUntil: 'load' });
+        await page.waitForSelector('[data-shoes-orbit].is-ready .sh-orbit-shoe');
+        const shoes = await page.$$eval('.sh-orbit-shoe', (els) => els.map((a) => a.getAttribute('href')));
+        assert.ok(shoes.length >= 10 && shoes.every((h) => /^product-detail\.html\?id=shoe-\d+$/.test(h)), shoes.join(','));
+        assert.equal(await page.$$eval('[data-shoes-orbit] .stylehub-wishlist-btn, [data-shoes-orbit] .stylehub-stock-badge', (els) => els.length), 0, 'không bị gắn nút tim / nhãn kho chồng lên');
+        assert.equal(await page.textContent('[data-orbit-count]'), '02 / ' + String(shoes.length).padStart(2, '0'));
+        await page.focus('[data-orbit-wheel]');
+        await page.keyboard.press('ArrowRight');
+        await page.waitForTimeout(800);
+        assert.equal(await page.textContent('[data-orbit-count]'), '03 / ' + String(shoes.length).padStart(2, '0'));
+        assert.equal(await page.getAttribute('[data-orbit-link]', 'href'), 'product-detail.html?id=shoe-3');
+        assert.equal(await page.getAttribute('[data-orbit-sizes] a[data-size="42"]', 'href'), 'product-detail.html?id=shoe-3&size=42');
+        await page.click('[data-orbit-sizes] a[data-size="42"]');
+        await page.waitForURL(/product-detail\.html\?id=shoe-3&size=42/);
+        await page.waitForSelector('.shoe-number-size');
+        assert.equal(await page.$eval('.shoe-number-size.selected', (b) => b.dataset.size), '42', 'trang sản phẩm chọn sẵn size đã bấm');
+        assert.deepEqual(errors, []);
+    } finally {
+        await browser.close();
+        await site.close();
+    }
+});

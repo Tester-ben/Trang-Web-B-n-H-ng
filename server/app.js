@@ -18,7 +18,7 @@ const MIME = {
     '.svg': 'image/svg+xml', '.webp': 'image/webp', '.ico': 'image/x-icon', '.woff': 'font/woff', '.woff2': 'font/woff2', '.txt': 'text/plain; charset=utf-8'
 };
 // Thư mục/tệp KHÔNG phục vụ ra web (mã máy chủ, dữ liệu, kiểm thử...).
-const BLOCKED_TOP = new Set(['server', 'tests', 'tools', 'evaluation', 'docs', 'node_modules', 'package.json', 'package-lock.json', 'firebase.database.rules.json']);
+const BLOCKED_TOP = new Set(['server', 'tests', 'tools', 'evaluation', 'streamlit_app', 'docs', 'node_modules', 'package.json', 'package-lock.json', 'firebase.database.rules.json']);
 const CLIENT_EVENT_TYPES = INTERACTION_TYPES.filter((t) => t !== 'purchase'); // lượt mua chỉ ghi qua /api/orders
 const PRODUCT_ID_RE = /^[A-Za-z0-9_-]{1,80}$/;
 const ORDER_ID_RE = /^[A-Za-z0-9_-]{1,40}$/;

@@ -1,10 +1,11 @@
 {
-  "generatedAt": "2026-11-06T05:29:27.174Z",
+  "generatedAt": "2026-11-07T00:27:44.273Z",
   "dataKind": "simulated",
   "config": {
     "seeds": 3,
     "users": 600,
     "items": 197,
+    "catalog": "snapshot",
     "firstSeed": 1
   },
   "evaluatedUsers": [
@@ -1281,5 +1282,5 @@
     }
   ],
   "sentimentHeldout": 0.825,
-  "runtimeSeconds": 51.2
+  "runtimeSeconds": 51
 }

@@ -87,13 +87,6 @@ html{scroll-behavior:smooth}
 .premium-home .shoes-hero-content h2{font-family:var(--sh-editorial);font-size:clamp(60px,8vw,110px);letter-spacing:1px;margin-bottom:26px}
 .premium-home .shoes-shop-btn{padding:17px 70px;background:#f5f1e9;color:#111;letter-spacing:3px;border:1px solid #f5f1e9;transition:background .3s,transform .3s}
 .premium-home .shoes-shop-btn:hover{background:#dfc6a4;transform:translateY(-3px)}
-.premium-home .home-shoes-marquee-section{padding-top:90px;background:transparent}
-.premium-home .home-shoes-marquee-heading h3{font:400 clamp(31px,4vw,55px)/1.1 var(--sh-editorial);letter-spacing:1px}
-.premium-home .home-shoes-marquee-heading p{color:#a08463}
-.premium-home .home-shoes-marquee-viewport::before{background:linear-gradient(to right,#f8f7f4,transparent)}
-.premium-home .home-shoes-marquee-viewport::after{background:linear-gradient(to left,#f8f7f4,transparent)}
-.premium-home .home-shoe-marquee-card img{background:#eae7e1}
-.premium-home .home-shoes-marquee-track{animation-duration:52s}
 /* Animate only enhanced sections, without blank content when JS is off. */
 .sh-enhance-ready .sh-reveal{opacity:0;transform:translateY(38px);transition:opacity .82s ease,transform .82s cubic-bezier(.16,.65,.23,1)}
 .sh-enhance-ready .sh-reveal.sh-visible{opacity:1;transform:translateY(0)}
@@ -122,11 +115,9 @@ html{scroll-behavior:smooth}
   .premium-home main.container{padding:50px 16px}
   .premium-home .shoes-hero{height:65svh;min-height:435px}
   .premium-home .shoes-shop-btn{padding:16px 48px}
-  .premium-home .home-shoes-marquee-section{padding-top:48px}
-  .premium-home .home-shoes-marquee-heading{padding-left:0;padding-right:0}
 }
 @media(max-width:420px){.premium-home .sh-hero-description{max-width:275px}.premium-home .sh-hero-secondary{display:none}}
-@media(prefers-reduced-motion:reduce){.premium-home .home-shoes-marquee-track,.premium-home .sh-scroll-cue span{animation:none!important}.premium-home .main-hero-img,.premium-home .hero-image-wrapper,.premium-home .hero-image-wrapper img,.premium-home .shoes-hero img{transition:none!important;transform:none!important}.sh-enhance-ready .sh-reveal{opacity:1!important;transform:none!important;transition:none!important}}
+@media(prefers-reduced-motion:reduce){.premium-home .sh-scroll-cue span{animation:none!important}.premium-home .main-hero-img,.premium-home .hero-image-wrapper,.premium-home .hero-image-wrapper img,.premium-home .shoes-hero img{transition:none!important;transform:none!important}.sh-enhance-ready .sh-reveal{opacity:1!important;transform:none!important;transition:none!important}}
 
 /* === HOME V3: LẬT OUTFIT 3D — chỉ áp dụng khu Được chọn cho bạn === */
 .premium-home .sh-pick-stage{position:relative;min-width:0;isolation:isolate;transition:filter .35s ease}
@@ -140,20 +131,16 @@ html{scroll-behavior:smooth}
 .premium-home .sh-flip-face img{width:100%;height:100%;object-fit:contain;display:block;mix-blend-mode:multiply;transform:scale(1);transition:transform .8s ease}
 .premium-home .sh-has-flip.sh-flipped .sh-pick-flipper{transform:rotateY(180deg)}
 .premium-home .sh-pick-stage:hover .sh-flip-face img{transform:scale(1.035)}
-.premium-home .sh-pick-flip-hint{position:absolute;z-index:2;left:13px;bottom:13px;pointer-events:none;padding:10px 12px;background:rgba(244,240,233,.94);color:#312c27;font-size:9px;font-weight:700;letter-spacing:1.3px;box-shadow:0 7px 30px rgba(0,0,0,.08);transition:opacity .3s,transform .3s}
-.premium-home .sh-has-flip.sh-flipped .sh-pick-flip-hint{opacity:0;transform:translateY(8px)}
-.premium-home .sh-pick-flip-toggle{position:absolute;z-index:5;left:12px;top:12px;min-height:35px;max-width:calc(100% - 72px);border:1px solid rgba(60,50,40,.1);border-radius:3px;background:rgba(255,255,255,.94);color:#191817;font:700 9px/1.25 Arial,sans-serif;letter-spacing:.8px;padding:9px 10px;cursor:pointer;box-shadow:0 8px 20px rgba(0,0,0,.08);transition:background .25s,color .25s}
+.premium-home .sh-pick-flip-toggle{position:absolute;z-index:5;left:12px;top:12px;width:36px;height:36px;display:grid;place-items:center;border:1px solid rgba(60,50,40,.1);border-radius:50%;background:rgba(255,255,255,.94);color:#191817;font:400 17px/1 Arial,sans-serif;padding:0;cursor:pointer;box-shadow:0 8px 20px rgba(0,0,0,.08);transition:background .25s,color .25s}
 .premium-home .sh-pick-flip-toggle:hover,.premium-home .sh-pick-flip-toggle:focus-visible{background:#1d1c1a;color:#fff;outline:2px solid #c7aa87;outline-offset:2px}
 .premium-home .sh-pick-stage .stylehub-wishlist-btn{z-index:7}
 @media(hover:hover) and (pointer:fine){
   .premium-home .sh-has-flip:not(.sh-flipped):hover .sh-pick-flipper{transform:rotateY(180deg)}
   .premium-home .sh-has-flip .sh-pick-flip-toggle{opacity:0;pointer-events:none}
   .premium-home .sh-has-flip .sh-pick-flip-toggle:focus-visible{opacity:1;pointer-events:auto}
-  .premium-home .sh-has-flip:not(.sh-flipped):hover .sh-pick-flip-hint{opacity:0;transform:translateY(8px)}
 }
 @media(hover:none),(pointer:coarse){
-  .premium-home .sh-pick-flip-hint{display:none}
-  .premium-home .sh-pick-flip-toggle{display:block;top:auto;bottom:105px;left:8px;padding:9px 7px;font-size:8px;max-width:calc(100% - 16px)}
+  .premium-home .sh-pick-flip-toggle{display:grid;top:10px;bottom:auto;left:10px}
 }
 /* V5: Reveal gắn với vị trí scroll 2 chiều, kích hoạt lại mỗi lần quay vào viewport. */
 .premium-home .sh-scroll-slide{--sh-scroll-progress:1;--sh-slide-offset-x:0px;--sh-slide-offset-y:0px;--sh-slide-scale:1}
@@ -174,7 +161,5 @@ html{scroll-behavior:smooth}
 }
 @media(max-width:768px){
  .sh-scroll-ready.premium-home .sh-scroll-slide{transition-duration:.08s,.1s}
- .premium-home .sh-pick-flip-toggle{bottom:98px}
- .premium-home .sh-pick-flip-hint{font-size:8px}
 }
 

@@ -23,6 +23,8 @@
     var write = function (key, value) { try { localStorage.setItem(key, JSON.stringify(value)); return true; } catch (_) { return false; } };
     var removeKey = function (key) { try { localStorage.removeItem(key); } catch (_) { /* bỏ qua */ } };
     var catalog = function () { return typeof database === 'undefined' ? {} : database; };
+    // Chỉ khóa riêng của danh mục (tránh ?id=constructor / toString trùng thuộc tính kế thừa của Object).
+    var inCatalog = function (id) { return !!id && Object.prototype.hasOwnProperty.call(catalog(), id); };
     var array = function (v) { return Array.isArray(v) ? v : []; };
     var engine = function () { return window.StyleHubRecEngine || null; };
     var api = function () { return window.StyleHubApi || null; };
@@ -255,14 +257,16 @@
     }
 
     /** Gợi ý cho trang chi tiết sản phẩm (tương thích API cũ). */
-    function recommend(current, limit) { return fromServerOrLocal('product', catalog()[current] ? current : undefined, limit); }
+    // Sản phẩm không còn trong danh mục (link cũ tới món đã gỡ): dùng gợi ý cá nhân như trang chủ,
+    // không gửi yêu cầu ngữ cảnh "product" thiếu productId (máy chủ sẽ trả 404).
+    function recommend(current, limit) { return inCatalog(current) ? fromServerOrLocal('product', current, limit) : fromServerOrLocal('home', undefined, limit); }
     /** Gợi ý cho trang chủ (tương thích API cũ). */
     function recommendHome(limit) { return fromServerOrLocal('home', undefined, limit); }
 
     /** Gợi ý phối đồ cho một sản phẩm (áo -> quần + giày...). */
     function outfit(productId, perCategory) {
         var model = getLocalModel();
-        return model && catalog()[productId] ? model.outfit(productId, identity(), { perCategory: perCategory || 1 }) : [];
+        return model && inCatalog(productId) ? model.outfit(productId, identity(), { perCategory: perCategory || 1 }) : [];
     }
     /** Hồ sơ phong cách cục bộ (máy chủ trả bản đầy đủ hơn qua StyleHubApi.getStyleDNA). */
     function styleDNA() { var model = getLocalModel(); return model ? model.styleDNA(identity(), getQuiz(identity()) || undefined) : null; }
@@ -331,7 +335,7 @@
     var LABEL_CATEGORY = { top: 'Áo phối cùng', bottom: 'Quần phối cùng', footwear: 'Giày phối cùng', outerwear: 'Áo khoác phối cùng' };
     function renderOutfit(productId) {
         var anchor = document.getElementById('relatedProductsSection');
-        if (!anchor || !catalog()[productId]) return;
+        if (!anchor || !inCatalog(productId)) return;
         var section = document.getElementById('shOutfitSection');
         if (!section) {
             section = document.createElement('section');

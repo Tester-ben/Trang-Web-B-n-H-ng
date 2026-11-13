@@ -2582,6 +2582,21 @@
        GIAO DIỆN TIN NHẮN
        ========================================================= */
 
+    // Lịch sử chat lưu sẵn HTML: thay thẻ của sản phẩm đã ngừng kinh doanh (gỡ khỏi product-data.js)
+    // bằng một dòng ghi chú, để tin nhắn cũ không còn bán món đó mà câu dẫn phía trên vẫn hợp lý.
+    function pruneDiscontinuedProductCards(container) {
+        const productAdmin = window.StyleHubProductAdmin;
+        if (!productAdmin || typeof productAdmin.isDiscontinuedProduct !== "function") return;
+        container.querySelectorAll(".tsh-ai-product-card").forEach(function (card) {
+            const ref = card.querySelector("[data-product-id]");
+            if (!ref || !productAdmin.isDiscontinuedProduct(ref.getAttribute("data-product-id"))) return;
+            const note = document.createElement("span");
+            note.className = "tsh-ai-muted tsh-ai-discontinued-note";
+            note.textContent = "Mẫu này hiện không còn bán.";
+            card.replaceWith(note);
+        });
+    }
+
     function renderHistory() {
         const body = document.getElementById("tshAiBody");
         if (!body) return;
@@ -2599,6 +2614,7 @@
                 const msg = document.createElement("div");
                 msg.className = `tsh-ai-msg ${m.who === "user" ? "user" : "bot"}`;
                 msg.innerHTML = m.html;
+                pruneDiscontinuedProductCards(msg);
 
                 body.append(meta, msg);
             });
@@ -2760,7 +2776,11 @@
     function addToCart(productId, requestedSize) {
         const data = getDB();
         const item = data[productId];
-        if (!item) return { ok: false, reason: "missing" };
+        if (!item) {
+            // Ví dụ: thẻ sản phẩm trong lịch sử chat cũ của món đã ngừng kinh doanh.
+            appendBot("Rất tiếc, sản phẩm này hiện không còn bán nên mình chưa thêm vào BAG được. Bạn cho mình biết kiểu dáng hoặc màu bạn thích, mình gợi ý mẫu tương tự nhé.");
+            return { ok: false, reason: "missing" };
+        }
 
         if (!isProductInStock(productId, item)) {
             appendBot(`Rất tiếc, <strong>${escapeHTML(item.name)}</strong> hiện đã hết hàng nên mình chưa thêm vào BAG được.`);

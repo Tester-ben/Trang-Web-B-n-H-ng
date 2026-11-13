@@ -239,3 +239,13 @@ test('Trọng số mặc định của engine khớp kết quả tinh chỉnh (r
     assert.deepEqual(strip(engine.DEFAULTS.weights.cold), strip(tuned.cold));
     assert.equal(engine.DEFAULTS.mmrLambda, tuned.mmrLambda);
 });
+
+test('Ảnh chụp danh mục của thực nghiệm (evaluation/catalog-snapshot.json) còn nguyên để tái lập số liệu đã báo cáo', () => {
+    const snap = require('../evaluation/catalog-snapshot.json');
+    const latest = require('../evaluation/results/latest.json');
+    const ids = Object.keys(snap.catalog);
+    assert.equal(ids.length, snap.items);
+    assert.deepEqual(Object.keys(snap.attributes), ids, 'mỗi sản phẩm trong ảnh chụp có đúng một bộ thuộc tính');
+    assert.equal(latest.config.catalog, 'snapshot', 'số liệu báo cáo được sinh trên ảnh chụp cố định');
+    assert.equal(latest.config.items, ids.length);
+});

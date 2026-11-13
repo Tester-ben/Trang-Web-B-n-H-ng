@@ -47,6 +47,8 @@
         .product-image-item img { width: 100%; height: 100%; object-fit: cover; object-position: center top; display: block; }
         
         .info-sticky-panel { position: sticky; top: 97px; padding-left: 20px; }
+        /* Link cũ tới sản phẩm không còn bán: chỉ giữ tên/thông báo, ẩn chọn size, số lượng và nút mua. */
+        body.pd-product-missing .info-sticky-panel > :not(.brand-name):not(.product-name):not(.product-price) { display: none !important; }
         .brand-name { font-size: 11px; text-transform: uppercase; letter-spacing: 2px; color: #777; margin-bottom: 8px; }
         .product-name { font-size: 24px; font-weight: 400; margin-bottom: 12px; line-height: 1.3; }
         .product-price { font-size: 16px; font-weight: 500; margin-bottom: 30px; padding-bottom: 20px; border-bottom: 1px solid #eee; }
@@ -1049,7 +1051,7 @@
                 const savedItems = JSON.parse(rawCart);
                 if (!Array.isArray(savedItems) || savedItems.length === 0) return;
 
-                cartMemoryArray = savedItems.map(function(item) {
+                const reorderItems = savedItems.map(function(item) {
                     const product = item.key && typeof database !== 'undefined' ? database[item.key] : null;
                     const priceText = item.price || (product && product.price) || '';
                     const priceNum = Number(item.priceNum) || parseInt(String(priceText).replace(/[^\d]/g, ''), 10) || 0;
@@ -1062,9 +1064,20 @@
                         size: item.size || 'M',
                         qty: Number(item.qty || item.quantity || 1)
                     };
-                }).filter(function(item) { return item.name; });
+                }).filter(function(item) {
+                    // Bỏ món đã ngừng kinh doanh (gỡ khỏi product-data.js) khỏi giỏ đặt lại.
+                    const productAdmin = window.StyleHubProductAdmin;
+                    const discontinued = !!(productAdmin && typeof productAdmin.isDiscontinuedProduct === 'function' && productAdmin.isDiscontinuedProduct(item.key));
+                    return item.name && !discontinued;
+                });
 
                 localStorage.removeItem('stylehub_reorder_cart');
+                if (reorderItems.length === 0) {
+                    // Mọi món trong đơn đặt lại đều đã ngừng kinh doanh: giữ nguyên giỏ hiện tại của khách.
+                    setTimeout(function() { showToastNotification('Sản phẩm trong đơn đặt lại hiện không còn bán.'); }, 250);
+                    return;
+                }
+                cartMemoryArray = reorderItems;
                 renderCartUI();
 
                 if (cartMemoryArray.length > 0) {
@@ -1117,7 +1130,10 @@
                     </div>
                 `;
 
-                const first = group.querySelector(".shoe-number-size");
+                // Size chọn sẵn từ link (vd. khu giày trang chủ: product-detail.html?id=shoe-1&size=42).
+                const wantedSize = new URLSearchParams(window.location.search).get("size");
+                const preferred = /^\d{2}$/.test(wantedSize || "") ? group.querySelector('.shoe-number-size[data-size="' + wantedSize + '"]') : null;
+                const first = preferred || group.querySelector(".shoe-number-size");
                 if (first) changeSize(first);
                 return;
             }
@@ -1152,7 +1168,7 @@
             const urlParams = new URLSearchParams(window.location.search);
             const productId = urlParams.get('id') || 'tops-1';
             renderProductSizeSelector(productId);
-            if (typeof database !== 'undefined' && database) {
+            if (typeof database !== 'undefined' && database && Object.prototype.hasOwnProperty.call(database, productId)) {
                 currentItem = database[productId];
             }
 
@@ -1231,13 +1247,43 @@
             }
             
             if (!currentItem) {
-                document.getElementById('brand-name-target').innerText = 'THE STYLE HUB';
-                document.getElementById('product-name-target').innerText = 'Không tìm thấy sản phẩm';
-                document.getElementById('product-price-target').innerText = '';
-                const galleryTarget = document.getElementById('gallery-target');
-                if (galleryTarget) {
-                    galleryTarget.innerHTML = '<div style="padding:80px 20px;text-align:center;color:#777;">Sản phẩm này chưa có trong product-data.js. Hãy thay file product-data.js mới và tải lại trang.</div>';
+                const showUnavailable = function(title, text) {
+                    document.body.classList.add('pd-product-missing');
+                    document.getElementById('brand-name-target').innerText = 'THE STYLE HUB';
+                    document.getElementById('product-name-target').innerText = title;
+                    document.getElementById('product-price-target').innerText = '';
+                    const galleryTarget = document.getElementById('gallery-target');
+                    if (galleryTarget) {
+                        galleryTarget.innerHTML = '<div style="padding:80px 20px;text-align:center;color:#777;">' + text + '</div>';
+                    }
+                };
+
+                if (!/^custom-/i.test(productId)) {
+                    // Mã sản phẩm của website nhưng đã gỡ khỏi product-data.js (ví dụ dress-8), hoặc link sai.
+                    showUnavailable('Sản phẩm hiện không còn bán', 'Sản phẩm này hiện không còn bán tại THE STYLE HUB. Mời bạn quay lại bộ sưu tập để xem các mẫu khác.');
+                    return;
                 }
+
+                // Sản phẩm do admin tạo (custom-*) đến từ Firebase SAU khi trang tải: chờ đồng bộ rồi tải lại trang.
+                showUnavailable('Đang tải sản phẩm…', 'Đang tải thông tin sản phẩm, vui lòng chờ trong giây lát.');
+                let adminProductSettled = false;
+                const settleAdminProduct = function(giveUp) {
+                    if (adminProductSettled) return;
+                    const productAdmin = window.StyleHubProductAdmin;
+                    // Sự kiện được phát TRƯỚC khi stylehub-orders-api.js gộp sản phẩm vào database, nên tự gộp ở đây.
+                    if (productAdmin && typeof productAdmin.applyAdminProductsToDatabase === 'function') productAdmin.applyAdminProductsToDatabase();
+                    if (Object.prototype.hasOwnProperty.call(database, productId)) {
+                        adminProductSettled = true;
+                        window.location.reload();
+                    } else if (giveUp) {
+                        adminProductSettled = true;
+                        window.removeEventListener('stylehub-products-change', onAdminProductsChange);
+                        showUnavailable('Không tìm thấy sản phẩm', 'Sản phẩm này hiện không có trên THE STYLE HUB. Mời bạn quay lại bộ sưu tập để xem các mẫu khác.');
+                    }
+                };
+                const onAdminProductsChange = function() { settleAdminProduct(true); };
+                window.addEventListener('stylehub-products-change', onAdminProductsChange);
+                setTimeout(function() { settleAdminProduct(true); }, 8000);
                 return;
             }
 
@@ -1413,6 +1459,9 @@
 
         function normalizeStyleHubCartItem(item) {
             if (!item) return null;
+            // Món đã ngừng kinh doanh (gỡ khỏi product-data.js) không còn nằm trong BAG / đơn hàng.
+            const productAdmin = window.StyleHubProductAdmin;
+            if (productAdmin && typeof productAdmin.isDiscontinuedProduct === 'function' && productAdmin.isDiscontinuedProduct(item.key || item.id)) return null;
             const product = item.key && typeof database !== 'undefined' ? database[item.key] : null;
             const priceText = item.price || item.itemPrice || item.productPrice || (product && product.price) || "";
             const priceNum = Number(item.priceNum) || parseInt(String(priceText).replace(/[^\d]/g, ""), 10) || 0;

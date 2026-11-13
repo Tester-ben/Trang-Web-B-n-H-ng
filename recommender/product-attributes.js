@@ -1979,21 +1979,6 @@
             "fit": null,
             "brand": "the weekend"
         },
-        "dress-8": {
-            "gender": "men",
-            "category": "top",
-            "type": "shirt",
-            "colors": [],
-            "styles": [
-                "smart",
-                "minimal"
-            ],
-            "materials": [
-                "cotton"
-            ],
-            "fit": null,
-            "brand": "the weekend"
-        },
         "dress-9": {
             "gender": "men",
             "category": "top",
@@ -2196,7 +2181,7 @@
                 "denim"
             ],
             "fit": "relaxed",
-            "brand": "essentials"
+            "brand": "fear of god"
         },
         "womens-11": {
             "gender": "women",
@@ -2213,7 +2198,7 @@
                 "fleece"
             ],
             "fit": "classic",
-            "brand": "essentials"
+            "brand": "fear of god"
         },
         "womens-12": {
             "gender": "women",
@@ -2230,7 +2215,7 @@
                 "leather"
             ],
             "fit": null,
-            "brand": "essentials"
+            "brand": "fear of god"
         },
         "womens-13": {
             "gender": "women",
@@ -2245,7 +2230,7 @@
             ],
             "materials": [],
             "fit": null,
-            "brand": "essentials"
+            "brand": "fear of god"
         },
         "womens-14": {
             "gender": "women",
@@ -2262,7 +2247,7 @@
                 "leather"
             ],
             "fit": null,
-            "brand": "essentials"
+            "brand": "fear of god"
         },
         "womens-15": {
             "gender": "women",
@@ -2296,7 +2281,7 @@
                 "leather"
             ],
             "fit": null,
-            "brand": "essentials"
+            "brand": "fear of god"
         },
         "hoodies-15": {
             "gender": "men",

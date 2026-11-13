@@ -635,7 +635,7 @@
                     if (p.alpha <= 0) { particles.splice(i, 1); i--; }
                 }
                 if (particles.length > 0) { requestAnimationFrame(loop); } 
-                else { canvas.style.display = 'none'; showToast(`XIN CHÀO ${displayName.toUpperCase()}!`); }
+                else { canvas.style.display = 'none'; if (displayName) showToast(`XIN CHÀO ${String(displayName).toUpperCase()}!`); }
             }
             loop();
         }

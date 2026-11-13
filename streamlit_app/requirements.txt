@@ -1,0 +1,6 @@
+# Ứng dụng Streamlit của THE STYLE HUB — cài: pip install -r streamlit_app/requirements.txt
+streamlit>=1.40,<2
+pandas>=2.0
+altair>=5
+# Node.js cài qua pip: ứng dụng gọi chung bộ máy gợi ý JavaScript với website (không cần cài Node riêng).
+nodejs-wheel-binaries>=20

@@ -1612,7 +1612,19 @@
                     size: item.size || 'M',
                     qty: Number(item.qty || item.quantity || 1)
                 };
-            }).filter(item => item.key || item.name);
+            }).filter(item => (item.key || item.name) && !isDiscontinuedReorderItem(item.key));
+        }
+
+        // Món đã ngừng kinh doanh (gỡ khỏi product-data.js) không được đặt lại.
+        function isDiscontinuedReorderItem(key) {
+            const productAdmin = window.StyleHubProductAdmin;
+            return !!(key && productAdmin && typeof productAdmin.isDiscontinuedProduct === 'function' && productAdmin.isDiscontinuedProduct(key));
+        }
+
+        // Mở trang của món đầu tiên còn bán để trang chi tiết áp dụng giỏ đặt lại ngay.
+        function firstReorderProductKey(reorderItems) {
+            const available = reorderItems.find(item => item.key && typeof database !== 'undefined' && database[item.key]);
+            return (available && available.key) || reorderItems[0].key || 'tops-1';
         }
 
         function reorderCancelledOrderByIndex(index, event) {
@@ -1634,7 +1646,7 @@
             localStorage.setItem('stylehub_reorder_cart', JSON.stringify(reorderItems));
             showAccountToast('Đang thêm lại sản phẩm vào BAG');
 
-            const firstProductKey = reorderItems[0].key || 'tops-1';
+            const firstProductKey = firstReorderProductKey(reorderItems);
             setTimeout(() => {
                 window.location.href = `product-detail.html?id=${encodeURIComponent(firstProductKey)}&reorder=1`;
             }, 350);
@@ -1654,7 +1666,7 @@
             }
             localStorage.setItem('stylehub_reorder_cart', JSON.stringify(reorderItems));
             showAccountToast('Đang thêm lại sản phẩm vào BAG');
-            const firstProductKey = reorderItems[0].key || 'tops-1';
+            const firstProductKey = firstReorderProductKey(reorderItems);
             setTimeout(() => {
                 window.location.href = `product-detail.html?id=${encodeURIComponent(firstProductKey)}&reorder=1`;
             }, 350);

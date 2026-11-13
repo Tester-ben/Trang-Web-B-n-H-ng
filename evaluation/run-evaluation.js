@@ -7,6 +7,11 @@
           npm run evaluate -- --data=server (dữ liệu thật từ server/data/stylehub.db)
           npm run evaluate -- --data=csv:duong_dan.csv  (cột: user_id,item_id,event_type,value,timestamp)
 
+   Danh mục: dữ liệu mô phỏng mặc định dùng ẢNH CHỤP CỐ ĐỊNH evaluation/catalog-snapshot.json
+   (197 sản phẩm lúc làm thực nghiệm) để số liệu đã báo cáo luôn tái lập được dù website
+   thêm/xóa sản phẩm sau đó. Dùng danh mục hiện hành của website: --catalog=live
+   (dữ liệu thật --data=... mặc định dùng danh mục hiện hành).
+
    Giao thức: tách theo THỜI GIAN (không rò rỉ tương lai).
      - Validation: huấn luyện < ngày 90, đánh giá các lượt mua/đánh giá >= 4 sao trong [90, 105)
        -> dùng để tinh chỉnh trọng số hybrid (grid search thô -> mịn) và λ của MMR.
@@ -29,10 +34,11 @@ const COMPONENTS = ['session', 'cb', 'ucf', 'icf', 'mf', 'pop'];
 const INITIAL_WEIGHTS = { session: 0.25, cb: 0.25, ucf: 0.2, icf: 0.15, mf: 0.1, pop: 0.05 };
 
 function parseArgs(argv) {
-    const args = { data: 'simulated', seeds: 3, users: 600, quick: false, out: null };
+    const args = { data: 'simulated', seeds: 3, users: 600, quick: false, out: null, catalog: null };
     for (const a of argv.slice(2)) {
         if (a === '--quick') args.quick = true;
         else if (a.startsWith('--data=')) args.data = a.slice(7);
+        else if (a.startsWith('--catalog=')) args.catalog = a.slice(10) === 'live' ? 'live' : 'snapshot';
         else if (a.startsWith('--seeds=')) args.seeds = Math.max(1, Number(a.slice(8)) || 1);
         else if (a.startsWith('--users=')) args.users = Math.max(3, Number(a.slice(8)) || 600);
         else if (a.startsWith('--out=')) args.out = a.slice(6);
@@ -42,6 +48,13 @@ function parseArgs(argv) {
 }
 
 const log = (...xs) => { if (!process.env.STYLEHUB_EVAL_SILENT) console.log(...xs); };
+
+const SNAPSHOT_FILE = path.join(__dirname, 'catalog-snapshot.json');
+/** Danh mục + bảng thuộc tính cố định của lần thực nghiệm đã báo cáo (xem _ghi_chu trong file). */
+function loadCatalogSnapshot() {
+    const snap = JSON.parse(fs.readFileSync(SNAPSHOT_FILE, 'utf8'));
+    return { catalog: snap.catalog, attributes: snap.attributes };
+}
 
 /* ---------------- Tách dữ liệu ---------------- */
 function targetsIn(events, from, to) {
@@ -314,7 +327,9 @@ function markdownReport(R) {
     L.push('> Tự động sinh bởi `npm run evaluate` lúc ' + R.generatedAt + '. Không sửa tay — chạy lại lệnh để cập nhật.');
     L.push('');
     if (R.dataKind === 'simulated') {
-        L.push('**Nguồn dữ liệu: MÔ PHỎNG** (' + R.config.users + ' người dùng × ' + R.config.items + ' sản phẩm thật, 120 ngày, ' + R.config.seeds + ' seed, ρ = 0.5). ' +
+        L.push('**Nguồn dữ liệu: MÔ PHỎNG** (' + R.config.users + ' người dùng × ' + R.config.items + ' sản phẩm thật' +
+            (R.config.catalog === 'snapshot' ? ' — ảnh chụp danh mục cố định `evaluation/catalog-snapshot.json`' : ' — danh mục hiện hành của website') +
+            ', 120 ngày, ' + R.config.seeds + ' seed, ρ = 0.5). ' +
             'Dữ liệu được sinh bởi `evaluation/simulate.js` theo mô hình độ hữu dụng có cả phần thuộc tính (content) và phần "gu cụm" ẩn (collaborative). ' +
             'Kết quả chứng minh cài đặt đúng và so sánh tương đối giữa thuật toán **dưới giả định của bộ mô phỏng**; cần đánh giá lại trên dữ liệu thật bằng `npm run evaluate -- --data=server`.');
     } else {
@@ -446,10 +461,12 @@ function markdownReport(R) {
 function main() {
     const args = parseArgs(process.argv);
     const t0 = Date.now();
-    const catalog = loadCatalog();
-    const attributes = loadAttributes();
+    const catalogSource = args.catalog || (args.data === 'simulated' ? 'snapshot' : 'live');
+    const snapshot = catalogSource === 'snapshot' ? loadCatalogSnapshot() : null;
+    const catalog = snapshot ? snapshot.catalog : loadCatalog();
+    const attributes = snapshot ? snapshot.attributes : loadAttributes();
     const seeds = Array.from({ length: args.seeds }, (_, i) => i + 1);
-    const R = { generatedAt: new Date().toISOString(), dataKind: args.data === 'simulated' ? 'simulated' : 'real', config: { seeds: seeds.length, users: args.users, items: Object.keys(catalog).length, firstSeed: seeds[0] } };
+    const R = { generatedAt: new Date().toISOString(), dataKind: args.data === 'simulated' ? 'simulated' : 'real', config: { seeds: seeds.length, users: args.users, items: Object.keys(catalog).length, catalog: catalogSource, firstSeed: seeds[0] } };
 
     const baseAlgos = (tunedWeights, lambda, coldWeights) => [
         { name: 'Ngẫu nhiên', type: 'random' },

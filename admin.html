@@ -254,6 +254,22 @@
         .admin-select { min-width: 150px; }
         .admin-input, .admin-textarea { width: 100%; }
         .admin-textarea { min-height: 88px; resize: vertical; }
+        /* Mục "Hệ gợi ý (Streamlit)": nhúng ứng dụng Python streamlit_app/app.py */
+        .streamlit-config { margin-bottom: 18px; }
+        .streamlit-label { display: block; margin-bottom: 8px; color: #dbeafe; font-size: 11px; font-weight: 900; letter-spacing: 1.2px; text-transform: uppercase; }
+        .streamlit-url-controls { display: flex; gap: 10px; align-items: center; }
+        .streamlit-url-controls .admin-input { flex: 1; min-width: 0; }
+        .streamlit-url-controls button { white-space: nowrap; }
+        .streamlit-help { margin: 12px 0 0; color: var(--muted); font-size: 12.5px; line-height: 1.65; }
+        .streamlit-help code, .streamlit-empty code { background: rgba(3, 7, 18, .6); border: 1px solid var(--border); border-radius: 6px; padding: 1px 6px; color: #bfdbfe; font-size: 12px; }
+        .streamlit-frame-card { padding: 0; }
+        .streamlit-frame { display: block; width: 100%; height: calc(100vh - 150px); min-height: 640px; border: 0; background: #faf8f5; border-radius: 22px; }
+        .streamlit-empty { margin: 22px; text-align: left; line-height: 1.75; color: #cbd5e1; }
+        .streamlit-empty strong { color: #f8fafc; }
+        .streamlit-empty ol { margin: 10px 0 14px; padding-left: 20px; }
+        .streamlit-empty .admin-secondary-btn { margin-top: 4px; }
+        .admin-chip.is-ok { color: #bbf7d0; border-color: rgba(34,197,94,.45); }
+        .admin-chip.is-error { color: #fecaca; border-color: rgba(251,113,133,.45); }
         .admin-search:focus, .admin-select:focus, .admin-input:focus, .admin-textarea:focus { border-color: #60a5fa; box-shadow: 0 0 0 3px rgba(96,165,250,.12); }
         .select-all-control, .order-select {
             display: inline-flex;
@@ -473,6 +489,8 @@
             .btn, .bulk-btn, .admin-primary-btn, .admin-secondary-btn { width: 100%; }
             .admin-toast-wrap { top: 76px; left: 16px; right: 16px; }
             .admin-toast { min-width: 0; max-width: none; }
+            .streamlit-url-controls { flex-direction: column; align-items: stretch; }
+            .streamlit-frame { height: 80vh; min-height: 520px; }
         }
     </style>
 </head>
@@ -531,6 +549,7 @@
                 <button class="admin-nav-btn" data-tab="products" onclick="switchAdminTab('products')"><span class="admin-nav-icon">📦</span> Sản phẩm</button>
                 <button class="admin-nav-btn" data-tab="addProduct" onclick="switchAdminTab('addProduct')"><span class="admin-nav-icon">➕</span> Thêm mới</button>
                 <button class="admin-nav-btn" data-tab="customers" onclick="switchAdminTab('customers')"><span class="admin-nav-icon">👥</span> Khách hàng</button>
+                <button class="admin-nav-btn" data-tab="streamlit" onclick="switchAdminTab('streamlit')"><span class="admin-nav-icon">📈</span> Hệ gợi ý (Streamlit)</button>
             </nav>
             <div class="sidebar-note">ADMIN WORKSPACE<br>Theo dõi đơn hàng mới, phản hồi tin nhắn khách hàng, cập nhật tồn kho, thêm sản phẩm và kiểm tra doanh thu cửa hàng.</div>
         </aside>
@@ -688,6 +707,31 @@
                 </div>
                 <div class="panel-card">
                     <div class="compact-list" id="customersList"></div>
+                </div>
+            </section>
+
+            <section class="admin-section" id="section-streamlit">
+                <div class="admin-title-row">
+                    <div>
+                        <h1>Hệ gợi ý · Streamlit</h1>
+                        <p class="admin-subtitle">Ứng dụng Python (Streamlit) trình diễn và phân tích hệ gợi ý: gợi ý cho từng khách hàng kèm lời giải thích, quiz khách mới, sản phẩm tương tự và phối đồ, kết quả thực nghiệm, phân tích cảm xúc. Dùng chung bộ máy gợi ý với website.</p>
+                    </div>
+                    <div class="admin-chip" id="streamlitStatusChip">Chưa kết nối</div>
+                </div>
+                <div class="panel-card streamlit-config">
+                    <label class="streamlit-label" for="streamlitUrlInput">Địa chỉ ứng dụng Streamlit</label>
+                    <div class="streamlit-url-controls">
+                        <input id="streamlitUrlInput" class="admin-input" type="url" inputmode="url" autocomplete="off" placeholder="https://ten-ung-dung.streamlit.app hoặc http://localhost:8501">
+                        <button type="button" class="admin-secondary-btn" onclick="saveStreamlitUrl()">Lưu &amp; tải lại</button>
+                        <button type="button" class="admin-primary-btn" onclick="openStreamlitInNewTab()">Mở tab mới</button>
+                    </div>
+                    <p class="streamlit-help">Chạy trên máy: <code>streamlit run streamlit_app/app.py</code> rồi dùng <code>http://localhost:8501</code>. Đã đưa lên Streamlit Community Cloud: dán link <code>https://….streamlit.app</code>. Địa chỉ được lưu trên trình duyệt này.</p>
+                </div>
+                <div class="panel-card streamlit-frame-card">
+                    <iframe id="streamlitFrame" class="streamlit-frame" title="Ứng dụng Streamlit — hệ gợi ý THE STYLE HUB" hidden
+                            sandbox="allow-scripts allow-same-origin allow-forms allow-popups allow-popups-to-escape-sandbox allow-downloads"
+                            allow="clipboard-write" referrerpolicy="no-referrer"></iframe>
+                    <div class="empty-state streamlit-empty" id="streamlitEmpty"></div>
                 </div>
             </section>
         </main>
@@ -940,6 +984,132 @@
         if (tabName === 'messages') { startSupportRealtime(); renderSupportMessages(); }
         if (tabName === 'customers') renderCustomers();
         if (tabName === 'dashboard') renderDashboard();
+        if (tabName === 'streamlit') loadStreamlitSection(false);
+    }
+
+    /* ===== HỆ GỢI Ý (STREAMLIT) =====
+       Nhúng ứng dụng Python streamlit_app/app.py. Sau khi đưa ứng dụng lên Streamlit Community Cloud,
+       có thể dán link vào STREAMLIT_DEFAULT_URL để mọi máy đều thấy mà không cần nhập. */
+    const STREAMLIT_DEFAULT_URL = 'https://style-recommender.streamlit.app';
+    const STREAMLIT_URL_KEY = 'stylehub_streamlit_url';
+    let streamlitLoadedSrc = '';
+
+    function normalizeStreamlitUrl(raw) {
+        try {
+            const url = new URL(String(raw || '').trim());
+            if (url.protocol !== 'http:' && url.protocol !== 'https:') return '';
+            return url.origin + url.pathname.replace(/\/+$/, '');
+        } catch (error) {
+            return '';
+        }
+    }
+
+    function getStreamlitUrl() {
+        let saved = '';
+        try { saved = normalizeStreamlitUrl(localStorage.getItem(STREAMLIT_URL_KEY)); } catch (error) {}
+        if (saved) return saved;
+        if (normalizeStreamlitUrl(STREAMLIT_DEFAULT_URL)) return normalizeStreamlitUrl(STREAMLIT_DEFAULT_URL);
+        const host = window.location.hostname;
+        return host === 'localhost' || host === '127.0.0.1' || window.location.protocol === 'file:' ? 'http://localhost:8501' : '';
+    }
+
+    function streamlitEmbedSrc(base) {
+        const url = new URL(base);
+        url.searchParams.set('embed', 'true');
+        // Cho ứng dụng biết địa chỉ website để bấm tên sản phẩm là mở đúng trang sản phẩm.
+        if (window.location.protocol === 'http:' || window.location.protocol === 'https:') url.searchParams.set('site', window.location.origin);
+        return url.toString();
+    }
+
+    function setStreamlitStatus(text, state) {
+        const chip = document.getElementById('streamlitStatusChip');
+        if (!chip) return;
+        chip.textContent = text;
+        chip.classList.toggle('is-ok', state === 'ok');
+        chip.classList.toggle('is-error', state === 'error');
+    }
+
+    function showStreamlitMessage(html) {
+        const frame = document.getElementById('streamlitFrame');
+        const empty = document.getElementById('streamlitEmpty');
+        if (frame) frame.hidden = true;
+        if (empty) { empty.hidden = false; empty.innerHTML = html; }
+    }
+
+    function showStreamlitFrame(url, force) {
+        const frame = document.getElementById('streamlitFrame');
+        const empty = document.getElementById('streamlitEmpty');
+        const src = streamlitEmbedSrc(url);
+        if (force || streamlitLoadedSrc !== src) { frame.src = src; streamlitLoadedSrc = src; }
+        frame.hidden = false;
+        if (empty) empty.hidden = true;
+        setStreamlitStatus('Đã kết nối', 'ok');
+    }
+
+    // Kiểm tra máy chủ Streamlit có đang chạy (điểm /_stcore/health) trước khi nhúng.
+    // Ứng dụng trên Streamlit Community Cloud (*.streamlit.app) đặt điểm này dưới /~/+/.
+    function streamlitHealthUrl(url) {
+        const isCloud = /\.streamlit\.app$/i.test(new URL(url).hostname);
+        return url + (isCloud ? '/~/+/_stcore/health' : '/_stcore/health');
+    }
+
+    async function probeStreamlit(url) {
+        const controller = typeof AbortController === 'function' ? new AbortController() : null;
+        const timer = controller ? setTimeout(function() { controller.abort(); }, 8000) : null;
+        try {
+            await fetch(streamlitHealthUrl(url), { mode: 'no-cors', cache: 'no-store', signal: controller ? controller.signal : undefined });
+            return true;
+        } catch (error) {
+            return false;
+        } finally {
+            if (timer) clearTimeout(timer);
+        }
+    }
+
+    async function loadStreamlitSection(force) {
+        const input = document.getElementById('streamlitUrlInput');
+        const url = getStreamlitUrl();
+        if (input && document.activeElement !== input) input.value = url;
+        if (!url) {
+            setStreamlitStatus('Chưa cấu hình', 'error');
+            showStreamlitMessage('<strong>Chưa có địa chỉ ứng dụng Streamlit.</strong>'
+                + '<ol><li>Chạy trên máy: mở Terminal ở thư mục dự án, chạy <code>pip install -r streamlit_app/requirements.txt</code> rồi <code>streamlit run streamlit_app/app.py</code>, sau đó nhập <code>http://localhost:8501</code> ở ô phía trên.</li>'
+                + '<li>Hoặc đưa ứng dụng lên Streamlit Community Cloud (share.streamlit.io, file chính <code>streamlit_app/app.py</code>) rồi dán link <code>https://….streamlit.app</code> vào ô phía trên.</li></ol>');
+            return;
+        }
+        if (!force && streamlitLoadedSrc === streamlitEmbedSrc(url)) { showStreamlitFrame(url, false); return; }
+        setStreamlitStatus('Đang kết nối…', '');
+        showStreamlitMessage('Đang kết nối tới <code>' + escapeHtml(url) + '</code>…');
+        if (await probeStreamlit(url)) {
+            showStreamlitFrame(url, force);
+            return;
+        }
+        setStreamlitStatus('Không kết nối được', 'error');
+        showStreamlitMessage('<strong>Không kết nối được tới ' + escapeHtml(url) + '.</strong>'
+            + '<ol><li>Nếu chạy trên máy: kiểm tra Terminal vẫn đang chạy <code>streamlit run streamlit_app/app.py</code>.</li>'
+            + '<li>Nếu dùng Streamlit Cloud: mở link ở tab mới để đánh thức ứng dụng (ứng dụng ngủ sau một thời gian không dùng), rồi bấm “Lưu &amp; tải lại”.</li>'
+            + '<li>Nếu trình duyệt hỏi quyền truy cập mạng cục bộ, hãy chọn Cho phép.</li></ol>'
+            + '<button type="button" class="admin-secondary-btn" onclick="showStreamlitFrame(getStreamlitUrl(), true)">Vẫn hiển thị</button>');
+    }
+
+    function saveStreamlitUrl() {
+        const input = document.getElementById('streamlitUrlInput');
+        const raw = input ? input.value : '';
+        const url = normalizeStreamlitUrl(raw);
+        if (String(raw).trim() && !url) { showAdminToast('Địa chỉ không hợp lệ', 'Cần bắt đầu bằng http:// hoặc https://'); return; }
+        try {
+            if (url) localStorage.setItem(STREAMLIT_URL_KEY, url);
+            else localStorage.removeItem(STREAMLIT_URL_KEY);
+        } catch (error) {}
+        if (input) input.value = url || getStreamlitUrl();
+        loadStreamlitSection(true);
+    }
+
+    function openStreamlitInNewTab() {
+        const input = document.getElementById('streamlitUrlInput');
+        const url = normalizeStreamlitUrl(input && input.value) || getStreamlitUrl();
+        if (!url) { showAdminToast('Chưa có địa chỉ Streamlit', 'Nhập link ứng dụng vào ô phía trên'); return; }
+        window.open(url, '_blank', 'noopener');
     }
 
     function refreshAdminAfterCloudSync() {

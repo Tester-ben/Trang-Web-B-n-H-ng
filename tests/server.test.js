@@ -42,7 +42,7 @@ for (const kind of STORES) {
             assert.match(index.text, /<html/i);
             assert.equal(index.headers.get('x-content-type-options'), 'nosniff');
             assert.equal((await t.api('GET', '/recommender/engine.js')).status, 200);
-            for (const blocked of ['/server/db.js', '/server/data/.token-secret', '/.git/config', '/tests/server.test.js', '/package.json', '/%2e%2e/package.json', '/evaluation/run-evaluation.js']) {
+            for (const blocked of ['/server/db.js', '/server/data/.token-secret', '/.git/config', '/tests/server.test.js', '/package.json', '/%2e%2e/package.json', '/evaluation/run-evaluation.js', '/streamlit_app/app.py', '/.streamlit/config.toml']) {
                 assert.equal((await t.api('GET', blocked)).status, 404, blocked);
             }
             assert.equal((await t.api('GET', '/api/khong-ton-tai')).status, 404);

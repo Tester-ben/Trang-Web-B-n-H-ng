@@ -8,7 +8,8 @@ Bản **v2** (nhánh `improve-fashion-recommender`) nâng cấp từ một websi
 - **Năm thuật toán thành phần** được tinh chỉnh bằng thực nghiệm có số liệu.
 - **Đánh giá sau mua** kèm phân tích cảm xúc tiếng Việt.
 - **Giải thích gợi ý (XAI)**, **quiz Style DNA** cho người dùng mới và **gợi ý phối đồ**.
-- **88 bài kiểm thử tự động**.
+- **Ứng dụng Streamlit (Python)** trình diễn hệ gợi ý, dùng chung bộ máy với website: [`streamlit_app/`](streamlit_app/README.md), xem ngay trong trang Admin (mục *Hệ gợi ý (Streamlit)*).
+- **97 bài kiểm thử tự động**.
 
 | Kết quả chính (thực nghiệm offline, dữ liệu **mô phỏng**, 3 seed) | Thuật toán cũ (v1) | **Hybrid v2** |
 |---|---|---|
@@ -19,7 +20,7 @@ Bản **v2** (nhánh `improve-fashion-recommender`) nâng cấp từ một websi
 | Người dùng mới — NDCG@10 | 0,059 | **0,242** (switching + quiz) |
 | Độ chính xác phân tích cảm xúc (tập held-out) | — | **82,5%** |
 
-> Dữ liệu thực nghiệm là **mô phỏng**, sinh từ danh mục 197 sản phẩm thật theo mô hình có công bố (`evaluation/simulate.js`). Kết quả chứng minh cài đặt đúng và cho phép so sánh tương đối. Khi có khách hàng thật, chạy lại bằng `npm run evaluate -- --data=server`. Chi tiết, kiểm định thống kê và hạn chế: [`docs/KET_QUA_THUC_NGHIEM.md`](docs/KET_QUA_THUC_NGHIEM.md).
+> Dữ liệu thực nghiệm là **mô phỏng**, sinh từ danh mục 197 sản phẩm thật theo mô hình có công bố (`evaluation/simulate.js`). Danh mục dùng cho thực nghiệm được chụp cố định trong `evaluation/catalog-snapshot.json`, nên website thêm/xóa sản phẩm sau đó vẫn tái lập đúng số liệu đã báo cáo. Kết quả chứng minh cài đặt đúng và cho phép so sánh tương đối. Khi có khách hàng thật, chạy lại bằng `npm run evaluate -- --data=server`. Chi tiết, kiểm định thống kê và hạn chế: [`docs/KET_QUA_THUC_NGHIEM.md`](docs/KET_QUA_THUC_NGHIEM.md).
 
 ---
 
@@ -44,7 +45,8 @@ Bản **v2** (nhánh `improve-fashion-recommender`) nâng cấp từ một websi
 │ db.js   SQLite (node:sqlite) | JSON dự phòng — schema.sql       │
 └─────────────────────────────────────────────────────────────────┘
 evaluation/  thực nghiệm offline (mô phỏng, độ đo, grid search, kiểm định)
-tests/       88 kiểm thử: engine, cảm xúc, bảo mật, chatbot, API, E2E
+streamlit_app/  ứng dụng Streamlit (Python) → bridge.js → recommender/engine.js (cùng bộ máy với website)
+tests/       97 kiểm thử: engine, cảm xúc, bảo mật, danh mục, chatbot, API, cầu nối Streamlit, E2E
 ```
 
 **Hai chế độ chạy:**
@@ -100,15 +102,29 @@ npm run evaluate
 npm run attributes
 ```
 
-- `npm test`: 88 kiểm thử. Bộ E2E tự bỏ qua nếu máy chưa có Playwright.
+- `npm test`: 97 kiểm thử. Bộ E2E tự bỏ qua nếu máy chưa có Playwright.
 - `npm run evaluate`: thực nghiệm offline (khoảng 1 phút). Lệnh này sinh lại `docs/KET_QUA_THUC_NGHIEM.md` và `recommender/tuned-weights.json`.
 - `npm run attributes`: sinh lại bảng thuộc tính sản phẩm sau khi sửa `tools/attribute-overrides.json`.
 
 Biến môi trường: `PORT`, `HOST`, `STYLEHUB_DATA_DIR`, `STYLEHUB_ADMIN_EMAIL`/`STYLEHUB_ADMIN_PASSWORD`, `STYLEHUB_CORS_ORIGINS`, `STYLEHUB_STORE=json`, `STYLEHUB_TRUST_PROXY=1` (xem đầu `server/server.js`).
 
+### Ứng dụng Streamlit (Python)
+
+Ứng dụng trình diễn hệ gợi ý bằng **Streamlit** nằm trong [`streamlit_app/`](streamlit_app/README.md): gợi ý cho từng khách hàng kèm lời giải thích, quiz khách mới, sản phẩm tương tự và phối đồ, kết quả thực nghiệm, phân tích cảm xúc. Cần Python 3.9+ (lệnh cài kèm sẵn Node.js qua pip). Chạy từ thư mục gốc:
+
+```bash
+pip install -r streamlit_app/requirements.txt
+```
+
+```bash
+streamlit run streamlit_app/app.py
+```
+
+Trình duyệt mở http://localhost:8501. Bản đang chạy trên mạng: https://style-recommender.streamlit.app. Ứng dụng cũng hiện ngay trong **trang Admin → mục "Hệ gợi ý (Streamlit)"**: trên máy tự dùng `http://localhost:8501`; khi đã đưa lên Streamlit Community Cloud thì dán link `https://….streamlit.app` vào ô địa chỉ của mục này (hoặc đặt sẵn ở hằng `STREAMLIT_DEFAULT_URL` trong `admin.html`).
+
 Chế độ tĩnh: mở `index.html` bằng Live Server như trước. Mật khẩu admin demo chỉ dùng cho chế độ này: `admin123`, được lưu dạng băm PBKDF2 và không phải bảo mật thật.
 
-## 3. Kịch bản demo khi bảo vệ (khoảng 7 phút)
+## 3. Kịch bản demo khi bảo vệ (khoảng 8 phút)
 
 1. `npm run seed:demo -- --users=150`, rồi `npm start`, mở http://localhost:3000.
 2. **Cold-start:** ở trang chủ, khối **"Khám phá phong cách của bạn"** mở quiz Style DNA (5 câu hỏi). Chọn Nữ / Tối giản / Đen / Áo thun, rồi xem "Được chọn cho bạn" đổi ngay theo gu.
@@ -118,6 +134,7 @@ Chế độ tĩnh: mở `index.html` bằng Live Server như trước. Mật kh�
 6. Mở trình duyệt khác hoặc cửa sổ ẩn danh (mô phỏng **thiết bị thứ hai**), đăng nhập cùng tài khoản: gợi ý giống nhau vì dữ liệu nằm trên máy chủ.
 7. **Mua hàng rồi đánh giá:** đặt một sản phẩm, quay lại trang sản phẩm, ô đánh giá mở ra. Khi gõ "Áo đẹp, vải mềm", hệ thống phân tích cảm xúc là "Tích cực". Đánh giá có huy hiệu "Đã mua hàng".
 8. Đăng nhập admin, vào **Nghiên cứu gợi ý** (`research-dashboard.html`): biểu đồ so sánh thuật toán, cold-start, độ nhạy ρ, cùng số liệu sống (CTR khu gợi ý, phân bố cảm xúc, độ thưa ma trận).
+9. **Ứng dụng Streamlit:** `streamlit run streamlit_app/app.py`, rồi mở trang Admin → mục **Hệ gợi ý (Streamlit)** (hoặc http://localhost:8501) → trang *Gợi ý cho khách hàng* (gợi ý + biểu đồ đóng góp từng thuật toán), *Khách hàng mới*, *Kết quả thực nghiệm*.
 
 ## 4. Thuật toán (`recommender/engine.js`)
 
@@ -190,7 +207,7 @@ Dựa trên từ điển, có xử lý phủ định, từ nhấn mạnh, "nhưn
   - Kiểm định hoán vị cặp với 10.000 hoán vị.
   - Các thí nghiệm phụ: cold-start, ablation cảm xúc, độ nhạy ρ, số lượng người dùng.
   - Kết quả: [`docs/KET_QUA_THUC_NGHIEM.md`](docs/KET_QUA_THUC_NGHIEM.md).
-- **Kiểm thử tự động (`npm test`, 88 test):** engine (17), cảm xúc (5), bảo mật (26), chatbot (26), API trên cả SQLite lẫn JSON (12), E2E trên Chromium (2). Phương pháp và checklist UAT: [`docs/KIEM_THU.md`](docs/KIEM_THU.md).
+- **Kiểm thử tự động (`npm test`, 97 test):** engine (18), cảm xúc (5), bảo mật (27), danh mục (1), chatbot (26), API trên cả SQLite lẫn JSON (12), cầu nối Streamlit (2), E2E trên Chromium (6). Phương pháp và checklist UAT: [`docs/KIEM_THU.md`](docs/KIEM_THU.md).
 - **Danh sách lỗi đã sửa và tính năng mới, có đối chiếu file:** [`docs/BAO_CAO_NANG_CAP.md`](docs/BAO_CAO_NANG_CAP.md). **API:** [`docs/API.md`](docs/API.md).
 
 ## 6. Bảo mật
@@ -214,7 +231,8 @@ Dựa trên từ điển, có xử lý phủ định, từ nhấn mạnh, "nhưn
 recommender/   engine.js · sentiment-vi.js · product-attributes.js (sinh tự động) · tuned-weights.json · load-catalog.js
 server/        server.js · app.js · db.js · schema.sql · auth.js · rate-limit.js · recommender-service.js · seed-demo.js · create-admin.js
 evaluation/    simulate.js · legacy-v1.js · metrics.js · run-evaluation.js · results/latest.json
-tests/         engine · sentiment · security · chatbot · server · browser-e2e (+ fixtures/)
+streamlit_app/ app.py (Streamlit) · engine_bridge.py · bridge.js · requirements.txt · README.md (+ .streamlit/config.toml ở thư mục gốc)
+tests/         engine · sentiment · security · catalog · chatbot · server · streamlit-bridge · browser-e2e (+ fixtures/)
 tools/         generate-product-attributes.js · attribute-overrides.json
 docs/          KET_QUA_THUC_NGHIEM.md · BAO_CAO_NANG_CAP.md · KIEM_THU.md · API.md
 stylehub-api.js · stylehub-reviews.js · stylehub-style-dna.js · stylehub-recommender-ui.css · research-dashboard.html · stylehub-crypto.js
