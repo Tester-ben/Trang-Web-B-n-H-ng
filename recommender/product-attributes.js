@@ -682,7 +682,9 @@
             "gender": "women",
             "category": "top",
             "type": "hoodie",
-            "colors": [],
+            "colors": [
+                "grey"
+            ],
             "styles": [
                 "minimal",
                 "casual"
@@ -694,7 +696,7 @@
             "brand": "essentials"
         },
         "sale-3": {
-            "gender": "men",
+            "gender": "women",
             "category": "top",
             "type": "tee",
             "colors": [

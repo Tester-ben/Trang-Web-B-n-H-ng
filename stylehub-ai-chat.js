@@ -1577,7 +1577,10 @@
         const db = getDB();
         const all = Object.keys(db).map(function (id, order) {
             const item = db[id];
-            return item && typeof item === "object" && (item.name || getImage(item)) ? describeProduct(id, item, order) : null;
+            // Bỏ qua sản phẩm có ảnh chưa xác minh khớp tên (imageUnverified trong product-data.js),
+            // để không trả về ảnh nón/quần khi khách hỏi áo.
+            if (!item || typeof item !== "object" || item.imageUnverified) return null;
+            return (item.name || getImage(item)) ? describeProduct(id, item, order) : null;
         }).filter(Boolean);
 
         const inStock = all.filter(function (p) { return p.inStock; });
