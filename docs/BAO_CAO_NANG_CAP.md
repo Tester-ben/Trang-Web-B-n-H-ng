@@ -55,7 +55,7 @@ Tài liệu này đối chiếu từng vấn đề nêu trong bản đánh giá 
 | Kiến trúc, backend, CSDL | 2,0 | 0,6 | 1,6 | Backend REST + SQLite có schema; trừ điểm vì đơn hàng vẫn ở Firebase |
 | Thực nghiệm, số liệu | 1,5 | 0,2 | 1,2 | Đầy đủ độ đo, kiểm định; trừ điểm vì dữ liệu mô phỏng |
 | Frontend, UX | 1,5 | 1,3 | 1,4 | XAI, quiz, phối đồ, đánh giá |
-| Chất lượng mã, bảo mật | 1,0 | 0,4 | 0,8 | Hết mật khẩu chữ, XSS, 106 test; HTML inline cũ chưa tách |
+| Chất lượng mã, bảo mật | 1,0 | 0,4 | 0,8 | Hết mật khẩu chữ, XSS, 109 test; HTML inline cũ chưa tách |
 | Tài liệu, tính trung thực | 1,0 | 0,8 | 0,9 | README, API, báo cáo sinh tự động, nêu rõ hạn chế |
 | **Tổng** | **10** | **4,9** | **≈ 8,6** | Để đạt ≥ 9: thu thập dữ liệu thật và đánh giá lại; chuyển đơn hàng về backend |
 

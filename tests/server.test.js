@@ -157,6 +157,9 @@ for (const kind of STORES) {
             assert.equal((await t.api('PUT', '/api/profile/quiz', { quiz: { gender: 'alien' } }, A)).status, 400);
             const quiz = await t.api('PUT', '/api/profile/quiz', { quiz: { gender: 'women', styles: ['minimal', 'xxx'], colors: ['black'], types: ['tee'], budget: 'mid' } }, A);
             assert.deepEqual(quiz.body.quiz.styles, ['minimal']);
+            assert.ok(Math.abs(quiz.body.quiz.savedAt - Date.now()) < 60000, 'lưu thời điểm làm quiz để ưu tiên câu trả lời');
+            const future = await t.api('PUT', '/api/profile/quiz', { quiz: { gender: 'women', styles: ['minimal'], colors: ['black'], types: ['tee'], budget: 'mid', savedAt: Date.UTC(2099, 0, 1) } }, A);
+            assert.ok(future.body.quiz.savedAt < Date.UTC(2099, 0, 1), 'mốc thời gian không hợp lệ bị thay bằng thời điểm thật');
             const dna = await t.api('GET', '/api/profile/style-dna', undefined, A);
             assert.equal(dna.body.dna.fromQuiz, true);
             assert.ok(dna.body.dna.persona);

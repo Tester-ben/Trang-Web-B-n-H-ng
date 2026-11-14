@@ -79,6 +79,9 @@ function validateQuiz(input) {
         types: pick(input.types, L.type, 4),
         budget: engine.PRICE_TIERS.includes(input.budget) ? input.budget : undefined
     };
+    // Thời điểm làm quiz (để ưu tiên câu trả lời khi khách vừa làm xong) — chỉ nhận mốc thời gian hợp lệ.
+    const at = Number(input.savedAt);
+    if (Number.isFinite(at) && at > Date.UTC(2020, 0, 1) && at <= Date.now() + 86400000) quiz.savedAt = Math.round(at);
     const empty = !quiz.gender && !quiz.styles.length && !quiz.colors.length && !quiz.types.length && !quiz.budget;
     return empty ? null : quiz;
 }
@@ -308,6 +311,7 @@ function createApp(ctx) {
         const body = await readJson(req, 4 * 1024);
         const quiz = validateQuiz(body.quiz || body);
         if (!quiz) throw httpError(400, 'Câu trả lời quiz không hợp lệ.', 'INVALID_QUIZ');
+        if (!quiz.savedAt) quiz.savedAt = Date.now();
         store.saveQuiz(user.id, quiz);
         service.markDirty();
         return { ok: true, quiz };

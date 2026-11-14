@@ -270,3 +270,65 @@ test('itemStats: đếm số khách đã mua, điểm sao trung bình, lượt l
     assert.equal(s['pants-black'], undefined, 'sản phẩm không có dữ liệu thì không có số liệu');
     assert.ok(Object.values(s).every((x) => !('users' in x) && !('user' in x)), 'không lộ danh tính người dùng');
 });
+
+/* ---------- Quiz Style DNA là yêu cầu rõ ràng (quiz intent) ---------- */
+function quizScenario(quizExtra) {
+    const catalog = loadCatalog(), attributes = loadAttributes();
+    const now = Date.UTC(2026, 10, 1);
+    const events = [];
+    // Cộng đồng nhỏ làm giày / hoodie trở thành "xu hướng" để thử xem quiz có bị lấn át không.
+    for (let u = 0; u < 12; u++) for (const id of ['shoe-15', 'hoodies-20', 'shoe-1']) events.push({ user: 'c' + u, item: id, type: 'purchase', ts: now - (u + 1) * DAY });
+    const quiz = Object.assign({ gender: 'men', types: ['tee'], styles: ['minimal'], colors: ['white'], budget: 'luxury' }, quizExtra || {});
+    const model = engine.createModel({ catalog, attributes, events, profiles: { me: { quiz } }, now, options: { mf: { enabled: false } } });
+    return { model, quiz, now, events, catalog, attributes };
+}
+
+test('Quiz vừa làm (có savedAt): đúng giới tính, ưu tiên đúng loại sản phẩm, lời giải thích nói rõ khớp gì', () => {
+    const NOW2 = Date.UTC(2026, 10, 1);
+    const { model } = quizScenario({ savedAt: NOW2 - DAY });
+    const A = model.attributes;
+    const recs = model.recommend('me', { context: 'home', limit: 8 });
+    assert.ok(recs.every((r) => ['men', 'unisex'].includes(A[r.id].gender)), 'chỉ đồ nam / unisex');
+    const tees = recs.filter((r) => A[r.id].type === 'tee');
+    assert.ok(tees.length >= 5, 'phần lớn là áo thun như khách chọn: ' + recs.map((r) => A[r.id].type).join(','));
+    assert.ok(tees.some((r) => /lựa chọn của bạn: áo thun · đồ nam/.test(r.reason)), tees.map((r) => r.reason).join(' | '));
+    assert.equal(model.quizIntentActive('me', { gender: 'men', types: ['tee'], savedAt: NOW2 - DAY }), true);
+});
+
+test('Quiz không có mốc thời gian (dữ liệu cũ / mô phỏng) vẫn chỉ cộng điểm mềm; quiz hết hiệu lực khi có đủ hành vi mới', () => {
+    const soft = quizScenario();
+    assert.equal(soft.model.quizIntentActive('me', soft.quiz), false, 'không savedAt -> không ép theo quiz');
+    const softTees = soft.model.recommend('me', { context: 'home', limit: 8 }).filter((r) => soft.model.attributes[r.id].type === 'tee').length;
+    const strong = quizScenario({ savedAt: Date.UTC(2026, 9, 1) });
+    const strongTees = strong.model.recommend('me', { context: 'home', limit: 8 }).filter((r) => strong.model.attributes[r.id].type === 'tee').length;
+    assert.ok(strongTees > softTees, 'ưu tiên quiz làm danh sách đúng loại hơn: ' + softTees + ' -> ' + strongTees);
+
+    // 8 tương tác tích cực SAU khi làm quiz -> hành vi thật thay thế câu trả lời quiz.
+    const { catalog, attributes, events, now } = strong;
+    const savedAt = now - 20 * DAY;
+    const after = ['hoodies-1', 'hoodies-3', 'hoodies-6', 'hoodies-8', 'bottoms-5', 'bottoms-8', 'shoe-2', 'shoe-3'].map((id, i) => ({ user: 'me', item: id, type: 'purchase', ts: savedAt + (i + 1) * DAY }));
+    const quiz = Object.assign({}, strong.quiz, { savedAt });
+    const faded = engine.createModel({ catalog, attributes, events: events.concat(after), profiles: { me: { quiz } }, now, options: { mf: { enabled: false } } });
+    assert.equal(faded.quizIntentActive('me', quiz), false);
+    const notYet = engine.createModel({ catalog, attributes, events: events.concat(after.slice(0, 3)), profiles: { me: { quiz } }, now, options: { mf: { enabled: false } } });
+    assert.equal(notYet.quizIntentActive('me', quiz), true, '3 tương tác mới chưa đủ để bỏ qua quiz');
+});
+
+test('Nói thẳng yêu cầu shop chưa đáp ứng được; nhãn giá trong lời giải thích là khoảng giá THẬT; không gợi ý món ảnh chưa xác minh', () => {
+    const { model, quiz } = quizScenario({ savedAt: Date.UTC(2026, 9, 1) });
+    const notes = model.quizNotes(quiz);
+    assert.ok(notes.some((n) => /Chưa có áo thun nam màu trắng/.test(n)), notes.join(' | '));
+    assert.ok(notes.some((n) => /Chưa có áo thun nam trên 8 triệu/.test(n)), notes.join(' | '));
+    const kids = model.quizNotes({ gender: 'kids', types: ['sneaker'], colors: ['black'], budget: 'budget' });
+    assert.ok(kids.some((n) => /Shop chưa có giày sneaker trẻ em/.test(n) && !/cùng nhóm/.test(n)), kids.join(' | '));
+    assert.deepEqual(model.quizNotes({ gender: 'men', types: ['hoodie'], colors: ['black'], budget: 'mid' }), [], 'yêu cầu đáp ứng được thì không có ghi chú');
+
+    const soft = quizScenario();
+    const recs = soft.model.recommend('me', { context: 'home', limit: 30, diversify: false }).concat(model.recommend('me', { context: 'home', limit: 30 }));
+    const PRICE = engine.LABELS.price;
+    recs.forEach((r) => {
+        const shown = Object.keys(PRICE).filter((k) => r.reason.includes(PRICE[k]));
+        shown.forEach((k) => assert.equal(k, soft.model.attributes[r.id].priceTier, r.id + ' ghi "' + PRICE[k] + '" nhưng giá thật thuộc ' + soft.model.attributes[r.id].priceTier));
+    });
+    assert.ok(recs.every((r) => !soft.catalog[r.id].imageUnverified), 'không gợi ý sản phẩm ảnh chưa xác minh');
+});

@@ -62,6 +62,8 @@
         price: { budget: 'giá bình dân', mid: 'giá tầm trung', premium: 'giá cao cấp', luxury: 'giá xa xỉ' }
     };
     var PRICE_TIERS = ['budget', 'mid', 'premium', 'luxury'];
+    // Nhãn khoảng giá theo đúng các nút "Ngân sách" của quiz trên website.
+    var PRICE_RANGE_LABEL = { budget: 'dưới 1,5 triệu', mid: '1,5–4 triệu', premium: '4–8 triệu', luxury: 'trên 8 triệu' };
     var CATEGORY_OF_TYPE = {
         tee: 'top', longsleeve: 'top', tank: 'top', polo: 'top', shirt: 'top', sweatshirt: 'top', hoodie: 'top', knit: 'top',
         jacket: 'outerwear', coat: 'outerwear',
@@ -285,6 +287,18 @@
             product: { ctx: 0.35, cb: 0.05, ucf: 0.29, icf: 0.05, mf: 0.18, pop: 0.08 }
         },
         mmrLambda: 0.8,
+        // Ưu tiên câu trả lời quiz (quiz intent): khi khách VỪA làm quiz trên website (quiz có savedAt), câu trả lời
+        // được coi là yêu cầu rõ ràng — đúng giới tính, loại sản phẩm, rồi ngân sách, màu, phong cách — và xếp trước;
+        // điểm hybrid chỉ phân định giữa các sản phẩm khớp ngang nhau. Hết hiệu lực khi khách có từ
+        // quizIntentFadeAfter tương tác tích cực mới sau lúc làm quiz (hành vi thật thay thế dần câu trả lời).
+        // 'auto' = chỉ bật với quiz có savedAt; 'on' / 'off' = luôn bật / tắt.
+        quizIntent: 'auto',
+        quizIntentFadeAfter: 8,
+        // Điểm cộng khi khớp từng câu trả lời (so với điểm hybrid đã chuẩn hóa về 0..1).
+        // Chọn bằng thực nghiệm (docs/KET_QUA_THUC_NGHIEM.md): NDCG@10 cao nhất trên validation trong các mức mà
+        // ít nhất 2/3 gợi ý đúng loại sản phẩm khách chọn.
+        quizIntentWeights: { type: 0.8, category: 0.3, priceExact: 0.2, priceNear: 0.1, color: 0.15, style: 0.1 },
+        quizIntentLambda: 0.9,
         // Quy tắc trải nghiệm: nếu người dùng vừa xem sản phẩm trong 30 phút gần nhất (đang trong phiên),
         // trọng số "session" ở trang chủ tối thiểu 0.3 để gợi ý phản ánh ý định hiện tại. Không ảnh hưởng
         // thực nghiệm offline (đánh giá theo ngày, không có phiên đang mở).
@@ -836,7 +850,9 @@
         }
 
         // ---------- Ứng viên ----------
-        function hasImage(id) { var p = catalog[id]; return !!(p && (p.mainImg || (Array.isArray(p.images) && p.images[0]))); }
+        // Sản phẩm có ảnh CHƯA xác minh khớp tên (imageUnverified trong product-data.js) không được gợi ý, để khách
+        // không thấy "áo" mà ảnh lại là quần. Ảnh chụp danh mục của thực nghiệm không có cờ này nên số liệu không đổi.
+        function hasImage(id) { var p = catalog[id]; return !!(p && !p.imageUnverified && (p.mainImg || (Array.isArray(p.images) && p.images[0]))); }
         function candidateItems(user, o) {
             var me = users.get(user);
             var exclude = new Set(o.exclude || []);
@@ -901,6 +917,113 @@
             var best = Object.keys(weight).sort(function (a, b) { return weight[b] - weight[a]; })[0];
             return weight[best] / total >= opts.genderConfidence ? { gender: best, source: 'history' } : null;
         }
+        /* ---------- Ưu tiên câu trả lời quiz (quiz intent) ---------- */
+        function arr(x) { return Array.isArray(x) ? x : []; }
+        function quizHasIntent(quiz) {
+            return !!(quiz && typeof quiz === 'object' && (
+                (quiz.gender && LABELS.gender[quiz.gender] && quiz.gender !== 'unisex') ||
+                arr(quiz.types).some(function (t) { return LABELS.type[t]; }) || PRICE_TIERS.indexOf(quiz.budget) >= 0 ||
+                arr(quiz.colors).some(function (c) { return LABELS.color[c]; }) || arr(quiz.styles).some(function (st) { return LABELS.style[st]; })));
+        }
+        /** Quiz còn hiệu lực như một yêu cầu rõ ràng? (mode: 'auto' | 'on' | 'off', mặc định theo opts.quizIntent) */
+        function quizIntentActive(user, quiz, mode) {
+            mode = mode || opts.quizIntent;
+            if (mode === 'off' || !quizHasIntent(quiz)) return false;
+            if (mode === 'on') return true;
+            var at = Number(quiz.savedAt);
+            if (!Number.isFinite(at) || at <= 0) return false;
+            var me = users.get(String(user)), after = 0;
+            if (me) me.items.forEach(function (e) { if (e.score > 0 && e.lastTs > at) after++; });
+            return after < opts.quizIntentFadeAfter;
+        }
+        /** Mức khớp của 1 sản phẩm với câu trả lời quiz. Loại sản phẩm nặng nhất, rồi ngân sách, màu, phong cách. */
+        function quizMatch(id, quiz, weights) {
+            var W = weights || opts.quizIntentWeights;
+            var a = attributes[id] || {};
+            var m = { score: 0, genderOk: true, type: null, sameCategory: false, price: null, colors: [], styles: [],
+                typeAsked: false, budgetAsked: PRICE_TIERS.indexOf(quiz.budget) >= 0 };
+            if (quiz.gender && LABELS.gender[quiz.gender] && quiz.gender !== 'unisex') m.genderOk = genderCompatibleWith(quiz.gender, a.gender);
+            var types = arr(quiz.types).filter(function (t) { return LABELS.type[t]; });
+            if (types.length) {
+                m.typeAsked = true;
+                if (types.indexOf(a.type) >= 0) { m.score += W.type; m.type = a.type; }
+                else if (types.some(function (t) { return CATEGORY_OF_TYPE[t] === a.category; })) { m.score += W.category; m.sameCategory = true; }
+            }
+            var want = PRICE_TIERS.indexOf(quiz.budget), has = PRICE_TIERS.indexOf(a.priceTier);
+            if (want >= 0 && has >= 0) {
+                if (want === has) { m.score += W.priceExact; m.price = 'exact'; }
+                else if (Math.abs(want - has) === 1) { m.score += W.priceNear; m.price = 'near'; }
+            }
+            m.colors = arr(quiz.colors).filter(function (c) { return arr(a.colors).indexOf(c) >= 0; });
+            if (m.colors.length) m.score += W.color;
+            m.styles = arr(quiz.styles).filter(function (st) { return arr(a.styles).indexOf(st) >= 0; });
+            if (m.styles.length) m.score += W.style;
+            return m;
+        }
+        /** Xếp lại theo mức khớp quiz; điểm hybrid (chuẩn hóa 0..1) chỉ phân định giữa các sản phẩm khớp ngang nhau.
+         *  Sản phẩm khác giới tính khách chọn bị đẩy xuống cuối. parts.quiz = phần điểm đến từ câu trả lời quiz. */
+        function applyQuizIntent(ranked, quiz, weights) {
+            var top = 0;
+            ranked.forEach(function (r) { if (r.score > top) top = r.score; });
+            top = top || 1;
+            var out = ranked.map(function (r) {
+                var m = quizMatch(r.id, quiz, weights);
+                var base = Math.max(0, r.score) / top;
+                var scale = r.score > 0 ? base / r.score : 0;
+                var parts = {};
+                Object.keys(r.parts || {}).forEach(function (k) { if (r.parts[k] > 0) parts[k] = r.parts[k] * scale; });
+                if (m.score > 0) parts.quiz = m.score;
+                var score = m.genderOk ? m.score + base : -1;
+                return { id: r.id, score: score, parts: m.genderOk ? parts : {}, pop: r.pop, quizMatch: m };
+            });
+            out.sort(function (a, b) { return b.score - a.score || b.pop - a.pop || (a.id < b.id ? -1 : 1); });
+            return out;
+        }
+        function quizMatchText(id, m) {
+            var a = attributes[id] || {}, bits = [];
+            if (m.type || m.sameCategory) bits.push(LABELS.type[a.type] || a.type);
+            if (m.genderOk && a.gender && a.gender !== 'unisex') bits.push(LABELS.gender[a.gender]);
+            else if (a.gender === 'unisex') bits.push('unisex');
+            m.colors.forEach(function (c) { bits.push(LABELS.color[c]); });
+            m.styles.slice(0, 2).forEach(function (st) { bits.push('phong cách ' + LABELS.style[st]); });
+            if (m.price) bits.push(PRICE_RANGE_LABEL[a.priceTier] + (m.price === 'near' ? ' (gần ngân sách)' : ''));
+            // "Đúng" chỉ khi đúng loại (nếu khách có chọn loại) VÀ đúng khoảng giá (nếu khách có chọn ngân sách).
+            var exact = (!m.typeAsked || !!m.type) && (!m.budgetAsked || m.price === 'exact');
+            return (exact ? 'Đúng lựa chọn của bạn: ' : 'Gần với lựa chọn của bạn: ') + bits.join(' · ');
+        }
+        /** Những yêu cầu trong quiz mà danh mục hiện KHÔNG đáp ứng được — để nói thẳng với khách, không đưa hàng sai như thể đúng. */
+        function quizNotes(quiz) {
+            if (!quizHasIntent(quiz)) return [];
+            var pool = itemIds.filter(function (id) { return hasImage(id) && isAvailable(id); });
+            var g = quiz.gender && LABELS.gender[quiz.gender] && quiz.gender !== 'unisex' ? quiz.gender : null;
+            var who = g === 'men' ? ' nam' : g === 'women' ? ' nữ' : g === 'kids' ? ' trẻ em' : '';
+            var base = g ? pool.filter(function (id) { return genderCompatibleWith(g, attributes[id].gender); }) : pool;
+            var notes = [];
+            var types = arr(quiz.types).filter(function (t) { return LABELS.type[t]; });
+            var what = 'sản phẩm' + who;
+            if (types.length) {
+                var missing = types.filter(function (t) { return !base.some(function (id) { return attributes[id].type === t; }); });
+                if (missing.length) {
+                    var sameGroup = base.some(function (id) { return missing.some(function (t) { return CATEGORY_OF_TYPE[t] === attributes[id].category; }); });
+                    notes.push('Shop chưa có ' + missing.map(function (t) { return LABELS.type[t]; }).join(', ') + who + ' — ' +
+                        (sameGroup ? 'đang gợi ý sản phẩm cùng nhóm gần nhất.' : 'đang gợi ý các mẫu' + who + ' khác hợp màu, phong cách và ngân sách bạn chọn.'));
+                }
+                var typed = base.filter(function (id) { return types.indexOf(attributes[id].type) >= 0; });
+                if (typed.length) {
+                    base = typed;
+                    what = types.filter(function (t) { return missing.indexOf(t) < 0; }).map(function (t) { return LABELS.type[t]; }).join(', ') + who;
+                }
+            }
+            var colors = arr(quiz.colors).filter(function (c) { return LABELS.color[c]; });
+            if (colors.length && base.length && !base.some(function (id) { return arr(attributes[id].colors).some(function (c) { return colors.indexOf(c) >= 0; }); })) {
+                notes.push('Chưa có ' + what + ' ' + colors.map(function (c) { return LABELS.color[c]; }).join(' / ') + ' — đang hiển thị màu gần nhất.');
+            }
+            if (PRICE_TIERS.indexOf(quiz.budget) >= 0 && base.length && !base.some(function (id) { return attributes[id].priceTier === quiz.budget; })) {
+                notes.push('Chưa có ' + what + ' ' + PRICE_RANGE_LABEL[quiz.budget] + ' — đang hiển thị mức giá gần nhất.');
+            }
+            return notes;
+        }
+
         function genderCompatibleWith(profileGender, itemGender) {
             if (!profileGender || !itemGender) return true;
             if (profileGender === 'kids' || itemGender === 'kids') return profileGender === itemGender;
@@ -1016,9 +1139,15 @@
             return selected;
         }
 
-        function topSharedFeatures(vecA, vecB, n, skipGroups) {
+        function topSharedFeatures(vecA, vecB, n, skipGroups, itemId) {
             var skip = skipGroups || {};
-            return Object.keys(vecB).filter(function (f) { return vecA[f] > 0 && !skip[f.slice(0, f.indexOf(':'))]; })
+            // Vector sản phẩm "làm mềm" khoảng giá (có một phần khoảng giá liền kề) để so khớp; khi GIẢI THÍCH chỉ
+            // được ghi khoảng giá thật của sản phẩm (tránh ghi "giá xa xỉ" cho món 5 triệu).
+            var tier = itemId && attributes[itemId] ? attributes[itemId].priceTier : null;
+            return Object.keys(vecB).filter(function (f) {
+                if (!(vecA[f] > 0) || skip[f.slice(0, f.indexOf(':'))]) return false;
+                return f.indexOf('price:') !== 0 || (tier && f === 'price:' + tier);
+            })
                 .map(function (f) { return [f, vecA[f] * vecB[f]]; })
                 .sort(function (a, b) { return b[1] - a[1]; })
                 .slice(0, n)
@@ -1034,7 +1163,10 @@
             var main = keys.sort(function (a, b) { return parts[b] - parts[a]; })[0];
             var text = 'Gợi ý dành cho bạn', evidence = {};
             var name = function (id) { return '“' + truncate(catalog[id] && catalog[id].name, 42) + '”'; };
-            if (main === 'ucf') {
+            if (main === 'quiz' && item.quizMatch) {
+                text = quizMatchText(item.id, item.quizMatch);
+                evidence = { quiz: item.quizMatch };
+            } else if (main === 'ucf') {
                 var ev = comp.ucf.evidence.get(item.id) || [];
                 var count = function (pred) { return ev.filter(pred).length; };
                 var purchases = count(function (x) { return x.strongest === 'purchase'; });
@@ -1054,11 +1186,11 @@
                 if (anchor) { text = 'Thường được mua cùng ' + name(anchor.item); evidence = { anchor: anchor.item, action: anchor.action }; }
                 else text = 'Khách hàng cùng phong cách cũng chọn';
             } else if (main === 'cb') {
-                var feats = topSharedFeatures(comp.taste || {}, itemVec[item.id] || {}, 3, { brand: 1, category: 1, price: 0 });
+                var feats = topSharedFeatures(comp.taste || {}, itemVec[item.id] || {}, 3, { brand: 1, category: 1, price: 0 }, item.id);
                 text = feats.length ? 'Hợp phong cách của bạn: ' + feats.join(' · ') : 'Phù hợp với sở thích của bạn';
                 evidence = { features: feats };
             } else if (main === 'ctx' && productId) {
-                var shared = topSharedFeatures(itemVec[productId] || {}, itemVec[item.id] || {}, 3, { category: 1, brand: 1, price: 1 });
+                var shared = topSharedFeatures(itemVec[productId] || {}, itemVec[item.id] || {}, 3, { category: 1, brand: 1, price: 1 }, item.id);
                 text = shared.length ? 'Tương tự sản phẩm đang xem: ' + shared.join(' · ') : 'Tương tự sản phẩm bạn đang xem';
                 evidence = { features: shared, productId: productId };
             } else if (main === 'session') {
@@ -1087,6 +1219,9 @@
             var ranking = rankFromComponents(comp, weights);
             var ranked = ranking.ranked;
             if (!ranked.length) return [];
+            var quiz = o.quiz || (profiles[user] && profiles[user].quiz);
+            var intent = comp.context === 'home' && quizIntentActive(user, quiz, o.quizIntent);
+            if (intent) ranked = applyQuizIntent(ranked, quiz);
             var anySignal = ranked[0].score > 0;
             var list;
             if (!anySignal) {
@@ -1095,7 +1230,9 @@
                     return { id: id, score: 0, reason: 'Khám phá bộ sưu tập', explanation: { type: 'explore', text: 'Khám phá bộ sưu tập', evidence: {}, shares: {} } };
                 });
             }
-            list = o.diversify === false ? ranked.slice(0, limit) : mmr(ranked, limit, o.lambda !== undefined ? o.lambda : opts.mmrLambda);
+            var lambda = o.lambda !== undefined ? o.lambda : opts.mmrLambda;
+            if (intent) lambda = Math.max(lambda, opts.quizIntentLambda); // đa dạng nhẹ, không phá thứ tự khớp quiz
+            list = o.diversify === false ? ranked.slice(0, limit) : mmr(ranked, limit, lambda);
             return list.map(function (item) {
                 var ex = item.score > 0 ? explain(item, comp, o.productId) : { type: 'explore', text: 'Khám phá bộ sưu tập', evidence: {}, shares: {} };
                 return { id: item.id, score: Number(item.score.toFixed(4)), reason: ex.text, explanation: ex };
@@ -1254,6 +1391,9 @@
             popularity: function (id) { return popularity.get(id) || 0; },
             popularityCount: function (id) { return popCount.get(id) || 0; },
             itemStats: itemStats,
+            quizIntentActive: quizIntentActive,
+            applyQuizIntent: applyQuizIntent,
+            quizNotes: quizNotes,
             componentScores: componentScores,
             rankFromComponents: rankFromComponents,
             weightsFor: weightsFor,
@@ -1281,6 +1421,7 @@
         LABELS: LABELS,
         PERSONA: PERSONA,
         PRICE_TIERS: PRICE_TIERS,
+        PRICE_RANGE_LABEL: PRICE_RANGE_LABEL,
         CATEGORY_OF_TYPE: CATEGORY_OF_TYPE,
         inferAttributes: inferAttributes,
         extractColors: extractColors,

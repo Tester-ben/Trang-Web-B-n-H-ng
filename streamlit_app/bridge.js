@@ -155,7 +155,9 @@ const handlers = {
         const quiz = req.quiz || {};
         return {
             dna: ctx.model.styleDNA(NEW_CUSTOMER, quiz),
-            recommendations: formatRecs(ctx.model.recommend(NEW_CUSTOMER, { limit, context: 'home', quiz }))
+            // Khách vừa trả lời quiz: câu trả lời được ưu tiên như yêu cầu rõ ràng (giống website ngay sau khi làm quiz).
+            recommendations: formatRecs(ctx.model.recommend(NEW_CUSTOMER, { limit, context: 'home', quiz, quizIntent: 'on' })),
+            notes: ctx.model.quizNotes(quiz)
         };
     },
 

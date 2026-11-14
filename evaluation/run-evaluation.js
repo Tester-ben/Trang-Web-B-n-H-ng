@@ -32,6 +32,22 @@ const K = 10;
 const COMPONENTS = ['session', 'cb', 'ucf', 'icf', 'mf', 'pop'];
 // Trọng số đặt tay ban đầu (trước khi tinh chỉnh) — giữ cố định để so sánh, không phụ thuộc giá trị mặc định hiện tại của engine.
 const INITIAL_WEIGHTS = { session: 0.25, cb: 0.25, ucf: 0.2, icf: 0.15, mf: 0.1, pop: 0.05 };
+// Lưới mức "ưu tiên câu trả lời quiz" (điểm cộng khi khớp loại sản phẩm / các tiêu chí khác, so với điểm hybrid 0..1).
+const QUIZ_INTENT_GRID = [];
+for (const t of [0.6, 0.8, 1, 1.25, 1.5, 2]) for (const o of [0.1, 0.25]) {
+    QUIZ_INTENT_GRID.push({ type: t, category: Number((0.375 * t).toFixed(4)), priceExact: Number((2 * o).toFixed(4)), priceNear: o, color: Number((1.5 * o).toFixed(4)), style: o });
+}
+const QUIZ_INTENT_MIN_TYPE_MATCH = 2 / 3; // quy tắc chọn: ít nhất 2/3 gợi ý đúng loại sản phẩm khách chọn
+
+/** Mức "đúng yêu cầu" của một danh sách so với câu trả lời quiz (tỷ lệ trong top-K). */
+function quizCompliance(model, list, quiz) {
+    const A = model.attributes, PT = engine.PRICE_TIERS, top = list.slice(0, K), out = {};
+    if (!top.length || !quiz) return out;
+    if (Array.isArray(quiz.types) && quiz.types.length) out.type = top.filter((id) => quiz.types.includes(A[id].type)).length / top.length;
+    if (PT.includes(quiz.budget)) out.price = top.filter((id) => Math.abs(PT.indexOf(A[id].priceTier) - PT.indexOf(quiz.budget)) <= 1).length / top.length;
+    if (Array.isArray(quiz.colors) && quiz.colors.length) out.color = top.filter((id) => (A[id].colors || []).some((c) => quiz.colors.includes(c))).length / top.length;
+    return out;
+}
 
 function parseArgs(argv) {
     const args = { data: 'simulated', seeds: 3, users: 600, quick: false, out: null, catalog: null };
@@ -91,7 +107,9 @@ function buildSplit(dataset, cutoff, end, options) {
 function rankHybrid(split, comp, weights, opts) {
     const model = split.model;
     const useCold = opts && opts.coldWeights && comp.positives <= model.options.coldStartThreshold;
-    const ranked = model.rankFromComponents(comp, useCold ? opts.coldWeights : weights).ranked;
+    let ranked = model.rankFromComponents(comp, useCold ? opts.coldWeights : weights).ranked;
+    // Chế độ website ngay sau khi khách làm quiz: câu trả lời là yêu cầu rõ ràng (engine: applyQuizIntent).
+    if (opts && opts.quizIntent && opts.quiz) ranked = model.applyQuizIntent(ranked, opts.quiz, opts.quizIntentWeights);
     const list = opts && opts.lambda !== undefined && opts.lambda < 1 ? model.mmr(ranked, K, opts.lambda) : ranked.slice(0, K);
     return list.map((r) => r.id);
 }
@@ -137,6 +155,7 @@ function runAlgorithms(split, dataset, algos, seed) {
     const rng = engine.mulberry32(seed * 31 + 7);
     for (const algo of algos) {
         const lists = new Map();
+        const comply = { type: [], price: [], color: [] };
         for (const u of users) {
             let list;
             if (algo.type === 'random') {
@@ -148,11 +167,18 @@ function runAlgorithms(split, dataset, algos, seed) {
                 list = legacy.recommendHome(u, K).map((r) => r.id);
             } else {
                 const quiz = algo.useQuiz && dataset.quizByUser ? dataset.quizByUser.get(u) : undefined;
-                list = rankHybrid(split, compFor(u, quiz), algo.weights, { lambda: algo.lambda, coldWeights: algo.coldWeights });
+                list = rankHybrid(split, compFor(u, quiz), algo.weights, { lambda: algo.lambda, coldWeights: algo.coldWeights, quiz, quizIntent: algo.quizIntent, quizIntentWeights: algo.quizIntentWeights });
+                if (quiz) { const c = quizCompliance(split.model, list, quiz); Object.keys(c).forEach((k) => comply[k].push(c[k])); }
             }
             lists.set(u, list);
         }
         results[algo.name] = evaluateLists(split, lists);
+        if (algo.useQuiz) {
+            // Mức đúng yêu cầu quiz (chỉ với thuật toán có dùng quiz): tỷ lệ gợi ý đúng loại / giá ±1 bậc / đúng màu.
+            results[algo.name].summary.quizType10 = M.mean(comply.type);
+            results[algo.name].summary.quizPrice10 = M.mean(comply.price);
+            results[algo.name].summary.quizColor10 = M.mean(comply.color);
+        }
     }
     return results;
 }
@@ -395,12 +421,27 @@ function markdownReport(R) {
     if (R.coldStart) {
         L.push('## 4. Người dùng mới (cold-start: ≤ 2 tương tác dương trước thời điểm test)');
         L.push('');
-        L.push('| Thuật toán | NDCG@10 | HR@10 (%) | Recall@10 (%) |');
-        L.push('|---|---|---|---|');
-        Object.entries(R.coldStart.results).forEach(([name, m]) => L.push('| ' + name + ' | ' + f3(m.n10.mean) + ' | ' + pct(m.hr10.mean) + ' | ' + pct(m.r10.mean) + ' |'));
+        L.push('| Thuật toán | NDCG@10 | HR@10 (%) | Recall@10 (%) | Đúng loại SP khách chọn (%) | Giá ±1 bậc (%) | Đúng màu (%) |');
+        L.push('|---|---|---|---|---|---|---|');
+        const opt = (m, k) => (m[k] ? pct(m[k].mean) : '—');
+        Object.entries(R.coldStart.results).forEach(([name, m]) => L.push('| ' + name + ' | ' + f3(m.n10.mean) + ' | ' + pct(m.hr10.mean) + ' | ' + pct(m.r10.mean) + ' | ' + opt(m, 'quizType10') + ' | ' + opt(m, 'quizPrice10') + ' | ' + opt(m, 'quizColor10') + ' |'));
         L.push('');
-        L.push('Giao thức: chọn ngẫu nhiên 30% người dùng có mục tiêu trong cửa sổ test, cắt lịch sử của họ còn 0 hoặc 2 sự kiện đầu tiên rồi huấn luyện lại. Số người dùng mới được đánh giá mỗi seed: ' + R.coldStart.users.join(', ') + '. Câu trả lời quiz mô phỏng có nhiễu 20%. "Switching" = người dùng ≤ 2 tương tác dùng bộ trọng số cold-start tinh chỉnh riêng trên validation.');
+        L.push('Giao thức: chọn ngẫu nhiên 30% người dùng có mục tiêu trong cửa sổ test, cắt lịch sử của họ còn 0 hoặc 2 sự kiện đầu tiên rồi huấn luyện lại. Số người dùng mới được đánh giá mỗi seed: ' + R.coldStart.users.join(', ') + '. Câu trả lời quiz mô phỏng có nhiễu 20%. "Switching" = người dùng ≤ 2 tương tác dùng bộ trọng số cold-start tinh chỉnh riêng trên validation. Ba cột cuối: tỷ lệ gợi ý trong top-10 đúng câu trả lời quiz (chỉ với thuật toán có dùng quiz).');
         L.push('');
+        if (R.quizIntent) {
+            const lab = (w) => (w ? 'loại ' + w.type + ' · khác ×' + w.priceNear : 'Tắt (quiz chỉ cộng điểm mềm)');
+            const same = (a, b) => !!a && !!b && Object.keys(a).every((k) => Math.abs(a[k] - b[k]) < 1e-9);
+            L.push('### 4b. Ưu tiên câu trả lời quiz: độ chính xác ↔ mức đúng yêu cầu (validation, người dùng mới)');
+            L.push('');
+            L.push('Website coi câu trả lời quiz vừa làm là yêu cầu rõ ràng: sản phẩm khớp được cộng điểm (loại sản phẩm nặng nhất, rồi ngân sách, màu, phong cách) so với điểm hybrid đã chuẩn hóa 0..1. Ưu tiên càng mạnh thì càng đúng yêu cầu nhưng càng ít dự đoán đúng hành vi tương lai (câu trả lời quiz mô phỏng có nhiễu 20% và khách còn mua theo gu nhóm, xu hướng). Quy tắc chọn: ' + R.quizIntent.rule + '.');
+            L.push('');
+            L.push('| Mức ưu tiên | NDCG@10 | Đúng loại (%) | Giá ±1 bậc (%) | Đúng màu (%) |');
+            L.push('|---|---|---|---|---|');
+            R.quizIntent.grid.forEach((r) => L.push('| ' + lab(r.weights) + (same(r.weights, R.quizIntent.chosen) ? ' **← được chọn**' : '') + ' | ' + f3(r.n10) + ' | ' + pct(r.type) + ' | ' + pct(r.price) + ' | ' + pct(r.color) + ' |'));
+            L.push('');
+            L.push('Cấu hình mặc định trong engine (`quizIntentWeights`): ' + lab(R.quizIntent.engineDefault) + (same(R.quizIntent.chosen, R.quizIntent.engineDefault) ? ' — khớp với mức được chọn.' : ' — KHÁC mức được chọn ở lần chạy này.'));
+            L.push('');
+        }
     }
     if (R.sentiment) {
         L.push('## 5. Ablation: điều chỉnh điểm đánh giá bằng cảm xúc bình luận');
@@ -484,6 +525,7 @@ function main() {
 
     const viewedRows = {};
     const perSeed = [], tuned = [], tunedCold = [], pooled = {}, coldPerSeed = [], coldUsers = [], sentimentRows = { on: [], off: [] };
+    const intentGridPerSeed = [];
     R.evaluatedUsers = [];
     let lambdaInfo = null;
     const datasets = [];
@@ -505,8 +547,12 @@ function main() {
         const best = tuneWeights(val);
         let bestCold = null;
         if (ds.kind === 'simulated') {
-            bestCold = tuneWeights(buildColdSplit(ds, cutVal, cutTest, seed, 0.5), ds.quizByUser);
+            const valCold = buildColdSplit(ds, cutVal, cutTest, seed, 0.5);
+            bestCold = tuneWeights(valCold, ds.quizByUser);
             tunedCold.push({ seed, weights: bestCold.weights, score: bestCold.score });
+            // Chọn mức "ưu tiên câu trả lời quiz" trên VALIDATION: độ chính xác ↔ mức đúng yêu cầu.
+            intentGridPerSeed.push(runAlgorithms(valCold, ds, [{ name: 'off', weights: best.weights, coldWeights: bestCold.weights, useQuiz: true }]
+                .concat(QUIZ_INTENT_GRID.map((w, i) => ({ name: 'g' + i, weights: best.weights, coldWeights: bestCold.weights, useQuiz: true, quizIntent: true, quizIntentWeights: w }))), seed));
         }
         tuned.push({ seed, weights: best.weights, score: best.score });
         if (!lambdaInfo) lambdaInfo = tuneLambda(val, best.weights);
@@ -529,7 +575,8 @@ function main() {
                 { name: 'Content-based + quiz Style DNA', weights: { cb: 1 }, useQuiz: true },
                 { name: 'Hybrid (trọng số người dùng cũ, không switching)', weights: best.weights },
                 { name: 'Hybrid switching (không quiz)', weights: best.weights, coldWeights: bestCold.weights },
-                { name: 'Hybrid switching + quiz Style DNA', weights: best.weights, coldWeights: bestCold.weights, useQuiz: true }
+                { name: 'Hybrid switching + quiz Style DNA', weights: best.weights, coldWeights: bestCold.weights, useQuiz: true },
+                { name: 'Hybrid switching + quiz là yêu cầu rõ ràng (website sau khi làm quiz)', weights: best.weights, coldWeights: bestCold.weights, useQuiz: true, quizIntent: true }
             ], seed));
             // Ablation cảm xúc
             const noSent = buildSplit(ds, cutTest, end, { sentimentMix: 0 });
@@ -564,6 +611,17 @@ function main() {
 
     if (args.data === 'simulated') {
         R.coldStart = { results: aggregate(coldPerSeed), users: coldUsers };
+        if (intentGridPerSeed.length) {
+            const g = aggregate(intentGridPerSeed);
+            const rows = [{ name: 'off', weights: null }].concat(QUIZ_INTENT_GRID.map((w, i) => ({ name: 'g' + i, weights: w }))).map((r) => ({
+                weights: r.weights, n10: g[r.name].n10.mean, type: g[r.name].quizType10.mean, price: g[r.name].quizPrice10.mean, color: g[r.name].quizColor10.mean
+            }));
+            const chosen = rows.filter((r) => r.weights && r.type >= QUIZ_INTENT_MIN_TYPE_MATCH).sort((a, b) => b.n10 - a.n10)[0] || null;
+            R.quizIntent = {
+                rule: 'NDCG@10 cao nhất trên validation trong các mức có ít nhất 2/3 gợi ý đúng loại sản phẩm khách chọn',
+                minTypeMatch: QUIZ_INTENT_MIN_TYPE_MATCH, grid: rows, chosen: chosen ? chosen.weights : null, engineDefault: engine.DEFAULTS.quizIntentWeights
+            };
+        }
         R.viewedOnly = Object.keys(viewedRows).map(Number).sort((a, b) => b - a).map((f) => ({
             factor: f, n10: M.mean(viewedRows[f].map((x) => x.n10)), coverage10: M.mean(viewedRows[f].map((x) => x.cov)), nov10: M.mean(viewedRows[f].map((x) => x.nov))
         }));
@@ -626,4 +684,4 @@ function main() {
 }
 
 if (require.main === module) main();
-module.exports = { main, tuneWeights, buildSplit, runAlgorithms, targetsIn, compositions };
+module.exports = { main, tuneWeights, buildSplit, buildColdSplit, simulatedDataset, loadCatalogSnapshot, runAlgorithms, targetsIn, compositions };
