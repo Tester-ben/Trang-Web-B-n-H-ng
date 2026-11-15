@@ -163,9 +163,13 @@
         ? recommender.recommendHome(4) : [];
       const selected = [...new Set(ranked.map(item => item.id).filter(key => database[key]))];
       const description = document.getElementById('shPersonalDescription');
+      const quizInfo = recommender && typeof recommender.quizIntentInfo === 'function' ? recommender.quizIntentInfo() : null;
       if (description) {
         const firstReason = ranked[0] && ranked[0].reason || '';
-        if (firstReason.startsWith('Vì bạn gần đây xem nhiều ')) {
+        if (quizInfo) {
+          // Vừa làm quiz: nói rõ đang gợi ý theo lựa chọn nào và yêu cầu nào shop chưa có (không đưa hàng sai như thể đúng).
+          description.textContent = 'Theo lựa chọn phong cách của bạn: ' + quizInfo.summary + '.' + (quizInfo.notes.length ? ' ' + quizInfo.notes.join(' ') : '');
+        } else if (firstReason.startsWith('Vì bạn gần đây xem nhiều ')) {
           const type = firstReason.slice('Vì bạn gần đây xem nhiều '.length);
           description.textContent = 'Bạn gần đây xem nhiều ' + type + '. Những thiết kế cùng loại đang được ưu tiên — không cần bấm yêu thích hay đánh giá.';
         } else if (firstReason === 'Khám phá bộ sưu tập') {

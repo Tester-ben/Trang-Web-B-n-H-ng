@@ -79,6 +79,9 @@ function validateQuiz(input) {
         types: pick(input.types, L.type, 4),
         budget: engine.PRICE_TIERS.includes(input.budget) ? input.budget : undefined
     };
+    // Thời điểm làm quiz (để ưu tiên câu trả lời khi khách vừa làm xong) — chỉ nhận mốc thời gian hợp lệ.
+    const at = Number(input.savedAt);
+    if (Number.isFinite(at) && at > Date.UTC(2020, 0, 1) && at <= Date.now() + 86400000) quiz.savedAt = Math.round(at);
     const empty = !quiz.gender && !quiz.styles.length && !quiz.colors.length && !quiz.types.length && !quiz.budget;
     return empty ? null : quiz;
 }
@@ -250,6 +253,13 @@ function createApp(ctx) {
         return { ok: true, productId, items: service.outfit(productId, user ? user.id : null, per) };
     });
 
+    // Công khai: chỉ số đếm theo sản phẩm (bán chạy / đánh giá cao) cho chatbot và trang chủ — không có thông tin cá nhân.
+    route('GET', /^\/api\/products\/popular$/, (req, url) => {
+        rate(req, 'recs', 240, 60000);
+        const limit = Math.max(1, Math.min(200, Number(url.searchParams.get('limit')) || 200));
+        return { ok: true, source: 'server', items: service.popularStats(limit), meta: { activeUsers: service.stats().activeUsers } };
+    });
+
     route('GET', /^\/api\/products\/([A-Za-z0-9_-]{1,80})\/reviews$/, (req, url, m) => {
         const productId = productOr404(m[1]);
         const limit = Math.max(1, Math.min(50, Number(url.searchParams.get('limit')) || 10));
@@ -301,6 +311,7 @@ function createApp(ctx) {
         const body = await readJson(req, 4 * 1024);
         const quiz = validateQuiz(body.quiz || body);
         if (!quiz) throw httpError(400, 'Câu trả lời quiz không hợp lệ.', 'INVALID_QUIZ');
+        if (!quiz.savedAt) quiz.savedAt = Date.now();
         store.saveQuiz(user.id, quiz);
         service.markDirty();
         return { ok: true, quiz };

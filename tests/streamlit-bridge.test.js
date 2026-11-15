@@ -37,6 +37,12 @@ test('Cầu nối Streamlit: danh mục, gợi ý cá nhân, khách mới, sản
     assert.equal(quiz.ok, true, quiz.error);
     const genderOf = Object.fromEntries(boot.data.catalog.map((p) => [p.id, p.gender]));
     assert.ok(quiz.data.recommendations.slice(0, 3).every((r) => ['women', 'unisex'].includes(genderOf[r.id])), 'quiz "nữ" ưu tiên đồ nữ/unisex');
+    assert.ok(Array.isArray(quiz.data.notes));
+    const typeOf = Object.fromEntries(boot.data.catalog.map((p) => [p.id, p.type]));
+    const tees = run({ cmd: 'quiz', source: SOURCE, quiz: { gender: 'men', types: ['tee'], colors: ['white'], budget: 'luxury' }, limit: 8 });
+    assert.ok(tees.data.recommendations.filter((r) => typeOf[r.id] === 'tee').length >= 5, 'khách chọn "Áo thun" thì phần lớn gợi ý là áo thun');
+    assert.ok(tees.data.notes.some((n) => /màu trắng/.test(n)) && tees.data.notes.some((n) => /trên 8 triệu/.test(n)), tees.data.notes.join(' | '));
+    assert.ok(tees.data.recommendations.some((r) => r.shares && r.shares.quiz > 0), 'biểu đồ có phần "khớp câu trả lời quiz"');
 
     const product = run({ cmd: 'product', source: SOURCE, productId: 'hoodies-3', limit: 6 });
     assert.equal(product.ok, true, product.error);

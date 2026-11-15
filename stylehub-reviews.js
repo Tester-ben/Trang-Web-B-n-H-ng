@@ -204,7 +204,7 @@
             var analyzer = S();
             if (!analyzer || !area.value.trim()) { preview.textContent = 'Hệ thống sẽ phân tích cảm xúc bình luận khi bạn nhập.'; return; }
             var r = analyzer.analyze(area.value);
-            preview.replaceChildren(el('span', null, 'Phân tích cảm xúc: '), sentimentChip(r.label));
+            preview.replaceChildren(sentimentChip(r.label));
         }
         area.addEventListener('input', updatePreview);
         updatePreview();

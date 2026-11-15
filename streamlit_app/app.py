@@ -37,7 +37,9 @@ COMPONENTS = [
     ("ctx", "Giống sản phẩm đang xem", "#008300"),
     ("session", "Phiên xem gần đây", "#6250d6"),
 ]
-COMPONENT_LABEL = {key: label for key, label, _ in COMPONENTS}
+# Biểu đồ đóng góp còn có phần "khớp câu trả lời quiz" (chỉ ở trang khách mới, không phải trọng số hybrid).
+CHART_COMPONENTS = COMPONENTS + [("quiz", "Khớp câu trả lời quiz", "#8b5e34")]
+COMPONENT_LABEL = {key: label for key, label, _ in CHART_COMPONENTS}
 ACCENT = "#2a78d6"
 ACCENT_SOFT = "#86b6ef"
 EVENT_LABELS = {"view": "Xem", "cart": "Thêm vào giỏ", "wishlist": "Yêu thích", "purchase": "Mua", "rating": "Đánh giá", "review": "Đánh giá"}
@@ -150,8 +152,8 @@ def contribution_chart(recs: list[dict], catalog: dict[str, dict]) -> None:
         st.caption("Danh sách này là gợi ý khám phá (chưa có tín hiệu cá nhân), nên không có phần đóng góp theo thuật toán.")
         return
     df = pd.DataFrame(rows)
-    present = [label for _, label, _ in COMPONENTS if label in set(df["Thành phần"])]
-    colors = [color for _, label, color in COMPONENTS if label in present]
+    present = [label for _, label, _ in CHART_COMPONENTS if label in set(df["Thành phần"])]
+    colors = [color for _, label, color in CHART_COMPONENTS if label in present]
     order = df.drop_duplicates("Sản phẩm").sort_values("Thứ hạng")["Sản phẩm"].tolist()
     chart = (
         alt.Chart(df)
@@ -412,8 +414,9 @@ def page_personal() -> None:
 def page_quiz() -> None:
     st.title("Khách hàng mới — quiz Style DNA")
     st.markdown('<p class="sh-lede">Khách chưa có lịch sử mua sắm (bài toán <b>khởi đầu lạnh — cold-start</b>). '
-                "Hệ thống dùng câu trả lời quiz và bộ trọng số riêng cho khách mới (dựa nhiều hơn vào thuộc tính và xu hướng), "
-                "đồng thời giới hạn mềm theo giới tính.</p>", unsafe_allow_html=True)
+                "Câu trả lời quiz được coi là <b>yêu cầu rõ ràng</b>: ưu tiên đúng giới tính và loại sản phẩm, rồi ngân sách, màu, phong cách; "
+                "điểm hybrid (thuộc tính + xu hướng) chỉ phân định giữa các mẫu khớp ngang nhau. Yêu cầu nào shop chưa có sẽ được nói rõ.</p>",
+                unsafe_allow_html=True)
     boot = load_boot()
     if not boot:
         return
@@ -438,6 +441,8 @@ def page_quiz() -> None:
         st.error(str(error))
         return
     render_dna(view["dna"])
+    for note in view.get("notes") or []:
+        st.info(note)
     st.subheader("Gợi ý cho khách hàng mới")
     render_cards(view["recommendations"], catalog)
     st.subheader("Vì sao có những gợi ý này?")

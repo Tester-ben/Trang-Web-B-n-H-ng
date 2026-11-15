@@ -1,6 +1,6 @@
 # Kết quả thực nghiệm hệ gợi ý — THE STYLE HUB
 
-> Tự động sinh bởi `npm run evaluate` lúc 2026-11-07T00:27:44.273Z. Không sửa tay — chạy lại lệnh để cập nhật.
+> Tự động sinh bởi `npm run evaluate` lúc 2026-11-14T00:49:40.280Z. Không sửa tay — chạy lại lệnh để cập nhật.
 
 **Nguồn dữ liệu: MÔ PHỎNG** (600 người dùng × 197 sản phẩm thật — ảnh chụp danh mục cố định `evaluation/catalog-snapshot.json`, 120 ngày, 3 seed, ρ = 0.5). Dữ liệu được sinh bởi `evaluation/simulate.js` theo mô hình độ hữu dụng có cả phần thuộc tính (content) và phần "gu cụm" ẩn (collaborative). Kết quả chứng minh cài đặt đúng và so sánh tương đối giữa thuật toán **dưới giả định của bộ mô phỏng**; cần đánh giá lại trên dữ liệu thật bằng `npm run evaluate -- --data=server`.
 
@@ -71,17 +71,40 @@ Quy tắc chọn: λ cho độ đa dạng cao nhất mà NDCG@10 giảm không q
 
 ## 4. Người dùng mới (cold-start: ≤ 2 tương tác dương trước thời điểm test)
 
-| Thuật toán | NDCG@10 | HR@10 (%) | Recall@10 (%) |
-|---|---|---|---|
-| Phổ biến (Popularity) | 0.162 | 44.41 | 27.92 |
-| Thuật toán cũ (v1) | 0.059 | 16.09 | 11.22 |
-| Content-based (không quiz) | 0.175 | 43.62 | 28.15 |
-| Content-based + quiz Style DNA | 0.140 | 31.52 | 22.96 |
-| Hybrid (trọng số người dùng cũ, không switching) | 0.201 | 51.49 | 33.23 |
-| Hybrid switching (không quiz) | 0.203 | 51.02 | 32.71 |
-| Hybrid switching + quiz Style DNA | 0.242 | 56.25 | 38.79 |
+| Thuật toán | NDCG@10 | HR@10 (%) | Recall@10 (%) | Đúng loại SP khách chọn (%) | Giá ±1 bậc (%) | Đúng màu (%) |
+|---|---|---|---|---|---|---|
+| Phổ biến (Popularity) | 0.162 | 44.41 | 27.92 | — | — | — |
+| Thuật toán cũ (v1) | 0.059 | 16.09 | 11.22 | — | — | — |
+| Content-based (không quiz) | 0.175 | 43.62 | 28.15 | — | — | — |
+| Content-based + quiz Style DNA | 0.140 | 31.52 | 22.96 | 68.26 | 80.21 | 28.28 |
+| Hybrid (trọng số người dùng cũ, không switching) | 0.201 | 51.49 | 33.23 | — | — | — |
+| Hybrid switching (không quiz) | 0.203 | 51.02 | 32.71 | — | — | — |
+| Hybrid switching + quiz Style DNA | 0.242 | 56.25 | 38.79 | 17.84 | 81.74 | 15.94 |
+| Hybrid switching + quiz là yêu cầu rõ ràng (website sau khi làm quiz) | 0.244 | 51.00 | 37.77 | 64.41 | 84.32 | 23.16 |
 
-Giao thức: chọn ngẫu nhiên 30% người dùng có mục tiêu trong cửa sổ test, cắt lịch sử của họ còn 0 hoặc 2 sự kiện đầu tiên rồi huấn luyện lại. Số người dùng mới được đánh giá mỗi seed: 66, 63, 57. Câu trả lời quiz mô phỏng có nhiễu 20%. "Switching" = người dùng ≤ 2 tương tác dùng bộ trọng số cold-start tinh chỉnh riêng trên validation.
+Giao thức: chọn ngẫu nhiên 30% người dùng có mục tiêu trong cửa sổ test, cắt lịch sử của họ còn 0 hoặc 2 sự kiện đầu tiên rồi huấn luyện lại. Số người dùng mới được đánh giá mỗi seed: 66, 63, 57. Câu trả lời quiz mô phỏng có nhiễu 20%. "Switching" = người dùng ≤ 2 tương tác dùng bộ trọng số cold-start tinh chỉnh riêng trên validation. Ba cột cuối: tỷ lệ gợi ý trong top-10 đúng câu trả lời quiz (chỉ với thuật toán có dùng quiz).
+
+### 4b. Ưu tiên câu trả lời quiz: độ chính xác ↔ mức đúng yêu cầu (validation, người dùng mới)
+
+Website coi câu trả lời quiz vừa làm là yêu cầu rõ ràng: sản phẩm khớp được cộng điểm (loại sản phẩm nặng nhất, rồi ngân sách, màu, phong cách) so với điểm hybrid đã chuẩn hóa 0..1. Ưu tiên càng mạnh thì càng đúng yêu cầu nhưng càng ít dự đoán đúng hành vi tương lai (câu trả lời quiz mô phỏng có nhiễu 20% và khách còn mua theo gu nhóm, xu hướng). Quy tắc chọn: NDCG@10 cao nhất trên validation trong các mức có ít nhất 2/3 gợi ý đúng loại sản phẩm khách chọn.
+
+| Mức ưu tiên | NDCG@10 | Đúng loại (%) | Giá ±1 bậc (%) | Đúng màu (%) |
+|---|---|---|---|---|
+| Tắt (quiz chỉ cộng điểm mềm) | 0.330 | 19.19 | 82.45 | 16.32 |
+| loại 0.6 · khác ×0.1 | 0.296 | 61.09 | 85.93 | 24.59 |
+| loại 0.6 · khác ×0.25 | 0.285 | 50.73 | 91.18 | 37.78 |
+| loại 0.8 · khác ×0.1 **← được chọn** | 0.276 | 68.81 | 84.89 | 23.53 |
+| loại 0.8 · khác ×0.25 | 0.269 | 59.38 | 90.08 | 34.55 |
+| loại 1 · khác ×0.1 | 0.253 | 73.17 | 84.47 | 22.69 |
+| loại 1 · khác ×0.25 | 0.249 | 66.27 | 88.60 | 31.49 |
+| loại 1.25 · khác ×0.1 | 0.230 | 75.41 | 84.28 | 22.28 |
+| loại 1.25 · khác ×0.25 | 0.231 | 71.78 | 87.39 | 28.43 |
+| loại 1.5 · khác ×0.1 | 0.218 | 76.39 | 84.19 | 22.07 |
+| loại 1.5 · khác ×0.25 | 0.215 | 74.57 | 86.27 | 26.83 |
+| loại 2 · khác ×0.1 | 0.209 | 76.99 | 84.06 | 21.80 |
+| loại 2 · khác ×0.25 | 0.204 | 76.71 | 85.22 | 25.31 |
+
+Cấu hình mặc định trong engine (`quizIntentWeights`): loại 0.8 · khác ×0.1 — khớp với mức được chọn.
 
 ## 5. Ablation: điều chỉnh điểm đánh giá bằng cảm xúc bình luận
 

@@ -171,6 +171,29 @@
             refresh();
         }).catch(function () { delete pending[key]; });
     }
+    /* Số liệu "bán chạy / đánh giá cao" theo sản phẩm: ưu tiên máy chủ (toàn bộ khách hàng), dự phòng là
+       dữ liệu cục bộ của trình duyệt (cùng engine). Chỉ là số đếm — không có danh tính người dùng. */
+    var popularCache = null, popularPending = false;
+    function requestPopular() {
+        var a = api();
+        if (!a || typeof a.getPopular !== 'function' || popularPending) return;
+        if (popularCache && Date.now() - popularCache.at < SERVER_TTL) return;
+        popularPending = true;
+        a.getPopular(200).then(function (data) {
+            popularPending = false;
+            if (!data || !Array.isArray(data.items)) return;
+            var items = {};
+            data.items.forEach(function (x) { if (x && catalog()[x.id]) items[x.id] = x; });
+            popularCache = { items: items, at: Date.now() };
+        }).catch(function () { popularPending = false; });
+    }
+    function popularStats() {
+        requestPopular();
+        if (popularCache) return { source: 'server', items: popularCache.items };
+        var model = getLocalModel();
+        return model && typeof model.itemStats === 'function' ? { source: 'local', items: model.itemStats() } : null;
+    }
+
     function invalidateServer() {
         Object.keys(serverCache).forEach(function (k) { serverCache[k].stale = true; });
         Object.keys(socialCache).forEach(function (k) { socialCache[k].stale = true; });
@@ -273,6 +296,9 @@
 
     function saveQuiz(quiz) {
         if (!quiz || typeof quiz !== 'object') return false;
+        // savedAt: thời điểm khách làm quiz — câu trả lời được ưu tiên như yêu cầu rõ ràng cho tới khi khách có đủ
+        // hành vi mới (recommender/engine.js: quizIntent).
+        quiz = Object.assign({}, quiz, { savedAt: Date.now() });
         var saved = write(QUIZ_PREFIX + identity(), quiz);
         markDirty();
         invalidateServer();
@@ -280,6 +306,21 @@
         emit('stylehub-preferences-change', { type: 'quiz' });
         return saved;
     }
+    /** Gợi ý trang chủ đang bám theo câu trả lời quiz? Trả về tóm tắt lựa chọn + những yêu cầu shop chưa đáp ứng được. */
+    function quizIntentInfo() {
+        var E = engine(), model = getLocalModel(), user = identity(), quiz = getQuiz(user);
+        if (!E || !model || !quiz || typeof model.quizIntentActive !== 'function' || !model.quizIntentActive(user, quiz)) return null;
+        var L = E.LABELS, cap = function (x) { return x ? x.charAt(0).toUpperCase() + x.slice(1) : x; };
+        var parts = [];
+        var who = { men: 'Nam', women: 'Nữ', kids: 'Trẻ em' }[quiz.gender];
+        if (who) parts.push(who);
+        array(quiz.styles).forEach(function (s) { if (L.style[s]) parts.push(cap(L.style[s])); });
+        array(quiz.colors).forEach(function (c) { if (L.color[c]) parts.push(cap(L.color[c].replace(/^màu /, ''))); });
+        array(quiz.types).forEach(function (t) { if (L.type[t]) parts.push(cap(L.type[t])); });
+        if (E.PRICE_RANGE_LABEL && E.PRICE_RANGE_LABEL[quiz.budget]) parts.push(cap(E.PRICE_RANGE_LABEL[quiz.budget]));
+        return { summary: parts.join(' · '), notes: model.quizNotes(quiz) };
+    }
+
     function clearHistory() {
         var user = identity();
         removeKey(PREFIX + user);
@@ -323,7 +364,7 @@
     window.StyleHubRecommendations = {
         recommend: recommend, recommendHome: recommendHome, recommendSocial: recommendSocial, outfit: outfit, styleDNA: styleDNA,
         saveQuiz: saveQuiz, getQuiz: function () { return getQuiz(identity()); }, clearHistory: clearHistory,
-        track: track, trackImpressions: trackImpressions, signals: signals,
+        track: track, trackImpressions: trackImpressions, signals: signals, popularStats: popularStats, quizIntentInfo: quizIntentInfo,
         cosine: function (a, b) { return engine() ? engine().cosine(a, b) : 0; },
         identity: identity, markDirty: markDirty,
         source: function (context, productId) { var e = serverCache[cacheKey(context || 'home', productId)]; return e ? 'server' : 'local'; }
@@ -394,6 +435,7 @@
     function wishlistSnapshot(user) { return new Set(array(read('stylehub_wishlist_' + user, []))); }
 
     function init() {
+        setTimeout(requestPopular, 1500); // lấy sẵn số liệu bán chạy để chatbot trả lời ngay
         var user = identity(), before = cartSnapshot(), wishBefore = wishlistSnapshot(user);
         var id = currentId();
         if (id) track(id, 'view');

@@ -222,6 +222,12 @@
             return request('GET', '/api/recommendations?' + qs(params)).then(function (r) { return r.ok ? r.data : null; });
         }).catch(function () { return null; });
     }
+    function getPopular(limit) {
+        return available().then(function (up) {
+            if (!up) return null;
+            return request('GET', '/api/products/popular?' + qs({ limit: limit })).then(function (r) { return r.ok ? r.data : null; });
+        }).catch(function () { return null; });
+    }
     function getOutfit(productId) {
         return available().then(function (up) {
             if (!up) return null;
@@ -291,6 +297,7 @@
         recordOrder: recordOrder,
         getRecommendations: getRecommendations,
         getOutfit: getOutfit,
+        getPopular: getPopular,
         getReviews: getReviews,
         postReview: postReview,
         deleteReview: deleteReview,

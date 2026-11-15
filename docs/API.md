@@ -12,6 +12,7 @@ Cơ sở: cùng origin với website (mặc định `http://localhost:3000`). M�
 | `POST /api/orders` | bắt buộc | `{ orderId, items: [{ productId, quantity, size, price }], total }` → `201`; gửi lại cùng mã đơn → `200 { created: false }` |
 | `GET /api/recommendations` | tùy chọn | Tham số: `context=home\|product`, `productId` (khi product), `limit` (≤ 24), `strategy=social` (chỉ User-based CF, loại sản phẩm đã tương tác), `quiz` (JSON, cho khách chưa đăng nhập), `recent=id:ts,...` (sản phẩm vừa xem của khách), `exclude=id,...`, `diversify=0`. → `{ personalized, strategy, items: [{ id, score, reason, explanation: { type, text, evidence, shares } }], meta }` |
 | `GET /api/recommendations/outfit?productId=&perCategory=` | tùy chọn | `{ items: [{ id, category, score, reason }] }` |
+| `GET /api/products/popular?limit=` | không | `{ items: [{ id, buyers, raters, ratingAvg, wishers, interested, score, demoShare }] }` — chỉ số đếm theo sản phẩm (không có thông tin khách), dùng cho chatbot trả lời "bán chạy / được nhiều người mua / đánh giá cao" |
 | `GET /api/products/:id/reviews?limit=&offset=` | tùy chọn | `{ stats: { count, average, distribution }, reviews: [{ rating, comment, sentimentLabel, sentiment, verifiedPurchase, author (ẩn danh), isDemo, mine }], canReview, myReview }` |
 | `POST /api/products/:id/reviews` | bắt buộc | `{ rating (1–5), comment (≤ 1000) }` → `201`; `403 NOT_PURCHASED` nếu chưa mua. Thẻ HTML bị loại bỏ; điểm cảm xúc tính tự động |
 | `DELETE /api/products/:id/reviews` | bắt buộc | Xóa đánh giá của chính mình |

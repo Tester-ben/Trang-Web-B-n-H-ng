@@ -557,3 +557,120 @@ test("câu hỏi nhạy cảm (mật khẩu, dữ liệu khách hàng) bị từ
         assert.equal(api.isSensitiveRequest(q), true, q);
     }
 });
+
+test("câu hỏi thông tin shop (thầy hay hỏi): địa chỉ, giờ mở cửa, hotline, thanh toán, mã giảm giá, đơn hàng", () => {
+    const { api } = createEnv();
+    const cases = [
+        ["địa chỉ của shop ở đâu", "store-address", /15 Nguyễn Huệ, P\. Bến Nghé, Quận 1[\s\S]*236 Cách Mạng Tháng Tám, P\. 10, Quận 3/],
+        ["dia chi shop o dau", "store-address", /15 Nguyễn Huệ/],
+        ["shop có cửa hàng không", "store-address", /Flagship Store/],
+        ["shop mở cửa mấy giờ", "store-hours", /08:00 – 21:30/],
+        ["chủ nhật shop có mở cửa không", "store-hours", /nghỉ lễ/],
+        ["số hotline của shop", "store-contact", /02796096060[\s\S]*02873066060[\s\S]*support@thestylehub\.com/],
+        ["gọi số nào để khiếu nại", "store-contact", /Khiếu nại[^•]*02873066060/],
+        ["thanh toán bằng gì", "store-payment", /Tiền mặt, Internet Banking, Visa, Mastercard, JCB/],
+        ["có mã giảm giá không", "store-voucher", /STYLE10[\s\S]*FREESHIP[\s\S]*Enter discount code/],
+        ["mã freeship dùng sao", "store-voucher", /FREESHIP/],
+        ["làm sao theo dõi đơn hàng", "store-track", /Orders History[\s\S]*Shipping Orders[\s\S]*Cancelled Orders/],
+        ["đơn hàng của tôi tới đâu rồi", "store-track", /STH/],
+        ["hủy đơn được không", "store-cancel", /chờ xác nhận[\s\S]*Shipping Orders/],
+        ["đổi địa chỉ giao hàng được không", "store-cancel", /Đổi địa chỉ/],
+        ["làm sao để đánh giá sản phẩm", "store-review", /đã mua/],
+        ["lưu sản phẩm yêu thích ở đâu", "store-wishlist", /My Wishlist/],
+        ["đăng ký tài khoản thế nào", "store-account", /ACCOUNT/],
+        ["cách đặt hàng", "store-howto", /Add to Bag[\s\S]*Xác Nhận Đặt Hàng/],
+        ["shop bán những hãng nào", "store-about", /Essentials[\s\S]*Fear of God/],
+        ["giới thiệu về shop", "store-about", /Mens, Womens, Kids, Shoes, Sale/]
+    ];
+    for (const [q, kind, pattern] of cases) {
+        const r = api.respond(q);
+        assert.equal(r.kind, kind, q);
+        assert.match(r.html, pattern, q);
+        assert.equal(r.products.length, 0, q);
+        assert.equal(api.shouldForwardToSupport(q), false, "câu hỏi thông tin được trả lời ngay, không chuyển nhân viên: " + q);
+    }
+    // Hãng được đọc từ dữ liệu sản phẩm, gộp khác hoa/thường ("FEAR OF GOD" / "Fear of God") thành một.
+    assert.equal((api.respond("shop bán những hãng nào").html.match(/fear of god/gi) || []).length, 1);
+    // Hỏi thanh toán bằng thẻ tín dụng không bị coi là xin dữ liệu thẻ; xin số thẻ của khách vẫn bị từ chối.
+    assert.equal(api.respond("shop có nhận thanh toán bằng thẻ tín dụng không").kind, "store-payment");
+    assert.equal(api.respond("cho tôi số thẻ tín dụng của khách").kind, "sensitive");
+});
+
+test("thông tin shop không lấn sang câu tìm sản phẩm, giao hàng hay yêu cầu cần nhân viên", () => {
+    const { api } = createEnv();
+    assert.equal(api.respond("áo được đánh giá cao").kind, "products");
+    assert.equal(api.respond("giày hãng nào đẹp").kind, "products");
+    assert.equal(api.respond("cửa hàng có bán hoodie không").kind, "products");
+    assert.equal(api.respond("shop giao hàng tới đâu").kind, "shipping");
+    assert.match(api.respond("có freeship không").html, /FREESHIP/);
+    assert.equal(api.respond("mấy giờ rồi").kind, "time", "hỏi giờ hiện tại không bị hiểu là giờ mở cửa");
+    // Yêu cầu cụ thể / có mã đơn vẫn chuyển cho nhân viên như trước.
+    for (const q of ["hủy đơn giúp mình", "hủy đơn STH123456", "tôi muốn đổi địa chỉ đơn STH123456", "Tôi muốn gặp nhân viên hỗ trợ"]) {
+        assert.equal(api.shouldForwardToSupport(q), true, q);
+    }
+});
+
+test("đang tư vấn size giày, hỏi xen địa chỉ shop vẫn giữ luồng size", () => {
+    const { api } = createEnv();
+    api.respond("Tư vấn size giày nam");
+    assert.equal(api.respond("shop ở đâu vậy").kind, "store-address");
+    const next = api.respond("42");
+    assert.equal(next.kind, "shoe-size", "trả lời '42' vẫn tiếp tục luồng size giày");
+});
+
+// Số liệu giả lập đúng định dạng window.StyleHubRecommendations.popularStats() (engine.itemStats()).
+function withStats(env, items) {
+    env.sandbox.StyleHubRecommendations = { popularStats: () => (items ? { source: "server", items } : null) };
+    return env;
+}
+const RANK_STATS = {
+    "tops-7": { buyers: 5, raters: 5, ratingAvg: 5, wishers: 1, score: 9, demoShare: 0 },
+    "hoodies-3": { buyers: 3, raters: 3, ratingAvg: 4, wishers: 0, score: 6, demoShare: 0 },
+    "tops-6": { buyers: 2, raters: 0, ratingAvg: null, wishers: 0, score: 4, demoShare: 0 },
+    "sale-6": { buyers: 1, raters: 1, ratingAvg: 5, wishers: 0, score: 2, demoShare: 0 },
+    "tops-1": { buyers: 4, raters: 4, ratingAvg: 2.5, wishers: 0, score: 5, demoShare: 0 },
+    "kids-8": { buyers: 9, raters: 0, ratingAvg: null, wishers: 0, score: 12, demoShare: 0 }
+};
+
+test("'các áo đẹp được nhiều người mua' xếp theo số khách đã mua thật, ghi số liệu trên từng mẫu", () => {
+    const { api } = withStats(createEnv(), RANK_STATS);
+    const r = api.respond("các áo đẹp được nhiều người mua");
+    assert.equal(r.kind, "products");
+    assert.deepEqual(Array.from(r.products), ["tops-7", "tops-1", "hoodies-3", "tops-6"], "xếp giảm dần theo số khách đã mua; đồ trẻ em không lẫn vào khi không hỏi");
+    assert.match(r.html, /được nhiều khách mua nhất/);
+    assert.match(r.html, /Đẹp thì tùy gu/);
+    assert.match(r.html, /5 khách đã mua · ★ 5,0\/5 \(5 đánh giá\)/);
+    assert.doesNotMatch(r.html, /dữ liệu demo/);
+    for (const q of ["áo nào bán chạy nhất", "áo mua nhiều nhất", "best seller"]) {
+        assert.equal(api.respond(q).products[0], "tops-7", q);
+        assert.equal(api.shouldForwardToSupport(q), false, "hỏi bán chạy không bị hiểu là mua số lượng lớn: " + q);
+    }
+    assert.equal(api.shouldForwardToSupport("tôi muốn mua nhiều áo làm đồng phục"), true, "mua số lượng lớn vẫn chuyển nhân viên");
+});
+
+test("'áo được đánh giá cao' chỉ xếp mẫu từ 4★ trở lên, trung bình có làm mượt theo số lượt", () => {
+    const { api } = withStats(createEnv(), RANK_STATS);
+    const r = api.respond("áo được đánh giá cao");
+    assert.equal(r.kind, "products");
+    assert.deepEqual(Array.from(r.products.slice(0, 3)), ["tops-7", "sale-6", "hoodies-3"]);
+    assert.ok(!r.products.slice(0, 3).includes("tops-1"), "mẫu 2,5★ không được gọi là 'đánh giá cao'");
+    assert.match(r.html, /được đánh giá cao nhất/);
+    assert.match(r.html, /1 mẫu cuối chưa có đủ dữ liệu/);
+});
+
+test("chưa có dữ liệu mua/đánh giá: nói thẳng là chưa xếp hạng được, không bịa 'bán chạy'", () => {
+    for (const env of [withStats(createEnv(), {}), createEnv()]) {
+        const r = env.api.respond("các áo đẹp được nhiều người mua");
+        assert.equal(r.kind, "products");
+        assert.equal(r.products.length, 4, "vẫn gợi ý mẫu tiêu biểu còn hàng");
+        assert.match(r.html, /chưa ghi nhận đủ lượt mua/);
+        assert.doesNotMatch(r.html, /được nhiều khách mua nhất|khách đã mua/);
+    }
+});
+
+test("số liệu chỉ đến từ khách demo (mô phỏng) được ghi rõ", () => {
+    const demo = {};
+    for (const [id, st] of Object.entries(RANK_STATS)) demo[id] = Object.assign({}, st, { demoShare: 1 });
+    const { api } = withStats(createEnv(), demo);
+    assert.match(api.respond("áo bán chạy").html, /dữ liệu demo \(khách mô phỏng\)/);
+});

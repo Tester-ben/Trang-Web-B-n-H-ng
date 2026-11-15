@@ -81,6 +81,14 @@
 
     const SUPPORT_HOTLINE = "02873066060";   // Khiếu nại / bảo hành (contact.html, shipping-policy.html)
     const SUPPORT_EMAIL = "support@thestylehub.com";
+    // Thông tin cửa hàng — lấy đúng từ contact.html / footer / about.html (không tự đặt ra).
+    const SALES_HOTLINE = "02796096060";      // Gọi mua: tư vấn sản phẩm, size, tồn kho, đặt hàng nhanh
+    const STORES = [
+        { name: "Flagship Store", address: "15 Nguyễn Huệ, P. Bến Nghé, Quận 1, TP. Hồ Chí Minh", hours: "08:00 – 21:30" },
+        { name: "Service Point", address: "236 Cách Mạng Tháng Tám, P. 10, Quận 3, TP. Hồ Chí Minh", hours: "08:00 – 21:30" }
+    ];
+    const PAYMENT_METHODS = ["Tiền mặt", "Internet Banking", "Visa", "Mastercard", "JCB"]; // biểu tượng thanh toán ở footer
+    const SHIPPING_FEE_TEXT = "30.000₫";      // phí ship hiển thị trong BAG (stylehub-common.js)
     const CART_KEYS = ["stylehub_cart_memory_v1", "stylehub_cart", "hub_cart", "cartMemoryArray", "the_style_hub_cart", "cart"];
     const CONFIG = {
         supportWriteTimeoutMs: 8000,
@@ -319,6 +327,13 @@
                 font-size: 14px;
                 font-weight: 800;
                 color: #111;
+            }
+
+            .tsh-ai-product-stat {
+                display: block;
+                margin-top: 3px;
+                font-size: 11.5px;
+                color: #4f6262;
             }
 
             .tsh-ai-product-old {
@@ -945,6 +960,39 @@
     ];
     const QUESTION_TAIL_WORDS = ["không", "ko", "k", "hông", "hok", "khum", "nhỉ", "vậy", "chưa", "sao"];
 
+    /* ---------- Thông tin cửa hàng (câu hay hỏi: địa chỉ, giờ mở cửa, hotline, thanh toán...) ---------- */
+    const SHOP_REF_TERMS = ["shop", "cửa hàng", "chi nhánh", "showroom", "store", "cơ sở", "the style hub", "style hub", "stylehub", "bên bạn", "bên em", "bên mình"];
+    const WHERE_TERMS = ["ở đâu", "chỗ nào", "nơi nào", "khu nào", "quận nào", "đâu", "where"];
+    const ADDRESS_TERMS = ["địa chỉ", "vị trí", "bản đồ", "chỉ đường", "đường đi", "google map", "address", "location"];
+    const NOT_STORE_ADDRESS_TERMS = ["đổi địa chỉ", "sửa địa chỉ", "thay địa chỉ", "thay đổi địa chỉ", "cập nhật địa chỉ", "địa chỉ giao",
+        "địa chỉ nhận", "địa chỉ email", "địa chỉ mail", "nhập địa chỉ", "địa chỉ của tôi", "địa chỉ của mình"];
+    const VISIT_TERMS = ["có cửa hàng", "có chi nhánh", "có showroom", "cửa hàng offline", "mua trực tiếp", "xem trực tiếp", "thử trực tiếp",
+        "mua tại cửa hàng", "đến cửa hàng", "tới cửa hàng", "ghé cửa hàng", "ghé shop", "đến shop", "tới shop", "qua shop", "mấy chi nhánh",
+        "bao nhiêu chi nhánh", "mấy cửa hàng", "bao nhiêu cửa hàng", "hệ thống cửa hàng"];
+    const HOURS_TERMS = ["giờ mở cửa", "mở cửa", "đóng cửa", "giờ làm việc", "giờ hoạt động", "giờ hỗ trợ", "khung giờ", "làm việc mấy giờ",
+        "làm việc tới", "làm việc đến", "mở tới", "mở đến", "có mở cửa", "mở không", "mở ko", "opening hours", "open"];
+    const WHEN_TERMS = ["mấy giờ", "giờ nào", "lúc nào", "thứ mấy", "chủ nhật", "cuối tuần", "ngày lễ", "lễ tết"];
+    const CONTACT_TERMS = ["hotline", "số điện thoại", "điện thoại", "sđt", "sdt", "số hotline", "tổng đài", "gọi điện", "gọi cho shop", "gọi shop",
+        "gọi số", "gọi số nào", "liên hệ", "liên lạc", "email", "mail", "zalo", "fanpage", "facebook", "instagram", "contact", "phone"];
+    const PAYMENT_TERMS = ["thanh toán", "trả tiền", "chuyển khoản", "quẹt thẻ", "thẻ visa", "visa", "mastercard", "jcb", "banking",
+        "internet banking", "tiền mặt", "trả góp", "momo", "zalopay", "vnpay", "payment"];
+    const VOUCHER_TERMS = ["mã giảm giá", "mã giảm", "voucher", "coupon", "mã khuyến mãi", "mã khuyến mại", "mã ưu đãi", "code giảm",
+        "code giảm giá", "nhập mã", "mã freeship", "mã free ship", "discount code", "promo code", "style10"];
+    const TRACK_TERMS = ["theo dõi đơn", "kiểm tra đơn", "tra cứu đơn", "tra đơn", "xem đơn", "xem lại đơn", "trạng thái đơn", "tình trạng đơn",
+        "đơn tới đâu", "đơn đến đâu", "đơn đi đâu", "lịch sử đơn", "lịch sử mua", "order history", "track order", "tracking"];
+    const CANCEL_TERMS = ["hủy đơn", "huỷ đơn", "hủy order", "huỷ order", "hủy đặt", "huỷ đặt", "hủy hàng", "cancel", "đổi địa chỉ",
+        "sửa địa chỉ", "thay địa chỉ", "thay đổi địa chỉ", "cập nhật địa chỉ", "đổi địa chỉ giao", "sửa đơn", "thay đổi đơn"];
+    const REVIEW_TERMS = ["đánh giá", "review", "nhận xét", "chấm sao", "viết đánh giá"];
+    const WISHLIST_TERMS = ["wishlist", "yêu thích", "lưu sản phẩm", "lưu lại", "thả tim", "trái tim", "sản phẩm đã lưu", "danh sách yêu thích"];
+    const ACCOUNT_TERMS = ["đăng ký", "đăng kí", "tạo tài khoản", "mở tài khoản", "đăng nhập", "login", "sign up", "sign in", "register", "tài khoản"];
+    const HOW_TO_ORDER_TERMS = ["cách đặt hàng", "cách mua", "cách order", "hướng dẫn mua", "hướng dẫn đặt", "đặt hàng như thế nào",
+        "đặt hàng thế nào", "đặt hàng sao", "mua như thế nào", "mua thế nào", "mua sao", "mua hàng như thế nào", "mua hàng thế nào",
+        "order như thế nào", "order thế nào", "làm sao để mua", "làm sao mua", "làm sao để đặt", "làm sao đặt", "đặt online", "mua online"];
+    const ABOUT_TERMS = ["bán gì", "bán những gì", "bán những sản phẩm gì", "có những gì", "kinh doanh gì", "giới thiệu shop", "giới thiệu về shop",
+        "giới thiệu cửa hàng", "về shop", "shop là gì", "style hub là gì", "thương hiệu nào", "thương hiệu gì", "hãng nào", "hãng gì",
+        "những hãng", "những thương hiệu", "brand nào", "brand gì", "phong cách gì", "phong cách của shop", "danh mục"];
+    const HOW_TERMS = ["làm sao", "làm thế nào", "như thế nào", "thế nào", "như nào", "cách", "ở đâu", "chỗ nào", "được không", "được ko", "có được", "hướng dẫn", "how"];
+
     const SIZE_TERMS = ["size", "cỡ", "số đo", "kích cỡ", "kích thước", "bảng size", "form"];
     const SIZE_ADVICE_TERMS = [
         "tư vấn size", "tư vấn cỡ", "chọn size", "chọn cỡ", "mặc size", "mang size", "đi size", "size nào", "size gì",
@@ -960,6 +1008,16 @@
     ];
     const STRONG_REQUEST_TERMS = ["xem", "coi", "tìm", "kiếm", "gợi ý", "mẫu", "show", "find", "mua", "có những", "có gì", "bán"];
     const GENERIC_PRODUCT_TERMS = ["mẫu", "sản phẩm", "hàng", "đồ", "item", "items", "product", "products", "quần áo"];
+
+    // Xếp hạng theo DỮ LIỆU THẬT của khách (đơn hàng, đánh giá, wishlist) — không đoán:
+    //  popular = "bán chạy / được nhiều người mua"; rated = "được đánh giá cao"; liked = "hot / nổi bật / đẹp" (tùy gu → độ yêu thích).
+    const POPULAR_BUY_TERMS = ["bán chạy", "bán chạy nhất", "bán được nhiều", "nhiều người mua", "nhiều khách mua", "nhiều bạn mua",
+        "được mua nhiều", "mua nhiều nhất", "người ta mua", "mọi người mua", "khách mua nhiều", "best seller", "bestseller"];
+    const TREND_TERMS = ["hot", "hot nhất", "hot trend", "nổi bật", "phổ biến", "xu hướng", "trending", "thịnh hành", "ưa chuộng",
+        "được ưa chuộng", "yêu thích nhất", "được yêu thích", "nhiều người thích", "nhiều người chọn", "được chọn nhiều", "popular", "most popular"];
+    const RATED_TERMS = ["đánh giá cao", "đánh giá tốt", "được đánh giá", "review tốt", "review cao", "nhiều sao", "5 sao", "năm sao",
+        "điểm cao", "được khen", "khen nhiều", "chất lượng nhất", "top rated", "best rated"];
+    const BEAUTY_TERMS = ["đẹp", "đẹp nhất", "xịn", "xịn nhất", "nên mua", "đáng mua", "chất nhất"];
     const CLOTHING_TALK_TERMS = ["quần áo", "đồ", "clothes", "clothing", "outfit", "trang phục"];
 
     const FEMALE_TERMS = ["nữ", "women", "womens", "woman", "female", "girl", "girls", "lady", "ladies", "bạn gái", "vợ", "mẹ", "con gái", "phụ nữ", "bé gái"];
@@ -1409,7 +1467,10 @@
             (sizeTalk && clothingTalk && !strongRequest)
         );
         const askSizeKind = (sizeTalk || sizeAdvice) && !shoeTalk && !clothingTalk && !measurements && !letterSize && shoeNumber === null && !footLengthCm;
+        const rank = detectRank(a);
         const wantsProducts = hasCatalogCriteria ||
+            (!!rank && rank.mode !== "liked") ||
+            (!!rank && (typeList.length > 0 || groups.size > 0 || productRequest || hasAny(a, GENERIC_PRODUCT_TERMS))) ||
             (!!budget && (productRequest || !!gender || colors.length > 0 || cheap || expensive || a.tokens.length <= 4)) ||
             ((!!gender || colors.length > 0 || cheap || expensive) && productRequest) ||
             (productRequest && hasAny(a, GENERIC_PRODUCT_TERMS));
@@ -1424,6 +1485,8 @@
             letterSize: letterSize, bareNumbers: bareNumbers, measurements: measurements, hasCatalogCriteria: hasCatalogCriteria,
             wantsShoeSize: wantsShoeSize, wantsClothingSize: wantsClothingSize, askSizeKind: askSizeKind, wantsProducts: wantsProducts,
             shipping: hasAny(a, SHIPPING_TERMS), returns: hasAny(a, RETURN_TERMS),
+            storeInfo: detectStoreInfo(a, typeList.length > 0 || groups.size > 0),
+            rank: rank,
             greeting: hasAny(a, GREETING_TERMS), thanks: hasAny(a, THANKS_TERMS),
             budget: budget || null, queryWords: queryWords
         };
@@ -1528,6 +1591,55 @@
         return !!(c.colors && c.colors.length && c.colors.some(function (def) { return def.test.test(p.name); }));
     }
 
+    /** Khách muốn xếp hạng theo độ phổ biến / đánh giá? Trả về { mode, beauty } hoặc null. */
+    function detectRank(a) {
+        const buy = hasAny(a, POPULAR_BUY_TERMS);
+        if (buy) return { mode: "popular", beauty: hasAny(a, BEAUTY_TERMS) };
+        if (hasAny(a, RATED_TERMS)) return { mode: "rated", beauty: hasAny(a, BEAUTY_TERMS) };
+        if (hasAny(a, TREND_TERMS)) return { mode: "liked", beauty: false };
+        if (hasAny(a, BEAUTY_TERMS)) return { mode: "liked", beauty: true };
+        return null;
+    }
+
+    /** Số liệu theo sản phẩm từ hệ gợi ý (máy chủ: toàn bộ khách; chế độ tĩnh: dữ liệu trên trình duyệt). */
+    function getPopularStats() {
+        try {
+            const recs = window.StyleHubRecommendations;
+            if (recs && typeof recs.popularStats === "function") {
+                const res = recs.popularStats();
+                if (res && res.items && typeof res.items === "object") return res;
+            }
+        } catch (e) {}
+        return null;
+    }
+
+    /** Điểm xếp hạng của 1 sản phẩm theo kiểu câu hỏi; null = chưa có dữ liệu phù hợp (không được xếp hạng). */
+    function rankScore(mode, st) {
+        if (!st) return null;
+        const buyers = Number(st.buyers) || 0, raters = Number(st.raters) || 0, wishers = Number(st.wishers) || 0;
+        const avg = st.ratingAvg === null || st.ratingAvg === undefined ? null : Number(st.ratingAvg);
+        const pop = Number(st.score) || 0;
+        if (mode === "popular") return buyers > 0 ? buyers * 1000 + pop : null;
+        if (mode === "rated") {
+            if (!raters || avg === null || avg < 4) return null;           // "đánh giá cao" = từ 4★ trở lên
+            return ((avg * raters + 3.5 * 2) / (raters + 2)) * 1000 + raters; // trung bình có làm mượt (ít lượt thì kéo về 3,5★)
+        }
+        // liked: tổng hợp mua + lưu + đánh giá tốt
+        const liked = buyers * 3 + wishers * 2 + (avg !== null && avg >= 4 ? raters : 0);
+        return liked > 0 ? liked * 1000 + pop : null;
+    }
+
+    function statLine(st) {
+        if (!st) return "";
+        const parts = [];
+        if (st.buyers) parts.push(`🛒 ${st.buyers} khách đã mua`);
+        if (st.raters && st.ratingAvg !== null && st.ratingAvg !== undefined) {
+            parts.push(`★ ${String(Number(st.ratingAvg).toFixed(1)).replace(".", ",")}/5 (${st.raters} đánh giá)`);
+        }
+        if (st.wishers) parts.push(`♡ ${st.wishers} lượt lưu`);
+        return parts.join(" · ");
+    }
+
     function rankProducts(list, c) {
         const scored = list.map(function (p) {
             let score = 0;
@@ -1577,7 +1689,10 @@
         const db = getDB();
         const all = Object.keys(db).map(function (id, order) {
             const item = db[id];
-            return item && typeof item === "object" && (item.name || getImage(item)) ? describeProduct(id, item, order) : null;
+            // Bỏ qua sản phẩm có ảnh chưa xác minh khớp tên (imageUnverified trong product-data.js),
+            // để không trả về ảnh nón/quần khi khách hỏi áo.
+            if (!item || typeof item !== "object" || item.imageUnverified) return null;
+            return (item.name || getImage(item)) ? describeProduct(id, item, order) : null;
         }).filter(Boolean);
 
         const inStock = all.filter(function (p) { return p.inStock; });
@@ -1587,7 +1702,23 @@
 
         const ranked = rankProducts(matches, c);
         const noSpecificType = !(c.types && c.types.size);
-        const top = diversify(ranked, limit, noSpecificType);
+        let top;
+        let rankedCount = 0;
+        if (c.rank) {
+            // Sản phẩm CÓ dữ liệu thật được xếp trước theo số liệu; còn chỗ thì bù mẫu tiêu biểu (được ghi rõ).
+            const items = (c.rank.stats && c.rank.stats.items) || {};
+            const withData = ranked.map(function (p) { return { p: p, s: rankScore(c.rank.mode, items[p.id]) }; })
+                .filter(function (x) { return x.s !== null; })
+                .sort(function (x, y) { return y.s - x.s || x.p.order - y.p.order; })
+                .map(function (x) { return x.p; });
+            top = withData.slice(0, limit);
+            rankedCount = top.length;
+            if (top.length < limit) {
+                top = top.concat(diversify(ranked.filter(function (p) { return top.indexOf(p) < 0; }), limit - top.length, noSpecificType));
+            }
+        } else {
+            top = diversify(ranked, limit, noSpecificType);
+        }
 
         let alternatives = [];
         if (!matches.length && c.budget && audienceMatched.length) {
@@ -1605,6 +1736,7 @@
 
         return {
             matches: top,
+            rankedCount: rankedCount,
             totalMatches: matches.length,
             alternatives: alternatives,
             typeAvailable: inStock.some(function (p) { return criteriaTypeMatch(p, c); }),
@@ -1629,6 +1761,7 @@
 
     function productCards(list, options) {
         const flag = options && options.flag ? `<span class="tsh-ai-product-flag">${escapeHTML(options.flag)}</span>` : "";
+        const stats = options && options.stats ? options.stats : null;
         return `<div class="tsh-ai-product-list">` + list.map(function (entry) {
             const id = entry.id;
             const item = entry.item || {};
@@ -1641,6 +1774,7 @@
                         <a class="tsh-ai-product-name" href="product-detail.html?id=${encodeURIComponent(id)}">${escapeHTML(item.name)}</a>
                         <span class="tsh-ai-product-price">${escapeHTML(item.price || (productPrice(item) ? formatVND(productPrice(item)) : ""))}</span>
                         ${oldPrice ? `<span class="tsh-ai-product-old">${escapeHTML(oldPrice)}</span>` : ""}
+                        ${stats && statLine(stats[id]) ? `<span class="tsh-ai-product-stat">${escapeHTML(statLine(stats[id]))}</span>` : ""}
                         ${flag}
                     </div>
                     <button class="tsh-ai-product-cart" type="button" data-product-id="${escapeHTML(id)}" title="Thêm vào BAG">🛒</button>
@@ -1833,7 +1967,7 @@
     }
 
     function continueFlow(ctx, ent) {
-        if (ent.shipping || ent.returns) return null;
+        if (ent.shipping || ent.returns || ent.storeInfo) return null;
         if (ctx.awaiting === "sizeKind") {
             if (ent.shoeTalk) { ctx.shoe = {}; return shoeFlowStep(ctx, ent); }
             if (ent.clothingTalk || ent.measurements) { ctx.clothing = {}; return clothingFlowStep(ctx, ent); }
@@ -1866,7 +2000,7 @@
         return `<strong class="tsh-shop-name">Chính sách giao hàng</strong>` +
             `• Giao hàng toàn quốc cho đơn đặt qua website. Đơn được xử lý trong vòng 24 giờ sau khi xác nhận (đơn ngoài giờ làm việc xử lý vào ngày làm việc tiếp theo).<br>` +
             `• Thời gian giao dự kiến: nội thành TP. Hồ Chí Minh 1–2 ngày làm việc; các tỉnh/thành phố lớn 2–4 ngày; huyện, xã hoặc vùng xa 4–7 ngày.<br>` +
-            `• Phí giao hàng hiển thị khi bạn đặt hàng và có thể thay đổi theo khu vực, khối lượng đơn hoặc chương trình ưu đãi; miễn phí vận chuyển chỉ áp dụng theo điều kiện của từng chương trình.<br>` +
+            `• Phí giao hàng hiển thị khi bạn đặt hàng và có thể thay đổi theo khu vực, khối lượng đơn hoặc chương trình ưu đãi; miễn phí vận chuyển chỉ áp dụng theo điều kiện của từng chương trình. Trên website, phí ship trong BAG hiện là ${SHIPPING_FEE_TEXT}/đơn — nhập mã <b>FREESHIP</b> khi đặt hàng để được miễn phí ship.<br>` +
             `• Khi nhận hàng, bạn kiểm tra bao bì và sản phẩm; nếu móp méo, rách, giao sai mẫu hoặc thiếu sản phẩm, liên hệ ngay hotline ${SUPPORT_HOTLINE} hoặc ${SUPPORT_EMAIL} (9:00–18:00, Thứ Hai – Chủ Nhật).` +
             `<span class="tsh-ai-support-note">Xem chi tiết: <a class="tsh-ai-link" href="shipping-policy.html">Chính sách giao hàng</a></span>`;
     }
@@ -1881,13 +2015,246 @@
     }
 
     /* =========================================================
+       THÔNG TIN CỬA HÀNG — địa chỉ, giờ mở cửa, hotline, thanh toán, mã giảm giá,
+       theo dõi / hủy đơn, đánh giá, wishlist, tài khoản, cách đặt hàng, giới thiệu shop.
+       Mọi thông tin lấy từ contact.html, about.html, footer, account.html và BAG — không tự đặt ra.
+       ========================================================= */
+
+    function hasOrderCode(a) {
+        return /\bsth\d{4,}\b/.test(a.folded);
+    }
+
+    /** Nhận diện câu hỏi thông tin cửa hàng. Trả về loại câu hỏi hoặc null. Thứ tự ưu tiên có chủ đích:
+     *  "đổi địa chỉ giao hàng" là hủy/sửa đơn (không phải hỏi địa chỉ shop), "mã freeship" là mã giảm giá
+     *  (không phải chính sách giao hàng), "đơn tới đâu rồi" là theo dõi đơn. */
+    function detectStoreInfo(a, hasProductType) {
+        if (!a.tokens.length) return null;
+        const how = hasAny(a, HOW_TERMS) || isQuestion(a);
+        const shopRef = hasAny(a, SHOP_REF_TERMS);
+        const shippingTalk = hasAny(a, SHIPPING_TERMS);
+
+        if (hasAny(a, CANCEL_TERMS)) return "cancel";
+        if (hasAny(a, TRACK_TERMS) ||
+            (hasAny(a, ["đơn hàng", "đơn của tôi", "đơn của mình", "mã đơn", "đơn mình", "đơn tôi"]) &&
+                hasAny(a, ["ở đâu", "tới đâu", "đến đâu", "đâu rồi", "sao rồi", "thế nào rồi", "giao chưa", "kiểm tra", "xem", "tra"]))) return "track";
+        if (hasAny(a, VOUCHER_TERMS) || (hasAny(a, ["freeship", "free ship"]) && hasAny(a, ["mã", "code", "nhập"]))) return "voucher";
+        if (hasAny(a, PAYMENT_TERMS)) return "payment";
+        // "áo được đánh giá cao" là tìm sản phẩm, không phải hỏi cách đánh giá.
+        if (hasAny(a, REVIEW_TERMS) && !hasAny(a, ["đánh giá cao", "đánh giá tốt", "nhiều đánh giá", "review tốt", "được đánh giá"]) &&
+            (hasAny(a, ["viết đánh giá", "chấm sao", "đánh giá được"]) || (how && !hasProductType))) return "review";
+        if (hasAny(a, WISHLIST_TERMS) && !hasProductType && (how || hasAny(a, WHERE_TERMS) || hasAny(a, ["wishlist", "xem"]))) return "wishlist";
+        if (hasAny(a, ACCOUNT_TERMS)) return "account";
+        if (hasAny(a, HOW_TO_ORDER_TERMS) && !hasProductType) return "howto";
+        if (hasAny(a, HOURS_TERMS) ||
+            (hasAny(a, WHEN_TERMS) && !shippingTalk && (shopRef || hasAny(a, ["hotline", "tổng đài", "làm việc", "hỗ trợ", "mở", "đóng"])))) return "hours";
+        if ((hasAny(a, ADDRESS_TERMS) && !hasAny(a, NOT_STORE_ADDRESS_TERMS)) || hasAny(a, VISIT_TERMS) ||
+            (shopRef && hasAny(a, WHERE_TERMS) && !shippingTalk && !hasProductType)) return "address";
+        if (hasAny(a, CONTACT_TERMS)) return "contact";
+        if (hasAny(a, ABOUT_TERMS) && !hasProductType) return "about";
+        return null;
+    }
+
+    function telLink(number) {
+        return `<a class="tsh-ai-link" href="tel:${escapeHTML(number)}">${escapeHTML(number)}</a>`;
+    }
+
+    function storeListHtml() {
+        return STORES.map(function (s) {
+            return `• <b>${escapeHTML(s.name)}</b>: ${escapeHTML(s.address)} — mở cửa ${escapeHTML(s.hours)}`;
+        }).join("<br>");
+    }
+
+    function catalogBrands() {
+        const db = getDB();
+        const counts = new Map();
+        Object.keys(db).forEach(function (id) {
+            const brand = String((db[id] && db[id].brand) || "").trim();
+            if (!brand) return;
+            const key = brand.toLowerCase();
+            const row = counts.get(key) || { n: 0, labels: new Map() };
+            row.n += 1;
+            row.labels.set(brand, (row.labels.get(brand) || 0) + 1);
+            counts.set(key, row);
+        });
+        return Array.from(counts.values()).sort(function (x, y) { return y.n - x.n; }).map(function (row) {
+            // Cùng một hãng có thể được nhập khác hoa/thường ("FEAR OF GOD" / "Fear of God"): lấy cách viết phổ biến nhất.
+            return Array.from(row.labels.entries()).sort(function (x, y) { return y[1] - x[1]; })[0][0];
+        });
+    }
+
+    function storeInfoReply(kind, a) {
+        const contactNote = `<span class="tsh-ai-support-note">Cần người thật hỗ trợ? Gọi ${telLink(SALES_HOTLINE)} hoặc nhắn “gặp nhân viên” ngay tại đây.</span>`;
+        switch (kind) {
+            case "address":
+                return {
+                    kind: "store-address",
+                    html: `<strong class="tsh-shop-name">Hệ thống cửa hàng THE STYLE HUB</strong>` + storeListHtml() +
+                        `<br>• Bạn nên gọi trước ${telLink(SALES_HOTLINE)} để shop kiểm tra sẵn mẫu và size cho bạn.` +
+                        `<br>• Mua online thì website mở 24/7 và giao hàng toàn quốc.` +
+                        `<span class="tsh-ai-support-note">Xem thêm: <a class="tsh-ai-link" href="contact.html">trang Contact</a></span>`
+                };
+            case "hours": {
+                const dayNote = hasAny(a, ["chủ nhật", "cuối tuần", "thứ mấy", "ngày lễ", "lễ tết", "tết"])
+                    ? `<br>• Lịch nghỉ lễ (nếu có) bạn gọi ${telLink(SALES_HOTLINE)} để xác nhận trước khi đến nhé.` : "";
+                return {
+                    kind: "store-hours",
+                    html: `<strong class="tsh-shop-name">Giờ mở cửa &amp; giờ hỗ trợ</strong>` +
+                        `• Cửa hàng Flagship Store (15 Nguyễn Huệ, Quận 1) và Service Point (236 Cách Mạng Tháng Tám, Quận 3): <b>08:00 – 21:30</b>` +
+                        `<br>• Hotline gọi mua ${telLink(SALES_HOTLINE)} và khiếu nại ${telLink(SUPPORT_HOTLINE)}: 08:00 – 21:30; bảo hành: 08:00 – 21:00` +
+                        `<br>• Website và mục theo dõi đơn hàng (ACCOUNT): online 24/7` + dayNote
+                };
+            }
+            case "contact":
+                return {
+                    kind: "store-contact",
+                    html: `<strong class="tsh-shop-name">Liên hệ THE STYLE HUB</strong>` +
+                        `• Gọi mua (tư vấn sản phẩm, size, tồn kho, đặt hàng nhanh): ${telLink(SALES_HOTLINE)} — 08:00 – 21:30` +
+                        `<br>• Khiếu nại (đơn hàng, vận chuyển, sản phẩm): ${telLink(SUPPORT_HOTLINE)} — 08:00 – 21:30` +
+                        `<br>• Bảo hành / đổi trả: ${telLink(SUPPORT_HOTLINE)} — 08:00 – 21:00` +
+                        `<br>• Email: <a class="tsh-ai-link" href="mailto:${SUPPORT_EMAIL}">${SUPPORT_EMAIL}</a>` +
+                        `<br>• Gửi yêu cầu bằng form trên <a class="tsh-ai-link" href="contact.html">trang Contact</a>, hoặc nhắn “gặp nhân viên” ngay tại đây để chat với shop.` +
+                        (hasAny(a, ["zalo", "fanpage", "facebook", "instagram"])
+                            ? `<br>• Các kênh hỗ trợ chính thức đang công bố trên website là hotline, email, form Contact và chat với nhân viên ở đây.` : "") +
+                        `<span class="tsh-ai-support-note">Khi liên hệ, bạn chuẩn bị mã đơn (STH…), số điện thoại đặt hàng và hình ảnh sản phẩm nếu cần kiểm tra lỗi.</span>`
+                };
+            case "payment":
+                return {
+                    kind: "store-payment",
+                    html: `<strong class="tsh-shop-name">Phương thức thanh toán</strong>` +
+                        `• Shop nhận: <b>${PAYMENT_METHODS.map(escapeHTML).join(", ")}</b> (biểu tượng ở cuối mỗi trang).` +
+                        `<br>• Đặt online: bạn chỉ cần điền thông tin giao hàng (họ tên, số điện thoại, địa chỉ, email) rồi bấm “Xác Nhận Đặt Hàng” — website không yêu cầu nhập số thẻ.` +
+                        (hasAny(a, ["trả góp", "momo", "zalopay", "vnpay"])
+                            ? `<br>• Website hiện chỉ liệt kê các phương thức trên; hình thức khác (như trả góp, ví điện tử) bạn gọi ${telLink(SALES_HOTLINE)} để hỏi trước.` : "") +
+                        `<br>• Mình không bao giờ hỏi số thẻ, mã OTP hay CVV — đừng gửi các thông tin này vào khung chat nhé.` +
+                        contactNote
+                };
+            case "voucher":
+                return {
+                    kind: "store-voucher",
+                    html: `<strong class="tsh-shop-name">Mã giảm giá</strong>` +
+                        `• <b>STYLE10</b>: giảm 10% tiền hàng.` +
+                        `<br>• <b>FREESHIP</b>: miễn phí ship (phí ship trong BAG là ${SHIPPING_FEE_TEXT}/đơn).` +
+                        `<br>• Cách dùng: mở BAG → “Đặt Hàng” → ở khung Shipping Information nhập mã vào ô “Enter discount code” → Apply. Mỗi lần áp dụng 1 mã.` +
+                        `<br>• Ngoài ra các mẫu đang giảm giá nằm ở trang <a class="tsh-ai-link" href="sale.html">Sale</a> — gõ “sản phẩm sale” để mình lọc giúp.`
+                };
+            case "track":
+                return {
+                    kind: "store-track",
+                    html: `<strong class="tsh-shop-name">Theo dõi đơn hàng</strong>` +
+                        `• Đăng nhập → bấm <a class="tsh-ai-link" href="account.html">ACCOUNT</a> trên thanh menu, đơn được chia 3 mục:` +
+                        `<br>&nbsp;&nbsp;– <b>Orders History</b>: đơn đã đặt, đang chờ xác nhận` +
+                        `<br>&nbsp;&nbsp;– <b>Shipping Orders</b>: đơn đang giao` +
+                        `<br>&nbsp;&nbsp;– <b>Cancelled Orders</b>: đơn đã hủy` +
+                        `<br>• Mã đơn có dạng <b>STH…</b> (trong Orders History hoặc email xác nhận). Mục này online 24/7.` +
+                        `<span class="tsh-ai-support-note">Cần shop kiểm tra giúp một đơn cụ thể: gọi ${telLink(SUPPORT_HOTLINE)} hoặc nhắn “gặp nhân viên” kèm mã đơn.</span>`
+                };
+            case "cancel":
+                return {
+                    kind: "store-cancel",
+                    html: `<strong class="tsh-shop-name">Hủy đơn / đổi địa chỉ giao hàng</strong>` +
+                        `• Bạn tự làm được khi đơn <b>còn chờ xác nhận</b>: vào <a class="tsh-ai-link" href="account.html">ACCOUNT</a> → Orders History → bấm “Hủy đơn” (chọn lý do) hoặc “Đổi địa chỉ”.` +
+                        `<br>• Đơn đã chuyển sang <b>Shipping Orders</b> (đang giao) thì website không cho hủy hoặc đổi địa chỉ nữa — gọi khiếu nại ${telLink(SUPPORT_HOTLINE)} để được hỗ trợ.` +
+                        `<br>• Đơn đã hủy nằm ở Cancelled Orders, bạn có thể đặt lại sau.` +
+                        `<span class="tsh-ai-support-note">Muốn shop xử lý giúp: nhắn kèm mã đơn, ví dụ “hủy đơn STH123456” — tin nhắn sẽ được chuyển cho nhân viên.</span>`
+                };
+            case "review":
+                return {
+                    kind: "store-review",
+                    html: `<strong class="tsh-shop-name">Cách đánh giá sản phẩm</strong>` +
+                        `• Đăng nhập đúng tài khoản đã đặt mua sản phẩm đó.` +
+                        `<br>• Mở trang chi tiết sản phẩm → kéo xuống mục “Đánh giá từ khách đã mua” → chọn số sao và viết nhận xét → gửi.` +
+                        `<br>• Chỉ khách đã mua mới đánh giá được, để đánh giá đáng tin cậy. Đặt hàng xong là ô đánh giá xuất hiện ngay ở sản phẩm đó.` +
+                        `<br>• Nội dung đánh giá được phân tích cảm xúc (tích cực / trung tính / tiêu cực) và kết hợp với số sao để hệ gợi ý hiểu sở thích của bạn chính xác hơn.`
+                };
+            case "wishlist":
+                return {
+                    kind: "store-wishlist",
+                    html: `<strong class="tsh-shop-name">Lưu sản phẩm yêu thích (Wishlist)</strong>` +
+                        `• Bấm biểu tượng trái tim ♡ trên ảnh sản phẩm để lưu; bấm lại để bỏ lưu.` +
+                        `<br>• Xem lại ở <a class="tsh-ai-link" href="account.html">ACCOUNT</a> → mục My Wishlist.` +
+                        `<br>• Sản phẩm bạn lưu cũng là một tín hiệu sở thích để mục “Được chọn cho bạn” gợi ý đúng gu hơn.`
+                };
+            case "account":
+                return {
+                    kind: "store-account",
+                    html: `<strong class="tsh-shop-name">Tài khoản</strong>` +
+                        `• Bấm <a class="tsh-ai-link" href="account.html">ACCOUNT</a> trên thanh menu để đăng nhập / đăng ký. Đặt hàng khi chưa có tài khoản thì website cho đăng ký nhanh ngay ở bước đặt hàng.` +
+                        `<br>• Có tài khoản bạn được: theo dõi, hủy đơn hoặc đổi địa chỉ khi đơn còn chờ xác nhận; lưu địa chỉ giao hàng; Wishlist; đánh giá sản phẩm đã mua và nhận gợi ý “Được chọn cho bạn” theo sở thích.` +
+                        `<br>• Mình không xem hay cấp lại mật khẩu trong khung chat — quên mật khẩu bạn gọi ${telLink(SALES_HOTLINE)} nhé.`
+                };
+            case "howto":
+                return {
+                    kind: "store-howto",
+                    html: `<strong class="tsh-shop-name">Cách đặt hàng online</strong>` +
+                        `1. Mở sản phẩm → chọn size và số lượng (có bảng size và số lượng còn hàng).` +
+                        `<br>2. Bấm “Add to Bag”, hoặc “Order Now” để mua ngay riêng sản phẩm đó.` +
+                        `<br>3. Mở BAG → kiểm tra → bấm “Đặt Hàng”.` +
+                        `<br>4. Điền thông tin giao hàng (họ tên, số điện thoại, địa chỉ, email), nhập mã giảm giá nếu có (STYLE10, FREESHIP) → “Xác Nhận Đặt Hàng”. Shop gửi email xác nhận đơn.` +
+                        `<br>5. Theo dõi đơn ở <a class="tsh-ai-link" href="account.html">ACCOUNT</a>. Chưa có tài khoản thì website cho đăng ký nhanh ở bước đặt hàng.` +
+                        `<span class="tsh-ai-support-note">Hoặc nói mình biết bạn cần gì (ví dụ “hoodie đen nam size L”), mình tìm mẫu còn hàng và thêm vào BAG giúp bạn.</span>`
+                };
+            case "about": {
+                const brands = catalogBrands();
+                const total = Object.keys(getDB()).length;
+                return {
+                    kind: "store-about",
+                    html: `<strong class="tsh-shop-name">Về THE STYLE HUB</strong>` +
+                        `• Cửa hàng thời trang hiện đại: đồ nam, đồ nữ, đồ trẻ em, giày và hàng sale — 5 danh mục Mens, Womens, Kids, Shoes, Sale.` +
+                        `<br>• Phong cách: tối giản, hiện đại, dễ mặc; form dễ phối, màu trung tính, hợp đi học, đi làm, đi chơi.` +
+                        (brands.length ? `<br>• Thương hiệu đang bán: <b>${brands.map(escapeHTML).join(", ")}</b>.` : "") +
+                        (total ? `<br>• Hiện có ${total} sản phẩm trên website.` : "") +
+                        `<br>• Cửa hàng: 15 Nguyễn Huệ (Quận 1) và 236 Cách Mạng Tháng Tám (Quận 3), TP. Hồ Chí Minh.` +
+                        `<span class="tsh-ai-support-note">Bạn muốn xem gì? Ví dụ: “hoodie nam”, “giày nữ dưới 3 triệu”, “sản phẩm sale”.</span>`
+                };
+            }
+            default:
+                return null;
+        }
+    }
+
+    /* =========================================================
        TRẢ LỜI GỢI Ý SẢN PHẨM
        ========================================================= */
+
+    function rankIntroHtml(rank, desc, res) {
+        const n = res.matches.length;
+        const k = res.rankedCount;
+        const d = escapeHTML(desc);
+        const what = rank.mode === "popular" ? "bán chạy" : (rank.mode === "rated" ? "được đánh giá cao" : "được yêu thích");
+        if (!k) {
+            const data = rank.mode === "rated" ? "đánh giá từ 4★ trở lên" : (rank.mode === "popular" ? "lượt mua" : "lượt mua, đánh giá hay lượt lưu");
+            return `Hệ thống chưa ghi nhận đủ ${data} của khách cho ${d} nên mình chưa thể nói mẫu nào ${what} nhất — mình không muốn đoán bừa 🙏. ` +
+                `Dưới đây là ${n} mẫu ${d} tiêu biểu còn hàng:` +
+                ` <span class="tsh-ai-muted">Khi có thêm đơn hàng và đánh giá, mình sẽ xếp hạng theo dữ liệu thật.</span>`;
+        }
+        let html;
+        if (rank.mode === "popular") {
+            html = `Đây là ${k} mẫu ${d} <b>được nhiều khách mua nhất</b>, xếp theo số khách đã đặt mua trên hệ thống:`;
+        } else if (rank.mode === "rated") {
+            html = `Đây là ${k} mẫu ${d} <b>được đánh giá cao nhất</b> (từ 4★ trở lên), xếp theo điểm sao của khách đã mua:`;
+        } else if (rank.beauty) {
+            html = `Đẹp thì tùy gu mỗi người 😊 nên mình chọn theo mức độ khách yêu thích (số người mua, đánh giá và lượt lưu). Đây là ${k} mẫu ${d} nổi bật nhất:`;
+        } else {
+            html = `Đây là ${k} mẫu ${d} <b>đang được khách quan tâm nhất</b> (số người mua, đánh giá và lượt lưu):`;
+        }
+        if (rank.beauty && rank.mode !== "liked") html = `Đẹp thì tùy gu mỗi người 😊 nên mình dựa vào lựa chọn của khách. ` + html;
+        if (k < n) html += ` <span class="tsh-ai-muted">${n - k} mẫu cuối chưa có đủ dữ liệu nên là mẫu tiêu biểu còn hàng, không phải xếp hạng.</span>`;
+        // Số liệu từ khách demo (mô phỏng) phải được ghi rõ, không trình bày như khách thật.
+        const items = (rank.stats && rank.stats.items) || {};
+        const shares = res.matches.slice(0, k).map(function (p) { return Number((items[p.id] || {}).demoShare) || 0; });
+        if (shares.length && shares.every(function (x) { return x >= 1; })) {
+            html += ` <span class="tsh-ai-muted">Lưu ý: số liệu này đến từ dữ liệu demo (khách mô phỏng) của máy chủ thử nghiệm.</span>`;
+        } else if (shares.some(function (x) { return x > 0; })) {
+            html += ` <span class="tsh-ai-muted">Lưu ý: một phần số liệu đến từ dữ liệu demo (khách mô phỏng).</span>`;
+        }
+        return html;
+    }
 
     function productReply(ctx, ent) {
         const criteria = {
             types: ent.types, groups: ent.groups, gender: ent.gender, kids: ent.kids, sale: ent.sale, budget: ent.budget,
-            colors: ent.colors, materials: ent.materials || [], sort: ent.cheap ? "asc" : (ent.expensive ? "desc" : null), words: ent.queryWords, dressShirt: ent.dressShirt
+            colors: ent.colors, materials: ent.materials || [], sort: ent.cheap ? "asc" : (ent.expensive ? "desc" : null), words: ent.queryWords, dressShirt: ent.dressShirt,
+            rank: ent.rank ? { mode: ent.rank.mode, beauty: ent.rank.beauty, stats: getPopularStats() } : null
         };
         const res = searchProducts(criteria, { limit: CONFIG.resultLimit });
         ctx.lastProducts = res.matches.map(function (p) { return p.id; });
@@ -1918,8 +2285,13 @@
 
         if (res.matches.length) {
             const desc = describeCriteria(criteria);
-            let html = `Dưới đây là ${res.matches.length} mẫu ${escapeHTML(desc)} còn hàng trong THE STYLE HUB`;
-            html += res.totalMatches > res.matches.length ? ` (có ${res.totalMatches} mẫu phù hợp, mình chọn ${res.matches.length} mẫu tiêu biểu):` : ":";
+            let html;
+            if (criteria.rank) {
+                html = rankIntroHtml(criteria.rank, desc, res);
+            } else {
+                html = `Dưới đây là ${res.matches.length} mẫu ${escapeHTML(desc)} còn hàng trong THE STYLE HUB`;
+                html += res.totalMatches > res.matches.length ? ` (có ${res.totalMatches} mẫu phù hợp, mình chọn ${res.matches.length} mẫu tiêu biểu):` : ":";
+            }
             if (criteria.colors.length) {
                 const colorText = criteria.colors.map(function (d) { return d.label; }).join(" / ");
                 html += res.colorMatches
@@ -1934,7 +2306,11 @@
                     : ` <span class="tsh-ai-muted">Chưa có mẫu chất liệu ${escapeHTML(materialText)} trong nhóm này — đây là các mẫu gần nhất.</span>`;
             }
             notes.forEach(function (n) { html += ` <span class="tsh-ai-muted">${escapeHTML(n)}</span>`; });
-            return { kind: "products", html: html + productCards(res.matches), products: res.matches.map(function (p) { return p.id; }), alternatives: [], criteria: criteria };
+            const cardStats = criteria.rank && criteria.rank.stats ? criteria.rank.stats.items : null;
+            return {
+                kind: "products", html: html + productCards(res.matches, { stats: cardStats }), products: res.matches.map(function (p) { return p.id; }),
+                alternatives: [], criteria: criteria, rankedCount: res.rankedCount
+            };
         }
 
         // Không có sản phẩm thỏa TẤT CẢ điều kiện → nói rõ, không đưa hàng sai điều kiện như thể là phù hợp.
@@ -1972,7 +2348,8 @@
         "<br>• Tìm sản phẩm theo loại, màu, nam/nữ/trẻ em, ngân sách — ví dụ: “hoodie đen nam dưới 5 triệu”" +
         "<br>• Tư vấn size quần áo và size giày" +
         "<br>• Gợi ý phối đồ, đồ đi làm / đi chơi" +
-        "<br>• Giao hàng, đổi trả, đơn hàng, gặp nhân viên hỗ trợ";
+        "<br>• Giao hàng, đổi trả, đơn hàng, gặp nhân viên hỗ trợ" +
+        "<br>• Thông tin shop: địa chỉ cửa hàng, giờ mở cửa, hotline, thanh toán, mã giảm giá, theo dõi / hủy đơn";
 
     const IDENTITY_TERMS = ["bạn là ai", "bạn là gì", "mày là ai", "em là ai", "ai tạo ra bạn", "ai làm ra bạn", "ai viết ra bạn", "bạn tên gì",
         "bạn có phải", "chatgpt", "chat gpt", "gpt", "gemini", "openai", "bạn là robot", "bạn là bot", "người thật hay", "bạn hoạt động",
@@ -2071,7 +2448,11 @@
 
     function isSensitiveRequest(text) {
         const a = analyzeText(text);
-        return a.tokens.length > 0 && hasAny(a, SENSITIVE_TERMS);
+        if (!a.tokens.length || !hasAny(a, SENSITIVE_TERMS)) return false;
+        // "Shop có nhận thanh toán bằng thẻ tín dụng không?" là hỏi phương thức thanh toán, không phải xin dữ liệu thẻ.
+        const paymentQuestion = hasAny(a, ["thanh toán", "trả tiền", "quẹt thẻ", "nhận thẻ", "chấp nhận"]) &&
+            !hasAny(a, SENSITIVE_TERMS.filter(function (t) { return t !== "thẻ tín dụng"; }));
+        return !paymentQuestion;
     }
 
     /** Câu hỏi ngoài phạm vi (không phải phép tính) — trả về reply hoặc null nếu thuộc phạm vi shop. */
@@ -2106,7 +2487,7 @@
     }
 
     const GREETING_REPLY = "Chào bạn! Mình là Stylist AI của THE STYLE HUB. Bạn muốn xem áo, quần, giày, dress shirt hay cần tư vấn size?";
-    const FALLBACK_REPLY = "Bạn muốn mình hỗ trợ gì? Mình có thể tư vấn size, gợi ý áo nam/nữ, hoodie, dress shirt, giày, sản phẩm sale (kể cả theo ngân sách, ví dụ: \"áo thun nam dưới 3 triệu\") hoặc giải đáp chính sách giao hàng / đổi trả.";
+    const FALLBACK_REPLY = "Bạn muốn mình hỗ trợ gì? Mình có thể tư vấn size, gợi ý áo nam/nữ, hoodie, dress shirt, giày, sản phẩm sale (kể cả theo ngân sách, ví dụ: \"áo thun nam dưới 3 triệu\") giải đáp chính sách giao hàng / đổi trả, hoặc thông tin shop (địa chỉ, giờ mở cửa, hotline, thanh toán, mã giảm giá, theo dõi đơn).";
 
     function computeReply(text, ctx) {
         const original = analyzeText(text);
@@ -2121,7 +2502,11 @@
         const flowReply = (ctx.flow || ctx.awaiting) ? continueFlow(ctx, ent) : null;
         if (flowReply) return flowReply;
 
-        // Hỏi xen chính sách / cảm ơn / chào: GIỮ câu hỏi size đang chờ để khách trả lời tiếp ("42").
+        // Hỏi xen chính sách / thông tin shop / cảm ơn / chào: GIỮ câu hỏi size đang chờ để khách trả lời tiếp ("42").
+        if (ent.storeInfo) {
+            const info = storeInfoReply(ent.storeInfo, a);
+            if (info) return info;
+        }
         if (ent.shipping) return { kind: "shipping", html: shippingPolicyHtml() };
         if (ent.returns) return { kind: "returns", html: returnPolicyHtml() };
 
@@ -2325,7 +2710,13 @@
     function shouldForwardToSupport(text) {
         const a = analyzeText(text);
         if (!a.tokens.length) return false;
-        if (hasAny(a, SUPPORT_TERMS) || hasAny(a, DEFECT_TERMS)) return true;
+        // Câu HỎI thông tin chung ("hủy đơn được không?", "liên hệ shop thế nào?", "làm sao để đánh giá sản phẩm?")
+        // thì chatbot trả lời ngay; chỉ chuyển nhân viên khi có mã đơn, báo lỗi hoặc là yêu cầu cụ thể.
+        if (!hasAny(a, DEFECT_TERMS) && !hasOrderCode(a) && (isQuestion(a) || hasAny(a, HOW_TERMS) || hasAny(a, ["nào", "gì", "đâu", "mấy", "bao nhiêu"])) &&
+            detectStoreInfo(a, false) && !hasAny(a, ["nhân viên", "người thật", "tư vấn viên"])) return false;
+        // "áo nào được mua nhiều nhất" là hỏi bán chạy, không phải "mua nhiều / mua sỉ".
+        const supportTerms = detectRank(a) ? SUPPORT_TERMS.filter(function (t) { return t !== "mua nhiều"; }) : SUPPORT_TERMS;
+        if (hasAny(a, supportTerms) || hasAny(a, DEFECT_TERMS)) return true;
         if (hasAny(a, RETURN_TERMS)) {
             if (hasOrderReference(a)) return true;     // có mã đơn → cần nhân viên xử lý
             if (isQuestion(a)) return false;           // hỏi chính sách → chatbot trả lời chính sách
@@ -2979,6 +3370,7 @@
                     <button data-suggest="Tư vấn size giày nam">Size giày nam</button>
                     <button data-suggest="Tôi muốn gặp nhân viên hỗ trợ">Gặp shop hỗ trợ</button>
                     <button data-suggest="Có sản phẩm sale không">Sale</button>
+                    <button data-suggest="Địa chỉ của shop ở đâu">Địa chỉ shop</button>
                 </div>
 
                 <div class="tsh-ai-selected-image" id="tshAiSelectedImage"></div>
