@@ -58,7 +58,9 @@ test('E2E chế độ tĩnh: gợi ý cục bộ, phối đồ, đánh giá, qui
         assert.match(await page.textContent('#stylehubRatingStatus'), /Đã lưu sở thích/);
         await page.goto(site.url + '/index.html', { waitUntil: 'domcontentloaded' });
         await page.waitForTimeout(1200);
-        const reasons = await page.$$eval('.sh-pick-reason', (x) => x.map((e) => e.textContent));
+        await page.waitForSelector('#shPersonalGrid .rk-hit');
+        // Sào treo đồ: lý do gợi ý của từng món nằm trong nhãn trợ năng (và hiện khi rê chuột / mở chi tiết).
+        const reasons = await page.$$eval('#shPersonalGrid .rk-hit', (x) => x.map((e) => e.getAttribute('aria-label')));
         assert.ok(reasons.some((r) => /Vì bạn vừa xem/.test(r)), 'trang chủ phản ánh sản phẩm vừa xem: ' + reasons.join(' | '));
         await page.evaluate(() => window.StyleHubStyleDNA.openQuiz());
         await page.click('.sh-quiz-chip:has-text("Nữ")');
@@ -285,4 +287,41 @@ test('E2E: khu giày trang chủ dạng vòng cung — lấy giày từ danh m�
         await browser.close();
         await site.close();
     }
+});
+
+test('E2E: "Được chọn cho bạn" là sào treo 10 món do hệ gợi ý trả về — xem chi tiết, chọn size, thêm vào BAG, đóng bằng Esc', { skip, timeout: 120000 }, async () => {
+    const site = await staticServer();
+    const browser = await playwright.chromium.launch();
+    try {
+        const { page, errors } = await newPage(browser);
+        await page.goto(site.url + '/product-detail.html?id=hoodies-3', { waitUntil: 'domcontentloaded' });
+        await page.waitForTimeout(500);
+        await page.goto(site.url + '/index.html', { waitUntil: 'domcontentloaded' });
+        await page.waitForSelector('#shPersonalGrid .rk-item');
+        const items = await page.$$eval('#shPersonalGrid .rk-hit', (els) => els.map((e) => ({ id: e.dataset.recId, rank: e.dataset.recRank, ctx: e.dataset.recContext, label: e.getAttribute('aria-label') })));
+        assert.equal(items.length, 10, 'sào treo 10 món');
+        assert.equal(new Set(items.map((x) => x.id)).size, 10, 'không trùng sản phẩm');
+        assert.deepEqual(items.map((x) => x.rank), ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9'], 'vẫn ghi thứ hạng để đo lượt bấm');
+        assert.ok(items.every((x) => /^home:/.test(x.ctx)));
+        const recIds = await page.evaluate(() => window.StyleHubRecommendations.recommendHome(10).map((r) => r.id));
+        assert.deepEqual(items.slice(0, recIds.length).map((x) => x.id), recIds, 'đúng danh sách và thứ tự của hệ gợi ý');
+        assert.ok(items.some((x) => /Vì bạn vừa xem|Hợp phong cách|khách hàng/.test(x.label)), 'có lý do gợi ý: ' + items.map((x) => x.label).join(' | '));
+
+        await page.click('#shPersonalGrid .rk-hit >> nth=0');
+        await page.waitForSelector('.rk-focus:not([hidden])');
+        assert.equal(await page.textContent('#rkFocusName'), await page.evaluate((id) => database[id].name, items[0].id));
+        assert.equal(await page.getAttribute('.rk-focus', 'role'), 'dialog');
+        await page.waitForFunction(() => document.activeElement && document.activeElement.classList.contains('rk-focus-close'));
+        assert.match(await page.getAttribute('.rk-focus .rk-btn-ghost', 'href'), new RegExp('product-detail\\.html\\?id=' + items[0].id));
+        if (await page.isDisabled('.rk-focus .rk-btn-primary')) await page.click('.rk-focus .rk-size >> nth=2');
+        await page.click('.rk-focus .rk-btn-primary');
+        assert.match(await page.textContent('.rk-focus-msg'), /Đã thêm vào BAG/);
+        assert.equal((await page.textContent('#cart-count')).trim(), '1');
+        assert.equal(await page.evaluate(() => { const it = window.StyleHubCartSync.read()[0]; return it.key || it.id; }), items[0].id);
+
+        await page.keyboard.press('Escape');
+        await page.waitForSelector('.rk-focus', { state: 'hidden' });
+        await page.waitForFunction(() => document.activeElement && document.activeElement.classList.contains('rk-hit'));
+        assert.deepEqual(errors, []);
+    } finally { await browser.close(); await site.close(); }
 });
