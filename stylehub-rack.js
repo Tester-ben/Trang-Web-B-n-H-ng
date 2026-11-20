@@ -476,7 +476,7 @@
         var resizeT = 0;
         window.addEventListener('resize', function () {
             clearTimeout(resizeT);
-            resizeT = setTimeout(function () { r.items.forEach(function (it) { layoutItem(r, it); }); updateProgress(r); }, 150);
+            resizeT = setTimeout(function () { r.items.forEach(function (it) { layoutItem(r, it); }); fitRail(r); updateProgress(r); }, 150);
         });
         document.addEventListener('visibilitychange', function () { if (document.hidden) stopBreeze(r); else if (r.visible) startBreeze(r); });
     }
@@ -603,16 +603,47 @@
         if (front) front.textContent = shortPrice(priceNum(p));
     }
 
+    /**
+     * Điểm buộc dây của giày (tỉ lệ 0..1 trên ảnh đã tách nền): giữa mặt trên của giày.
+     * Bốt cổ cao (giữa giày thấp hơn hẳn chỗ cao nhất) thì buộc ở miệng cổ bốt, để bốt không nhô lên trên thanh sào.
+     */
+    function stringAnchor(cut) {
+        return cut.ctop > 0.2 ? { x: cut.neck, top: 0 } : { x: 0.5, top: cut.ctop };
+    }
+    /** Bề rộng (px, làm tròn xuống để tổng không tràn sào) của một món khi treo nghiêng. */
+    function sidePx(r, it) { return Math.floor((it.sideW || 0) * (r.fit || 1)) + 'px'; }
+
     /** Chiều cao vùng treo đồ (px) đọc từ CSS (--rk-gh). */
     function garmentZone(r) {
         var v = parseFloat(getComputedStyle(r.root).getPropertyValue('--rk-gh'));
         return Number.isFinite(v) && v > 0 ? v : 300;
     }
-    /** Góc nghiêng khi treo (CSS --rk-turn): máy tính nghiêng nhiều, điện thoại nghiêng ít. */
+    /** Tỉ lệ bề rộng hiển thị khi treo: cos(góc nghiêng --rk-turn) × độ thu hẹp (--rk-squash). */
     function turnFactor(r) {
-        var deg = parseFloat(getComputedStyle(r.root).getPropertyValue('--rk-turn'));
-        if (!Number.isFinite(deg)) deg = 62;
-        return Math.cos(deg * Math.PI / 180);
+        var cs = getComputedStyle(r.root);
+        var deg = parseFloat(cs.getPropertyValue('--rk-turn')), sq = parseFloat(cs.getPropertyValue('--rk-squash'));
+        if (!Number.isFinite(deg)) deg = 26;
+        if (!Number.isFinite(sq)) sq = 0.74;
+        return Math.cos(deg * Math.PI / 180) * sq;
+    }
+    /** Bản đổ bóng khối cho lúc treo nghiêng: mép gần sáng nhẹ, mép xa tối dần -> áo có độ phồng. */
+    function shadedCanvas(src) {
+        var c = cloneCanvas(src), g = c.getContext('2d');
+        g.globalCompositeOperation = 'source-atop';
+        var gr = g.createLinearGradient(0, 0, c.width, 0);
+        gr.addColorStop(0, 'rgba(255,255,255,0.12)');
+        gr.addColorStop(0.2, 'rgba(255,255,255,0)');
+        gr.addColorStop(0.55, 'rgba(0,0,0,0.03)');
+        gr.addColorStop(1, 'rgba(0,0,0,0.32)');
+        g.fillStyle = gr;
+        g.fillRect(0, 0, c.width, c.height);
+        var gv = g.createLinearGradient(0, 0, 0, c.height);
+        gv.addColorStop(0, 'rgba(0,0,0,0)');
+        gv.addColorStop(0.75, 'rgba(0,0,0,0)');
+        gv.addColorStop(1, 'rgba(0,0,0,0.12)');
+        g.fillStyle = gv;
+        g.fillRect(0, 0, c.width, c.height);
+        return c;
     }
 
     function layoutItem(r, it) {
@@ -622,19 +653,20 @@
         if (cut && cut.canvas) {
             var ratio = cut.w / cut.h, t = it.attrs.type;
             if (it.kind === 'string') {
-                dw = GH * 0.62; dh = dw / ratio;
-                if (dh > GH * 0.45) { dh = GH * 0.45; dw = dh * ratio; }
+                dw = GH * 0.74; dh = dw / ratio;
+                if (dh > GH * 0.5) { dh = GH * 0.5; dw = dh * ratio; }
             } else {
-                var f = it.kind === 'clip' ? (t === 'shorts' ? 0.5 : 0.98) : (it.attrs.category === 'outerwear' ? 0.9 : (t === 'hoodie' || t === 'knit' || t === 'sweatshirt' ? 0.84 : 0.78));
+                var f = it.kind === 'clip' ? (t === 'shorts' ? 0.56 : 1) : (it.attrs.category === 'outerwear' ? 0.95 : (t === 'hoodie' || t === 'knit' || t === 'sweatshirt' ? 0.9 : 0.85));
                 dh = GH * f; dw = dh * ratio;
-                var maxW = GH * (it.kind === 'clip' ? 0.62 : 0.95);
+                var maxW = GH * (it.kind === 'clip' ? 0.66 : 1.02);
                 if (dw > maxW) { dw = maxW; dh = dw / ratio; }
             }
-            neck = it.kind === 'string' ? 0.5 : cut.neck;
-            it.node.style.setProperty('--ctop', it.kind === 'string' ? (cut.ctop * dh).toFixed(1) + 'px' : '0px');
+            var an = it.kind === 'string' ? stringAnchor(cut) : null;
+            neck = an ? an.x : cut.neck;
+            it.node.style.setProperty('--ctop', an ? (an.top * dh).toFixed(1) + 'px' : '0px');
         } else {
             // ảnh kẹp (ảnh người mẫu) hoặc thẻ tên khi ảnh lỗi
-            dh = GH * 0.66; dw = dh * 0.75;
+            dh = GH * 0.72; dw = dh * 0.75;
         }
         var cordLen = it.kind === 'string' ? Math.round(GH * 0.1) : 0;
         var node = it.node;
@@ -643,10 +675,13 @@
         node.style.setProperty('--gw', dw.toFixed(1) + 'px');
         node.style.setProperty('--gh', dh.toFixed(1) + 'px');
         node.style.setProperty('--neck-x', (neck * dw).toFixed(1) + 'px');
-        node.style.setProperty('--w-front', Math.round(dw + 18) + 'px');
-        // Bề rộng khi treo nghiêng = bề rộng thật × cos(góc nghiêng) (+ chút khoảng thở), để các món không đè nhau.
-        var side = dw * Math.max(it.kind === 'string' ? 0.5 : 0.44, turnFactor(r) * 0.94);
-        node.style.setProperty('--w-side', Math.round(Math.max(GH * 0.2, side)) + 'px');
+        it.frontW = Math.round(dw + 24);
+        node.style.setProperty('--w-front', it.frontW + 'px');
+        // Bề rộng khi treo nghiêng: bề rộng hiển thị (thu hẹp + nghiêng nhẹ) nhưng gối lên nhau ~20%,
+        // để sào trông dày đồ như sào thật mà áo vẫn đầy đặn. fitRail() co thêm nếu sào không đủ chỗ.
+        var side = dw * turnFactor(r) * (it.kind === 'string' ? 0.9 : 0.8);
+        it.sideW = Math.max(GH * 0.24, side);
+        node.style.setProperty('--w-side', sidePx(r, it));
         if (cut && cut.canvas && it.kind === 'clip') {
             node.style.setProperty('--clip-l', (cut.topL * 100).toFixed(2) + '%');
             node.style.setProperty('--clip-r', (cut.topR * 100).toFixed(2) + '%');
@@ -658,16 +693,44 @@
         }
     }
 
+    /**
+     * Co khoảng treo (cho đồ gối lên nhau nhiều hơn) để cả 10 món nằm gọn trong bề ngang màn hình,
+     * kể cả lúc một món đang được rê chuột mở rộng ra mặt trước (đồ hai bên chỉ dạt ra, không bị khuất).
+     * Chỉ co tới FIT_MIN; màn hình hẹp hơn nữa (điện thoại) thì vẫn kéo ngang như cũ.
+     */
+    var FIT_MIN = 0.74;
+    function fitRail(r) {
+        if (!r.items.length) return;
+        var cs = getComputedStyle(r.track);
+        var pad = (parseFloat(cs.paddingLeft) || 0) + (parseFloat(cs.paddingRight) || 0);
+        var gaps = (parseFloat(cs.columnGap) || 0) * (r.items.length - 1);
+        var sum = 0;
+        r.items.forEach(function (it) { sum += it.sideW || 0; });
+        var room = r.scroller.clientWidth - pad - gaps;
+        var k = sum > 0 && room > 0 ? room / sum : 1;
+        if (finePointer.matches && room > 0) r.items.forEach(function (it) {
+            var rest = sum - (it.sideW || 0);
+            if (rest > 0) k = Math.min(k, (room - (it.frontW || 0)) / rest);
+        });
+        k = clamp(k, FIT_MIN, 1);
+        if (Math.abs(k - (r.fit || 1)) < 0.005) return;
+        r.fit = k;
+        r.items.forEach(function (it) { it.node.style.setProperty('--w-side', sidePx(r, it)); });
+    }
+
     function attachVisual(r, it, res) {
         it.turn.replaceChildren();
         it.node.classList.remove('is-loading');
         if (res && res.canvas) {
             it.cut = res;
+            var side = shadedCanvas(res.canvas);
+            side.className = 'rk-garment rk-g-side';
+            side.setAttribute('aria-hidden', 'true');
             var c = cloneCanvas(res.canvas);
-            c.className = 'rk-garment';
+            c.className = 'rk-garment rk-g-front';
             c.setAttribute('aria-hidden', 'true');
             if (it.kind === 'clip') it.turn.appendChild(el('span', 'rk-clipbar'));
-            it.turn.appendChild(c);
+            it.turn.append(side, c);
             if (it.kind === 'string' && !it.hang.querySelector('.rk-cord')) it.hang.insertBefore(el('span', 'rk-cord'), it.turn);
             it.node.classList.add('is-cut');
         } else {
@@ -685,6 +748,7 @@
             it.node.classList.add('is-photo');
         }
         layoutItem(r, it);
+        fitRail(r);
         updateProgress(r);
     }
 
@@ -732,6 +796,7 @@
         r.peek.classList.remove('is-on');
         r.items = list.map(function (e, i) { return makeItem(r, e, i); });
         r.items.forEach(function (it) { r.track.appendChild(it.node); layoutItem(r, it); });
+        fitRail(r);
         r.scroller.scrollLeft = 0;
         updateProgress(r);
         r.dropped = false;
@@ -825,9 +890,10 @@
         if (!cr.width) return;
         var res = F.frontRes, kind = F.it.kind;
         var rodY = F.rod.offsetTop + F.rod.offsetHeight / 2;
-        var neck = res && res.canvas && kind !== 'string' ? res.neck : 0.5;
+        var an = res && res.canvas && kind === 'string' ? stringAnchor(res) : null;
+        var neck = an ? an.x : (res && res.canvas ? res.neck : 0.5);
         var x = cr.left - sr.left + cr.width * neck;
-        var topY = cr.top - sr.top + (res && res.canvas && kind === 'string' ? res.ctop * cr.height : 0) + (res && res.canvas ? 0 : 6);
+        var topY = cr.top - sr.top + (an ? an.top * cr.height : 0) + (res && res.canvas ? 0 : 6);
         var len = Math.max(12, Math.round(topY - rodY + 9 + 4));
         var hook = res && res.canvas && kind === 'string'
             ? svg('rk-focus-hook', 30, len, [['M15 ' + len + ' L15 18', 'rk-cordline'], ['M15 21 C15 16 9 15 9 9.5 C9 4.5 12.2 2 15.2 2 C19 2 21.6 4.6 21.6 8.4', 'rk-wire']])
@@ -936,7 +1002,7 @@
 
     /** Món đồ "bay" từ sào ra giữa màn hình (và ngược lại khi đóng). */
     function flight(it, reverse, done) {
-        var src = it.turn.firstChild;
+        var src = it.turn.querySelector('.rk-g-front') || it.turn.querySelector('.rk-photo') || it.turn.firstChild;
         var dst = F.front.firstChild;
         if (reduceMotion.matches || !src || !dst || !src.getBoundingClientRect || typeof src.animate !== 'function') {
             F.root.classList.toggle('is-flying', false);

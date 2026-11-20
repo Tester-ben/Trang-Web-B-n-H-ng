@@ -11,10 +11,11 @@
 }
 
 .rk {
-    --rk-gh: 300px;          /* chiều cao vùng treo đồ */
+    --rk-gh: clamp(240px, 22.2vw, 320px); /* chiều cao vùng treo đồ (laptop nhỏ thì đồ nhỏ lại để đủ 10 món) */
     --rk-rod-y: 40px;        /* vị trí thanh sào */
-    --rk-turn: 62deg;        /* góc nghiêng khi đồ đang treo "nhìn ngang" */
-    --rk-gap: 12px;
+    --rk-turn: 26deg;        /* góc nghiêng nhẹ khi đồ đang treo */
+    --rk-squash: .74;        /* thu hẹp khi treo (ảnh shop chụp chính diện, không có ảnh nghiêng) */
+    --rk-gap: 0px;           /* các món treo sát, gối nhẹ lên nhau */
     --rk-ink: #1b1a19;
     --rk-muted: #7b766f;
     --rk-gold: #a08463;
@@ -45,8 +46,8 @@
     width: max-content;
     min-width: 100%;
     box-sizing: border-box;
-    padding: 0 clamp(40px, 4.4vw, 64px);
-    height: calc(var(--rk-rod-y) + var(--rk-gh) * 1.2 + 34px);
+    padding: 0 clamp(32px, 3vw, 52px);
+    height: calc(var(--rk-rod-y) + var(--rk-gh) * 1.22 + 34px);
 }
 .rk-rod {
     position: absolute;
@@ -151,20 +152,24 @@
     left: calc(var(--neck-x, 0px) * -1);
     width: var(--gw, 160px);
     height: var(--gh, 220px);
-    transform: perspective(900px) rotateY(var(--rk-turn));
+    transform: perspective(1400px) rotateY(var(--rk-turn)) scaleX(var(--rk-squash));
     transform-origin: var(--neck-x, 50%) 0;
     transition: transform .75s cubic-bezier(.25, .46, .45, .94), opacity .35s ease;
 }
-.rk-item.is-live .rk-turn { transform: perspective(900px) rotateY(0deg) scale(1.03); }
+.rk-item.is-live .rk-turn { transform: perspective(1400px) rotateY(0deg) scaleX(1) scale(1.03); }
 .rk-kind-clip .rk-turn { top: 7px; }
 .rk-kind-string .rk-turn { top: calc(var(--cord, 24px) - var(--ctop, 0px)); }
 .rk-garment {
     display: block;
     width: 100%;
     height: 100%;
-    filter: drop-shadow(0 12px 14px rgba(60, 44, 26, .16));
+    filter: drop-shadow(0 12px 14px rgba(60, 44, 26, .18)) drop-shadow(-6px 0 10px rgba(60, 44, 26, .10));
     pointer-events: none;
+    transition: opacity .5s ease;
 }
+.rk-g-front { position: absolute; inset: 0; opacity: 0; }
+.rk-item.is-live .rk-g-front { opacity: 1; }
+.rk-item.is-live .rk-g-side { opacity: 0; }
 .rk-item.is-away .rk-turn { opacity: 0; }
 
 /* móc kẹp quần */
@@ -618,7 +623,7 @@ html.rk-lock { overflow: hidden; }
 
 /* ---------- điện thoại / máy tính bảng ---------- */
 @media (max-width: 860px) {
-    .rk { --rk-gh: 220px; --rk-rod-y: 34px; --rk-turn: 32deg; --rk-gap: 12px; }
+    .rk { --rk-gh: 230px; --rk-rod-y: 34px; --rk-turn: 18deg; --rk-squash: .84; --rk-gap: 0px; }
     .rk-track { padding: 0 44px; justify-content: flex-start; }
     .rk-scroller { scroll-snap-type: x proximity; }
     .rk-item { scroll-snap-align: center; }
