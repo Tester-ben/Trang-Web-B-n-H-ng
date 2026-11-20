@@ -401,9 +401,41 @@ def page_personal() -> None:
             st.info("Khách hàng chưa có hành vi nào.")
     with tab_neighbors:
         if view["neighbors"]:
-            df = pd.DataFrame(view["neighbors"]).rename(columns={"user": "Khách hàng", "sim": "Độ tương đồng (cosine)", "common": "Sản phẩm chung"})
-            show_table(df, column_config={"Độ tương đồng (cosine)": st.column_config.ProgressColumn(min_value=0.0, max_value=1.0, format="%.3f")})
-            st.caption("UserKNN: cosine trên điểm hành vi đã nén log, nhân trọng số ý nghĩa min(số sản phẩm chung, 4) / 4.")
+            def liked_text(items: list[dict]) -> str:
+                parts = []
+                for it in items:
+                    name = catalog.get(it["item"], {}).get("name", it["item"])
+                    parts.append(("✓ " if it["recommended"] else "") + f"{name} ({EVENT_LABELS.get(it['action'], it['action']).lower()})")
+                return " · ".join(parts) or "—"
+            rows = [{"Khách hàng": n["user"], "Độ tương đồng (cosine)": n["sim"], "Sản phẩm chung": n["common"],
+                     "Họ đã mua / thích mà khách này chưa có (✓ = đang được gợi ý)": liked_text(n.get("items", []))}
+                    for n in view["neighbors"]]
+            show_table(pd.DataFrame(rows), column_config={
+                "Độ tương đồng (cosine)": st.column_config.ProgressColumn(min_value=0.0, max_value=1.0, format="%.3f"),
+                "Họ đã mua / thích mà khách này chưa có (✓ = đang được gợi ý)": st.column_config.TextColumn(width="large")})
+            st.markdown(f"**Món được gợi ý ← lấy từ những khách có gu tương tự nào** "
+                        f"(trong {view.get('neighborCount', len(view['neighbors']))} khách giống nhất mà UserKNN dùng)")
+            reasons = {r["id"]: r.get("reason", "") for r in view["recommendations"]}
+            src_rows = []
+            for s in view.get("sources", []):
+                who = ", ".join(f"{u['user']} ({u['sim']:.2f}, {EVENT_LABELS.get(u['action'], u['action']).lower()})" for u in s["users"][:5])
+                more = f" … và {len(s['users']) - 5} khách khác" if len(s["users"]) > 5 else ""
+                src_rows.append({"Ảnh": catalog.get(s["item"], {}).get("image", ""), "Món được gợi ý": catalog.get(s["item"], {}).get("name", s["item"]),
+                                 "Lý do hiển thị": reasons.get(s["item"], ""), "Khách tương tự (độ tương đồng, hành vi)": who + more})
+            if src_rows:
+                show_table(pd.DataFrame(src_rows), column_config={"Ảnh": st.column_config.ImageColumn(width="small"),
+                                                                  "Khách tương tự (độ tương đồng, hành vi)": st.column_config.TextColumn(width="large")})
+                s0 = view["sources"][0]
+                u0 = s0["users"][0]
+                bought = sum(1 for u in s0["users"] if u["action"] == "purchase")
+                others = len(s0["users"]) - bought
+                st.success(f"Đọc ví dụ: “{catalog.get(s0['item'], {}).get('name', s0['item'])}” được gợi ý cho khách {view['userId']} vì "
+                           f"{bought} khách có gu tương tự đã mua món này"
+                           + (f" (thêm {others} khách khác đánh giá cao / yêu thích / thêm vào giỏ)" if others else "")
+                           + f" — giống khách {view['userId']} nhất là {u0['user']} (độ tương đồng {u0['sim']:.2f}). "
+                           "Số khách đã mua chính là con số trong cột “Lý do hiển thị”.")
+            st.caption("UserKNN: cosine trên điểm hành vi đã nén log, nhân trọng số ý nghĩa min(số sản phẩm chung, 4) / 4; "
+                       "lấy 25 khách giống nhất, gợi ý món họ mua / đánh giá cao / yêu thích mà khách này chưa có.")
         else:
             st.info("Chưa tìm được khách hàng tương tự (khách còn ít dữ liệu).")
 

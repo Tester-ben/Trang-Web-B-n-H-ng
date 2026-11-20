@@ -139,13 +139,53 @@ const handlers = {
         const history = ctx.events.filter((e) => String(e.user) === userId)
             .sort((a, b) => b.ts - a.ts).slice(0, 40)
             .map((e) => ({ item: e.item, type: e.type, value: e.value === undefined ? null : e.value, text: e.text || null, sentiment: e.sentiment === undefined ? null : e.sentiment, ts: e.ts }));
-        const neighbors = ctx.model.userNeighbors(userId).slice(0, 8).map((n) => ({ user: n.user, sim: Number(n.sim.toFixed(4)), common: n.common }));
+        const recommendations = formatRecs(ctx.model.recommend(userId, { limit, context: 'home' }));
+        // UserKNN minh bạch: với mỗi khách có gu tương tự, những món họ đã mua / đánh giá cao / yêu thích / thêm giỏ mà
+        // khách đang xem CHƯA tương tác -> chính là nguồn của gợi ý "khách hàng cùng phong cách" (món nào đang được
+        // gợi ý thì đánh dấu).
+        // "khách này chưa có" = chưa mua / chưa đánh giá (món chỉ mới xem vẫn có thể được gợi ý, giống hệ gợi ý)
+        const mine = new Set(ctx.events.filter((e) => String(e.user) === userId && ['purchase', 'rating', 'review'].includes(e.type)).map((e) => e.item));
+        const recIds = new Set(recommendations.map((r) => r.id));
+        const strength = (e) => {
+            if (e.type === 'purchase') return 4;
+            if ((e.type === 'rating' || e.type === 'review') && Number(e.value) >= 4) return 3;
+            if (e.type === 'wishlist') return 2;
+            if (e.type === 'cart') return 1;
+            return 0;
+        };
+        const ACTION = { 4: 'purchase', 3: 'rating', 2: 'wishlist', 1: 'cart' };
+        const allNeighbors = ctx.model.userNeighbors(userId); // k = 25 khách giống nhất (đúng như hệ gợi ý dùng)
+        const likedBy = new Map(); // khách -> (sản phẩm -> mức hành vi mạnh nhất)
+        allNeighbors.forEach((n) => likedBy.set(String(n.user), new Map()));
+        ctx.events.forEach((e) => {
+            const liked = likedBy.get(String(e.user));
+            if (!liked || mine.has(e.item)) return;
+            const s = strength(e);
+            if (s > (liked.get(e.item) || 0)) liked.set(e.item, s);
+        });
+        const neighbors = allNeighbors.slice(0, 8).map((n) => {
+            const items = [...likedBy.get(String(n.user)).entries()]
+                .sort((a, b) => (recIds.has(b[0]) - recIds.has(a[0])) || b[1] - a[1] || (a[0] < b[0] ? -1 : 1))
+                .slice(0, 3)
+                .map(([item, s]) => ({ item, action: ACTION[s], recommended: recIds.has(item) }));
+            return { user: n.user, sim: Number(n.sim.toFixed(4)), common: n.common, items };
+        });
+        // Chiều ngược lại: mỗi món được gợi ý đến từ những khách tương tự nào (khớp với lý do "N khách hàng cùng phong cách đã mua").
+        const sources = recommendations.map((r) => ({
+            item: r.id,
+            users: allNeighbors
+                .filter((n) => likedBy.get(String(n.user)).has(r.id))
+                .map((n) => ({ user: n.user, sim: Number(n.sim.toFixed(4)), action: ACTION[likedBy.get(String(n.user)).get(r.id)] }))
+                .sort((a, b) => b.sim - a.sim)
+        })).filter((s) => s.users.length);
         return {
             userId,
             dna: ctx.model.styleDNA(userId),
             history,
             neighbors,
-            recommendations: formatRecs(ctx.model.recommend(userId, { limit, context: 'home' }))
+            sources,
+            neighborCount: allNeighbors.length,
+            recommendations
         };
     },
 
