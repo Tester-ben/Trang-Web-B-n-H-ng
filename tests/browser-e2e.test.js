@@ -313,6 +313,9 @@ test('E2E: "Được chọn cho bạn" là sào treo 10 món do hệ gợi ý tr
         assert.equal(await page.getAttribute('.rk-focus', 'role'), 'dialog');
         await page.waitForFunction(() => document.activeElement && document.activeElement.classList.contains('rk-focus-close'));
         assert.match(await page.getAttribute('.rk-focus .rk-btn-ghost', 'href'), new RegExp('product-detail\\.html\\?id=' + items[0].id));
+        // bấm vào tên sản phẩm hoặc vào món đồ trong khung chi tiết cũng sang trang sản phẩm
+        assert.match(await page.getAttribute('.rk-focus-namelink', 'href'), new RegExp('product-detail\\.html\\?id=' + items[0].id));
+        assert.match(await page.getAttribute('.rk-focus-golink', 'href'), new RegExp('product-detail\\.html\\?id=' + items[0].id));
         if (await page.isDisabled('.rk-focus .rk-btn-primary')) await page.click('.rk-focus .rk-size >> nth=2');
         await page.click('.rk-focus .rk-btn-primary');
         assert.match(await page.textContent('.rk-focus-msg'), /Đã thêm vào BAG/);
@@ -322,6 +325,45 @@ test('E2E: "Được chọn cho bạn" là sào treo 10 món do hệ gợi ý tr
         await page.keyboard.press('Escape');
         await page.waitForSelector('.rk-focus', { state: 'hidden' });
         await page.waitForFunction(() => document.activeElement && document.activeElement.classList.contains('rk-hit'));
+        assert.deepEqual(errors, []);
+    } finally { await browser.close(); await site.close(); }
+});
+
+test('E2E: sào bỏ qua ảnh người mẫu để treo ảnh sản phẩm, món không có ảnh treo được nhường chỗ cho gợi ý kế tiếp', { skip, timeout: 120000 }, async () => {
+    const site = await staticServer();
+    const browser = await playwright.chromium.launch();
+    try {
+        const { page, errors } = await newPage(browser);
+        await page.setContent('<!doctype html><meta charset="utf-8"><link rel="stylesheet" href="' + site.url + '/stylehub-rack.css">'
+            + '<div id="host"></div><script src="' + site.url + '/product-data.js"></script><script src="' + site.url + '/stylehub-rack.js"></script>');
+        await page.waitForFunction(() => window.StyleHubRack && typeof database !== 'undefined');
+        await page.evaluate(() => {
+            // Ảnh thử: áo trên nền trơn (treo được), nửa chiếc áo (ảnh tách hỏng: lệch hẳn), ảnh người mẫu (nền không trơn).
+            const mk = (draw) => { const c = document.createElement('canvas'); c.width = 300; c.height = 380; const g = c.getContext('2d'); g.fillStyle = '#f5f5f5'; g.fillRect(0, 0, 300, 380); draw(g); return c.toDataURL('image/png'); };
+            const poly = (g, pts, color) => { g.fillStyle = color; g.beginPath(); pts.forEach((pt, i) => (i ? g.lineTo(pt[0], pt[1]) : g.moveTo(pt[0], pt[1]))); g.closePath(); g.fill(); };
+            const tee = (color) => mk((g) => poly(g, [[95, 60], [205, 60], [265, 110], [240, 150], [215, 135], [215, 330], [85, 330], [85, 135], [60, 150], [35, 110]], color));
+            const half = mk((g) => poly(g, [[150, 60], [205, 60], [265, 110], [240, 150], [215, 135], [215, 330], [150, 330]], '#2b2b2b'));
+            const photo = mk((g) => { for (let y = 0; y < 380; y += 4) for (let x = 0; x < 300; x += 4) { g.fillStyle = 'rgb(' + ((x * 7 + y * 3) % 200) + ',' + ((x * 5 + y * 11) % 180) + ',' + ((x * 13 + y * 2) % 160) + ')'; g.fillRect(x, y, 4, 4); } });
+            const entry = (id, imgs) => ({ id, product: Object.assign({}, database[id], { mainImg: imgs[0], images: imgs }), rec: { reason: 'Hợp phong cách của bạn' } });
+            window.StyleHubRack.render(document.getElementById('host'), [
+                entry('hoodies-8', [photo, tee('#2b2b2b')]),   // ảnh đầu là ảnh người mẫu -> treo ảnh thứ 2
+                entry('dress-1', [half, photo]),               // không ảnh nào treo được -> nhường chỗ
+                entry('tops-1', [tee('#3a3f46')]),
+                entry('tops-5', [tee('#5b4a3a')])              // món dự phòng (gợi ý kế tiếp)
+            ], { limit: 3 });
+        });
+        await page.waitForFunction(() => document.querySelectorAll('#host .rk-item').length === 3 && !document.querySelector('#host .rk-item.is-loading'), null, { timeout: 30000 });
+        const shown = await page.$$eval('#host .rk-item', (els) => els.map((n) => ({ id: n.querySelector('.rk-hit').dataset.recId, rank: n.querySelector('.rk-hit').dataset.recRank, img: n.dataset.img, cut: n.classList.contains('is-cut') })));
+        assert.deepEqual(shown.map((x) => x.id), ['hoodies-8', 'tops-1', 'tops-5'], 'món không treo được bị thay bằng món kế tiếp, thứ tự giữ nguyên');
+        assert.deepEqual(shown.map((x) => x.rank), ['0', '1', '2']);
+        assert.ok(shown.every((x) => x.cut), 'tất cả là đồ đã tách nền, không còn tấm ảnh');
+        assert.equal(shown[0].img, '2', 'bỏ qua ảnh người mẫu, treo ảnh sản phẩm thứ 2');
+
+        await page.click('#host .rk-hit >> nth=0');
+        await page.waitForSelector('.rk-focus:not([hidden])');
+        assert.match(await page.getAttribute('.rk-focus-namelink', 'href'), /product-detail\.html\?id=hoodies-8/);
+        assert.match(await page.getAttribute('.rk-focus-golink', 'href'), /product-detail\.html\?id=hoodies-8/);
+        assert.equal(await page.$eval('.rk-face-front', (f) => f.classList.contains('is-photo')), false, 'khung chi tiết dùng đúng ảnh sản phẩm đang treo');
         assert.deepEqual(errors, []);
     } finally { await browser.close(); await site.close(); }
 });

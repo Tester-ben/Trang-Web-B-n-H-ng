@@ -365,7 +365,7 @@
 .rk-peek.is-on .rk-peek-info { opacity: 1; transform: none; }
 .rk-peek-kicker { font-size: 10px; letter-spacing: 2.2px; text-transform: uppercase; color: var(--rk-gold); }
 .rk-peek-name {
-    font: 400 clamp(19px, 2vw, 24px)/1.2 var(--sh-editorial, Georgia, 'Times New Roman', serif);
+    font: 400 clamp(19px, 2vw, 24px)/1.2 var(--sh-editorial, 'Gelasio', 'Times New Roman', Times, serif);
     letter-spacing: -.2px;
     white-space: nowrap;
     overflow: hidden;
@@ -487,6 +487,30 @@ html.rk-lock { overflow: hidden; }
     transition: transform .8s cubic-bezier(.3, .7, .2, 1);
 }
 .rk-focus-flip.is-back { transform: rotateY(180deg); }
+/* bấm vào món đồ trong khung chi tiết -> trang sản phẩm */
+.rk-focus-golink { display: contents; color: inherit; text-decoration: none; }
+.rk-focus-golink .rk-focus-flip { cursor: pointer; }
+.rk-focus-golink .rk-face-img { transition: transform .35s ease; }
+.rk-focus-golink:hover .rk-face-img { transform: scale(1.02); }
+.rk-focus-gohint {
+    position: absolute;
+    z-index: 2;
+    top: 8px;
+    left: 14px;
+    padding: 4px 10px;
+    border-radius: 999px;
+    background: rgba(255, 255, 255, .78);
+    color: #5a554e;
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 1.2px;
+    text-transform: uppercase;
+    white-space: nowrap;
+    cursor: pointer;
+    opacity: .75;
+    transition: opacity .25s ease, background-color .25s ease, color .25s ease;
+}
+.rk-focus-golink:hover .rk-focus-gohint { opacity: 1; background: var(--rk-ink, #1b1a19); color: #fff; }
 .rk-face {
     position: absolute;
     inset: 0;
@@ -545,9 +569,21 @@ html.rk-lock { overflow: hidden; }
 .rk-focus-kicker { margin: 0; font-size: 10.5px; letter-spacing: 2.4px; text-transform: uppercase; color: #a08463; }
 .rk-focus-name {
     margin: 0;
-    font: 400 clamp(25px, 2.6vw, 34px)/1.15 var(--sh-editorial, Georgia, 'Times New Roman', serif);
+    font: 400 clamp(25px, 2.6vw, 34px)/1.15 var(--sh-editorial, 'Gelasio', 'Times New Roman', Times, serif);
     letter-spacing: -.4px;
 }
+/* tên sản phẩm bấm được -> trang sản phẩm */
+.rk-focus-namelink {
+    color: inherit;
+    text-decoration: none;
+    background: linear-gradient(currentColor, currentColor) 0 100% / 0 1px no-repeat;
+    transition: background-size .3s ease, color .2s ease;
+}
+.rk-focus-namelink:hover,
+.rk-focus-namelink:focus-visible { background-size: 100% 1px; color: #6f5a3f; outline: none; }
+.rk-focus-namelink:focus-visible { box-shadow: 0 0 0 2px #a08463; border-radius: 2px; }
+/* màn hình cảm ứng (không rê chuột): gạch chân sẵn để thấy tên bấm được */
+@media (hover: none) { .rk-focus-namelink { background-size: 100% 1px; } }
 .rk-focus-price { margin: 0; display: flex; align-items: baseline; gap: 12px; }
 .rk-focus-now { font-size: 19px; font-weight: 700; }
 .rk-focus-old { color: #9a948a; font-size: 14px; }
@@ -642,6 +678,7 @@ html.rk-lock { overflow: hidden; }
         border-radius: 0;
     }
     .rk-focus-stage { min-height: 0; height: 44dvh; padding: 54px 18px 56px; }
+    .rk-focus-gohint { display: none; }
     .rk-focus-rod { top: 28px; }
     .rk-focus-flip { height: 100%; }
     .rk-focus-info { padding: 22px 20px 28px; gap: 12px; }

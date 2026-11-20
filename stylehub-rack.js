@@ -266,9 +266,9 @@
                 if (cy > maxY) maxY = cy;
             }
         }
-        if (maxX < 0) return { photo: true };
+        if (maxX < 0) return { photo: true, plain: true };
         var bw = maxX - minX + 1, bh = maxY - minY + 1;
-        if (bw * bh < n * 0.03) return { photo: true }; // gần như không còn gì: coi là ảnh thường
+        if (bw * bh < n * 0.03) return { photo: true, plain: true }; // gần như không còn gì: coi là ảnh thường
         // Vải gần trùng màu nền bị loang mất thành nhiều sọc -> số lần đổi vải/nền trên mỗi hàng tăng vọt.
         var flips = 0, rows = 0;
         for (y = minY; y <= maxY; y += 3) {
@@ -279,7 +279,24 @@
             }
             flips += f2; rows++;
         }
-        if (rows && flips / rows > 7) return { photo: true, broken: true };
+        if (rows && flips / rows > 7) return { photo: true, broken: true, plain: true };
+
+        // 3b) Số đo hình dáng để nhận ra ảnh tách hỏng (áo trắng trên nền trắng bị ăn mất một nửa) hay ảnh người mẫu
+        //     đứng trên nền trắng: độ phủ trong khung, tỉ lệ ngang/dọc, độ đối xứng trái-phải, bề rộng phần trên cùng.
+        var on2 = 0, inter = 0, uni = 0, maxExt = 0, topExt = 0, topRows = Math.max(2, Math.round(bh * 0.08));
+        for (y = minY; y <= maxY; y++) {
+            var row = y * w, a0 = -1, a1 = -1;
+            for (x = minX; x <= maxX; x++) {
+                var o3 = p[(row + x) * 4 + 3] > 80, m3 = p[(row + (minX + maxX - x)) * 4 + 3] > 80;
+                if (o3) { on2++; if (a0 < 0) a0 = x; a1 = x; }
+                if (o3 && m3) inter++;
+                if (o3 || m3) uni++;
+            }
+            var ext = a0 < 0 ? 0 : a1 - a0 + 1;
+            if (ext > maxExt) maxExt = ext;
+            if (y - minY < topRows && ext > topExt) topExt = ext;
+        }
+        var quality = { fill: on2 / (bw * bh), aspect: bw / bh, sym: uni ? inter / uni : 0, head: maxExt ? topExt / maxExt : 1 };
 
         // 4) Điểm treo: tâm phần trên cùng (cổ áo / cạp quần / cổ giày) và bề rộng phần đó.
         var band = Math.max(2, Math.round(bh * 0.035)), sumX = 0, cnt = 0, topL = maxX, topR = minX;
@@ -307,8 +324,56 @@
             canvas: out, w: bw, h: bh,
             neck: cnt ? (sumX / cnt - minX) / bw : 0.5,
             ctop: ctop < bh ? ctop / bh : 0,
-            topL: (topL - minX) / bw, topR: (topR - minX) / bw
+            topL: (topL - minX) / bw, topR: (topR - minX) / bw,
+            q: quality
         };
+    }
+
+    /**
+     * Ảnh tách nền có dùng được để treo không. Quần áo chụp chính diện thì gần đối xứng trái-phải; ảnh bị ăn mất
+     * một mảng (áo trắng trên nền trắng) lệch hẳn, ảnh người mẫu nền trắng thì cao gầy và có đầu nhỏ ở trên cùng.
+     * Giày chụp nghiêng nên không xét đối xứng.
+     */
+    function usable(res, kind) {
+        if (!res || !res.canvas) return false;
+        var q = res.q;
+        if (!q) return true;
+        if (q.fill < 0.3) return false;
+        if (kind === 'string') return true;
+        return q.aspect >= 0.4 && q.sym >= 0.74 && !(q.aspect < 0.62 && q.head < 0.36);
+    }
+    var MAX_TRY = 4; // số ảnh tối đa thử cho mỗi sản phẩm
+
+    /**
+     * Chọn ảnh để treo: thử lần lượt các ảnh của sản phẩm (ảnh đầu thường là ảnh người mẫu), lấy ảnh đầu tiên
+     * tách nền sạch. Không có ảnh nào -> ok: false kèm ảnh dự phòng (ưu tiên ảnh chụp sản phẩm trên nền trơn).
+     * skip: chỉ số ảnh bỏ qua (mặt sau trong khung chi tiết khác mặt trước).
+     */
+    function pickVisual(it, width, maxH, skip) {
+        var urls = imagesOf(it.product).slice(0, MAX_TRY);
+        var i = 0, first = null, plain = null, loaded = 0;
+        return new Promise(function (resolve) {
+            var step = function () {
+                if (i >= urls.length) {
+                    var fb = plain || first;
+                    resolve({ ok: false, res: fb, idx: fb ? fb.idx : -1, loaded: loaded });
+                    return;
+                }
+                var idx = i++;
+                if (idx === skip) { step(); return; }
+                getCutout(urls[idx], width, maxH).then(function (res) {
+                    if (!res.failed) loaded++;
+                    if (usable(res, it.kind)) { resolve({ ok: true, res: res, idx: idx, loaded: loaded }); return; }
+                    if (!res.failed && res.img) {
+                        var ph = { photo: true, img: res.img, idx: idx };
+                        if (!first) first = ph;
+                        if (!plain && (res.plain || res.canvas)) plain = ph;
+                    }
+                    step();
+                });
+            };
+            step();
+        });
     }
 
     var cutCache = new Map();
@@ -319,7 +384,7 @@
         if (!cutCache.has(key)) {
             cutCache.set(key, loadImage(src).then(function (img) {
                 var r = cutoutImage(img, maxH);
-                if (r.photo) r.img = img;
+                r.img = img;
                 return r;
             }, function () { return { failed: true }; }));
         }
@@ -721,6 +786,7 @@
     function attachVisual(r, it, res) {
         it.turn.replaceChildren();
         it.node.classList.remove('is-loading');
+        it.vis = res || null;
         if (res && res.canvas) {
             it.cut = res;
             var side = shadedCanvas(res.canvas);
@@ -759,10 +825,16 @@
         var next = function () {
             var it = queue.shift();
             if (!it) return;
-            var url = imagesOf(it.product)[0];
-            if (!url) { attachVisual(r, it, null); setTimeout(next, 0); return; }
-            getCutout(url, RAIL_IMG_W, maxH).then(function (res) {
-                try { if (it.alive) attachVisual(r, it, res.failed ? null : res); }
+            pickVisual(it, RAIL_IMG_W, maxH).then(function (pick) {
+                if (!it.alive) { setTimeout(next, 0); return; }
+                // Không ảnh nào của món này treo được (áo trắng chụp trên nền trắng...): nhường chỗ cho món
+                // gợi ý kế tiếp của hệ gợi ý, thứ tự gợi ý giữ nguyên. Hết món dự phòng thì mới dùng ảnh chụp.
+                // (mất mạng, không tải được ảnh nào: giữ nguyên món, đổi món khác cũng không hơn)
+                var spare = pick.ok || !pick.loaded ? null : replaceWithSpare(r, it);
+                if (spare) { queue.unshift(spare); setTimeout(next, 0); return; }
+                it.imgIdx = pick.idx;
+                it.node.setAttribute('data-img', String(pick.idx + 1)); // ảnh thứ mấy của sản phẩm đang được treo
+                try { attachVisual(r, it, pick.res); }
                 catch (e) { try { attachVisual(r, it, null); } catch (e2) { /* bỏ qua */ } }
                 setTimeout(next, 0);
             });
@@ -771,21 +843,56 @@
         next(); next();
     }
 
+    /** Gỡ món không treo được, thêm món dự phòng kế tiếp vào cuối sào (giữ đúng thứ tự gợi ý). */
+    function replaceWithSpare(r, it) {
+        if (!r.spares || !r.spares.length) return null;
+        if (F && !F.root.hidden && F.it === it) return null;
+        var entry = r.spares.shift();
+        var at = r.items.indexOf(it);
+        if (at < 0) return null;
+        it.alive = false;
+        if (r.live === it) setLive(r, null);
+        it.node.remove();
+        r.items.splice(at, 1);
+        var ni = makeItem(r, entry, r.items.length);
+        r.items.push(ni);
+        r.track.appendChild(ni.node);
+        layoutItem(r, ni);
+        reindex(r);
+        fitRail(r);
+        updateProgress(r);
+        if (r.dropped) setTimeout(function () { if (ni.alive) ni.node.classList.remove('is-pre'); }, 60);
+        return ni;
+    }
+    /** Đánh lại số thứ tự (thẻ giá mặt sau, data-rec-rank, phím mũi tên) theo vị trí trên sào. */
+    function reindex(r) {
+        r.items.forEach(function (it, i) {
+            it.rank = i;
+            it.hit.setAttribute('data-rec-rank', String(i));
+            var back = it.tag.querySelector('.rk-tag-back');
+            if (back) back.textContent = '#' + String(i + 1).padStart(2, '0');
+        });
+    }
+
     /**
      * Vẽ (hoặc cập nhật) sào treo.
      * entries: [{ id, product, rec }] theo đúng thứ tự gợi ý; rec = kết quả của hệ gợi ý (có reason) hoặc null.
+     * opts.limit: số món treo (mặc định: tất cả). Các món sau đó là dự phòng, chỉ dùng khi một món không có ảnh treo được.
      */
-    function render(host, entries) {
+    function render(host, entries, opts) {
         if (!host) return null;
         // Đang mở khung chi tiết (ví dụ vừa thêm vào BAG làm gợi ý thay đổi): cập nhật sào sau khi đóng khung.
-        if (F && !F.root.hidden) { pending = { host: host, entries: entries }; return rack; }
+        if (F && !F.root.hidden) { pending = { host: host, entries: entries, opts: opts }; return rack; }
         if (!rack || rack.host !== host || !host.contains(rack.root)) rack = build(host);
         var r = rack;
         var list = (entries || []).filter(function (e) { return e && e.id && e.product; });
-        var signature = list.map(function (e) { return e.id; }).join('|');
+        var limit = opts && opts.limit > 0 ? Math.floor(opts.limit) : list.length;
+        var signature = limit + ':' + list.map(function (e) { return e.id; }).join('|');
         if (signature === r.signature) {
             // Cùng danh sách: chỉ cập nhật lý do gợi ý / giá, không làm rơi lại đồ.
-            r.items.forEach(function (it, i) { it.rec = list[i].rec || null; it.product = list[i].product; updateLabels(it); });
+            var byId = {};
+            list.forEach(function (e) { byId[e.id] = e; });
+            r.items.forEach(function (it) { var e = byId[it.id]; if (e) { it.rec = e.rec || null; it.product = e.product; updateLabels(it); } });
             if (r.live) showPeek(r, r.live);
             return r;
         }
@@ -794,7 +901,8 @@
         swingers = swingers.filter(function (s) { return s.alive; });
         r.live = null;
         r.peek.classList.remove('is-on');
-        r.items = list.map(function (e, i) { return makeItem(r, e, i); });
+        r.spares = list.slice(limit);
+        r.items = list.slice(0, limit).map(function (e, i) { return makeItem(r, e, i); });
         r.items.forEach(function (it) { r.track.appendChild(it.node); layoutItem(r, it); });
         fitRail(r);
         r.scroller.scrollLeft = 0;
@@ -826,15 +934,23 @@
         var front = el('div', 'rk-face rk-face-front');
         var back = el('div', 'rk-face rk-face-back');
         flip.append(front, back);
+        // Bấm vào món đồ cũng sang trang sản phẩm (bàn phím / trình đọc màn hình dùng tên sản phẩm hoặc nút "Xem chi tiết").
+        var golink = el('a', 'rk-focus-golink');
+        golink.tabIndex = -1;
+        golink.setAttribute('aria-hidden', 'true');
+        golink.title = 'Xem trang sản phẩm';
+        golink.append(flip, el('span', 'rk-focus-gohint', 'Xem trang sản phẩm ↗'));
         var views = el('div', 'rk-focus-views');
         var vf = el('button', 'is-on', 'Mặt trước'); vf.type = 'button'; vf.setAttribute('aria-pressed', 'true');
         var vb = el('button', '', 'Mặt sau'); vb.type = 'button'; vb.setAttribute('aria-pressed', 'false');
         views.append(vf, vb);
-        stage.append(rod, flip, views);
+        stage.append(rod, golink, views);
 
         var info = el('div', 'rk-focus-info');
         var kicker = el('p', 'rk-focus-kicker');
         var name = el('h3', 'rk-focus-name'); name.id = 'rkFocusName';
+        var nameLink = el('a', 'rk-focus-namelink');
+        name.appendChild(nameLink);
         var priceRow = el('p', 'rk-focus-price');
         var why = el('p', 'rk-focus-why');
         var sizeTitle = el('p', 'rk-focus-label', 'Chọn size');
@@ -853,8 +969,8 @@
         root.append(bg, panel);
         doc.body.appendChild(root);
 
-        F = { root: root, bg: bg, panel: panel, close: close, stage: stage, rod: rod, flip: flip, front: front, back: back, views: views, vf: vf, vb: vb, hook: null, frontRes: null,
-            kicker: kicker, name: name, priceRow: priceRow, why: why, sizeTitle: sizeTitle, sizes: sizes, add: add, detail: detail, msg: msg,
+        F = { root: root, bg: bg, panel: panel, close: close, stage: stage, rod: rod, flip: flip, golink: golink, front: front, back: back, views: views, vf: vf, vb: vb, hook: null, frontRes: null,
+            kicker: kicker, name: name, nameLink: nameLink, priceRow: priceRow, why: why, sizeTitle: sizeTitle, sizes: sizes, add: add, detail: detail, msg: msg,
             it: null, r: null, size: null, opener: null, token: 0 };
 
         close.addEventListener('click', closeFocus);
@@ -901,7 +1017,7 @@
         hook.classList.add('rk-focus-hook');
         hook.style.left = (x - 15) + 'px';
         hook.style.top = (rodY - 9) + 'px';
-        stage.insertBefore(hook, F.flip);
+        stage.insertBefore(hook, F.golink);
         F.hook = hook;
     }
 
@@ -929,7 +1045,7 @@
         F.msg.textContent = '';
         F.msg.className = 'rk-focus-msg';
         F.kicker.textContent = (p.brand || 'THE STYLE HUB') + ' · ' + (isPersonal(it) ? 'Gợi ý #' + String(it.rank + 1).padStart(2, '0') + ' dành cho bạn' : 'Khám phá thêm');
-        F.name.textContent = p.name || '';
+        F.nameLink.textContent = p.name || '';
         F.priceRow.replaceChildren(el('span', 'rk-focus-now', formatVND(priceNum(p))));
         if (p.oldPrice) F.priceRow.appendChild(el('s', 'rk-focus-old', p.oldPrice));
         F.why.replaceChildren();
@@ -956,21 +1072,28 @@
         F.add.dataset.available = available ? '1' : '0';
         syncActions();
 
-        // mặt trước: dùng ngay ảnh trên sào, rồi thay bằng ảnh nét hơn
+        // mặt trước: dùng ngay đúng ảnh đang treo trên sào, rồi thay bằng bản nét hơn của chính ảnh đó
         F.frontRes = it.cut || null;
-        fillFace(F.front, it.cut || null, (p.name || '') + ' — mặt trước');
+        fillFace(F.front, it.cut || it.vis || null, (p.name || '') + ' — mặt trước');
         F.back.replaceChildren();
         setFace(false);
         var imgs = imagesOf(p);
+        var frontIdx = it.imgIdx >= 0 ? it.imgIdx : 0;
         F.views.hidden = imgs.length < 2;
         var maxH = clamp(Math.round(window.innerHeight * 0.72 * Math.min(2, window.devicePixelRatio || 1)), 500, 1300);
-        if (imgs[0]) getCutout(imgs[0], FOCUS_IMG_W, maxH).then(function (res) {
+        if (imgs[frontIdx]) getCutout(imgs[frontIdx], FOCUS_IMG_W, maxH).then(function (res) {
             if (F.token !== token || res.failed) return;
-            F.frontRes = res.canvas ? res : F.frontRes;
-            fillFace(F.front, res, (p.name || '') + ' — mặt trước');
+            // món treo bằng ảnh tách nền: chỉ thay khi bản nét hơn vẫn tách sạch; món treo bằng ảnh chụp: hiện ảnh chụp
+            var good = it.cut ? (usable(res, it.kind) ? res : null) : { photo: true, img: res.img };
+            if (!good) return;
+            if (good.canvas) F.frontRes = good;
+            fillFace(F.front, good, (p.name || '') + ' — mặt trước');
             if (F.root.classList.contains('is-in')) placeFocusHook();
         });
-        if (imgs[1]) getCutout(imgs[1], FOCUS_IMG_W, maxH).then(function (res) { if (F.token === token) fillFace(F.back, res.failed ? null : res, (p.name || '') + ' — mặt sau'); });
+        // mặt sau: ảnh khác của cùng sản phẩm, ưu tiên ảnh tách nền sạch (không lấy ảnh người mẫu nếu có ảnh sản phẩm)
+        if (imgs.length > 1) pickVisual(it, FOCUS_IMG_W, maxH, frontIdx).then(function (pick) {
+            if (F.token === token) fillFace(F.back, pick.res, (p.name || '') + ' — mặt sau');
+        });
 
         F.root.hidden = false;
         doc.documentElement.classList.add('rk-lock');
@@ -988,6 +1111,8 @@
         F.add.disabled = !available || !F.size;
         F.add.textContent = !available ? 'Tạm hết hàng' : (F.size ? 'Thêm vào BAG · size ' + F.size : 'Chọn size để thêm vào BAG');
         F.detail.href = 'product-detail.html?id=' + encodeURIComponent(it.id) + (F.size ? '&size=' + encodeURIComponent(F.size) : '');
+        F.nameLink.href = F.detail.href;
+        F.golink.href = F.detail.href;
     }
 
     /** Khung thật của ảnh bên trong phần tử dùng object-fit: contain. */
@@ -1050,7 +1175,7 @@
             if (pending) {
                 var job = pending; pending = null;
                 var keepId = it && it.id;
-                render(job.host, job.entries);
+                render(job.host, job.entries, job.opts);
                 var again = rack && rack.items.filter(function (x) { return x.id === keepId; })[0];
                 if (again && doc.activeElement === doc.body) again.hit.focus({ preventScroll: true });
             }

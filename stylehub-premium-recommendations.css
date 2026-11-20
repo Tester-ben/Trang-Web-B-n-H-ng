@@ -4,7 +4,7 @@
 #relatedProductsSection .related-products-header::before{content:"";position:absolute;z-index:-1;top:-190px;left:50%;width:680px;height:410px;transform:translateX(-50%);background:radial-gradient(ellipse,rgba(222,197,160,.34),transparent 67%);pointer-events:none}
 #relatedProductsSection .sh-recommend-eyebrow{display:flex;align-items:center;justify-content:center;gap:12px;font-size:10px;letter-spacing:3.3px;color:#95754d;font-weight:700;text-transform:uppercase;margin-bottom:20px}
 #relatedProductsSection .sh-recommend-eyebrow::before,#relatedProductsSection .sh-recommend-eyebrow::after{content:"";width:27px;height:1px;background:#b8a07f}
-#relatedProductsSection .related-products-header h2{font-family:Georgia,'Times New Roman',serif;font-size:clamp(30px,4.5vw,52px);line-height:1.1;letter-spacing:-1.4px;text-transform:none;font-weight:400;margin:0 0 16px;color:#201f1e}
+#relatedProductsSection .related-products-header h2{font-family:'Gelasio','Times New Roman',Times,serif;font-size:clamp(30px,4.5vw,52px);line-height:1.1;letter-spacing:-1.4px;text-transform:none;font-weight:400;margin:0 0 16px;color:#201f1e}
 #relatedProductsSection .related-products-header h2 em{font-weight:400;color:#9c7952}
 #relatedProductsSection .related-title-line{height:1px;width:94px;background:#cdbfae;border-radius:0}
 #relatedProductsSection .related-title-line::after{height:3px;width:29px;top:-1px;background:#ac8760;border-radius:1px}

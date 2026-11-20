@@ -183,21 +183,36 @@
           description.textContent = 'Tuyển chọn riêng cho bạn từ phong cách và những thiết kế bạn đã quan tâm.';
         }
       }
+      // Món dùng để bù khi hệ gợi ý trả về chưa đủ: có ảnh đã kiểm tra và còn hàng.
+      const canFill = key => {
+        if (!database[key] || database[key].imageUnverified) return false;
+        if (window.StyleHubProductAdmin && typeof window.StyleHubProductAdmin.getAdminStockInfo === 'function') {
+          try { if (window.StyleHubProductAdmin.getAdminStockInfo(key).status === 'out') return false; }
+          catch (_) { return false; }
+        }
+        return true;
+      };
       if (selected.length < LIMIT) {
         for (const key of keys) {
           if (selected.includes(key) || selected.length >= LIMIT) continue;
-          if (database[key] && database[key].imageUnverified) continue;
-          if (window.StyleHubProductAdmin && typeof window.StyleHubProductAdmin.getAdminStockInfo === 'function') {
-            try { if (window.StyleHubProductAdmin.getAdminStockInfo(key).status === 'out') continue; }
-            catch (_) { continue; }
-          }
+          if (!canFill(key)) continue;
           selected.push(key);
         }
       }
 
       if (rackApi) {
         // Cùng danh sách gợi ý, chỉ đổi cách trình bày: treo trên sào, có lý do gợi ý cho từng món.
-        rackApi.render(grid, selected.map(key => ({ id: key, product: database[key], rec: ranked.find(item => item.id === key) || null })));
+        // Kèm vài món dự phòng = các gợi ý kế tiếp của chính hệ gợi ý; sào chỉ dùng tới khi một món không có ảnh
+        // nào treo được (áo trắng chụp trên nền trắng), để sào luôn là đồ thật chứ không phải tấm ảnh.
+        const SPARE = 6;
+        const more = recommender && typeof recommender.recommendHome === 'function' ? recommender.recommendHome(LIMIT + SPARE) : [];
+        const spares = [...new Set(more.map(item => item.id).filter(key => database[key] && !selected.includes(key)))].slice(0, SPARE);
+        for (const key of keys) {
+          if (spares.length >= SPARE) break;
+          if (!selected.includes(key) && !spares.includes(key) && canFill(key)) spares.push(key);
+        }
+        const recOf = key => ranked.find(item => item.id === key) || more.find(item => item.id === key) || null;
+        rackApi.render(grid, selected.concat(spares).map(key => ({ id: key, product: database[key], rec: recOf(key) })), { limit: LIMIT });
       } else {
       grid.replaceChildren();
       selected.forEach((key, index) => {
