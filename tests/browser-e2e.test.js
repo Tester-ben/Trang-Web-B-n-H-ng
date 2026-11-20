@@ -408,3 +408,50 @@ test('E2E: Admin xóa sản phẩm tự thêm (link ảnh hỏng) -> không còn
         assert.deepEqual(errors, []);
     } finally { await browser.close(); await site.close(); }
 });
+
+test('E2E: tách nền sào treo — bỏ bóng đổ/viền sáng quanh áo tối, không gặm mép áo sáng, loại áo trắng trên nền trắng', { skip, timeout: 120000 }, async () => {
+    const site = await staticServer();
+    const browser = await playwright.chromium.launch();
+    try {
+        const { page, errors } = await newPage(browser);
+        await page.setContent('<!doctype html><meta charset="utf-8"><script src="' + site.url + '/stylehub-rack.js"></script>');
+        await page.waitForFunction(() => window.StyleHubRack && window.StyleHubRack._cutout);
+        const r = await page.evaluate(async () => {
+            const W = 300, H = 380, BG = 245;
+            const POLY = [[95, 60], [205, 60], [265, 110], [240, 150], [215, 135], [215, 330], [85, 330], [85, 135], [60, 150], [35, 110]];
+            let seed = 7;
+            const rand = () => { seed = (seed * 16807) % 2147483647; return seed / 2147483647; };
+            const path = (g, dx, dy) => { g.beginPath(); POLY.forEach((pt, i) => (i ? g.lineTo(pt[0] + dx, pt[1] + dy) : g.moveTo(pt[0] + dx, pt[1] + dy))); g.closePath(); };
+            const base = () => { const c = document.createElement('canvas'); c.width = W; c.height = H; const g = c.getContext('2d'); g.fillStyle = 'rgb(' + BG + ',' + BG + ',' + BG + ')'; g.fillRect(0, 0, W, H); return { c, g }; };
+            // vải có vân: mỗi điểm trong áo lấy độ sáng = f(x) + nhiễu
+            const textured = (lum) => {
+                const { c, g } = base();
+                const m = document.createElement('canvas'); m.width = W; m.height = H; const mg = m.getContext('2d'); mg.fillStyle = '#000'; path(mg, 0, 0); mg.fill();
+                const mk = mg.getImageData(0, 0, W, H).data, img = g.getImageData(0, 0, W, H), d = img.data;
+                for (let i = 0; i < W * H; i++) if (mk[i * 4 + 3] > 127) { const v = Math.round(lum(i % W) + (rand() - 0.5) * 8); d[i * 4] = v; d[i * 4 + 1] = v; d[i * 4 + 2] = v - 2; }
+                g.putImageData(img, 0, 0);
+                return c;
+            };
+            const cut = (c) => new Promise((ok) => { const im = new Image(); im.onload = () => ok(window.StyleHubRack._cutout(im, 640)); im.src = c.toDataURL('image/png'); });
+
+            // 1) áo tối + bóng đổ mềm, rộng, lệch phải-dưới + viền sáng 1 px quanh áo (ảnh shop hay có)
+            const dark = base();
+            dark.g.save(); dark.g.filter = 'blur(7px)'; dark.g.fillStyle = 'rgb(205,205,205)'; path(dark.g, 9, 5); dark.g.fill(); dark.g.restore();
+            dark.g.fillStyle = '#222'; path(dark.g, 0, 0); dark.g.fill();
+            dark.g.strokeStyle = '#fbfbfb'; dark.g.lineWidth = 1.5; path(dark.g, 0, 0); dark.g.stroke();
+            const a = await cut(dark.c);
+            // 2) áo xám sáng có vân: nửa trái được chiếu sáng, chỉ chênh nền 3–9 mức
+            const b = await cut(textured((x) => (x < 150 ? 239 : 229)));
+            // 3) áo trắng trên nền trắng
+            const c = await cut(textured(() => 243));
+            const pick = (res) => (res.canvas ? { w: res.w, h: res.h, sym: res.q.sym, fill: res.q.fill, contrast: res.q.contrast } : { photo: true });
+            return { dark: pick(a), light: pick(b), white: pick(c) };
+        });
+        // áo thật rộng 231 px, cao 271 px
+        assert.ok(r.dark.w <= 236 && r.dark.h <= 276, 'bóng đổ bên phải không bị tính là áo: ' + JSON.stringify(r.dark));
+        assert.ok(r.dark.sym >= 0.95, 'áo tối giữ đối xứng: ' + JSON.stringify(r.dark));
+        assert.ok(r.light.w >= 226 && r.light.sym >= 0.9, 'mép áo sáng phía được chiếu sáng không bị gặm: ' + JSON.stringify(r.light));
+        assert.ok(r.white.photo || r.white.contrast < 10, 'áo trắng trên nền trắng bị nhận ra (không treo): ' + JSON.stringify(r.white));
+        assert.deepEqual(errors, []);
+    } finally { await browser.close(); await site.close(); }
+});

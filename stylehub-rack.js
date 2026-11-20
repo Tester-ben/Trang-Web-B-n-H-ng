@@ -134,18 +134,49 @@
         }
         if (near / rs.length < 0.9 || (br + bgc + bb) / 3 < 200) return { photo: true };
 
-        // 2) Loang từ mép ảnh: điểm giống màu nền và nối liền với mép -> nền.
-        var diff = new Uint8Array(n), L = new Uint8Array(n), G = new Uint8Array(n);
+        // 2) Loang từ mép ảnh, hai ngưỡng: chỉ loang qua điểm gần như TRÙNG màu nền (nhiễu JPEG của nền phẳng), rồi
+        //    mới ăn thêm tối đa 2 px sát áo: điểm hơi lệch nền hoặc viền sáng hơn nền. Vải sáng (be, xám nhạt) chỉ
+        //    chênh nền vài mức vì vậy không bị loang ăn sâu thành mép rách.
+        var diff = new Uint8Array(n), L = new Uint8Array(n), G = new Uint8Array(n), bright = new Uint8Array(n);
         for (i = 0; i < n; i++) {
-            var o = i * 4;
-            L[i] = (p[o] + p[o + 1] + p[o + 2]) / 3;
-            G[i] = Math.max(p[o], p[o + 1], p[o + 2]) - Math.min(p[o], p[o + 1], p[o + 2]) <= 8 ? 1 : 0;
-            // Viền trắng sót lại quanh áo trong ảnh gốc (sáng hơn cả nền) cũng tính là nền nếu nối liền với nền.
-            if (p[o] >= br - 1 && p[o + 1] >= bgc - 1 && p[o + 2] >= bb - 1) { diff[i] = 0; continue; }
-            diff[i] = Math.min(255, Math.max(Math.abs(p[o] - br), Math.abs(p[o + 1] - bgc), Math.abs(p[o + 2] - bb)));
+            var o = i * 4, cr = p[o], cg = p[o + 1], cb = p[o + 2];
+            L[i] = (cr + cg + cb) / 3;
+            var cmx = cr > cg ? (cr > cb ? cr : cb) : (cg > cb ? cg : cb), cmn = cr < cg ? (cr < cb ? cr : cb) : (cg < cb ? cg : cb);
+            G[i] = cmx - cmn <= 8 ? 1 : 0;
+            bright[i] = cr >= br - 1 && cg >= bgc - 1 && cb >= bb - 1 ? 1 : 0;
+            var e1 = cr - br, e2 = cg - bgc, e3 = cb - bb;
+            if (e1 < 0) e1 = -e1; if (e2 < 0) e2 = -e2; if (e3 < 0) e3 = -e3;
+            diff[i] = e1 > e2 ? (e1 > e3 ? e1 : e3) : (e2 > e3 ? e2 : e3);
+        }
+        var dev = 0, devN = 0;
+        for (i = 0; i < rs.length; i++) {
+            var dv = Math.max(Math.abs(rs[i] - br), Math.abs(gs[i] - bgc), Math.abs(bs[i] - bb));
+            if (dv <= 10) { dev += dv; devN++; }
+        }
+        var noise = devN ? dev / devN : 0;
+        var T1 = clamp(Math.round(noise * 2) + 3, 4, BG_TOL);
+        // Nền studio phẳng tuyệt đối, còn vải (kể cả vải sáng gần màu nền) luôn có vân: chỉ loang qua điểm có ô 3x3
+        // gần như không đổi độ sáng. Nhờ vậy vệt loang dừng ngay mép vải phía được chiếu sáng, không gặm vào trong.
+        var FLAT = clamp(Math.round(noise * 2) + 3, 3, 6);
+        // độ chênh sáng trong ô 3x3 (tách hai chiều cho nhanh: min/max theo hàng rồi theo cột)
+        var rng = new Uint8Array(n), hMin = new Uint8Array(n), hMax = new Uint8Array(n);
+        for (y = 0; y < h; y++) {
+            var rb0 = y * w;
+            hMin[rb0] = hMax[rb0] = L[rb0]; hMin[rb0 + w - 1] = hMax[rb0 + w - 1] = L[rb0 + w - 1];
+            for (x = 1; x < w - 1; x++) {
+                var kh = rb0 + x, la = L[kh - 1], lb = L[kh], lc = L[kh + 1];
+                hMin[kh] = la < lb ? (la < lc ? la : lc) : (lb < lc ? lb : lc);
+                hMax[kh] = la > lb ? (la > lc ? la : lc) : (lb > lc ? lb : lc);
+            }
+        }
+        for (k = w; k < n - w; k++) {
+            var mnA = hMin[k - w], mnB = hMin[k], mnC = hMin[k + w], mxA = hMax[k - w], mxB = hMax[k], mxC = hMax[k + w];
+            var mn3 = mnA < mnB ? (mnA < mnC ? mnA : mnC) : (mnB < mnC ? mnB : mnC);
+            var mx3 = mxA > mxB ? (mxA > mxC ? mxA : mxC) : (mxB > mxC ? mxB : mxC);
+            rng[k] = mx3 - mn3;
         }
         var bg = new Uint8Array(n), q = new Int32Array(n), qh = 0, qt = 0;
-        var push = function (kk) { if (!bg[kk] && diff[kk] <= BG_TOL) { bg[kk] = 1; q[qt++] = kk; } };
+        var push = function (kk) { if (!bg[kk] && diff[kk] <= T1 && rng[kk] <= FLAT) { bg[kk] = 1; q[qt++] = kk; } };
         for (x = 0; x < w; x++) { push(x); push((h - 1) * w + x); }
         for (y = 0; y < h; y++) { push(y * w); push(y * w + w - 1); }
         while (qh < qt) {
@@ -156,22 +187,91 @@
             if (k >= w) push(k - w);
             if (k < n - w) push(k + w);
         }
+        var touchesBg = function (kk) {
+            var tx = kk % w;
+            return (tx > 0 && bg[kk - 1] === 1) || (tx < w - 1 && bg[kk + 1] === 1) || (kk >= w && bg[kk - w] === 1) || (kk < n - w && bg[kk + w] === 1);
+        };
+        for (var round = 0; round < 2; round++) {
+            var add = [];
+            for (k = 0; k < n; k++) if (!bg[k] && (diff[k] <= BG_TOL || bright[k]) && touchesBg(k)) add.push(k);
+            for (i = 0; i < add.length; i++) bg[add[i]] = 1;
+        }
 
-        // 2b) Bóng đổ nhạt quanh áo trong ảnh gốc: xám trung tính, đổi màu TỪ TỪ từ nền vào. Mép vải đổi màu đột ngột
-        //     nên dừng lại ở đó (áo xám nhạt không bị ăn). Giới hạn bề rộng dải bóng để an toàn.
+        // Công cụ chung cho 2b–2c: bảng cộng dồn (trung bình màu trong ô vuông với O(1)) và khoảng cách vào trong áo.
+        var W1 = w + 1;
+        var mask = new Uint8Array(n);
+        var integral = function () { // cộng dồn màu các điểm có mask[k] = 1
+            var ir = new Uint32Array(W1 * (h + 1)), ig = new Uint32Array(W1 * (h + 1)), ib = new Uint32Array(W1 * (h + 1)), ic = new Uint32Array(W1 * (h + 1));
+            for (var yy0 = 0; yy0 < h; yy0++) {
+                var rr = 0, rg = 0, rb = 0, rc = 0, row0 = yy0 * w, a1 = (yy0 + 1) * W1 + 1, a0 = yy0 * W1 + 1;
+                for (var xx0 = 0; xx0 < w; xx0++) {
+                    if (mask[row0 + xx0]) { var oo = (row0 + xx0) * 4; rr += p[oo]; rg += p[oo + 1]; rb += p[oo + 2]; rc++; }
+                    ir[a1 + xx0] = ir[a0 + xx0] + rr; ig[a1 + xx0] = ig[a0 + xx0] + rg;
+                    ib[a1 + xx0] = ib[a0 + xx0] + rb; ic[a1 + xx0] = ic[a0 + xx0] + rc;
+                }
+            }
+            return { r: ir, g: ig, b: ib, c: ic };
+        };
+        var boxMean = function (I, cx, cy, rad, out) {
+            var x0 = Math.max(0, cx - rad), x1 = Math.min(w - 1, cx + rad), y0 = Math.max(0, cy - rad), y1 = Math.min(h - 1, cy + rad);
+            var A = y0 * W1 + x0, B = y0 * W1 + x1 + 1, C2 = (y1 + 1) * W1 + x0, D = (y1 + 1) * W1 + x1 + 1;
+            var c = I.c[D] - I.c[B] - I.c[C2] + I.c[A];
+            if (!c) return 0;
+            out[0] = (I.r[D] - I.r[B] - I.r[C2] + I.r[A]) / c;
+            out[1] = (I.g[D] - I.g[B] - I.g[C2] + I.g[A]) / c;
+            out[2] = (I.b[D] - I.b[B] - I.b[C2] + I.b[A]) / c;
+            return c;
+        };
+        // khoảng cách (px) từ nền vào trong áo, tối đa 14 (0 = nền hoặc sâu hơn 14 px)
+        var din = new Uint8Array(n);
+        var distIn = function () {
+            din.fill(0);
+            var ringQ = [];
+            for (k = 0; k < n; k++) if (!bg[k] && touchesBg(k)) { din[k] = 1; ringQ.push(k); }
+            for (var dd = 2; dd <= 14 && ringQ.length; dd++) {
+                var nq = [];
+                for (i = 0; i < ringQ.length; i++) {
+                    k = ringQ[i];
+                    var zx = k % w;
+                    if (zx > 0 && !bg[k - 1] && !din[k - 1]) { din[k - 1] = dd; nq.push(k - 1); }
+                    if (zx < w - 1 && !bg[k + 1] && !din[k + 1]) { din[k + 1] = dd; nq.push(k + 1); }
+                    if (k >= w && !bg[k - w] && !din[k - w]) { din[k - w] = dd; nq.push(k - w); }
+                    if (k < n - w && !bg[k + w] && !din[k + w]) { din[k + w] = dd; nq.push(k + w); }
+                }
+                ringQ = nq;
+            }
+        };
+        // "phần trong áo": cách mép >= 9 px -> dùng để biết áo tối hay sáng (tính cả sọc lẫn nền vải)
+        var deepMask = function () { for (var kk = 0; kk < n; kk++) mask[kk] = !bg[kk] && (din[kk] === 0 || din[kk] >= 9) ? 1 : 0; };
+        // "vải chắc chắn": nằm sâu trong áo VÀ khác hẳn màu nền -> màu vải tham chiếu khi gọt viền (dải bóng đổ rộng
+        // không bị coi là vải)
+        var solidMask = function () { for (var kk = 0; kk < n; kk++) mask[kk] = !bg[kk] && (din[kk] === 0 || din[kk] >= 9) && diff[kk] > 40 ? 1 : 0; };
+        // áo quanh điểm này có tối hẳn so với nền không (trung bình phần trong áo trong ô 49x49)
+        var darkAround = function (I, kk) {
+            var mx = kk % w;
+            if (boxMean(I, mx, (kk - mx) / w, 24, Fm) < 30) return false;
+            return bgL - (Fm[0] + Fm[1] + Fm[2]) / 3 >= 40;
+        };
+        var bgL = (br + bgc + bb) / 3, Fm = [0, 0, 0], Bm = [0, 0, 0];
+
+        // 2b) Bóng đổ nhạt quanh áo trong ảnh gốc: xám trung tính, mịn, tối dần đều từ nền vào. Chỉ xóa bóng cạnh áo
+        //     tối / màu trung bình (vải trong ô 49x49 tối hơn nền >= 40 mức): cạnh áo sáng, phía được chiếu sáng của vải
+        //     cũng mịn và tối dần như bóng nên xóa sẽ gặm mép áo thành răng cưa; bóng mờ cạnh áo sáng lại khó thấy.
+        distIn();
+        deepMask();
+        var deepI0 = integral();
         var band = new Uint8Array(n);
-        // bóng đổ tối dần đều về phía áo: chỉ đi tiếp khi điểm kế tiếp tối hơn (hoặc bằng) một chút
         var grow = function (from, m2) {
-            if (bg[m2] || diff[m2] > 26 || !G[m2]) return;
+            if (bg[m2] || diff[m2] > 40 || !G[m2] || rng[m2] > 6) return;
             var dl = L[from] - L[m2];
-            if (dl < 0 || dl > 3) return;
+            if (dl < 0 || dl > 3 || !darkAround(deepI0, m2)) return;
             bg[m2] = 1; band[m2] = band[from] + 1; q[qt++] = m2;
         };
         qh = 0; qt = 0;
         for (k = 0; k < n; k++) if (bg[k]) q[qt++] = k;
         while (qh < qt) {
             k = q[qh++];
-            if (band[k] >= 16) continue;
+            if (band[k] >= 22) continue;
             var bx = k % w;
             if (bx > 0) grow(k, k - 1);
             if (bx < w - 1) grow(k, k + 1);
@@ -179,8 +279,69 @@
             if (k < n - w) grow(k, k + w);
         }
 
-        // 3) Mép áo: tách màu vải khỏi màu nền (điểm mép = a·màu vải + (1-a)·màu nền, màu vải lấy từ phía trong),
-        //    nhờ vậy không còn viền sáng quanh áo tối và mép áo sáng vẫn mềm.
+        // 2c) Gọt dải viền còn sót quanh áo (viền sáng / bóng đổ lởm chởm cạnh áo tối): điểm mép nào gần màu nền
+        //     tại chỗ (kể cả bóng đổ) hơn màu vải bên trong thì bỏ, lặp dần vào trong tới khi gặp vải thật.
+        distIn();
+        deepMask();
+        var deepI = integral();
+        solidMask();
+        var solidI = integral();
+        for (k = 0; k < n; k++) mask[k] = bg[k] === 1 ? 1 : 0;
+        var bgI = integral();
+        var peelQ = [];
+        for (k = 0; k < n; k++) if (din[k] === 1) peelQ.push(k);
+        for (qh = 0; qh < peelQ.length; qh++) {
+            k = peelQ[qh];
+            if (bg[k] || din[k] === 0 || din[k] > 10) continue;
+            var pxk = k % w, pyk = (k - pxk) / w;
+            if (!darkAround(deepI, k)) continue; // áo sáng (kể cả áo sáng có sọc đậm): không gọt
+            if (boxMean(solidI, pxk, pyk, 20, Fm) < 30) continue;
+            if (!boxMean(bgI, pxk, pyk, 6, Bm)) { Bm[0] = br; Bm[1] = bgc; Bm[2] = bb; }
+            var ur = Fm[0] - Bm[0], ug = Fm[1] - Bm[1], ub = Fm[2] - Bm[2], ul = ur * ur + ug * ug + ub * ub;
+            if (ul < 3 * 40 * 40) continue; // vải gần màu nền (áo sáng): không gọt
+            var ok = k * 4;
+            var al = ((p[ok] - Bm[0]) * ur + (p[ok + 1] - Bm[1]) * ug + (p[ok + 2] - Bm[2]) * ub) / ul;
+            if (al >= 0.42) continue;
+            bg[k] = 2; // gọt (2 = không dùng làm màu nền tham chiếu)
+            var ux = k % w;
+            if (ux > 0 && !bg[k - 1]) peelQ.push(k - 1);
+            if (ux < w - 1 && !bg[k + 1]) peelQ.push(k + 1);
+            if (k >= w && !bg[k - w]) peelQ.push(k - w);
+            if (k < n - w && !bg[k + w]) peelQ.push(k + w);
+        }
+
+        // 2d) Làm trơn đường viền: lọc đa số 5x5 trên mặt nạ áo/nền, chỉ ở dải sát mép. Lấp các vết khuyết nhỏ
+        //     (mép trông như rách) và bỏ gai lẻ; chi tiết lớn hơn 2 px (cổ áo, cổ tay, khe giữa tay và thân) giữ nguyên.
+        var fx0 = w, fx1 = -1, fy0 = h, fy1 = -1;
+        for (y = 0; y < h; y++) {
+            var rowB = y * w;
+            for (x = 0; x < w; x++) if (!bg[rowB + x]) { if (x < fx0) fx0 = x; if (x > fx1) fx1 = x; if (y < fy0) fy0 = y; if (y > fy1) fy1 = y; }
+        }
+        fx0 = Math.max(2, fx0 - 3); fx1 = Math.min(w - 3, fx1 + 3); fy0 = Math.max(2, fy0 - 3); fy1 = Math.min(h - 3, fy1 + 3);
+        var fgI = new Uint32Array(W1 * (h + 1));
+        for (var pass = 0; pass < 2 && fx1 > fx0; pass++) {
+            for (y = Math.max(0, fy0 - 3); y <= Math.min(h - 1, fy1 + 3); y++) {
+                var accF = 0, rowF = y * w, baseF = (y + 1) * W1, prevF = y * W1;
+                for (x = 0; x < w; x++) {
+                    if (!bg[rowF + x]) accF++;
+                    fgI[baseF + x + 1] = fgI[prevF + x + 1] + accF;
+                }
+            }
+            var flips2 = [];
+            for (y = fy0; y <= fy1; y++) {
+                for (x = fx0; x <= fx1; x++) {
+                    var cntF = fgI[(y + 3) * W1 + x + 3] - fgI[(y - 2) * W1 + x + 3] - fgI[(y + 3) * W1 + x - 2] + fgI[(y - 2) * W1 + x - 2];
+                    if (cntF === 0 || cntF === 25) continue;
+                    var kf = y * w + x, isFg = !bg[kf];
+                    if (isFg && cntF <= 12) flips2.push(kf);
+                    else if (!isFg && cntF >= 13) flips2.push(kf);
+                }
+            }
+            for (i = 0; i < flips2.length; i++) { k = flips2[i]; bg[k] = bg[k] ? 0 : 2; }
+        }
+
+        // 3) Mép áo: tách màu vải khỏi màu nền (điểm mép = a·màu vải + (1-a)·màu nền, màu vải lấy từ phía trong,
+        //    màu nền lấy tại chỗ nên tính cả bóng đổ), nhờ vậy không còn viền sáng quanh áo tối và mép áo sáng vẫn mềm.
         var dist = new Uint8Array(n), ring = [];
         for (k = 0; k < n; k++) {
             if (bg[k]) continue;
@@ -215,9 +376,10 @@
             var a;
             if (sc) {
                 var fr = sr / sc, fg = sg / sc, fb = sb / sc;
-                var vr = fr - br, vg = fg - bgc, vb = fb - bb, len2 = vr * vr + vg * vg + vb * vb;
+                if (!boxMean(bgI, px0, py0, 4, Bm)) { Bm[0] = br; Bm[1] = bgc; Bm[2] = bb; }
+                var vr = fr - Bm[0], vg = fg - Bm[1], vb = fb - Bm[2], len2 = vr * vr + vg * vg + vb * vb;
                 if (len2 >= 400) {
-                    a = ((p[o2] - br) * vr + (p[o2 + 1] - bgc) * vg + (p[o2 + 2] - bb) * vb) / len2;
+                    a = ((p[o2] - Bm[0]) * vr + (p[o2 + 1] - Bm[1]) * vg + (p[o2 + 2] - Bm[2]) * vb) / len2;
                     a = clamp(a, dk === 1 ? 0 : 0.55, 1);
                     p[o2] = byte(fr); p[o2 + 1] = byte(fg); p[o2 + 2] = byte(fb);
                     p[o2 + 3] = Math.round(a * 255);
@@ -284,11 +446,14 @@
         // 3b) Số đo hình dáng để nhận ra ảnh tách hỏng (áo trắng trên nền trắng bị ăn mất một nửa) hay ảnh người mẫu
         //     đứng trên nền trắng: độ phủ trong khung, tỉ lệ ngang/dọc, độ đối xứng trái-phải, bề rộng phần trên cùng.
         var on2 = 0, inter = 0, uni = 0, maxExt = 0, topExt = 0, topRows = Math.max(2, Math.round(bh * 0.08));
+        var dHist = new Uint32Array(256); // độ lệch màu so với nền của phần áo (áo trắng trên nền trắng: rất nhỏ)
         for (y = minY; y <= maxY; y++) {
             var row = y * w, a0 = -1, a1 = -1;
             for (x = minX; x <= maxX; x++) {
                 var o3 = p[(row + x) * 4 + 3] > 80, m3 = p[(row + (minX + maxX - x)) * 4 + 3] > 80;
-                if (o3) { on2++; if (a0 < 0) a0 = x; a1 = x; }
+                if (o3) {
+                    on2++; if (a0 < 0) a0 = x; a1 = x; dHist[diff[row + x]]++;
+                }
                 if (o3 && m3) inter++;
                 if (o3 || m3) uni++;
             }
@@ -296,7 +461,9 @@
             if (ext > maxExt) maxExt = ext;
             if (y - minY < topRows && ext > topExt) topExt = ext;
         }
-        var quality = { fill: on2 / (bw * bh), aspect: bw / bh, sym: uni ? inter / uni : 0, head: maxExt ? topExt / maxExt : 1 };
+        var half = on2 / 2, cum = 0, dMed = 0;
+        for (dMed = 0; dMed < 255; dMed++) { cum += dHist[dMed]; if (cum >= half) break; }
+        var quality = { fill: on2 / (bw * bh), aspect: bw / bh, sym: uni ? inter / uni : 0, head: maxExt ? topExt / maxExt : 1, contrast: dMed };
 
         // 4) Điểm treo: tâm phần trên cùng (cổ áo / cạp quần / cổ giày) và bề rộng phần đó.
         var band = Math.max(2, Math.round(bh * 0.035)), sumX = 0, cnt = 0, topL = maxX, topR = minX;
@@ -331,7 +498,8 @@
 
     /**
      * Ảnh tách nền có dùng được để treo không. Quần áo chụp chính diện thì gần đối xứng trái-phải; ảnh bị ăn mất
-     * một mảng (áo trắng trên nền trắng) lệch hẳn, ảnh người mẫu nền trắng thì cao gầy và có đầu nhỏ ở trên cùng.
+     * một mảng lệch hẳn, ảnh người mẫu nền trắng thì cao gầy và có đầu nhỏ ở trên cùng; áo trắng trên nền trắng
+     * thì màu vải gần như trùng màu nền.
      * Giày chụp nghiêng nên không xét đối xứng.
      */
     function usable(res, kind) {
@@ -339,8 +507,10 @@
         var q = res.q;
         if (!q) return true;
         if (q.fill < 0.3) return false;
+        // áo gần như trùng màu nền (áo trắng chụp trên nền trắng): không tách được mép tin cậy -> không treo
+        if (q.contrast !== undefined && q.contrast < 10) return false;
         if (kind === 'string') return true;
-        return q.aspect >= 0.4 && q.sym >= 0.74 && !(q.aspect < 0.62 && q.head < 0.36);
+        return q.aspect >= 0.4 && q.sym >= 0.92 && !(q.aspect < 0.62 && q.head < 0.36);
     }
     var MAX_TRY = 4; // số ảnh tối đa thử cho mỗi sản phẩm
 
