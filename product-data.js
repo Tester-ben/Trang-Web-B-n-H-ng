@@ -687,7 +687,7 @@ const database = {
     "womens-2": { key: "womens-2", brand: "Essentials", name: "Womens Signature Classic Hoodie", priceNum: 4950000, price: "4.950.000 ₫", mainImg: "https://fearofgod.com/cdn/shop/files/192SP265593FW_WOMENS_SIGNATURE_CLASSIC_HOODIE-CONCRETE_HEATHER_DARK_CONCRETE_HEATHER_1_900x.jpg?v=1770830668", images: ["https://fearofgod.com/cdn/shop/files/192SP265593FW_WOMENS_SIGNATURE_CLASSIC_HOODIE-CONCRETE_HEATHER_DARK_CONCRETE_HEATHER_1_900x.jpg?v=1770830668", "https://fearofgod.com/cdn/shop/files/192SP265593FW_WOMENS_SIGNATURE_CLASSIC_HOODIE-CONCRETE_HEATHER_DARK_CONCRETE_HEATHER_2_900x.jpg?v=1770830669", "https://fearofgod.com/cdn/shop/files/192SP265593FW_WOMENS_SIGNATURE_CLASSIC_HOODIE-CONCRETE_HEATHER_DARK_CONCRETE_HEATHER_3_900x.jpg?v=1770830669", "https://fearofgod.com/cdn/shop/files/SP26_FW_L33-P_3268_804a528a-6e53-4e3f-93a9-5efbdd8feef8_900x.jpg?v=1770399607"] },
     "womens-3": { key: "womens-3", brand: "Essentials", name: "Classic Short Sleeve Tee - Bright White", priceNum: 2150000, price: "2.150.000 ₫", mainImg: "https://fearofgod.com/cdn/shop/files/125SP265913FW_CLASSIC_SHORT_SLEEVE_TEE_BRIGHT_WHITE_1_900x.jpg?v=1776869565", images: ["https://fearofgod.com/cdn/shop/files/125SP265913FW_CLASSIC_SHORT_SLEEVE_TEE_BRIGHT_WHITE_1_900x.jpg?v=1776869565", "https://fearofgod.com/cdn/shop/files/125SP265913FW_CLASSIC_SHORT_SLEEVE_TEE_BRIGHT_WHITE_2_900x.jpg?v=1776869565", "https://fearofgod.com/cdn/shop/files/125SP265913FW_CLASSIC_SHORT_SLEEVE_TEE_BRIGHT_WHITE_3_2_900x.jpg?v=1776869577"] },
     "womens-4": { key: "womens-4", brand: "Essentials", name: "Womens Signature Classic Fit Baseball Tee - Oatmeal", priceNum: 3150000, price: "3.150.000 ₫", mainImg: "https://fearofgod.com/cdn/shop/files/125SP267392FW_WOMENS_SIGNATURE_CLASSIC_FIT_BASEBALL_TEE-OATMEAL_CONCRETE_HEATHER_1_900x.jpg?v=1771538657", images: ["https://fearofgod.com/cdn/shop/files/125SP267392FW_WOMENS_SIGNATURE_CLASSIC_FIT_BASEBALL_TEE-OATMEAL_CONCRETE_HEATHER_1_900x.jpg?v=1771538657", "https://fearofgod.com/cdn/shop/files/125SP267392FW_WOMENS_SIGNATURE_CLASSIC_FIT_BASEBALL_TEE-OATMEAL_CONCRETE_HEATHER_2_900x.jpg?v=1771538166", "https://fearofgod.com/cdn/shop/files/125SP267392FW_WOMENS_SIGNATURE_CLASSIC_FIT_BASEBALL_TEE-OATMEAL_CONCRETE_HEATHER_3_900x.jpg?v=1771538166", "https://fearofgod.com/cdn/shop/files/SP26_FW_L27-P_2786copy_900x.jpg?v=1771538657"] },
-    "womens-5": { key: "womens-5", brand: "Essentials", name: "Womens Signature Classic Hoodie - Vintage Black", priceNum: 4850000, price: "4.850.000 ₫", mainImg: "https://fearofgod.com/cdn/shop/files/192SP265542FW_CLASSIC_HOODIE-VINTAGE_BLACK_1_b54db34e-9f44-49c9-b929-c110f4cbe758_900x.jpg?v=1771538441", images: ["https://fearofgod.com/cdn/shop/files/192SP265542FW_CLASSIC_HOODIE-VINTAGE_BLACK_1_b54db34e-9f44-49c9-b929-c110f4cbe758_900x.jpg?v=1771538441", "https://fearofgod.com/cdn/shop/files/192SP265542FW_CLASSIC_HOODIE-VINTAGE_BLACK_2_d60784a0-c1f7-4239-81cc-6fcf8c6d2f65_900x.jpg?v=1771538441", "https://fearofgod.com/cdn/shop/files/192SP265542FW_CLASSIC_HOODIE-VINTAGE_BLACK_3_3fc70b7f-c9cb-48f0-946f-e686512de42f_900x.jpg?v=1770852406", "https://fearofgod.com/cdn/shop/files/SP26_FW_L35-P_3420_54cd24c6-a9bd-4619-a997-22cd9735cfec_900x.jpg?v=1771538441"] },
+    "womens-5": { key: "womens-5", brand: "Essentials", name: "Womens Signature Classic Hoodie - Vintage Black", priceNum: 4850000, price: "4.850.000 ₫", mainImg: "https://fearofgod.com/cdn/shop/files/192SP265542FW_CLASSIC_HOODIE-VINTAGE_BLACK_1_b54db34e-9f44-49c9-b929-c110f4cbe758_900x.jpg?v=1771538441", images: ["https://fearofgod.com/cdn/shop/files/192SP265542FW_CLASSIC_HOODIE-VINTAGE_BLACK_1_b54db34e-9f44-49c9-b929-c110f4cbe758_900x.jpg?v=1771538441", "https://fearofgod.com/cdn/shop/files/192SP265542FW_CLASSIC_HOODIE-VINTAGE_BLACK_2_d60784a0-c1f7-4239-81cc-6fcf8c6d2f65_900x.jpg?v=1771538441", "https://fearofgod.com/cdn/shop/files/192SP265542FW_CLASSIC_HOODIE-VINTAGE_BLACK_3_3fc70b7f-c9cb-48f0-946f-e686512de42f_900x.jpg?v=1770852406", "https://fearofgod.com/cdn/shop/files/SP26_FW_L35-P_3420.jpg?v=1770400027&width=1600"] },
     "womens-6": { key: "womens-6", brand: "Essentials", name: "Womens Signature Classic Tank - Oatmeal", priceNum: 1950000, price: "1.950.000 ₫", mainImg: "https://fearofgod.com/cdn/shop/files/125SP265222FW_WOMENS_SIGNATURE_CLASSIC_TANK-OATMEAL_HEATHER_1_900x.jpg?v=1771455048", images: ["https://fearofgod.com/cdn/shop/files/125SP265222FW_WOMENS_SIGNATURE_CLASSIC_TANK-OATMEAL_HEATHER_1_900x.jpg?v=1771455048", "https://fearofgod.com/cdn/shop/files/125SP265222FW_WOMENS_SIGNATURE_CLASSIC_TANK-OATMEAL_HEATHER_2_900x.jpg?v=1771455048", "https://fearofgod.com/cdn/shop/files/125SP265222FW_WOMENS_SIGNATURE_CLASSIC_TANK-OATMEAL_HEATHER_3_900x.jpg?v=1771455048"] },
     "womens-7": { key: "womens-7", brand: "Essentials", name: "Womens Signature Classic Tank - Vintage Black", priceNum: 1950000, price: "1.950.000 ₫", mainImg: "https://fearofgod.com/cdn/shop/files/125SP265221FW_WOMENS_SIGNATURE_CLASSIC_TANK-VINTAGE_BLACK_1_900x.jpg?v=1771454376", images: ["https://fearofgod.com/cdn/shop/files/125SP265221FW_WOMENS_SIGNATURE_CLASSIC_TANK-VINTAGE_BLACK_1_900x.jpg?v=1771454376", "https://fearofgod.com/cdn/shop/files/125SP265221FW_WOMENS_SIGNATURE_CLASSIC_TANK-VINTAGE_BLACK_2_900x.jpg?v=1771454376", "https://fearofgod.com/cdn/shop/files/125SP265221FW_WOMENS_SIGNATURE_CLASSIC_TANK-VINTAGE_BLACK_2_900x.jpg?v=1771454376"] },
     "womens-8": { key: "womens-8", brand: "Essentials", name: "Womens Fitted Rib Tank - Oatmeal", priceNum: 2250000, price: "2.250.000 ₫", mainImg: "https://fearofgod.com/cdn/shop/files/125SP267063FW_FITTED_RIB_TANK-OATMEAL_HEATHER_1_1_900x.jpg?v=1770828315", images: ["https://fearofgod.com/cdn/shop/files/125SP267063FW_FITTED_RIB_TANK-OATMEAL_HEATHER_1_1_900x.jpg?v=1770828315", "https://fearofgod.com/cdn/shop/files/125SP267063FW_FITTED_RIB_TANK-OATMEAL_HEATHER_2_1_900x.jpg?v=1770828315", "https://fearofgod.com/cdn/shop/files/125SP267063FW_FITTED_RIB_TANK-OATMEAL_HEATHER_3_1_900x.jpg?v=1770828315"] },
@@ -904,11 +904,17 @@ const database = {
         if (typeof database === "undefined" || !database) return;
 
         const customProducts = readJson(CUSTOM_PRODUCTS_KEY, {});
+        // Sản phẩm admin đã bị xóa trong trang Admin (deleted: true) hoặc không còn trong danh sách: gỡ khỏi danh mục.
+        // (Không xóa hẳn bản ghi trên Firebase vì trình duyệt còn bản lưu cũ sẽ đẩy nó lên lại.)
+        Object.keys(database).forEach(function (id) {
+            if (/^custom-/i.test(id) && database[id] && database[id].createdByAdmin && (!customProducts[id] || customProducts[id].deleted)) delete database[id];
+        });
         Object.keys(customProducts).forEach(function (id) {
             if (!isSafeProductId(id)) {
                 console.warn("Bỏ qua sản phẩm admin có mã không hợp lệ:", String(id).slice(0, 80));
                 return;
             }
+            if (customProducts[id] && customProducts[id].deleted) return;
             const product = sanitizeProductRecord(customProducts[id] || {});
             database[id] = Object.assign({}, database[id] || {}, product, {
                 key: id,
@@ -954,7 +960,12 @@ const database = {
        có thể được nạp muộn hơn nên không bao giờ bị coi là ngừng kinh doanh. */
     function isDiscontinuedProduct(productId) {
         const id = String(productId || "").trim();
-        if (!id || /^custom-/i.test(id) || typeof database === "undefined" || !database) return false;
+        if (/^custom-/i.test(id)) {
+            // sản phẩm admin đã bị xóa: không bán tiếp (giỏ hàng, checkout, đặt lại)
+            const custom = readJson(CUSTOM_PRODUCTS_KEY, {});
+            return !!(custom[id] && custom[id].deleted);
+        }
+        if (!id || typeof database === "undefined" || !database) return false;
         return !Object.prototype.hasOwnProperty.call(database, id);
     }
 

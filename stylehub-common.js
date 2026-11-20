@@ -1282,7 +1282,11 @@ function searchProducts() {
     function readAdminCustomProducts() {
         try {
             const data = JSON.parse(localStorage.getItem("stylehub_admin_products_v1") || "{}");
-            return data && typeof data === "object" ? data : {};
+            if (!data || typeof data !== "object") return {};
+            // bỏ sản phẩm đã bị xóa trong trang Admin
+            const live = {};
+            Object.keys(data).forEach(function(id) { if (data[id] && !data[id].deleted) live[id] = data[id]; });
+            return live;
         } catch (error) {
             return {};
         }

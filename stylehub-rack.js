@@ -822,16 +822,27 @@
         var GHpx = Math.round(garmentZone(r) * Math.min(2, window.devicePixelRatio || 1));
         var maxH = clamp(GHpx, 360, 640);
         var queue = list.slice();
+        r.broken = [];
         var next = function () {
             var it = queue.shift();
             if (!it) return;
             pickVisual(it, RAIL_IMG_W, maxH).then(function (pick) {
                 if (!it.alive) { setTimeout(next, 0); return; }
-                // Không ảnh nào của món này treo được (áo trắng chụp trên nền trắng...): nhường chỗ cho món
-                // gợi ý kế tiếp của hệ gợi ý, thứ tự gợi ý giữ nguyên. Hết món dự phòng thì mới dùng ảnh chụp.
-                // (mất mạng, không tải được ảnh nào: giữ nguyên món, đổi món khác cũng không hơn)
-                var spare = pick.ok || !pick.loaded ? null : replaceWithSpare(r, it);
+                if (pick.loaded && !r.anyLoaded) {
+                    // Ảnh tải được bình thường -> những món trước đó không tải nổi ảnh nào là do link ảnh hỏng
+                    // (ví dụ sản phẩm admin có "ảnh" là một trang web): nhường chỗ cho món dự phòng.
+                    r.anyLoaded = true;
+                    r.broken.splice(0).forEach(function (old) {
+                        var sp = old.alive ? replaceWithSpare(r, old) : null;
+                        if (sp) { queue.push(sp); setTimeout(next, 0); }
+                    });
+                }
+                // Không ảnh nào của món này treo được (áo trắng chụp trên nền trắng, link ảnh hỏng...): nhường chỗ
+                // cho món gợi ý kế tiếp của hệ gợi ý, thứ tự gợi ý giữ nguyên. Hết món dự phòng mới dùng ảnh chụp.
+                // Chưa tải được ảnh nào trên cả sào (có thể đang mất mạng): giữ nguyên, chờ xem các món khác.
+                var spare = pick.ok || !(pick.loaded || r.anyLoaded) ? null : replaceWithSpare(r, it);
                 if (spare) { queue.unshift(spare); setTimeout(next, 0); return; }
+                if (!pick.ok && !pick.loaded) r.broken.push(it);
                 it.imgIdx = pick.idx;
                 it.node.setAttribute('data-img', String(pick.idx + 1)); // ảnh thứ mấy của sản phẩm đang được treo
                 try { attachVisual(r, it, pick.res); }

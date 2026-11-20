@@ -910,7 +910,7 @@
     </div>
 
     <!-- DATA KHO HÀNG TỔNG HỢP -->
-    <script src="product-data.js?v=fix-kids-products-20260624"></script>
+    <script src="product-data.js?v=admin-delete-20261120"></script>
     <script src="recommender/product-attributes.js?v=2"></script>
     <script src="recommender/sentiment-vi.js?v=2"></script>
     <script src="recommender/engine.js?v=4"></script>
@@ -1296,10 +1296,17 @@
                 const galleryTarget = document.getElementById('gallery-target');
                 galleryTarget.innerHTML = '';
                 
-                currentItem.images.forEach(imgUrl => {
+                const galleryImages = (Array.isArray(currentItem.images) && currentItem.images.length ? currentItem.images : [currentItem.mainImg])
+                    .filter((url, index, list) => url && list.indexOf(url) === index);
+                galleryImages.forEach(imgUrl => {
                     const imgContainer = document.createElement('div');
                     imgContainer.className = 'product-image-item';
                     const imgElement = document.createElement('img');
+                    imgElement.alt = currentItem.name || '';
+                    // Ảnh không tải được (link ảnh của shop gốc đã bị gỡ): ẩn khung đó thay vì để một ô trống.
+                    imgElement.addEventListener('error', () => {
+                        if (galleryTarget.querySelectorAll('.product-image-item').length > 1) imgContainer.remove();
+                    }, { once: true });
                     imgElement.src = imgUrl;
                     imgContainer.appendChild(imgElement);
                     galleryTarget.appendChild(imgContainer);
@@ -2722,7 +2729,7 @@ document.addEventListener("click", function(e) {
 <script src="stylehub-notifications.js?v=notification-bell-fixed-all-pages-20260616"></script>
 <script src="stylehub-responsive-nav.js?v=kids-bottoms-3-products-20260618"></script>
 <script src="stylehub-crypto.js"></script>
-<script src="stylehub-common.js?v=stock-cloud-sync-20260630"></script>
+<script src="stylehub-common.js?v=admin-delete-20261120"></script>
 
 <script src="shoe-size-patch.js?v=shoe-size-no-flash-20260616"></script>
 <script src="stylehub-ai-chat.js?v=2"></script>

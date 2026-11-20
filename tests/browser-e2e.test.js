@@ -329,7 +329,7 @@ test('E2E: "Được chọn cho bạn" là sào treo 10 món do hệ gợi ý tr
     } finally { await browser.close(); await site.close(); }
 });
 
-test('E2E: sào bỏ qua ảnh người mẫu để treo ảnh sản phẩm, món không có ảnh treo được nhường chỗ cho gợi ý kế tiếp', { skip, timeout: 120000 }, async () => {
+test('E2E: sào bỏ qua ảnh người mẫu để treo ảnh sản phẩm, món không có ảnh treo được hoặc link ảnh hỏng nhường chỗ cho gợi ý kế tiếp', { skip, timeout: 120000 }, async () => {
     const site = await staticServer();
     const browser = await playwright.chromium.launch();
     try {
@@ -337,7 +337,7 @@ test('E2E: sào bỏ qua ảnh người mẫu để treo ảnh sản phẩm, mó
         await page.setContent('<!doctype html><meta charset="utf-8"><link rel="stylesheet" href="' + site.url + '/stylehub-rack.css">'
             + '<div id="host"></div><script src="' + site.url + '/product-data.js"></script><script src="' + site.url + '/stylehub-rack.js"></script>');
         await page.waitForFunction(() => window.StyleHubRack && typeof database !== 'undefined');
-        await page.evaluate(() => {
+        await page.evaluate((siteUrl) => {
             // Ảnh thử: áo trên nền trơn (treo được), nửa chiếc áo (ảnh tách hỏng: lệch hẳn), ảnh người mẫu (nền không trơn).
             const mk = (draw) => { const c = document.createElement('canvas'); c.width = 300; c.height = 380; const g = c.getContext('2d'); g.fillStyle = '#f5f5f5'; g.fillRect(0, 0, 300, 380); draw(g); return c.toDataURL('image/png'); };
             const poly = (g, pts, color) => { g.fillStyle = color; g.beginPath(); pts.forEach((pt, i) => (i ? g.lineTo(pt[0], pt[1]) : g.moveTo(pt[0], pt[1]))); g.closePath(); g.fill(); };
@@ -348,14 +348,17 @@ test('E2E: sào bỏ qua ảnh người mẫu để treo ảnh sản phẩm, mó
             window.StyleHubRack.render(document.getElementById('host'), [
                 entry('hoodies-8', [photo, tee('#2b2b2b')]),   // ảnh đầu là ảnh người mẫu -> treo ảnh thứ 2
                 entry('dress-1', [half, photo]),               // không ảnh nào treo được -> nhường chỗ
+                entry('tops-3', [siteUrl + '/admin.html']),    // "ảnh" là một trang web (như sản phẩm admin nhập nhầm link) -> nhường chỗ
                 entry('tops-1', [tee('#3a3f46')]),
-                entry('tops-5', [tee('#5b4a3a')])              // món dự phòng (gợi ý kế tiếp)
-            ], { limit: 3 });
-        });
-        await page.waitForFunction(() => document.querySelectorAll('#host .rk-item').length === 3 && !document.querySelector('#host .rk-item.is-loading'), null, { timeout: 30000 });
+                entry('tops-5', [tee('#5b4a3a')]),             // món dự phòng (gợi ý kế tiếp)
+                entry('tops-7', [tee('#4a5a3a')])
+            ], { limit: 4 });
+        }, site.url);
+        await page.waitForFunction(() => document.querySelectorAll('#host .rk-item').length === 4 && !document.querySelector('#host .rk-item.is-loading')
+            && [...document.querySelectorAll('#host .rk-hit')].every((h) => !['dress-1', 'tops-3'].includes(h.dataset.recId)), null, { timeout: 30000 });
         const shown = await page.$$eval('#host .rk-item', (els) => els.map((n) => ({ id: n.querySelector('.rk-hit').dataset.recId, rank: n.querySelector('.rk-hit').dataset.recRank, img: n.dataset.img, cut: n.classList.contains('is-cut') })));
-        assert.deepEqual(shown.map((x) => x.id), ['hoodies-8', 'tops-1', 'tops-5'], 'món không treo được bị thay bằng món kế tiếp, thứ tự giữ nguyên');
-        assert.deepEqual(shown.map((x) => x.rank), ['0', '1', '2']);
+        assert.deepEqual(shown.map((x) => x.id), ['hoodies-8', 'tops-1', 'tops-5', 'tops-7'], 'món không treo được bị thay bằng món kế tiếp, thứ tự giữ nguyên');
+        assert.deepEqual(shown.map((x) => x.rank), ['0', '1', '2', '3']);
         assert.ok(shown.every((x) => x.cut), 'tất cả là đồ đã tách nền, không còn tấm ảnh');
         assert.equal(shown[0].img, '2', 'bỏ qua ảnh người mẫu, treo ảnh sản phẩm thứ 2');
 
@@ -364,6 +367,44 @@ test('E2E: sào bỏ qua ảnh người mẫu để treo ảnh sản phẩm, mó
         assert.match(await page.getAttribute('.rk-focus-namelink', 'href'), /product-detail\.html\?id=hoodies-8/);
         assert.match(await page.getAttribute('.rk-focus-golink', 'href'), /product-detail\.html\?id=hoodies-8/);
         assert.equal(await page.$eval('.rk-face-front', (f) => f.classList.contains('is-photo')), false, 'khung chi tiết dùng đúng ảnh sản phẩm đang treo');
+        assert.deepEqual(errors, []);
+    } finally { await browser.close(); await site.close(); }
+});
+
+test('E2E: Admin xóa sản phẩm tự thêm (link ảnh hỏng) -> không còn trên trang danh mục và trong danh mục sản phẩm', { skip, timeout: 120000 }, async () => {
+    const site = await staticServer();
+    const browser = await playwright.chromium.launch();
+    try {
+        const { page, errors } = await newPage(browser);
+        const junk = { key: 'custom-mens-messi', name: 'messi', brand: 'Essentials', priceNum: 10000, price: '10.000 ₫', mainImg: site.url + '/admin.html', images: [site.url + '/admin.html'],
+            adminDepartment: 'mens', department: 'mens', category: 'tops', type: 'tops', createdByAdmin: true, createdAt: 1 };
+        await page.goto(site.url + '/admin.html', { waitUntil: 'load' });
+        await page.evaluate((p) => { localStorage.setItem('stylehub_admin_products_v1', JSON.stringify({ [p.key]: p })); }, junk);
+        await page.reload({ waitUntil: 'load' });
+        await page.waitForTimeout(800);
+        await page.fill('#adminPassword', 'admin123');
+        await page.click('#adminLoginButton');
+        await page.waitForSelector('.admin-nav-btn[data-tab="products"]', { state: 'visible' });
+        await page.click('.admin-nav-btn[data-tab="products"]');
+        await page.fill('#productSearchInput', 'custom-mens-messi');
+        await page.waitForSelector('#productsGrid .stock-btn.delete');
+        assert.equal(await page.$$eval('#productsGrid .product-admin-card', (c) => c.length), 1);
+        // sản phẩm có sẵn của shop không có nút Xóa
+        await page.fill('#productSearchInput', 'dress-7');
+        assert.equal(await page.$$eval('#productsGrid .stock-btn.delete', (b) => b.length), 0);
+
+        await page.fill('#productSearchInput', 'custom-mens-messi');
+        await page.click('#productsGrid .stock-btn.delete');
+        await page.click('#adminConfirmAccept');
+        await page.waitForFunction(() => !document.querySelector('#productsGrid .product-admin-card'));
+        const stored = await page.evaluate(() => ({ p: JSON.parse(localStorage.getItem('stylehub_admin_products_v1'))['custom-mens-messi'], inv: JSON.parse(localStorage.getItem('stylehub_inventory_v1') || '{}')['custom-mens-messi'] }));
+        assert.equal(stored.p.deleted, true, 'đánh dấu đã xóa (không xóa hẳn để bản lưu cũ ở trình duyệt khác không đẩy lại lên)');
+        assert.equal(stored.inv.outOfStock, true);
+
+        await page.goto(site.url + '/mens.html', { waitUntil: 'load' });
+        await page.waitForTimeout(800);
+        assert.equal(await page.evaluate(() => Object.prototype.hasOwnProperty.call(database, 'custom-mens-messi')), false);
+        assert.equal(await page.$$eval('a[href*="custom-mens-messi"], [data-product-id="custom-mens-messi"]', (els) => els.length), 0, 'không còn thẻ sản phẩm trên trang Mens');
         assert.deepEqual(errors, []);
     } finally { await browser.close(); await site.close(); }
 });
