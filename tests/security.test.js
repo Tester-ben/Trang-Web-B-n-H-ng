@@ -609,3 +609,21 @@ test('Danh mục: món đã gỡ khỏi product-data.js (dress-8) là "ngừng k
     assert.equal(isDiscontinued(''), false);
     assert.equal(isDiscontinued(undefined), false);
 });
+
+test('Sản phẩm admin bị xóa trong trang Admin (deleted: true): không còn trong danh mục, không bán tiếp; món khác giữ nguyên', () => {
+    const { context, database } = loadProductData({
+        'custom-mens-messi': { key: 'custom-mens-messi', name: 'messi', priceNum: 10000, mainImg: 'https://thestyle.vercel.app/admin.html', adminDepartment: 'hidden', deleted: true, deletedAt: 1 },
+        'custom-mens-new-tee': { name: 'New Tee', price: '100.000 ₫', priceNum: 100000, mainImg: 'https://cdn.example.com/a.jpg', adminDepartment: 'mens' }
+    }, true);
+    assert.equal(Object.prototype.hasOwnProperty.call(database, 'custom-mens-messi'), false, 'sản phẩm đã xóa không vào danh mục');
+    assert.equal(database['custom-mens-new-tee'].name, 'New Tee');
+    assert.equal(context.StyleHubProductAdmin.isDiscontinuedProduct('custom-mens-messi'), true, 'gỡ khỏi giỏ hàng / checkout');
+    assert.equal(context.StyleHubProductAdmin.isDiscontinuedProduct('custom-mens-new-tee'), false);
+    // Firebase đồng bộ về muộn: món đã được nạp vào danh mục rồi mới bị đánh dấu xóa -> lần áp dụng sau gỡ ra
+    const map = JSON.parse(context.localStorage.getItem('stylehub_admin_products_v1'));
+    map['custom-mens-new-tee'].deleted = true;
+    context.localStorage.setItem('stylehub_admin_products_v1', JSON.stringify(map));
+    context.StyleHubProductAdmin.applyAdminProductsToDatabase();
+    assert.equal(Object.prototype.hasOwnProperty.call(database, 'custom-mens-new-tee'), false);
+    assert.ok(database['dress-7'], 'sản phẩm có sẵn của shop không bị ảnh hưởng');
+});

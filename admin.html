@@ -356,6 +356,7 @@
         .stock-input { width: 100%; min-width: 0; border: 1px solid rgba(148, 163, 184, .22); background: rgba(3, 7, 18, .56); color: #fff; border-radius: 12px; padding: 10px; outline: none; }
         .stock-btn { padding: 10px 12px; background: rgba(96, 165, 250, .15); color: #dbeafe; }
         .stock-btn.out { background: rgba(251, 113, 133, .14); color: #fecaca; border-color: rgba(251, 113, 133, .32); }
+        .stock-btn.delete { background: rgba(239, 68, 68, .22); color: #fee2e2; border-color: rgba(239, 68, 68, .45); }
         .stock-status-line { display: flex; justify-content: space-between; gap: 10px; margin-top: 12px; color: var(--muted); font-size: 12px; }
         .stock-pill { padding: 4px 8px; border-radius: 999px; border: 1px solid rgba(34,197,94,.36); color: #bbf7d0; background: rgba(34,197,94,.08); font-weight: 900; }
         .stock-pill.out { border-color: rgba(251,113,133,.45); color: #fecaca; background: rgba(251,113,133,.10); }
@@ -739,7 +740,7 @@
 </section>
 
 <script src="stylehub-crypto.js"></script>
-<script src="product-data.js?v=admin-dashboard-20260630-stock-sync"></script>
+<script src="product-data.js?v=admin-delete-20261120"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-database-compat.js"></script>
 <script src="stylehub-orders-api.js?v=stock-cloud-sync-20260630"></script>
@@ -1253,7 +1254,10 @@
     function applyProductsToDatabase() {
         if (typeof database === 'undefined' || !database) return;
         const custom = getCustomProductsMap();
-        Object.keys(custom).forEach(function(id) { database[id] = Object.assign({}, database[id] || {}, custom[id], { key: id }); });
+        Object.keys(custom).forEach(function(id) {
+            if (custom[id] && custom[id].deleted) { if (/^custom-/i.test(id)) delete database[id]; return; }
+            database[id] = Object.assign({}, database[id] || {}, custom[id], { key: id });
+        });
         const inventory = getInventoryMap();
         Object.keys(database).forEach(function(id) {
             const item = database[id] || {};
@@ -1749,11 +1753,33 @@
                         <input class="stock-input" id="stock-${escapeHtml(id)}" type="number" min="0" value="${escapeHtml(stock.stock)}" aria-label="Số lượng tồn kho">
                         <button class="stock-btn" onclick="saveProductStock(${jsArg(id)})">Lưu</button>
                         <button class="stock-btn out" onclick="toggleOutOfStock(${jsArg(id)})">${stock.status === 'out' ? 'Mở bán' : 'Hết hàng'}</button>
+                        ${/^custom-/i.test(id) ? `<button class="stock-btn delete" onclick="deleteAdminProduct(${jsArg(id)})" title="Chỉ xóa được sản phẩm do Admin tự thêm">Xóa</button>` : ''}
                     </div>
                     <div class="stock-status-line"><span>Mã: ${escapeHtml(id)}</span><span class="stock-pill ${stock.status === 'out' ? 'out' : ''}">${stock.label} · ${stock.stock}</span></div>
                 </div>
             </article>`;
         }).join('');
+    }
+
+    /** Xóa sản phẩm do Admin tự thêm (mã custom-...). Đánh dấu deleted thay vì xóa hẳn bản ghi trên Firebase,
+        vì trình duyệt nào còn bản lưu cũ sẽ tự đẩy danh sách cũ lên lại khi thấy trên mây trống. */
+    async function deleteAdminProduct(productId) {
+        if (!/^custom-/i.test(String(productId || ''))) return;
+        const custom = getCustomProductsMap();
+        const item = custom[productId];
+        if (!item || item.deleted) return;
+        const ok = await showAdminConfirm({ kicker: 'Xóa sản phẩm', title: 'Xóa "' + (item.name || productId) + '"?', message: 'Sản phẩm sẽ không còn hiển thị trên website (trang danh mục, gợi ý, tìm kiếm, giỏ hàng).', confirmText: 'Xóa sản phẩm', icon: '×' });
+        if (!ok) return;
+        const now = Date.now();
+        custom[productId] = Object.assign({}, item, { deleted: true, deletedAt: now });
+        saveCustomProductsMap(custom);
+        const inventory = getInventoryMap();
+        inventory[productId] = { stock: 0, outOfStock: true, updatedAt: now };
+        saveInventoryMap(inventory);
+        if (typeof database !== 'undefined' && database) delete database[productId];
+        renderProducts();
+        renderDashboard();
+        showAdminToast('Đã xóa sản phẩm', (item.name || productId) + ' không còn hiển thị trên website.');
     }
 
     function saveProductStock(productId) {

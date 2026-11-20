@@ -158,9 +158,12 @@
       if (!keys.length) { if (featured) featured.hidden = true; return; }
       if (featured) featured.hidden = false;
       const recommender = window.StyleHubRecommendations;
+      // Sào treo đồ (stylehub-rack.js) hiển thị 10 món; thiếu file đó thì quay về lưới 4 thẻ như cũ.
+      const rackApi = window.StyleHubRack && typeof window.StyleHubRack.render === 'function' ? window.StyleHubRack : null;
+      const LIMIT = rackApi ? 10 : 4;
       // Gợi ý trang chủ theo lịch sử thật, không dùng sản phẩm mẫu `kids-1`.
       const ranked = recommender && typeof recommender.recommendHome === 'function'
-        ? recommender.recommendHome(4) : [];
+        ? recommender.recommendHome(LIMIT) : [];
       const selected = [...new Set(ranked.map(item => item.id).filter(key => database[key]))];
       const description = document.getElementById('shPersonalDescription');
       const quizInfo = recommender && typeof recommender.quizIntentInfo === 'function' ? recommender.quizIntentInfo() : null;
@@ -180,17 +183,37 @@
           description.textContent = 'Tuyển chọn riêng cho bạn từ phong cách và những thiết kế bạn đã quan tâm.';
         }
       }
-      if (selected.length < 4) {
+      // Món dùng để bù khi hệ gợi ý trả về chưa đủ: có ảnh đã kiểm tra và còn hàng.
+      const canFill = key => {
+        if (!database[key] || database[key].imageUnverified) return false;
+        if (window.StyleHubProductAdmin && typeof window.StyleHubProductAdmin.getAdminStockInfo === 'function') {
+          try { if (window.StyleHubProductAdmin.getAdminStockInfo(key).status === 'out') return false; }
+          catch (_) { return false; }
+        }
+        return true;
+      };
+      if (selected.length < LIMIT) {
         for (const key of keys) {
-          if (selected.includes(key) || selected.length >= 4) continue;
-          if (window.StyleHubProductAdmin && typeof window.StyleHubProductAdmin.getAdminStockInfo === 'function') {
-            try { if (window.StyleHubProductAdmin.getAdminStockInfo(key).status === 'out') continue; }
-            catch (_) { continue; }
-          }
+          if (selected.includes(key) || selected.length >= LIMIT) continue;
+          if (!canFill(key)) continue;
           selected.push(key);
         }
       }
 
+      if (rackApi) {
+        // Cùng danh sách gợi ý, chỉ đổi cách trình bày: treo trên sào, có lý do gợi ý cho từng món.
+        // Kèm vài món dự phòng = các gợi ý kế tiếp của chính hệ gợi ý; sào chỉ dùng tới khi một món không có ảnh
+        // nào treo được (áo trắng chụp trên nền trắng), để sào luôn là đồ thật chứ không phải tấm ảnh.
+        const SPARE = 6;
+        const more = recommender && typeof recommender.recommendHome === 'function' ? recommender.recommendHome(LIMIT + SPARE) : [];
+        const spares = [...new Set(more.map(item => item.id).filter(key => database[key] && !selected.includes(key)))].slice(0, SPARE);
+        for (const key of keys) {
+          if (spares.length >= SPARE) break;
+          if (!selected.includes(key) && !spares.includes(key) && canFill(key)) spares.push(key);
+        }
+        const recOf = key => ranked.find(item => item.id === key) || more.find(item => item.id === key) || null;
+        rackApi.render(grid, selected.concat(spares).map(key => ({ id: key, product: database[key], rec: recOf(key) })), { limit: LIMIT });
+      } else {
       grid.replaceChildren();
       selected.forEach((key, index) => {
         const product = database[key];
@@ -261,6 +284,7 @@
         }
         grid.appendChild(stage);
       });
+      }
       if (recommender && typeof recommender.trackImpressions === 'function') {
         recommender.trackImpressions(selected.map(key => ranked.find(item => item.id === key) || { id: key, source: 'fallback' }), 'home');
       }

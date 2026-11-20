@@ -1,6 +1,6 @@
 /* THE STYLE HUB — HOME EDITION 2026
    Visual-only enhancements: existing links, cart, accounts and catalog stay intact. */
-:root{--sh-ink:#171714;--sh-champagne:#d4b995;--sh-cream:#f4f0e9;--sh-editorial:'Georgia','Times New Roman',serif}
+:root{--sh-ink:#171714;--sh-champagne:#d4b995;--sh-cream:#f4f0e9;--sh-editorial:'Gelasio','Times New Roman',Times,serif}
 html{scroll-behavior:smooth}
 .premium-home{background:#f8f7f4}
 /* Các thành phần trượt ngang không tạo thanh kéo ngang ngoài ý muốn. */
