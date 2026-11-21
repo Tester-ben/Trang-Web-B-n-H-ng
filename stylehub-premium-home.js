@@ -204,7 +204,7 @@
         // Cùng danh sách gợi ý, chỉ đổi cách trình bày: treo trên sào, có lý do gợi ý cho từng món.
         // Kèm vài món dự phòng = các gợi ý kế tiếp của chính hệ gợi ý; sào chỉ dùng tới khi một món không có ảnh
         // nào treo được (áo trắng chụp trên nền trắng), để sào luôn là đồ thật chứ không phải tấm ảnh.
-        const SPARE = 6;
+        const SPARE = 10;
         const more = recommender && typeof recommender.recommendHome === 'function' ? recommender.recommendHome(LIMIT + SPARE) : [];
         const spares = [...new Set(more.map(item => item.id).filter(key => database[key] && !selected.includes(key)))].slice(0, SPARE);
         for (const key of keys) {

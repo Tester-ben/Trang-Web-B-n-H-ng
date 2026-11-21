@@ -455,3 +455,42 @@ test('E2E: tách nền sào treo — bỏ bóng đổ/viền sáng quanh áo t�
         assert.deepEqual(errors, []);
     } finally { await browser.close(); await site.close(); }
 });
+
+test('E2E: sào tự thử lại ảnh lỗi thoáng qua, món không tải được ảnh nào bị gỡ (không còn thẻ chỉ có chữ)', { skip, timeout: 120000 }, async () => {
+    const site = await staticServer();
+    const browser = await playwright.chromium.launch();
+    try {
+        const { page, errors } = await newPage(browser);
+        await page.setContent('<!doctype html><meta charset="utf-8"><link rel="stylesheet" href="' + site.url + '/stylehub-rack.css">'
+            + '<div id="host"></div><script src="' + site.url + '/product-data.js"></script><script src="' + site.url + '/stylehub-rack.js"></script>');
+        await page.waitForFunction(() => window.StyleHubRack && typeof database !== 'undefined');
+        const teePng = await page.evaluate(() => {
+            const c = document.createElement('canvas'); c.width = 300; c.height = 380; const g = c.getContext('2d');
+            g.fillStyle = '#f5f5f5'; g.fillRect(0, 0, 300, 380); g.fillStyle = '#2b2b2b'; g.beginPath();
+            [[95, 60], [205, 60], [265, 110], [240, 150], [215, 135], [215, 330], [85, 330], [85, 135], [60, 150], [35, 110]].forEach((pt, i) => (i ? g.lineTo(pt[0], pt[1]) : g.moveTo(pt[0], pt[1])));
+            g.closePath(); g.fill(); return c.toDataURL('image/png');
+        });
+        let flakyHits = 0;
+        // ảnh "chập chờn": lần đầu lỗi kết nối, lần sau tải được (như CDN chặn tạm khi tải nhiều ảnh)
+        await page.route('**/__flaky.png*', (route) => {
+            flakyHits++;
+            if (flakyHits === 1) return route.abort('connectionreset');
+            return route.fulfill({ status: 200, contentType: 'image/png', headers: { 'access-control-allow-origin': '*' }, body: Buffer.from(teePng.split(',')[1], 'base64') });
+        });
+        await page.evaluate(({ siteUrl, teePng }) => {
+            const entry = (id, imgs) => ({ id, product: Object.assign({}, database[id], { mainImg: imgs[0], images: imgs }), rec: { reason: 'Hợp phong cách của bạn' } });
+            const list = [entry('hoodies-8', [siteUrl + '/__flaky.png']), entry('dress-1', [siteUrl + '/__missing-image.png'])];
+            ['tops-1', 'tops-5', 'tops-7', 'tops-9', 'tops-11', 'tops-12'].forEach((id) => list.push(entry(id, [teePng])));
+            window.StyleHubRack.render(document.getElementById('host'), list, { limit: 8 });
+        }, { siteUrl: site.url, teePng });
+        await page.waitForFunction(() => !document.querySelector('#host .rk-item.is-loading') && !document.querySelector('#host .rk-photo-name')
+            && document.querySelectorAll('#host .rk-item').length === 7, null, { timeout: 30000 });
+        const shown = await page.$$eval('#host .rk-item', (els) => els.map((n) => ({ id: n.querySelector('.rk-hit').dataset.recId, cut: n.classList.contains('is-cut') })));
+        assert.equal(shown[0].id, 'hoodies-8');
+        assert.ok(shown[0].cut, 'ảnh lỗi thoáng qua được tải lại và treo bình thường');
+        assert.ok(flakyHits >= 2);
+        assert.ok(!shown.some((x) => x.id === 'dress-1'), 'món không tải được ảnh nào bị gỡ khỏi sào');
+        assert.ok(shown.every((x) => x.cut), 'không còn thẻ chỉ có chữ / tấm ảnh');
+        assert.deepEqual(errors, []);
+    } finally { await browser.close(); await site.close(); }
+});

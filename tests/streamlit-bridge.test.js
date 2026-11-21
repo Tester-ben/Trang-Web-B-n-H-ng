@@ -33,6 +33,18 @@ test('Cầu nối Streamlit: danh mục, gợi ý cá nhân, khách mới, sản
     assert.ok(view.data.history.length > 0 && view.data.dna.persona);
     assert.deepEqual(run({ cmd: 'user', source: SOURCE, userId, limit: 8 }).data.recommendations, view.data.recommendations, 'kết quả tất định');
 
+    // UserKNN minh bạch: khách tương tự + món họ đã mua/thích; mỗi món được gợi ý chỉ rõ đến từ khách nào,
+    // và số khách ĐÃ MUA khớp đúng con số trong lý do "N khách hàng cùng phong cách đã mua".
+    assert.ok(view.data.neighbors.length > 0 && view.data.neighbors.every((n) => n.sim > 0 && Array.isArray(n.items)));
+    assert.ok(view.data.neighborCount >= view.data.neighbors.length);
+    assert.ok(view.data.sources.length > 0, 'có món gợi ý lấy từ khách tương tự');
+    const reasonOf = Object.fromEntries(view.data.recommendations.map((r) => [r.id, r.reason]));
+    view.data.sources.forEach((src) => {
+        assert.ok(src.users.every((u) => ['purchase', 'rating', 'wishlist', 'cart'].includes(u.action)));
+        const m = /^(\d+) khách hàng cùng phong cách đã mua/.exec(reasonOf[src.item] || '');
+        if (m) assert.equal(src.users.filter((u) => u.action === 'purchase').length, Number(m[1]), src.item);
+    });
+
     const quiz = run({ cmd: 'quiz', source: SOURCE, quiz: { gender: 'women', styles: ['minimal'], colors: ['beige'], budget: 'mid' }, limit: 6 });
     assert.equal(quiz.ok, true, quiz.error);
     const genderOf = Object.fromEntries(boot.data.catalog.map((p) => [p.id, p.gender]));
