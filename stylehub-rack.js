@@ -513,6 +513,7 @@
         return q.aspect >= 0.4 && q.sym >= 0.92 && !(q.aspect < 0.62 && q.head < 0.36);
     }
     var MAX_TRY = 4; // số ảnh tối đa thử cho mỗi sản phẩm
+    var MIN_ITEMS = 6; // sào ít nhất còn chừng này món thì mới gỡ món không có ảnh treo được (thay vì treo tấm ảnh)
 
     /**
      * Chọn ảnh để treo: thử lần lượt các ảnh của sản phẩm (ảnh đầu thường là ảnh người mẫu), lấy ảnh đầu tiên
@@ -548,15 +549,28 @@
 
     var cutCache = new Map();
     /** Ảnh đã tách nền (có bộ nhớ đệm). Lỗi tải ảnh -> { failed: true }. */
+    function wait(ms) { return new Promise(function (resolve) { setTimeout(resolve, ms); }); }
+    /**
+     * Tải ảnh có thử lại: lỗi mạng thoáng qua (CDN của shop gốc chặn tạm khi tải nhiều ảnh, mạng chập chờn) thì
+     * đợi một chút rồi tải lại, sau đó thử chính link ảnh gốc (khác kích thước) trước khi coi là hỏng.
+     */
+    function loadImageRetry(src, original) {
+        return loadImage(src)
+            .catch(function () { return wait(1200).then(function () { return loadImage(src); }); })
+            .catch(function () { return original && original !== src ? loadImage(original) : Promise.reject(new Error('image')); });
+    }
     function getCutout(url, width, maxH) {
         var src = sized(url, width);
         var key = src + '|' + maxH;
         if (!cutCache.has(key)) {
-            cutCache.set(key, loadImage(src).then(function (img) {
+            cutCache.set(key, loadImageRetry(src, url).then(function (img) {
                 var r = cutoutImage(img, maxH);
                 r.img = img;
                 return r;
-            }, function () { return { failed: true }; }));
+            }, function () {
+                cutCache.delete(key); // không nhớ lỗi: lần sau (thử lại muộn) tải lại từ đầu
+                return { failed: true };
+            }));
         }
         return cutCache.get(key);
     }
@@ -988,11 +1002,11 @@
         updateProgress(r);
     }
 
-    function loadItems(r, list) {
+    function loadItems(r, list, more) {
         var GHpx = Math.round(garmentZone(r) * Math.min(2, window.devicePixelRatio || 1));
         var maxH = clamp(GHpx, 360, 640);
         var queue = list.slice();
-        r.broken = [];
+        if (!more) r.broken = [];
         var next = function () {
             var it = queue.shift();
             if (!it) return;
@@ -1012,7 +1026,10 @@
                 // Chưa tải được ảnh nào trên cả sào (có thể đang mất mạng): giữ nguyên, chờ xem các món khác.
                 var spare = pick.ok || !(pick.loaded || r.anyLoaded) ? null : replaceWithSpare(r, it);
                 if (spare) { queue.unshift(spare); setTimeout(next, 0); return; }
-                if (!pick.ok && !pick.loaded) r.broken.push(it);
+                // Hết món dự phòng mà món này chỉ có ảnh không treo được: gỡ khỏi sào thay vì treo tấm ảnh
+                // (trừ khi sào sẽ còn quá ít món).
+                if (!pick.ok && pick.loaded && r.items.length > MIN_ITEMS) { dropItem(r, it); setTimeout(next, 0); return; }
+                if (!pick.ok && !pick.loaded) { r.broken.push(it); lateRetry(r, it, maxH); }
                 it.imgIdx = pick.idx;
                 it.node.setAttribute('data-img', String(pick.idx + 1)); // ảnh thứ mấy của sản phẩm đang được treo
                 try { attachVisual(r, it, pick.res); }
@@ -1022,6 +1039,48 @@
         };
         // Xử lý lần lượt (tránh giật khung hình), 2 luồng song song cho nhanh.
         next(); next();
+    }
+
+    /**
+     * Món chưa tải được ảnh nào: vài giây sau thử lại cả món (mạng có thể đã ổn). Vẫn không được mà các món khác trên
+     * sào vẫn hiện bình thường (tức link ảnh của món này có vấn đề) thì nhường chỗ cho món dự phòng, hết dự phòng thì
+     * gỡ khỏi sào — không để thẻ chỉ có chữ. Mất mạng hoàn toàn (không món nào tải được) thì giữ nguyên.
+     */
+    function lateRetry(r, it, maxH) {
+        if (it.retried) return;
+        it.retried = true;
+        setTimeout(function () {
+            if (!it.alive) return;
+            pickVisual(it, RAIL_IMG_W, maxH).then(function (pick) {
+                if (!it.alive) return;
+                if (pick.ok) {
+                    r.broken = (r.broken || []).filter(function (x) { return x !== it; });
+                    it.imgIdx = pick.idx;
+                    it.node.setAttribute('data-img', String(pick.idx + 1));
+                    try { attachVisual(r, it, pick.res); } catch (e) { /* bỏ qua */ }
+                    return;
+                }
+                if (pick.loaded) r.anyLoaded = true;
+                if (!r.anyLoaded) return;
+                r.broken = (r.broken || []).filter(function (x) { return x !== it; });
+                var spare = replaceWithSpare(r, it);
+                if (spare) loadItems(r, [spare], true);
+                else if (r.items.length > MIN_ITEMS) dropItem(r, it);
+                else if (pick.res) { it.imgIdx = pick.idx; try { attachVisual(r, it, pick.res); } catch (e) { /* bỏ qua */ } }
+            });
+        }, 2500);
+    }
+    /** Gỡ hẳn một món khỏi sào (không còn món dự phòng để thay). */
+    function dropItem(r, it) {
+        var at = r.items.indexOf(it);
+        if (at < 0 || (F && !F.root.hidden && F.it === it)) return;
+        it.alive = false;
+        if (r.live === it) setLive(r, null);
+        it.node.remove();
+        r.items.splice(at, 1);
+        reindex(r);
+        fitRail(r);
+        updateProgress(r);
     }
 
     /** Gỡ món không treo được, thêm món dự phòng kế tiếp vào cuối sào (giữ đúng thứ tự gợi ý). */
@@ -1068,16 +1127,24 @@
         var r = rack;
         var list = (entries || []).filter(function (e) { return e && e.id && e.product; });
         var limit = opts && opts.limit > 0 ? Math.floor(opts.limit) : list.length;
-        var signature = limit + ':' + list.map(function (e) { return e.id; }).join('|');
+        // Chỉ các món đang treo quyết định có dựng lại sào hay không; danh sách dự phòng đổi thì cập nhật âm thầm.
+        var signature = limit + ':' + list.slice(0, limit).map(function (e) { return e.id; }).join('|');
         if (signature === r.signature) {
             // Cùng danh sách: chỉ cập nhật lý do gợi ý / giá, không làm rơi lại đồ.
             var byId = {};
             list.forEach(function (e) { byId[e.id] = e; });
             r.items.forEach(function (it) { var e = byId[it.id]; if (e) { it.rec = e.rec || null; it.product = e.product; updateLabels(it); } });
+            var hung = {};
+            r.items.forEach(function (it) { hung[it.id] = 1; });
+            r.spares = list.slice(limit).filter(function (e) { return !hung[e.id]; });
             if (r.live) showPeek(r, r.live);
             return r;
         }
         r.signature = signature;
+        // Đang focus (bàn phím) vào một món trên sào: dựng lại xong thì đưa focus về đúng món đó (hoặc món đầu tiên),
+        // không để focus rơi ra ngoài trang.
+        var active = doc.activeElement;
+        var focusId = active && active.classList && active.classList.contains('rk-hit') && r.root.contains(active) ? active.getAttribute('data-rec-id') : null;
         r.items.forEach(function (it) { it.alive = false; it.node.remove(); });
         swingers = swingers.filter(function (s) { return s.alive; });
         r.live = null;
@@ -1088,6 +1155,10 @@
         fitRail(r);
         r.scroller.scrollLeft = 0;
         updateProgress(r);
+        if (focusId && r.items.length) {
+            var refocus = r.items.filter(function (x) { return x.id === focusId; })[0] || r.items[0];
+            refocus.hit.focus({ preventScroll: true });
+        }
         r.dropped = false;
         if (r.visible) dropIn(r);
         loadItems(r, r.items);
